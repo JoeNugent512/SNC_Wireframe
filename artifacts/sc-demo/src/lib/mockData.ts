@@ -8,15 +8,27 @@ export interface Project {
   startDate: string;
   endDate: string;
   pmName: string;
+  // Charter fields
+  dwgCoP: string;
+  hqProponent: string;
+  executingOrg: string;
+  projectLead: string;
+  needsContractSupport: boolean;
+  specialFundingType: string;
+  budgetAtSubmission: number;
+  actualObligation: number;
+  primaryCmsLink: string;
+  cmsGuestLink: string;
+  additionalCmsLinks: string;
 }
 
 export interface ChangeRequest {
   id: string;
-  proposedNumber: string;    // proposed S&C number (not yet in system)
-  proposedName: string;      // proposed project name
+  proposedNumber: string;
+  proposedName: string;
   proposedDescription: string;
   category: "Labor" | "Travel";
-  target: string;            // person name / org code (Labor) or line description (Travel)
+  target: string;
   direction: "Increase" | "Decrease";
   amount: number;
   submittedBy: string;
@@ -35,7 +47,18 @@ export const MOCK_PROJECTS: Project[] = [
     budget: 2400000,
     startDate: "2024-01-15",
     endDate: "2025-06-30",
-    pmName: "John Smith"
+    pmName: "John Smith",
+    dwgCoP: "Transportation",
+    hqProponent: "Joe Bush",
+    executingOrg: "ERDC",
+    projectLead: "John Smith",
+    needsContractSupport: true,
+    specialFundingType: "Resiliency",
+    budgetAtSubmission: 2400000,
+    actualObligation: 2358000,
+    primaryCmsLink: "https://cms.wbdg.org/revisions/1317",
+    cmsGuestLink: "https://cms.wbdg.org/s/wfRya",
+    additionalCmsLinks: "",
   },
   {
     id: "2",
@@ -46,7 +69,18 @@ export const MOCK_PROJECTS: Project[] = [
     budget: 1200000,
     startDate: "2024-03-01",
     endDate: "2024-11-15",
-    pmName: "Sarah Jenkins"
+    pmName: "Sarah Jenkins",
+    dwgCoP: "Structural",
+    hqProponent: "Marcus Thorne",
+    executingOrg: "CERL",
+    projectLead: "Sarah Jenkins",
+    needsContractSupport: false,
+    specialFundingType: "",
+    budgetAtSubmission: 1200000,
+    actualObligation: 0,
+    primaryCmsLink: "https://cms.wbdg.org/revisions/2048",
+    cmsGuestLink: "",
+    additionalCmsLinks: "",
   },
   {
     id: "3",
@@ -57,7 +91,18 @@ export const MOCK_PROJECTS: Project[] = [
     budget: 3500000,
     startDate: "2023-09-01",
     endDate: "2024-12-31",
-    pmName: "Marcus Thorne"
+    pmName: "Marcus Thorne",
+    dwgCoP: "Utilities",
+    hqProponent: "Elena Rodriguez",
+    executingOrg: "ERDC",
+    projectLead: "Marcus Thorne",
+    needsContractSupport: true,
+    specialFundingType: "Critical Infrastructure",
+    budgetAtSubmission: 3500000,
+    actualObligation: 3212500,
+    primaryCmsLink: "https://cms.wbdg.org/revisions/3091",
+    cmsGuestLink: "https://cms.wbdg.org/s/aMkL2",
+    additionalCmsLinks: "",
   },
   {
     id: "4",
@@ -68,7 +113,18 @@ export const MOCK_PROJECTS: Project[] = [
     budget: 8500000,
     startDate: "2024-06-01",
     endDate: "2026-03-31",
-    pmName: "Elena Rodriguez"
+    pmName: "Elena Rodriguez",
+    dwgCoP: "Facilities",
+    hqProponent: "David Chen",
+    executingOrg: "CERL",
+    projectLead: "Elena Rodriguez",
+    needsContractSupport: true,
+    specialFundingType: "MILCON",
+    budgetAtSubmission: 8500000,
+    actualObligation: 0,
+    primaryCmsLink: "https://cms.wbdg.org/revisions/4422",
+    cmsGuestLink: "",
+    additionalCmsLinks: "https://cms.wbdg.org/revisions/4423",
   },
   {
     id: "5",
@@ -79,7 +135,18 @@ export const MOCK_PROJECTS: Project[] = [
     budget: 500000,
     startDate: "2024-02-15",
     endDate: "2024-08-30",
-    pmName: "David Chen"
+    pmName: "David Chen",
+    dwgCoP: "Transportation",
+    hqProponent: "Joe Bush",
+    executingOrg: "ERDC",
+    projectLead: "David Chen",
+    needsContractSupport: false,
+    specialFundingType: "",
+    budgetAtSubmission: 500000,
+    actualObligation: 0,
+    primaryCmsLink: "",
+    cmsGuestLink: "",
+    additionalCmsLinks: "",
   },
   {
     id: "6",
@@ -90,8 +157,19 @@ export const MOCK_PROJECTS: Project[] = [
     budget: 1800000,
     startDate: "2023-01-15",
     endDate: "2023-11-30",
-    pmName: "John Smith"
-  }
+    pmName: "John Smith",
+    dwgCoP: "Environmental",
+    hqProponent: "Sarah Jenkins",
+    executingOrg: "CERL",
+    projectLead: "John Smith",
+    needsContractSupport: false,
+    specialFundingType: "Coastal Defense",
+    budgetAtSubmission: 1800000,
+    actualObligation: 1798400,
+    primaryCmsLink: "https://cms.wbdg.org/revisions/6104",
+    cmsGuestLink: "https://cms.wbdg.org/s/cE9xZ",
+    additionalCmsLinks: "",
+  },
 ];
 
 export const MOCK_CHANGE_REQUESTS: ChangeRequest[] = [
