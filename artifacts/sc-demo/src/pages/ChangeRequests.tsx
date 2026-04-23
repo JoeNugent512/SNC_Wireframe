@@ -26,7 +26,6 @@ export default function ChangeRequests() {
       cr.proposedNumber.toLowerCase().includes(q) ||
       cr.proposedName.toLowerCase().includes(q) ||
       cr.category.toLowerCase().includes(q) ||
-      cr.target.toLowerCase().includes(q) ||
       cr.submittedBy.toLowerCase().includes(q);
     return matchesStatus && matchesSearch;
   });
@@ -110,8 +109,7 @@ export default function ChangeRequests() {
                 <tr>
                   <th className="px-6 py-4 font-semibold">Proposed Project</th>
                   <th className="px-6 py-4 font-semibold">Category</th>
-                  <th className="px-6 py-4 font-semibold">Target</th>
-                  <th className="px-6 py-4 font-semibold text-right">Amount</th>
+                  <th className="px-6 py-4 font-semibold text-right">Project Amount</th>
                   <th className="px-6 py-4 font-semibold hidden md:table-cell">Submitted By</th>
                   <th className="px-6 py-4 font-semibold hidden sm:table-cell">Date</th>
                   <th className="px-6 py-4 font-semibold">Status</th>
@@ -120,7 +118,7 @@ export default function ChangeRequests() {
               <tbody className="divide-y divide-slate-100">
                 {filteredCRs.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="px-6 py-12 text-center text-slate-500">
+                    <td colSpan={6} className="px-6 py-12 text-center text-slate-500">
                       <div className="flex flex-col items-center justify-center">
                         <FileText size={32} className="text-slate-300 mb-3" />
                         <p>No change requests found matching your criteria.</p>
@@ -140,7 +138,6 @@ export default function ChangeRequests() {
                         <div className="font-medium text-slate-900 truncate max-w-[200px]">{cr.proposedName}</div>
                       </td>
                       <td className="px-6 py-4 font-medium text-slate-800">{cr.category}</td>
-                      <td className="px-6 py-4 text-slate-600">{cr.target}</td>
                       <td className="px-6 py-4 text-right font-medium text-slate-900">{fmt(cr.amount)}</td>
                       <td className="px-6 py-4 text-slate-600 hidden md:table-cell">{cr.submittedBy}</td>
                       <td className="px-6 py-4 text-slate-600 hidden sm:table-cell">{cr.date}</td>
@@ -186,17 +183,13 @@ export default function ChangeRequests() {
                 </p>
 
                 {/* Funding request details */}
-                <div className="bg-white border border-slate-200 rounded-lg p-4 grid grid-cols-3 gap-4">
+                <div className="bg-white border border-slate-200 rounded-lg p-4 grid grid-cols-2 gap-4">
                   <div>
                     <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Category</div>
                     <div className="font-medium text-slate-900">{selectedCR.category}</div>
                   </div>
-                  <div>
-                    <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Target</div>
-                    <div className="font-medium text-slate-900 text-sm">{selectedCR.target}</div>
-                  </div>
-                  <div className="col-span-3 border-t border-slate-100 pt-3">
-                    <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Requested Amount</div>
+                  <div className="col-span-2 border-t border-slate-100 pt-3">
+                    <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Project Amount</div>
                     <div className="font-bold text-xl text-slate-900">{fmt(selectedCR.amount)}</div>
                   </div>
                 </div>
