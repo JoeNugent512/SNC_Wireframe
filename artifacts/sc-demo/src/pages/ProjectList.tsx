@@ -282,27 +282,38 @@ export default function ProjectList() {
                 <div className="flex-1 overflow-y-auto">
                   {/* CHARTER TAB */}
                   {activeTab === "charter" && (
-                    <div className="p-6 space-y-4 animate-in fade-in duration-200">
-                      <p className="text-sm text-slate-600 leading-relaxed">
-                        {selectedProject.description}
-                      </p>
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="bg-slate-50 border border-slate-200 rounded-lg p-3">
-                          <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Project Manager</div>
-                          <div className="text-sm font-semibold text-slate-800">{selectedProject.pmName}</div>
-                        </div>
-                        <div className="bg-slate-50 border border-slate-200 rounded-lg p-3">
-                          <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Total Budget</div>
-                          <div className="text-sm font-semibold text-slate-800">{fmt(selectedProject.budget)}</div>
-                        </div>
-                        <div className="bg-slate-50 border border-slate-200 rounded-lg p-3">
-                          <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Start Date</div>
+                    <div className="p-5 space-y-4 animate-in fade-in duration-200 overflow-y-auto">
+                      <p className="text-xs text-slate-500 leading-relaxed">{selectedProject.description}</p>
+
+                      {/* Team — 2 col grid */}
+                      <div className="grid grid-cols-2 gap-2">
+                        {[
+                          { label: "DWG / CoP",       value: selectedProject.dwgCoP },
+                          { label: "Need S&C Contract Support", value: selectedProject.needsContractSupport ? "Yes" : "No" },
+                          { label: "HQ Proponent",    value: selectedProject.hqProponent },
+                          { label: "Special Funding Type", value: selectedProject.specialFundingType || "—" },
+                          { label: "Executing Org",   value: selectedProject.executingOrg },
+                          { label: "Current Budget",  value: fmt(selectedProject.budget) },
+                          { label: "Project Lead",    value: selectedProject.projectLead },
+                          { label: "Actual Obligation", value: fmt(selectedProject.actualObligation) },
+                        ].map(({ label, value }) => (
+                          <div key={label} className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5">
+                            <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5">{label}</div>
+                            <div className="text-sm font-semibold text-slate-800 truncate">{value}</div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Dates row */}
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5">
+                          <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5">Start Date</div>
                           <div className="text-sm font-semibold text-slate-800">
                             {new Date(selectedProject.startDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                           </div>
                         </div>
-                        <div className="bg-slate-50 border border-slate-200 rounded-lg p-3">
-                          <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">End Date</div>
+                        <div className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5">
+                          <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5">End Date</div>
                           <div className="text-sm font-semibold text-slate-800">
                             {new Date(selectedProject.endDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                           </div>
