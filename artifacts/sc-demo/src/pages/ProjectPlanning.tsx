@@ -125,32 +125,48 @@ function CheckList({
   );
 }
 
-/* ─── labor picker modal (two panels) ─────────────────────────── */
-function LaborPickerModal({
+/* ─── dual-panel picker modal (reused for Labor and Travel) ────── */
+function DualPickerModal({
+  title,
+  leftTitle,
+  leftOptions,
+  leftPlaceholder,
+  rightTitle,
+  rightOptions,
+  rightPlaceholder,
+  emptyHint,
   existingLabels,
   onAdd,
   onClose,
 }: {
+  title: string;
+  leftTitle: string;
+  leftOptions: { label: string; sub: string }[];
+  leftPlaceholder: string;
+  rightTitle: string;
+  rightOptions: { label: string; sub: string }[];
+  rightPlaceholder: string;
+  emptyHint: string;
   existingLabels: Set<string>;
   onAdd: (labels: string[]) => void;
   onClose: () => void;
 }) {
-  const [selectedPersons, setSelectedPersons] = useState<Set<string>>(new Set());
-  const [selectedOrgs,    setSelectedOrgs]    = useState<Set<string>>(new Set());
+  const [selectedLeft,  setSelectedLeft]  = useState<Set<string>>(new Set());
+  const [selectedRight, setSelectedRight] = useState<Set<string>>(new Set());
 
-  const availPersons = useMemo(() => PERSON_OPTIONS.filter((o) => !existingLabels.has(o.label)), [existingLabels]);
-  const availOrgs    = useMemo(() => ORG_OPTIONS.filter((o) => !existingLabels.has(o.label)),    [existingLabels]);
+  const availLeft  = useMemo(() => leftOptions.filter((o)  => !existingLabels.has(o.label)), [leftOptions,  existingLabels]);
+  const availRight = useMemo(() => rightOptions.filter((o) => !existingLabels.has(o.label)), [rightOptions, existingLabels]);
 
-  const togglePerson = (label: string) =>
-    setSelectedPersons((prev) => { const next = new Set(prev); next.has(label) ? next.delete(label) : next.add(label); return next; });
-  const toggleOrg = (label: string) =>
-    setSelectedOrgs((prev) => { const next = new Set(prev); next.has(label) ? next.delete(label) : next.add(label); return next; });
+  const toggleLeft  = (label: string) =>
+    setSelectedLeft((prev)  => { const next = new Set(prev); next.has(label) ? next.delete(label) : next.add(label); return next; });
+  const toggleRight = (label: string) =>
+    setSelectedRight((prev) => { const next = new Set(prev); next.has(label) ? next.delete(label) : next.add(label); return next; });
 
-  const totalSelected = selectedPersons.size + selectedOrgs.size;
+  const totalSelected = selectedLeft.size + selectedRight.size;
 
   const handleAdd = () => {
-    const labels = [...selectedPersons, ...selectedOrgs];
-    if (labels.length > 0) { onAdd(labels); }
+    const labels = [...selectedLeft, ...selectedRight];
+    if (labels.length > 0) onAdd(labels);
     onClose();
   };
 
@@ -165,57 +181,37 @@ function LaborPickerModal({
         style={{ width: 560, maxHeight: "80vh" }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* header */}
         <div className="flex items-center justify-between px-4 py-2.5 flex-shrink-0" style={{ backgroundColor: "#1a3557" }}>
-          <span className="text-white font-semibold text-xs tracking-wide uppercase">Add Labor</span>
+          <span className="text-white font-semibold text-xs tracking-wide uppercase">{title}</span>
           <button onClick={onClose} className="text-white/60 hover:text-white transition-colors">
             <X size={15} />
           </button>
         </div>
 
-        {/* two panels */}
         <div className="flex flex-1 min-h-0 divide-x divide-slate-200">
-          {/* By Person */}
           <div className="flex flex-col flex-1 min-w-0">
             <div className="px-3 pt-2.5 pb-1 flex-shrink-0">
-              <p className="text-xs font-bold text-slate-600 uppercase tracking-wider">By Person</p>
+              <p className="text-xs font-bold text-slate-600 uppercase tracking-wider">{leftTitle}</p>
             </div>
-            <CheckList
-              options={availPersons}
-              selected={selectedPersons}
-              onToggle={togglePerson}
-              placeholder="Search name…"
-            />
+            <CheckList options={availLeft} selected={selectedLeft} onToggle={toggleLeft} placeholder={leftPlaceholder} />
           </div>
-
-          {/* By Org Code */}
           <div className="flex flex-col flex-1 min-w-0">
             <div className="px-3 pt-2.5 pb-1 flex-shrink-0">
-              <p className="text-xs font-bold text-slate-600 uppercase tracking-wider">By Org Code</p>
+              <p className="text-xs font-bold text-slate-600 uppercase tracking-wider">{rightTitle}</p>
             </div>
-            <CheckList
-              options={availOrgs}
-              selected={selectedOrgs}
-              onToggle={toggleOrg}
-              placeholder="Search org code…"
-            />
+            <CheckList options={availRight} selected={selectedRight} onToggle={toggleRight} placeholder={rightPlaceholder} />
           </div>
         </div>
 
-        {/* footer */}
         <div className="px-4 py-3 border-t border-slate-200 flex items-center justify-between flex-shrink-0 bg-slate-50">
           <p className="text-xs text-slate-500">
-            {totalSelected === 0 ? "Select people or org codes above" : `${totalSelected} selected`}
+            {totalSelected === 0 ? emptyHint : `${totalSelected} selected`}
           </p>
           <button
             onClick={handleAdd}
             disabled={totalSelected === 0}
             className="px-5 py-2 text-sm font-semibold rounded-lg transition-colors disabled:cursor-not-allowed"
-            style={
-              totalSelected > 0
-                ? { backgroundColor: "#1a3557", color: "#fff" }
-                : { backgroundColor: "#e2e8f0", color: "#94a3b8" }
-            }
+            style={totalSelected > 0 ? { backgroundColor: "#1a3557", color: "#fff" } : { backgroundColor: "#e2e8f0", color: "#94a3b8" }}
           >
             Add to Plan
           </button>
