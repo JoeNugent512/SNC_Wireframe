@@ -107,22 +107,20 @@ export default function ProjectPlanning() {
         </div>
 
         {/* CENTER: TOA / Planned / Left to Plan */}
-        <div className="flex-1 flex items-center justify-center gap-6 px-4 py-2">
-          <div className="flex items-center gap-2 text-sm">
+        <div className="flex-1 flex items-center justify-center gap-3 px-4 py-2">
+          <div className="flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5">
             <span className="text-white/60 font-medium uppercase tracking-wide text-xs">TOA</span>
-            <span className="font-bold text-white text-base">{fmt(toa)}</span>
+            <span className="font-bold text-white text-sm">{fmt(toa)}</span>
           </div>
-          <div className="text-white/30 text-lg">/</div>
-          <div className="flex items-center gap-2 text-sm">
+          <div className="text-white/30">/</div>
+          <div className="flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5">
             <span className="text-white/60 font-medium uppercase tracking-wide text-xs">Planned</span>
-            <span className="font-bold text-white text-base">{fmt(planned)}</span>
+            <span className="font-bold text-white text-sm">{fmt(planned)}</span>
           </div>
-          <div className="text-white/30 text-lg">/</div>
-          <div className="flex items-center gap-2 text-sm">
+          <div className="text-white/30">/</div>
+          <div className="flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5">
             <span className="text-white/60 font-medium uppercase tracking-wide text-xs">Left to Plan</span>
-            <span
-              className={`font-bold text-base ${leftToPlan < 0 ? "text-red-300" : "text-emerald-300"}`}
-            >
+            <span className={`font-bold text-sm ${leftToPlan < 0 ? "text-red-300" : "text-emerald-300"}`}>
               {fmt(leftToPlan)}
             </span>
           </div>
