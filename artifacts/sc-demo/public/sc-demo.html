@@ -8,63 +8,59 @@
 *{box-sizing:border-box}
 body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:#f8fafc;color:#0f172a;min-height:100vh}
 a{text-decoration:none;color:inherit}
-table{border-collapse:collapse;font-size:13px}
+table{border-collapse:collapse}
+input,textarea,select{font-family:inherit;box-sizing:border-box}
+button{font-family:inherit;cursor:pointer}
 .mono{font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace}
-.truncate{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .tabnum{font-variant-numeric:tabular-nums}
-input,textarea,select{font-family:inherit}
-.editable-amt{width:100%;text-align:right;background:none;border:none;cursor:pointer;font-size:13px;color:#1e293b;font-variant-numeric:tabular-nums;padding:0}
-.editable-amt:hover{text-decoration:underline dotted;text-underline-offset:2px}
-.edit-input{width:100%;text-align:right;font-size:13px;border:1px solid #fbbf24;border-radius:4px;padding:2px 4px;font-variant-numeric:tabular-nums;outline:none;box-shadow:0 0 0 2px rgba(251,191,36,.25)}
-.notes-inp{background:transparent;border:none;outline:none;width:100%;font-size:13px;color:#334155}
-.notes-inp::placeholder{color:#94a3b8}
-.btn-act{background:none;border:none;cursor:pointer;padding:6px;border-radius:4px;line-height:0;transition:background .15s}
-.btn-act.zero:hover{background:#fef3c7}
-.btn-act.del:hover{background:#fee2e2}
+.truncate{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+/* nav */
+#top-nav{position:sticky;top:0;z-index:20;background:white;border-bottom:1px solid #e2e8f0;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+/* status badges */
+.s-active  {background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0}
+.s-planning{background:#fffbeb;color:#92400e;border:1px solid #fde68a}
+.s-hold    {background:#f8fafc;color:#334155;border:1px solid #cbd5e1}
+.s-complete{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe}
+/* tab */
+.tab-btn{padding:10px 18px;font-size:14px;font-weight:600;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;color:#64748b;transition:color .15s,border-color .15s}
+.tab-btn.on{color:#1a3557;border-color:#1a3557}
+.tab-btn:hover:not(.on){color:#334155;background:#f8fafc}
+/* inputs */
+.inp{border:1px solid #e2e8f0;border-radius:6px;padding:6px 10px;font-size:14px;outline:none;width:100%;transition:border-color .15s}
+.inp:focus{border-color:#1a3557;box-shadow:0 0 0 2px rgba(26,53,87,.15)}
+/* planning table editable */
+.eamt{width:100%;text-align:right;background:none;border:none;cursor:pointer;font-size:13px;color:#1e293b;font-variant-numeric:tabular-nums}
+.eamt:hover{text-decoration:underline dotted;text-underline-offset:2px}
+.einp{width:100%;text-align:right;font-size:13px;border:1px solid #fbbf24;border-radius:4px;padding:2px 4px;font-variant-numeric:tabular-nums;outline:none;box-shadow:0 0 0 2px rgba(251,191,36,.25)}
+/* modal */
+.mdrop{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;background:rgba(15,23,42,.45)}
+.mbox{background:white;border-radius:12px;box-shadow:0 25px 50px rgba(0,0,0,.25);overflow:hidden;display:flex;flex-direction:column;max-height:90vh}
+/* spinner */
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{width:28px;height:28px;border:3px solid #e2e8f0;border-top-color:#1a3557;border-radius:999px;animation:spin .8s linear infinite}
+/* card hover */
+.ch{transition:box-shadow .15s,border-color .15s}
+.ch:hover{box-shadow:0 4px 12px rgba(0,0,0,.1)}
+/* picker */
+.pick-item{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:8px 12px;background:none;border:none;cursor:pointer;border-bottom:1px solid #f1f5f9;transition:background .1s}
+.pick-item:hover{background:#f8fafc}
+.pick-item:last-child{border-bottom:none}
+.pick-cb{flex-shrink:0;width:16px;height:16px;border-radius:3px;display:flex;align-items:center;justify-content:center;transition:all .1s}
+/* add btn in section header */
 .btn-add{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:8px;font-size:12px;font-weight:600;color:#fff;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);cursor:pointer;transition:background .15s}
 .btn-add:hover{background:rgba(255,255,255,0.25)}
-.modal-backdrop{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;background:rgba(15,23,42,.45)}
-.modal-box{background:white;border-radius:12px;box-shadow:0 25px 50px rgba(0,0,0,.25);overflow:hidden;display:flex;flex-direction:column;max-height:90vh}
-.tab-btn{padding:10px 16px;font-size:14px;font-weight:600;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;color:#64748b;transition:color .15s}
-.tab-btn.active{color:#1a3557;border-color:#1a3557}
-.tab-btn:hover:not(.active){color:#334155;background:#f8fafc}
-.field-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;display:block;margin-bottom:4px}
-.field-val{font-size:14px;font-weight:600;color:#1e293b}
-.status-active{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0}
-.status-planning{background:#fffbeb;color:#92400e;border:1px solid #fde68a}
-.status-hold{background:#f8fafc;color:#334155;border:1px solid #cbd5e1}
-.status-complete{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe}
-.cr-badge-pending{background:#dbeafe;color:#1e40af;border:1px solid #bfdbfe}
-.cr-badge-review{background:#fef3c7;color:#92400e;border:1px solid #fde68a}
-.cr-badge-approved{background:#d1fae5;color:#065f46;border:1px solid #a7f3d0}
-.cr-badge-rejected{background:#fee2e2;color:#991b1b;border:1px solid #fecaca}
-.hdr-row th{padding:12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;vertical-align:bottom;line-height:1.3}
-.blue-th{color:white;background:#1a6ea8}
-.amber-th{color:#78350f;background:#fef3c7}
-.slate-th{color:#475569;background:#f1f5f9}
-.amber-td{background:#fffbeb}
-.blue-td{background:#eff6ff;text-align:right;font-variant-numeric:tabular-nums}
-.foot-amber{background:#fef3c7;font-weight:700;font-variant-numeric:tabular-nums;text-align:right}
-.foot-blue{background:#dbeafe;font-weight:700;font-variant-numeric:tabular-nums;text-align:right}
-.card-hover{transition:box-shadow .15s,border-color .15s}
-.card-hover:hover{box-shadow:0 4px 12px rgba(0,0,0,.1)}
-input[type="text"],input[type="date"],select,textarea{border:1px solid #e2e8f0;border-radius:6px;padding:6px 10px;font-size:14px;outline:none;width:100%;transition:border-color .15s}
-input[type="text"]:focus,input[type="date"]:focus,select:focus,textarea:focus{border-color:#1a3557;box-shadow:0 0 0 2px rgba(26,53,87,.15)}
-/* nav */
-#top-nav{position:sticky;top:0;z-index:10;background:white;border-bottom:1px solid #e2e8f0;box-shadow:0 1px 3px rgba(0,0,0,.06)}
 </style>
 </head>
 <body>
-
 <div id="top-nav"></div>
 <div id="page-root" style="max-width:1400px;margin:0 auto;padding:24px"></div>
 <div id="modal-root"></div>
 
 <script>
-/* ============================================================ */
-/*  DATA                                                         */
-/* ============================================================ */
-const PROJECTS = [
+/* ================================================================
+   DATA
+   ================================================================ */
+const PROJECTS=[
   {id:"1",number:"25A01",name:"Highway 45 Expansion",description:"Adding 2 lanes to the northbound and southbound sections of Highway 45.",status:"Active",budget:2400000,startDate:"2024-01-15",endDate:"2025-06-30",pmName:"John Smith",dwgCoP:"Transportation",hqProponent:"Joe Bush",executingOrg:"ERDC",projectLead:"John Smith",needsContractSupport:true,specialFundingType:"Resiliency",budgetAtSubmission:2400000,actualObligation:2358000,primaryCmsLink:"https://cms.wbdg.org/revisions/1317",cmsGuestLink:"https://cms.wbdg.org/s/wfRya",additionalCmsLinks:""},
   {id:"2",number:"25T02",name:"Bridge Rehabilitation",description:"Structural reinforcement and resurfacing of the downtown suspension bridge.",status:"Planning",budget:1200000,startDate:"2024-03-01",endDate:"2024-11-15",pmName:"Sarah Jenkins",dwgCoP:"Structural",hqProponent:"Marcus Thorne",executingOrg:"CERL",projectLead:"Sarah Jenkins",needsContractSupport:false,specialFundingType:"",budgetAtSubmission:1200000,actualObligation:0,primaryCmsLink:"https://cms.wbdg.org/revisions/2048",cmsGuestLink:"",additionalCmsLinks:""},
   {id:"3",number:"24A03",name:"Downtown Water Main",description:"Replacement of 100-year-old water main infrastructure in the central business district.",status:"Active",budget:3500000,startDate:"2023-09-01",endDate:"2024-12-31",pmName:"Marcus Thorne",dwgCoP:"Utilities",hqProponent:"Elena Rodriguez",executingOrg:"ERDC",projectLead:"Marcus Thorne",needsContractSupport:true,specialFundingType:"Critical Infrastructure",budgetAtSubmission:3500000,actualObligation:3212500,primaryCmsLink:"https://cms.wbdg.org/revisions/3091",cmsGuestLink:"https://cms.wbdg.org/s/aMkL2",additionalCmsLinks:""},
@@ -73,13 +69,13 @@ const PROJECTS = [
   {id:"6",number:"23T06",name:"Coastal Erosion Control",description:"Construction of breakwaters and beach renourishment along the southern coastline.",status:"Complete",budget:1800000,startDate:"2023-01-15",endDate:"2023-11-30",pmName:"John Smith",dwgCoP:"Environmental",hqProponent:"Sarah Jenkins",executingOrg:"CERL",projectLead:"John Smith",needsContractSupport:false,specialFundingType:"Coastal Defense",budgetAtSubmission:1800000,actualObligation:1798400,primaryCmsLink:"https://cms.wbdg.org/revisions/6104",cmsGuestLink:"https://cms.wbdg.org/s/cE9xZ",additionalCmsLinks:""},
 ];
 
-const SETUP_PROJECTS = [
+const SETUP_PROJECTS=[
   {id:"setup-1",number:"26A05",name:"Levee Reinforcement Study",description:"Structural assessment and reinforcement of aging levee segments along the southern flood basin.",estimatedBudget:1850000,pmName:"John Smith",dwgCoP:"",hqProponent:"Patricia Moore",executingOrg:"ERDC",projectLead:"",needsContractSupport:"",specialFundingType:"",startDate:"",endDate:"",primaryCmsLink:"",cmsGuestLink:"",additionalCmsLinks:"",sourceRef:"CR-26A05",submittedBy:"Patricia Moore",receivedDate:"2024-03-01"},
   {id:"setup-2",number:"26T04",name:"Pavement Condition Assessment",description:"Network-wide pavement distress survey and condition index scoring for prioritization of rehabilitation.",estimatedBudget:420000,pmName:"",dwgCoP:"Transportation",hqProponent:"Joe Bush",executingOrg:"",projectLead:"",needsContractSupport:"Yes",specialFundingType:"",startDate:"2024-04-01",endDate:"",primaryCmsLink:"",cmsGuestLink:"",additionalCmsLinks:"",sourceRef:"CR-26T04",submittedBy:"Joe Bush",receivedDate:"2024-03-05"},
   {id:"setup-3",number:"26A06",name:"Dam Spillway Repair",description:"Emergency repair and seismic retrofitting of the main spillway gate assembly at Ridgecrest Dam.",estimatedBudget:3200000,pmName:"",dwgCoP:"",hqProponent:"",executingOrg:"",projectLead:"",needsContractSupport:"",specialFundingType:"Emergency",startDate:"",endDate:"",primaryCmsLink:"",cmsGuestLink:"",additionalCmsLinks:"",sourceRef:"CR-26A06",submittedBy:"Marcus Thorne",receivedDate:"2024-03-10"},
 ];
 
-const CRS = [
+const CRS=[
   {id:"101",projectNumber:"25A01",projectName:"Highway 45 Expansion",projectDescription:"Adding 2 lanes to the northbound and southbound sections of Highway 45.",submittedBy:"John Smith",date:"2024-02-10",justification:"Labor reallocation needed after geotechnical scope expanded. Nugent picked up additional survey tasks; offsetting by reducing planned site visits that can be combined into fewer trips.",status:"Pending",lineItems:[{direction:"Increase",type:"Labor",description:"Nugent, Joseph Pat",amount:22000,from:215000,to:237000},{direction:"Decrease",type:"Travel",description:"Site Visits",amount:22000,from:48000,to:26000}]},
   {id:"102",projectNumber:"25T02",projectName:"Bridge Rehabilitation",projectDescription:"Structural reinforcement and resurfacing of the downtown suspension bridge.",submittedBy:"Sarah Jenkins",date:"2024-01-25",justification:"Additional org-code labor is required for the extended environmental compliance phase. Equipment transport trips have been consolidated and steel fasteners sourced locally, freeing those funds.",status:"Pending",lineItems:[{direction:"Increase",type:"Labor",description:"U435310",amount:45000,from:280000,to:325000},{direction:"Increase",type:"Labor",description:"Chen, David",amount:15000,from:195000,to:210000},{direction:"Decrease",type:"Travel",description:"Equipment Transport",amount:47000,from:155000,to:108000},{direction:"Decrease",type:"Materials",description:"Steel Fasteners",amount:13000,from:45000,to:32000}]},
   {id:"103",projectNumber:"24A03",projectName:"Downtown Water Main",projectDescription:"Replacement of 100-year-old water main infrastructure in the central business district.",submittedBy:"Elena Rodriguez",date:"2024-02-05",justification:"Shifting budget from contractor labor to materials to cover higher-than-anticipated cost of 6-inch HDPE pipe fittings. Net budget impact is zero.",status:"Pending",lineItems:[{direction:"Decrease",type:"Labor",description:"Contractor Pool",amount:30000,from:412000,to:382000},{direction:"Increase",type:"Materials",description:"Pipe Fittings (HDPE)",amount:30000,from:285000,to:315000}]},
@@ -87,148 +83,180 @@ const CRS = [
   {id:"105",projectNumber:"25A05",projectName:"Metro Rail Extension",projectDescription:"Feasibility study and initial planning for the Westside light rail extension.",submittedBy:"David Chen",date:"2024-02-12",justification:"Remote survey technology reduces required field trips. Resulting travel savings are redirected to survey equipment procurement to support the same scope.",status:"Pending",lineItems:[{direction:"Decrease",type:"Travel",description:"Site Inspections",amount:20000,from:62000,to:42000},{direction:"Increase",type:"Materials",description:"Survey Equipment",amount:20000,from:28000,to:48000}]},
 ];
 
-/* Planning data — keyed by project id */
-let planningData = {};
-function initPlanningData(pid) {
-  const p = PROJECTS.find(x=>x.id===pid);
-  if (!p) return;
-  const b = p.budget;
-  const fy = p.number.slice(0,2);
-  const num = p.number;
-  planningData[pid] = {
-    labor: [
-      {id:1,label:"Nugent, Joseph Pat",sub:"U435310",planned:Math.round(b*.09),requested:Math.round(b*.09*.05),tc:Math.round(b*.09*.05),oc:Math.round(b*.09*.03),ob:Math.round(b*.09*.02),desc:`FY${fy}/SANDC LABOR FUNDS FOR ${num}/CEFMS/`,notes:"notes"},
-      {id:2,label:"USACE Chicago District",sub:"U435310",planned:Math.round(b*.05),requested:Math.round(b*.0475),tc:Math.round(b*.0475),oc:Math.round(b*.025),ob:Math.round(b*.0225),desc:`FY${fy}/SANDC LABOR FUNDS FOR ${num}/U435310/`,notes:"notes"},
-      {id:3,label:"Chen, David",sub:"U719203",planned:Math.round(b*.035),requested:Math.round(b*.035),tc:Math.round(b*.021),oc:Math.round(b*.0105),ob:Math.round(b*.0105),desc:`FY${fy}/SANDC LABOR FUNDS FOR ${num}/Chen D/`,notes:""},
-    ],
-    travel: [
-      {id:10,label:"CERL",sub:"U435310",planned:Math.round(b*.02),requested:Math.round(b*.02),tc:Math.round(b*.02),oc:Math.round(b*.0118),ob:Math.round(b*.0082),desc:`FY${fy}/SANDC TRAVEL FOR ${num}/CERL/`,notes:""},
-      {id:11,label:"Vicksburg District",sub:"U834512",planned:Math.round(b*.013),requested:Math.round(b*.013),tc:Math.round(b*.013),oc:Math.round(b*.0065),ob:0,desc:`FY${fy}/SANDC TRAVEL FOR ${num}/Vicksburg District/`,notes:""},
-    ],
-    mats: [
-      {id:20,label:"Concrete (500 units)",sub:"",planned:Math.round(b*.031),requested:Math.round(b*.031),tc:Math.round(b*.031),oc:Math.round(b*.01643),ob:Math.round(b*.01457),desc:`FY${fy}/SANDC MATL FOR ${num}/Concrete/500 units`,notes:""},
-      {id:21,label:"Steel Rebar (2000 ft)",sub:"",planned:Math.round(b*.021),requested:Math.round(b*.02059),tc:Math.round(b*.02059),oc:Math.round(b*.010295),ob:0,desc:`FY${fy}/SANDC MATL FOR ${num}/Rebar/2000 units`,notes:""},
-    ],
-  };
-}
-PROJECTS.forEach(p=>initPlanningData(p.id));
+const LABOR_OPTIONS=[
+  {label:"Nugent, Joseph Pat",sub:"U435310"},{label:"Chen, David",sub:"U719203"},
+  {label:"Williams, Sandra K.",sub:"U920183"},{label:"Torres, Miguel A.",sub:"U582094"},
+  {label:"Park, Jennifer",sub:"U601847"},{label:"Harrison, Mark T.",sub:"U719203"},
+  {label:"Okafor, Chioma",sub:"U601847"},{label:"Reyes, Carlos",sub:"U834512"},
+  {label:"USACE Chicago District",sub:"U435310"},{label:"USACE Omaha District",sub:"U582094"},
+  {label:"USACE Kansas City District",sub:"U601847"},{label:"USACE Tulsa District",sub:"U719203"},
+  {label:"USACE Little Rock District",sub:"U834512"},{label:"USACE Memphis District",sub:"U920183"},
+];
+const TRAVEL_OPTIONS=[
+  {label:"CERL",sub:"U435310"},{label:"ERDC Headquarters",sub:"U582094"},
+  {label:"Cold Regions Research Lab",sub:"U601847"},{label:"Waterways Experiment Station",sub:"U719203"},
+  {label:"Vicksburg District",sub:"U834512"},{label:"Nashville District",sub:"U920183"},
+  {label:"Fort Worth District",sub:"U110234"},{label:"Huntsville Center",sub:"U223456"},
+  {label:"Pacific Ocean Division",sub:"U334567"},{label:"South Atlantic Division",sub:"U445678"},
+  {label:"Great Lakes & Ohio River Division",sub:"U556789"},{label:"Fort Campbell",sub:"U667890"},
+  {label:"Fort Bragg",sub:"U778901"},{label:"Aberdeen Proving Ground",sub:"U889012"},
+];
+const MATERIAL_OPTIONS=[
+  {label:"Concrete",sub:"Structural concrete materials"},{label:"Steel Rebar",sub:"Reinforcement steel"},
+  {label:"Lumber / Timber",sub:"Wood structural members"},{label:"Pipe & Fittings",sub:"Plumbing and drainage"},
+  {label:"Electrical Conduit",sub:"Wiring and conduit supplies"},{label:"Geotextile Fabric",sub:"Erosion control material"},
+  {label:"Asphalt",sub:"Paving materials"},{label:"Gravel / Aggregate",sub:"Base course and fill"},
+  {label:"Equipment Rental",sub:"Heavy machinery rental"},{label:"Consulting Services",sub:"Professional services contract"},
+];
+
+/* ================================================================
+   PLANNING STATE
+   ================================================================ */
+let planningData={};
 let _uid=500;
 const uid=()=>++_uid;
 
-/* ============================================================ */
-/*  UTILS                                                        */
-/* ============================================================ */
-const fmt = n => new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(n);
-const fmtDate = s => s ? new Date(s).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—';
-const esc = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function initPlan(pid){
+  const p=PROJECTS.find(x=>x.id===pid); if(!p||planningData[pid]) return;
+  const b=p.budget, fy=p.number.slice(0,2), num=p.number;
+  planningData[pid]={
+    labor:[
+      {id:1,label:"Nugent, Joseph Pat",sub:"U435310",planned:Math.round(b*.09),requested:Math.round(b*.09*.05),tc:Math.round(b*.09*.05),oc:Math.round(b*.09*.03),ob:Math.round(b*.09*.02),desc:`FY${fy}/SANDC LABOR FUNDS FOR ${num}/CEFMS/`,notes:"notes"},
+      {id:2,label:"USACE Chicago District",sub:"U435310",planned:Math.round(b*.05),requested:Math.round(b*.05*.95),tc:Math.round(b*.05*.95),oc:Math.round(b*.05*.50),ob:Math.round(b*.05*.45),desc:`FY${fy}/SANDC LABOR FUNDS FOR ${num}/U435310/`,notes:"notes"},
+      {id:3,label:"Chen, David",sub:"U719203",planned:Math.round(b*.035),requested:Math.round(b*.035),tc:Math.round(b*.035*.60),oc:Math.round(b*.035*.30),ob:Math.round(b*.035*.30),desc:`FY${fy}/SANDC LABOR FUNDS FOR ${num}/Chen D/`,notes:""},
+    ],
+    travel:[
+      {id:10,label:"CERL",sub:"U435310",planned:Math.round(b*.02),requested:Math.round(b*.02),tc:Math.round(b*.02),oc:Math.round(b*.02*.59),ob:Math.round(b*.02*.41),desc:`FY${fy}/SANDC TRAVEL FOR ${num}/CERL/`,notes:""},
+      {id:11,label:"Vicksburg District",sub:"U834512",planned:Math.round(b*.013),requested:Math.round(b*.013),tc:Math.round(b*.013),oc:Math.round(b*.013*.50),ob:0,desc:`FY${fy}/SANDC TRAVEL FOR ${num}/Vicksburg District/`,notes:""},
+    ],
+    mats:[
+      {id:20,label:"Concrete (500 units)",sub:"",planned:Math.round(b*.031),requested:Math.round(b*.031),tc:Math.round(b*.031),oc:Math.round(b*.031*.53),ob:Math.round(b*.031*.47),desc:`FY${fy}/SANDC MATL FOR ${num}/Concrete/500 units`,notes:""},
+      {id:21,label:"Steel Rebar (2000 ft)",sub:"",planned:Math.round(b*.021),requested:Math.round(b*.021*.98),tc:Math.round(b*.021*.98),oc:Math.round(b*.021*.49),ob:0,desc:`FY${fy}/SANDC MATL FOR ${num}/Rebar/2000 units`,notes:""},
+    ],
+  };
+}
+PROJECTS.forEach(p=>initPlan(p.id));
 
-function statusClass(s){
-  if(s==='Active')   return 'status-active';
-  if(s==='Planning') return 'status-planning';
-  if(s==='On Hold')  return 'status-hold';
-  if(s==='Complete') return 'status-complete';
-  return '';
-}
-function statusDot(s){
-  if(s==='Active')   return 'background:#10b981';
-  if(s==='Planning') return 'background:#f59e0b';
-  if(s==='On Hold')  return 'background:#94a3b8';
-  if(s==='Complete') return 'background:#3b82f6';
-  return '';
-}
+/* ================================================================
+   UTILS
+   ================================================================ */
+const fmt=n=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(n);
+const fmtD=n=>(n>0?'+':'')+fmt(n);
+const fmtDate=s=>s?new Date(s).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'—';
+const today=()=>new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+const esc=s=>(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+function sdot(s){return s==='Active'?'#10b981':s==='Planning'?'#f59e0b':s==='On Hold'?'#94a3b8':'#3b82f6'}
+function scls(s){return s==='Active'?'s-active':s==='Planning'?'s-planning':s==='On Hold'?'s-hold':'s-complete'}
 function crBadge(s){
-  if(s==='Pending')      return `<span class="cr-badge-pending" style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600">Pending</span>`;
-  if(s==='Under Review') return `<span class="cr-badge-review" style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600">Under Review</span>`;
-  if(s==='Approved')     return `<span class="cr-badge-approved" style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600">Approved</span>`;
-  if(s==='Rejected')     return `<span class="cr-badge-rejected" style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600">Rejected</span>`;
-  return s;
+  const m={Pending:'background:#dbeafe;color:#1e40af;border:1px solid #bfdbfe',
+    'Under Review':'background:#fef3c7;color:#92400e;border:1px solid #fde68a',
+    Approved:'background:#d1fae5;color:#065f46;border:1px solid #a7f3d0',
+    Rejected:'background:#fee2e2;color:#991b1b;border:1px solid #fecaca'};
+  return `<span style="${m[s]||''};display:inline-flex;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600">${s}</span>`;
 }
 
-/* ============================================================ */
-/*  ICONS (inline SVG)                                           */
-/* ============================================================ */
-const I = {
-  back:    `<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>`,
-  chevron: `<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>`,
-  user:    `<svg width="15" height="15" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
-  plus:    `<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
-  minus:   `<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>`,
-  trash:   `<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>`,
-  x:       `<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
-  check:   `<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>`,
-  arrow:   `<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`,
-  copy:    `<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`,
-  ext:     `<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`,
-  folder:  `<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>`,
-  dollar:  `<svg width="18" height="18" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`,
-  edit:    `<svg width="22" height="22" fill="none" stroke="#475569" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`,
-  search:  `<svg width="16" height="16" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>`,
-  clip:    `<svg width="20" height="20" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>`,
-  alert:   `<svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
+/* ================================================================
+   ICONS
+   ================================================================ */
+const I={
+  back:`<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>`,
+  chev:`<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>`,
+  user:`<svg width="15" height="15" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
+  plus:`<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
+  minus:`<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>`,
+  trash:`<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>`,
+  x:`<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
+  check:`<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>`,
+  checkCirc:`<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`,
+  xCirc:`<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`,
+  arrow:`<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`,
+  arr13:`<svg width="13" height="13" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`,
+  copy:`<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`,
+  ext:`<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`,
+  folder:`<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>`,
+  search:`<svg width="16" height="16" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>`,
+  filter:`<svg width="16" height="16" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>`,
+  clip:`<svg width="20" height="20" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>`,
+  alert:`<svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
 };
 
-/* ============================================================ */
-/*  ROUTER                                                       */
-/* ============================================================ */
-let currentRoute = '/';
-let listState = {selectedId: null, tab: 'charter', searchQ: ''};
-let crSearchQ = '';
-let crStatusFilter = 'All';
-let crNoteTexts = {};
-let setupEdits = {};
+/* ================================================================
+   ROUTER
+   ================================================================ */
+let route='/';
+let listState={selId:null,tab:'charter',q:'',loaded:false};
+let crState={q:'',filter:'All',noteTexts:{}};
+let settingsTab={};
+let settingsFdData={};
+let setupEdits={};
 
-function nav(hash){
-  window.location.hash = hash;
+const nav=h=>{window.location.hash=h};
+function go(){
+  const h=window.location.hash.replace('#','')||'/';
+  route=h; doRender();
+}
+window.addEventListener('hashchange',go);
+window.addEventListener('load',go);
+
+function doRender(){
+  const root=document.getElementById('page-root');
+  const h=route;
+  if(h==='/'){renderTopNav(null);renderHome(root);}
+  else if(h==='/projects'){renderTopNav({crumbs:['Home','Project List'],hrefs:['/',null]});renderProjectList(root);}
+  else if(/^\/projects\/\w+\/planning$/.test(h)){const id=h.split('/')[2];renderTopNavProject(id,'Planning');renderPlanning(root,id);}
+  else if(/^\/projects\/\w+\/settings$/.test(h)){const id=h.split('/')[2];renderTopNavProject(id,'Settings');renderSettings(root,id);}
+  else if(h==='/change-requests'){renderTopNav({crumbs:['Home','Change Requests'],hrefs:['/',null],role:'BA View'});renderCRs(root);}
+  else if(h==='/setup'){renderTopNav({crumbs:['Home','Project Setup Queue'],hrefs:['/',null]});renderSetupQueue(root);}
+  else if(/^\/setup\/[\w-]+$/.test(h)){const id=h.split('/')[2];renderTopNav({crumbs:['Home','Setup Queue','Setup'],hrefs:['/','setup/',null]});renderSetupForm(root,id);}
+  else{root.innerHTML='<div style="padding:48px;text-align:center;color:#94a3b8">Page not found.</div>';}
 }
 
-function route(){
-  const hash = window.location.hash.replace('#','') || '/';
-  currentRoute = hash;
-  render();
-}
-
-window.addEventListener('hashchange', route);
-window.addEventListener('load', route);
-
-function render(){
-  const h = currentRoute;
-  const root = document.getElementById('page-root');
-  if (h === '/') { renderNav(null); renderHome(root); }
-  else if (h === '/projects') { renderNav({crumbs:['Home','Project List'],hrefs:['/',null]}); renderProjectList(root); }
-  else if (h.match(/^\/projects\/(\w+)\/planning$/)) { const id=h.split('/')[2]; renderNavProject(id,'Planning'); renderPlanning(root, id); }
-  else if (h.match(/^\/projects\/(\w+)\/settings$/)) { const id=h.split('/')[2]; renderNavProject(id,'Settings'); renderSettings(root, id); }
-  else if (h === '/change-requests') { renderNav({crumbs:['Home','Change Requests'],hrefs:['/',null],roleBadge:'BA View'}); renderChangeRequests(root); }
-  else if (h === '/setup') { renderNav({crumbs:['Home','Project Setup Queue'],hrefs:['/',null]}); renderSetupQueue(root); }
-  else if (h.match(/^\/setup\/[\w-]+$/)) { const id=h.split('/')[2]; renderNav({crumbs:['Home','Setup Queue','Setup'],hrefs:['/','setup/',null]}); renderProjectSetup(root, id); }
-  else { root.innerHTML = '<div class="py-24 text-center text-slate-500">Page not found.</div>'; }
-}
-
-/* ============================================================ */
-/*  SHARED NAV                                                   */
-/* ============================================================ */
-function renderNav(opts){
-  const n = document.getElementById('top-nav');
-  let left = `
-    <div style="display:flex;align-items:center;gap:10px;min-width:0">
-      <div style="width:32px;height:32px;border-radius:6px;background:#1a3557;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:13px;cursor:pointer" onclick="nav('/')">S&amp;C</div>`;
-  if(opts && opts.crumbs){
-    left += `<div style="display:flex;align-items:center;gap:4px">
-      <button onclick="history.back()" style="padding:4px;border-radius:6px;background:none;border:none;color:#94a3b8;cursor:pointer;display:flex;align-items:center">${I.back}</button>
-      <div style="display:flex;align-items:center;gap:5px;font-size:14px;font-weight:500;color:#64748b;flex-wrap:wrap">`;
+/* ================================================================
+   NAV
+   ================================================================ */
+function renderTopNav(opts){
+  const n=document.getElementById('top-nav');
+  let left=`<div style="display:flex;align-items:center;gap:10px;min-width:0">
+    <div style="width:32px;height:32px;border-radius:6px;background:#1a3557;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:13px;cursor:pointer" onclick="nav('/')">S&amp;C</div>`;
+  if(opts&&opts.crumbs){
+    left+=`<div style="display:flex;align-items:center;gap:4px">
+      <button onclick="history.back()" style="padding:4px;background:none;border:none;color:#94a3b8;cursor:pointer;display:flex;align-items:center;border-radius:4px">${I.back}</button>
+      <div style="display:flex;align-items:center;gap:5px;font-size:14px;font-weight:500;color:#64748b">`;
     opts.crumbs.forEach((c,i)=>{
-      const href = opts.hrefs[i];
-      if(i>0) left+=`<span style="color:#cbd5e1">${I.chevron}</span>`;
-      if(href) left+=`<span style="cursor:pointer" onclick="nav('${href}')">${esc(c)}</span>`;
+      const href=opts.hrefs[i];
+      if(i>0)left+=`<span style="color:#cbd5e1">${I.chev}</span>`;
+      if(href)left+=`<span style="cursor:pointer" onclick="nav('${href}')">${esc(c)}</span>`;
       else left+=`<span style="font-weight:700;color:#1e293b">${esc(c)}</span>`;
     });
     left+=`</div>`;
-    if(opts.roleBadge) left+=`<span style="background:#dbeafe;color:#1e40af;border:1px solid #bfdbfe;font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px">${opts.roleBadge}</span>`;
+    if(opts.role)left+=`<span style="background:#dbeafe;color:#1e40af;border:1px solid #bfdbfe;font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px">${opts.role}</span>`;
     left+=`</div>`;
   } else {
     left+=`<h1 style="font-size:18px;font-weight:700;color:#1e293b;margin:0">Dashboard</h1>`;
   }
   left+=`</div>`;
-  n.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:56px;max-width:1400px;margin:0 auto">
+  n.innerHTML=navWrap(left);
+}
+function renderTopNavProject(id,page){
+  const p=PROJECTS.find(x=>x.id===id);
+  const num=p?p.number:id;
+  const n=document.getElementById('top-nav');
+  n.innerHTML=navWrap(`<div style="display:flex;align-items:center;gap:10px;min-width:0">
+    <div style="width:32px;height:32px;border-radius:6px;background:#1a3557;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:13px;cursor:pointer" onclick="nav('/')">S&amp;C</div>
+    <div style="display:flex;align-items:center;gap:4px">
+      <button onclick="history.back()" style="padding:4px;background:none;border:none;color:#94a3b8;cursor:pointer;display:flex;align-items:center;border-radius:4px">${I.back}</button>
+      <div style="display:flex;align-items:center;gap:5px;font-size:14px;font-weight:500;color:#64748b">
+        <span style="cursor:pointer" onclick="nav('/')">Home</span><span style="color:#cbd5e1">${I.chev}</span>
+        <span style="cursor:pointer" onclick="nav('/projects')">Project List</span><span style="color:#cbd5e1">${I.chev}</span>
+        <span style="cursor:pointer;font-family:monospace;font-size:12px" onclick="nav('/projects/${id}/planning')">${esc(num)}</span><span style="color:#cbd5e1">${I.chev}</span>
+        <span style="font-weight:700;color:#1e293b">${page}</span>
+      </div>
+    </div>
+  </div>`);
+}
+function navWrap(left){
+  return `<div style="display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:56px;max-width:1400px;margin:0 auto">
     ${left}
     <div style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:#475569;background:#f1f5f9;padding:6px 12px;border-radius:999px">
       ${I.user}<span>John Smith</span><span style="color:#cbd5e1">|</span><span style="color:#64748b;font-weight:400">Project Manager</span>
@@ -236,46 +264,19 @@ function renderNav(opts){
   </div>`;
 }
 
-function renderNavProject(id, page){
-  const p = PROJECTS.find(x=>x.id===id);
-  const num = p ? p.number : id;
-  const n = document.getElementById('top-nav');
-  n.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:56px;max-width:1400px;margin:0 auto">
-    <div style="display:flex;align-items:center;gap:10px;min-width:0">
-      <div style="width:32px;height:32px;border-radius:6px;background:#1a3557;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:13px;cursor:pointer" onclick="nav('/')">S&amp;C</div>
-      <div style="display:flex;align-items:center;gap:4px">
-        <button onclick="history.back()" style="padding:4px;border-radius:6px;background:none;border:none;color:#94a3b8;cursor:pointer;display:flex;align-items:center">${I.back}</button>
-        <div style="display:flex;align-items:center;gap:5px;font-size:14px;font-weight:500;color:#64748b">
-          <span style="cursor:pointer" onclick="nav('/')">Home</span>
-          <span style="color:#cbd5e1">${I.chevron}</span>
-          <span style="cursor:pointer" onclick="nav('/projects')">Project List</span>
-          <span style="color:#cbd5e1">${I.chevron}</span>
-          <span style="cursor:pointer" onclick="nav('/projects/${id}/planning')" style="font-family:monospace">${esc(num)}</span>
-          <span style="color:#cbd5e1">${I.chevron}</span>
-          <span style="font-weight:700;color:#1e293b">${esc(page)}</span>
-        </div>
-      </div>
-    </div>
-    <div style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:#475569;background:#f1f5f9;padding:6px 12px;border-radius:999px">
-      ${I.user}<span>John Smith</span><span style="color:#cbd5e1">|</span><span style="color:#64748b;font-weight:400">Project Manager</span>
-    </div>
-  </div>`;
-}
-
-/* ============================================================ */
-/*  HOME PAGE                                                    */
-/* ============================================================ */
+/* ================================================================
+   HOME
+   ================================================================ */
 function renderHome(root){
-  root.innerHTML=`
-  <div style="max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:32px">
+  root.innerHTML=`<div style="max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:32px">
     <div>
       <h2 style="font-size:24px;font-weight:700;color:#0f172a;margin:0">Welcome back, John.</h2>
       <p style="color:#64748b;margin:4px 0 0">Here is your quick access panel for today.</p>
     </div>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
-      ${homeCard('#/setup','amber','M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11','Set Up New Project','Complete EPMP charter data for newly picked-up projects awaiting BA setup.','View setup queue','#d97706',`<span style="position:absolute;top:-6px;right:-6px;background:#f59e0b;color:white;font-size:10px;font-weight:700;border-radius:999px;width:20px;height:20px;display:flex;align-items:center;justify-content:center">3</span>`)}
-      ${homeCard('#/change-requests','indigo','M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8','Process Funding Request','Review, approve, or reject pending change requests and budget reallocations.','View requests','#6366f1','')}
-      ${homeCard('#/projects','slate','M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z','Edit Plan','Access existing projects to update labor, travel, and material allocations.','Browse projects','#475569','')}
+      ${hCard('#/setup','#fffbeb','#d97706','M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11','Set Up New Project','Complete EPMP charter data for newly picked-up projects awaiting BA setup.','View setup queue',`<span style="position:absolute;top:-6px;right:-6px;background:#f59e0b;color:white;font-size:10px;font-weight:700;border-radius:999px;width:20px;height:20px;display:flex;align-items:center;justify-content:center">3</span>`)}
+      ${hCard('#/change-requests','#eef2ff','#6366f1','M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8','Process Funding Request','Review, approve, or reject pending change requests and budget reallocations.','View requests','')}
+      ${hCard('#/projects','#f8fafc','#475569','M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z','Edit Plan','Access existing projects to update labor, travel, and material allocations.','Browse projects','')}
     </div>
     <div style="background:#1e293b;border-radius:12px;padding:24px;color:white;position:relative;overflow:hidden">
       <div style="position:absolute;right:-40px;top:-40px;width:160px;height:160px;background:#334155;border-radius:999px;opacity:.5;filter:blur(40px)"></div>
@@ -286,173 +287,154 @@ function renderHome(root){
     </div>
   </div>`;
 }
-
-function homeCard(href, color, iconPath, title, desc, cta, ctaColor, badge){
-  const bg = color==='amber'?'#fffbeb':color==='indigo'?'#eef2ff':'#f8fafc';
-  const stroke = color==='amber'?'#d97706':color==='indigo'?'#6366f1':'#475569';
-  return `<a href="${href}" style="display:block;cursor:pointer">
-    <div class="card-hover" style="background:white;padding:24px;border-radius:12px;border:1px solid #e2e8f0;box-shadow:0 1px 3px rgba(0,0,0,.05);height:100%;display:flex;flex-direction:column;justify-content:space-between">
+function hCard(href,bg,stroke,iconPath,title,desc,cta,badge){
+  return `<a href="${href}" style="display:block">
+    <div class="ch" style="background:white;padding:24px;border-radius:12px;border:1px solid #e2e8f0;box-shadow:0 1px 3px rgba(0,0,0,.05);height:100%;display:flex;flex-direction:column;justify-content:space-between">
       <div>
         <div style="position:relative;width:48px;height:48px;margin-bottom:16px">
           <div style="width:48px;height:48px;border-radius:8px;background:${bg};display:flex;align-items:center;justify-content:center">
             <svg width="24" height="24" fill="none" stroke="${stroke}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="${iconPath}"/></svg>
-          </div>
-          ${badge}
+          </div>${badge}
         </div>
         <h3 style="font-size:18px;font-weight:600;color:#0f172a;margin:0 0 8px">${title}</h3>
         <p style="font-size:14px;color:#64748b;margin:0;line-height:1.5">${desc}</p>
       </div>
-      <div style="display:flex;align-items:center;color:${ctaColor};font-size:14px;font-weight:600;margin-top:24px;gap:4px">${cta} ${I.arrow}</div>
+      <div style="display:flex;align-items:center;color:${stroke};font-size:14px;font-weight:600;margin-top:24px;gap:4px">${cta} ${I.arrow}</div>
     </div>
   </a>`;
 }
 
-/* ============================================================ */
-/*  PROJECT LIST                                                 */
-/* ============================================================ */
+/* ================================================================
+   PROJECT LIST
+   ================================================================ */
 function renderProjectList(root){
-  const q = listState.searchQ.toLowerCase();
-  const filtered = PROJECTS.filter(p => p.name.toLowerCase().includes(q) || p.number.toLowerCase().includes(q));
-  const sel = listState.selectedId ? PROJECTS.find(p=>p.id===listState.selectedId) : null;
+  const q=listState.q.toLowerCase();
+  const filtered=PROJECTS.filter(p=>p.name.toLowerCase().includes(q)||p.number.toLowerCase().includes(q));
+  const sel=listState.selId?PROJECTS.find(p=>p.id===listState.selId):null;
 
-  root.innerHTML=`
-  <div style="display:flex;gap:24px;height:calc(100vh - 10rem)">
+  root.innerHTML=`<div style="display:flex;gap:24px;height:calc(100vh - 10rem)">
     <!-- LEFT -->
     <div style="width:42%;display:flex;flex-direction:column;background:white;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.05)">
-      <div style="padding:16px;border-bottom:1px solid #f1f5f9;background:#fafafa">
-        <div style="position:relative">
-          <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%)">${I.search}</span>
-          <input type="text" value="${esc(listState.searchQ)}" placeholder="Search projects..." style="padding-left:36px;height:38px" oninput="listState.searchQ=this.value;renderProjectList(document.getElementById('page-root'))"/>
+      <div style="padding:12px;border-bottom:1px solid #f1f5f9;background:#fafafa">
+        <div style="position:relative"><span style="position:absolute;left:10px;top:50%;transform:translateY(-50%)">${I.search}</span>
+          <input class="inp" value="${esc(listState.q)}" placeholder="Search projects…" style="padding-left:34px;height:36px" oninput="listState.q=this.value;renderProjectList(document.getElementById('page-root'))"/>
         </div>
       </div>
       <div style="flex:1;overflow-y:auto;padding:8px">
-        ${filtered.map(p=>`
-        <button onclick="selectProject('${p.id}')" style="width:100%;text-align:left;padding:16px;border-radius:8px;border:1px solid ${listState.selectedId===p.id?'#bfdbfe':'transparent'};background:${listState.selectedId===p.id?'#eff6ff':'white'};cursor:pointer;display:block;margin-bottom:4px;transition:background .1s">
+        ${filtered.map(p=>`<button onclick="selProject('${p.id}')" style="width:100%;text-align:left;padding:14px;border-radius:8px;border:1px solid ${listState.selId===p.id?'#bfdbfe':'transparent'};background:${listState.selId===p.id?'#eff6ff':'white'};cursor:pointer;display:block;margin-bottom:4px;transition:background .1s">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
             <span style="font-size:11px;font-weight:700;color:#64748b;font-family:monospace;letter-spacing:.04em">${esc(p.number)}</span>
-            <span class="${statusClass(p.status)}" style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px">
-              <span style="width:7px;height:7px;border-radius:999px;${statusDot(p.status)}"></span>${p.status}
-            </span>
+            <span class="${scls(p.status)}" style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px"><span style="width:7px;height:7px;border-radius:999px;background:${sdot(p.status)}"></span>${p.status}</span>
           </div>
-          <div style="font-weight:600;font-size:15px;color:${listState.selectedId===p.id?'#1a3557':'#0f172a'};margin-bottom:4px">${esc(p.name)}</div>
+          <div style="font-weight:600;font-size:15px;color:${listState.selId===p.id?'#1a3557':'#0f172a'};margin-bottom:4px">${esc(p.name)}</div>
           <div style="font-size:13px;color:#64748b;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">${esc(p.description)}</div>
         </button>`).join('')}
       </div>
     </div>
     <!-- RIGHT -->
     <div style="flex:1;background:white;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.05);display:flex;flex-direction:column">
-      ${sel ? renderProjectDetail(sel) : `
-      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#94a3b8;text-align:center;padding:32px">
-        <svg width="48" height="48" fill="none" stroke="#e2e8f0" stroke-width="1.5" viewBox="0 0 24 24" style="margin-bottom:16px"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+      ${sel?detailPanel(sel):`<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#94a3b8;text-align:center;padding:32px">
+        <svg width="48" height="48" fill="none" stroke="#e2e8f0" stroke-width="1.5" viewBox="0 0 24 24" style="margin-bottom:16px"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
         <h3 style="font-size:18px;font-weight:600;color:#64748b;margin:0 0 8px">No Project Selected</h3>
         <p style="font-size:14px;color:#94a3b8;margin:0;max-width:280px">Select a project from the list to view its overview and management options.</p>
       </div>`}
     </div>
   </div>`;
 }
+window.selProject=function(id){listState.selId=id;listState.tab='charter';listState.loaded=false;renderProjectList(document.getElementById('page-root'));setTimeout(()=>{listState.loaded=true;renderProjectList(document.getElementById('page-root'));},1100);};
+window.setListTab=function(t){listState.tab=t;renderProjectList(document.getElementById('page-root'));};
 
-function selectProject(id){
-  listState.selectedId = id;
-  listState.tab = 'charter';
-  renderProjectList(document.getElementById('page-root'));
-  /* Simulate async load for Funding/Schedule */
-  setTimeout(()=>{ listState.loaded=true; renderProjectList(document.getElementById('page-root')); }, 1200);
-  listState.loaded = false;
-}
-
-window.selectProject = selectProject;
-window.setListTab = function(tab){ listState.tab=tab; renderProjectList(document.getElementById('page-root')); };
-
-function renderProjectDetail(p){
-  const tabs = [{id:'charter',label:'Charter'},{id:'funding',label:'Funding'},{id:'schedule',label:'Schedule'}];
-  let body = '';
-  if(listState.tab==='charter') body = renderProjectDetailCharter(p);
-  else if(listState.tab==='funding') body = listState.loaded ? renderDetailFundingTable(p) : spinner();
-  else body = listState.loaded ? renderDetailSchedule(p) : spinner();
-
-  return `
-    <div style="padding:20px 24px 16px;border-bottom:1px solid #f1f5f9">
+function detailPanel(p){
+  const tabs=['charter','funding','schedule'];
+  let body='';
+  if(listState.tab==='charter')body=detailCharter(p);
+  else if(!listState.loaded)body=spinnerHtml();
+  else if(listState.tab==='funding')body=detailFunding(p);
+  else body=scheduleTabHtml(p.startDate,p.endDate);
+  return `<div style="padding:18px 22px 14px;border-bottom:1px solid #f1f5f9">
       <div style="display:flex;justify-content:space-between;align-items:flex-start">
-        <div>
-          <span style="display:inline-block;padding:2px 8px;background:#f1f5f9;color:#475569;font-family:monospace;font-size:12px;font-weight:700;border-radius:4px;margin-bottom:8px">${esc(p.number)}</span>
-          <h2 style="font-size:20px;font-weight:700;color:#0f172a;margin:0">${esc(p.name)}</h2>
-        </div>
-        <span class="${statusClass(p.status)}" style="display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;padding:4px 12px;border-radius:999px;margin-top:4px">
-          <span style="width:8px;height:8px;border-radius:999px;${statusDot(p.status)}"></span>${p.status}
-        </span>
+        <div><span style="display:inline-block;padding:2px 8px;background:#f1f5f9;color:#475569;font-family:monospace;font-size:12px;font-weight:700;border-radius:4px;margin-bottom:6px">${esc(p.number)}</span>
+          <h2 style="font-size:20px;font-weight:700;color:#0f172a;margin:0">${esc(p.name)}</h2></div>
+        <span class="${scls(p.status)}" style="display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;padding:4px 12px;border-radius:999px;margin-top:4px"><span style="width:8px;height:8px;border-radius:999px;background:${sdot(p.status)}"></span>${p.status}</span>
       </div>
     </div>
     <div style="display:flex;border-bottom:1px solid #e2e8f0">
-      ${tabs.map(t=>`<button class="tab-btn ${listState.tab===t.id?'active':''}" onclick="setListTab('${t.id}')">${t.label}</button>`).join('')}
+      ${tabs.map(t=>`<button class="tab-btn ${listState.tab===t?'on':''}" onclick="setListTab('${t}')" style="flex:1;text-align:center;text-transform:capitalize">${t}</button>`).join('')}
     </div>
     <div style="flex:1;overflow-y:auto">${body}</div>
-    <div style="display:flex;gap:12px;padding:20px 24px;border-top:1px solid #f1f5f9">
+    <div style="display:flex;gap:12px;padding:18px 22px;border-top:1px solid #f1f5f9">
       <button onclick="nav('/projects/${p.id}/planning')" style="flex:1;background:#1a3557;color:white;border:none;padding:10px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer">Open Planning</button>
       <button onclick="nav('/projects/${p.id}/settings')" style="flex:1;background:white;color:#475569;border:1px solid #e2e8f0;padding:10px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer">Settings</button>
     </div>`;
 }
-
-function renderProjectDetailCharter(p){
-  const fields = [
-    {label:'DWG / CoP',value:p.dwgCoP},{label:'Need S&C Contract Support',value:p.needsContractSupport?'Yes':'No'},
-    {label:'HQ Proponent',value:p.hqProponent},{label:'Special Funding Type',value:p.specialFundingType||'—'},
-    {label:'Executing Org',value:p.executingOrg},{label:'Current Budget',value:fmt(p.budget)},
-    {label:'Project Lead',value:p.projectLead},{label:'Actual Obligation',value:fmt(p.actualObligation)},
-    {label:'Start Date',value:fmtDate(p.startDate)},{label:'End Date',value:fmtDate(p.endDate)},
-  ];
-  return `<div style="padding:20px;display:flex;flex-direction:column;gap:12px">
+function detailCharter(p){
+  const f=(l,v)=>`<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px"><div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin-bottom:4px">${l}</div><div style="font-size:14px;font-weight:600;color:#1e293b">${esc(v)||'<span style="color:#94a3b8;font-style:italic">—</span>'}</div></div>`;
+  const yn=(l,v)=>`<div><div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin-bottom:4px">${l}</div><span style="display:inline-flex;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:600;${v?'background:#d1fae5;color:#065f46;border:1px solid #a7f3d0':'background:#f1f5f9;color:#475569;border:1px solid #e2e8f0'}">${v?'Yes':'No'}</span></div>`;
+  return `<div style="padding:18px;display:flex;flex-direction:column;gap:12px">
     <p style="font-size:13px;color:#64748b;margin:0;line-height:1.6">${esc(p.description)}</p>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-      ${fields.map(f=>`<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px">
-        <div class="field-label">${esc(f.label)}</div>
-        <div class="field-val">${esc(f.value)}</div>
-      </div>`).join('')}
+      ${f('DWG / CoP',p.dwgCoP)}${yn('Need S&amp;C Contract Support',p.needsContractSupport)}
+      ${f('HQ Proponent',p.hqProponent)}${f('Special Funding Type',p.specialFundingType||'—')}
+      ${f('Executing Org',p.executingOrg)}${f('Current Budget',fmt(p.budget))}
+      ${f('Project Lead',p.projectLead)}${f('Actual Obligation',fmt(p.actualObligation))}
+      ${f('Start Date',fmtDate(p.startDate))}${f('End Date',fmtDate(p.endDate))}
     </div>
   </div>`;
 }
-
-function renderDetailFundingTable(p){
-  const b=p.budget;
-  const split=[0.1,0.2,0.35,0.25,0.1];
-  const years=["FY23","FY24","FY25","FY26","FY27"];
-  const rows=[{label:"Labor",pct:.55},{label:"Travel",pct:.15},{label:"Outsourced / Other",pct:.30}];
-  const f=n=>n===0?'—':fmt(n);
-  return `<div style="padding:24px;overflow-x:auto">
-    <table style="width:100%;font-size:12px;border-collapse:collapse;min-width:420px">
-      <thead><tr>
-        <th style="background:#1a3557;color:white;font-weight:600;padding:8px 12px;text-align:left;width:120px;border:1px solid #cbd5e1">Project Overview</th>
-        ${years.map(y=>`<th style="background:#2a6496;color:white;font-weight:600;padding:8px;text-align:center;border:1px solid #cbd5e1">${y}</th>`).join('')}
-        <th style="background:#1a3557;color:white;font-weight:600;padding:8px;text-align:center;border:1px solid #cbd5e1">Total</th>
-      </tr></thead>
-      <tbody>
-        ${rows.map((row,ri)=>`<tr style="background:${ri%2===0?'#f8fafc':'white'}">
-          <td style="border:1px solid #e2e8f0;padding:8px 12px;font-weight:500;color:#475569">${row.label}</td>
-          ${split.map(s=>`<td style="border:1px solid #e2e8f0;padding:8px;text-align:right;color:#475569">${f(b*row.pct*s)}</td>`).join('')}
-          <td style="border:1px solid #e2e8f0;padding:8px;text-align:right;font-weight:600;color:#1e293b">${f(b*row.pct)}</td>
-        </tr>`).join('')}
-        <tr style="background:rgba(26,53,87,.08)">
-          <td style="border:1px solid #cbd5e1;padding:8px 12px;font-weight:700;color:#1e293b">Total</td>
-          ${split.map(s=>`<td style="border:1px solid #cbd5e1;padding:8px;text-align:right;font-weight:600;color:#1e293b">${f(b*s)}</td>`).join('')}
-          <td style="border:1px solid #cbd5e1;padding:8px;text-align:right;font-weight:700;color:#0f172a">${fmt(b)}</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>`;
+function detailFunding(p){
+  const b=p.budget; const n=p.number;
+  const fy=parseInt(n.slice(0,2));
+  const years=[`FY${fy-2}`,`FY${fy-1}`,`FY${fy}`];
+  const plab=[Math.round(b*.10),Math.round(b*.30),Math.round(b*.27)];
+  const ptrv=[Math.round(b*.00),Math.round(b*.02),Math.round(b*.01)];
+  const poth=[Math.round(b*.00),Math.round(b*.10),Math.round(b*.20)];
+  const rows=[{l:'Labor',v:plab},{l:'Travel',v:ptrv},{l:'OutSource / Other',v:poth}];
+  const tots=years.map((_,i)=>plab[i]+ptrv[i]+poth[i]);
+  const grand=tots.reduce((s,v)=>s+v,0);
+  return `<div style="padding:20px;overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;min-width:420px">
+    <thead><tr>
+      <th style="background:#1a3557;color:white;font-weight:600;padding:8px 14px;text-align:left;border:1px solid #cbd5e1;min-width:110px">Category</th>
+      ${years.map(y=>`<th style="background:#2a6496;color:white;font-weight:600;padding:8px;text-align:center;border:1px solid #cbd5e1;width:90px">${y}</th>`).join('')}
+      <th style="background:#1a3557;color:white;font-weight:600;padding:8px;text-align:center;border:1px solid #cbd5e1;width:90px">Total</th>
+    </tr></thead>
+    <tbody>${rows.map((r,i)=>`<tr style="background:${i%2===0?'#f8fafc':'white'}">
+      <td style="border:1px solid #e2e8f0;padding:8px 14px;font-weight:500;color:#475569">${r.l}</td>
+      ${r.v.map(v=>`<td style="border:1px solid #e2e8f0;padding:8px;text-align:right;color:#475569;font-variant-numeric:tabular-nums">${v===0?'—':fmt(v)}</td>`).join('')}
+      <td style="border:1px solid #e2e8f0;padding:8px;text-align:right;font-weight:600;color:#1e293b;font-variant-numeric:tabular-nums">${fmt(r.v.reduce((s,v)=>s+v,0))}</td>
+    </tr>`).join('')}
+    <tr style="background:rgba(26,53,87,.08)">
+      <td style="border:1px solid #cbd5e1;padding:8px 14px;font-weight:700;color:#1e293b">Total</td>
+      ${tots.map(v=>`<td style="border:1px solid #cbd5e1;padding:8px;text-align:right;font-weight:600;color:#1e293b;font-variant-numeric:tabular-nums">${fmt(v)}</td>`).join('')}
+      <td style="border:1px solid #cbd5e1;padding:8px;text-align:right;font-weight:700;color:#0f172a;font-variant-numeric:tabular-nums">${fmt(grand)}</td>
+    </tr></tbody>
+  </table></div>`;
+}
+function spinnerHtml(){
+  return `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:64px;gap:12px;color:#94a3b8"><div class="spin"></div><p style="font-size:14px;margin:0">Loading plans &amp; actuals…</p></div>`;
 }
 
-function renderDetailSchedule(p){
+/* ================================================================
+   SCHEDULE (shared by Settings + List detail)
+   ================================================================ */
+function scheduleTabHtml(startDate,endDate){
   const ms=[
-    {name:"Awarded / Started",pct:0,req:true,planned:p.startDate,actual:p.startDate,status:"complete"},
-    {name:"Kickoff Meeting",pct:1,req:false,planned:"2024-02-01",actual:"2024-02-03",status:"complete"},
-    {name:"Outline / Concept Review",pct:10,req:false,planned:"2024-04-01",actual:"2024-04-08",status:"complete"},
-    {name:"Outline Comments Resolved",pct:15,req:false,planned:"2024-05-01",actual:"2024-05-10",status:"complete"},
-    {name:"35% Review",pct:30,req:false,planned:"2024-07-15",actual:"2024-07-18",status:"complete"},
-    {name:"35% Comments Resolved",pct:35,req:false,planned:"2024-08-15",actual:null,status:"in-progress"},
-    {name:"Interim Review",pct:60,req:true,planned:"2024-12-01",actual:null,status:"upcoming"},
-    {name:"Pre-Final Review",pct:90,req:true,planned:"2025-06-01",actual:null,status:"upcoming"},
-    {name:"Final to DWG",pct:98,req:true,planned:"2025-09-30",actual:null,status:"upcoming"},
-    {name:"Complete",pct:100,req:true,planned:p.endDate,actual:null,status:"upcoming"},
+    {name:"Awarded / Started",pct:0,req:true,planned:startDate,actual:startDate,st:"complete"},
+    {name:"Kickoff Meeting",pct:1,req:false,planned:"2024-02-01",actual:"2024-02-03",st:"complete"},
+    {name:"Outline / Concept Review",pct:10,req:false,planned:"2024-04-01",actual:"2024-04-08",st:"complete"},
+    {name:"Outline Comments Resolved",pct:15,req:false,planned:"2024-05-01",actual:"2024-05-10",st:"complete"},
+    {name:"35% Review",pct:30,req:false,planned:"2024-07-15",actual:"2024-07-18",st:"complete"},
+    {name:"35% Comments Resolved",pct:35,req:false,planned:"2024-08-15",actual:null,st:"in-progress"},
+    {name:"Interim Review",pct:60,req:true,planned:"2024-12-01",actual:null,st:"upcoming"},
+    {name:"Interim Review Comments Resolved",pct:65,req:false,planned:"2025-01-15",actual:null,st:"upcoming"},
+    {name:"Pre-Final Review",pct:90,req:true,planned:"2025-06-01",actual:null,st:"upcoming"},
+    {name:"Pre-Final Comments Resolved",pct:95,req:false,planned:"2025-07-01",actual:null,st:"upcoming"},
+    {name:"Final Review & Coordination",pct:97,req:false,planned:"2025-08-15",actual:null,st:"upcoming"},
+    {name:"Final to DWG",pct:98,req:true,planned:"2025-09-30",actual:null,st:"upcoming"},
+    {name:"DWG Comments Resolved",pct:99,req:false,planned:"2025-10-31",actual:null,st:"upcoming"},
+    {name:"Complete",pct:100,req:true,planned:endDate,actual:null,st:"upcoming"},
   ];
+  const dotStyle=s=>s==='complete'?'background:#10b981':s==='in-progress'?'background:#3b82f6;box-shadow:0 0 0 3px #bfdbfe':'background:#e2e8f0';
+  const nameStyle=s=>s==='complete'?'color:#94a3b8':s==='in-progress'?'color:#1e40af':'color:#334155';
   return `<div>
     <div style="padding:20px 24px 16px;border-bottom:1px solid #f1f5f9">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
@@ -465,75 +447,65 @@ function renderDetailSchedule(p){
     </div>
     <table style="width:100%;font-size:13px;border-collapse:collapse">
       <thead><tr style="background:#f8fafc;border-bottom:1px solid #e2e8f0">
-        <th style="padding:10px 24px;text-align:left;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.06em">Milestone</th>
-        <th style="padding:10px 12px;text-align:center;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.06em;width:48px">%</th>
-        <th style="padding:10px 12px;text-align:center;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.06em;width:100px">Planned</th>
-        <th style="padding:10px 12px;text-align:center;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.06em;width:100px">Actual</th>
+        <th style="padding:10px 20px;text-align:left;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.06em">Milestone</th>
+        <th style="padding:10px 8px;text-align:center;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.06em;width:44px">%</th>
+        <th style="padding:10px 8px;text-align:center;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.06em;width:105px">Planned</th>
+        <th style="padding:10px 8px;text-align:center;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.06em;width:105px">Actual</th>
       </tr></thead>
-      <tbody>
-        ${ms.map(m=>`<tr style="border-bottom:1px solid #f1f5f9;background:${m.status==='in-progress'?'#eff6ff':''}">
-          <td style="padding:10px 24px">
-            <div style="display:flex;align-items:center;gap:10px">
-              <div style="width:8px;height:8px;border-radius:999px;flex-shrink:0;${m.status==='complete'?'background:#10b981':m.status==='in-progress'?'background:#3b82f6;box-shadow:0 0 0 3px #bfdbfe':'background:#e2e8f0'}"></div>
-              <span style="font-weight:500;color:${m.status==='complete'?'#94a3b8':m.status==='in-progress'?'#1e40af':'#334155'}">${esc(m.name)}</span>
-              ${m.req?`<span style="font-size:10px;font-weight:600;background:#fffbeb;border:1px solid #fde68a;color:#92400e;padding:1px 6px;border-radius:4px">Required</span>`:''}
-            </div>
-          </td>
-          <td style="padding:10px 12px;text-align:center;font-size:12px;color:#64748b;font-family:monospace">${m.pct}%</td>
-          <td style="padding:10px 12px;text-align:center;font-size:12px;color:#64748b;font-family:monospace;white-space:nowrap">${fmtDate(m.planned)}</td>
-          <td style="padding:10px 12px;text-align:center;font-size:12px;white-space:nowrap">${m.actual?`<span style="color:#065f46;font-family:monospace">${fmtDate(m.actual)}</span>`:m.status==='in-progress'?`<span style="color:#3b82f6;font-style:italic">In progress</span>`:`<span style="color:#cbd5e1">—</span>`}</td>
-        </tr>`).join('')}
-      </tbody>
+      <tbody>${ms.map(m=>`<tr style="border-bottom:1px solid #f1f5f9;${m.st==='in-progress'?'background:#eff6ff':''}">
+        <td style="padding:9px 20px">
+          <div style="display:flex;align-items:center;gap:9px">
+            <div style="width:8px;height:8px;border-radius:999px;flex-shrink:0;${dotStyle(m.st)}"></div>
+            <span style="font-weight:500;${nameStyle(m.st)}">${esc(m.name)}</span>
+            ${m.req?`<span style="font-size:10px;font-weight:600;background:#fffbeb;border:1px solid #fde68a;color:#92400e;padding:1px 6px;border-radius:4px">Required</span>`:''}
+          </div>
+        </td>
+        <td style="padding:9px 8px;text-align:center;font-size:12px;color:#64748b;font-family:monospace">${m.pct}%</td>
+        <td style="padding:9px 8px;text-align:center;font-size:12px;color:#64748b;font-family:monospace;white-space:nowrap">${fmtDate(m.planned)}</td>
+        <td style="padding:9px 8px;text-align:center;font-size:12px;white-space:nowrap">${
+          m.actual?`<span style="color:#065f46;font-family:monospace">${fmtDate(m.actual)}</span>`
+          :m.st==='in-progress'?`<span style="color:#3b82f6;font-style:italic">In progress</span>`
+          :`<span style="color:#cbd5e1">—</span>`
+        }</td>
+      </tr>`).join('')}</tbody>
     </table>
   </div>`;
 }
 
-function spinner(){
-  return `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:64px;gap:12px;color:#94a3b8">
-    <div style="width:28px;height:28px;border:3px solid #e2e8f0;border-top-color:#1a3557;border-radius:999px;animation:spin 0.8s linear infinite"></div>
-    <p style="font-size:14px;margin:0">Loading plans &amp; actuals…</p>
-  </div>
-  <style>@keyframes spin{to{transform:rotate(360deg)}}</style>`;
-}
+/* ================================================================
+   PROJECT PLANNING
+   ================================================================ */
+function renderPlanning(root,id){
+  const p=PROJECTS.find(x=>x.id===id);
+  if(!p){root.innerHTML='<p style="text-align:center;padding:48px;color:#94a3b8">Project not found.</p>';return;}
+  const d=planningData[id]; if(!d)return;
 
-/* ============================================================ */
-/*  PROJECT PLANNING                                             */
-/* ============================================================ */
-function renderPlanning(root, id){
-  const p = PROJECTS.find(x=>x.id===id);
-  if(!p){ root.innerHTML='<p class="text-center py-12 text-slate-400">Project not found.</p>'; return; }
-  const d = planningData[id];
-  if(!d){ root.innerHTML=''; return; }
+  const allRows=[...d.labor,...d.travel,...d.mats];
+  const totalPlanned=allRows.reduce((s,r)=>s+r.planned,0);
+  const left=p.budget-totalPlanned;
 
-  const allRows = [...d.labor,...d.travel,...d.mats];
-  const totalPlanned = allRows.reduce((s,r)=>s+r.planned,0);
-  const left = p.budget - totalPlanned;
-
-  let leftCardStyle, leftLabel, leftAmt, leftSub;
+  let leftCard;
   if(left<0){
-    leftCardStyle='background:#fef2f2;border:1px solid #fecaca';
-    leftLabel='<span style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#ef4444">Over Budget</span>';
-    leftAmt=`<p style="font-size:30px;font-weight:700;color:#dc2626;margin:0;font-variant-numeric:tabular-nums;line-height:1">${fmt(Math.abs(left))}</p>`;
-    leftSub='<p style="font-size:11px;color:#fca5a5;margin:4px 0 0">Plan exceeds TOA</p>';
+    leftCard=`<div style="border-radius:16px;padding:20px 24px;background:#fef2f2;border:1px solid #fecaca;box-shadow:0 1px 3px rgba(0,0,0,.05)">
+      <p style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#ef4444;margin:0 0 4px">Left to Plan</p>
+      <p style="font-size:30px;font-weight:700;color:#dc2626;margin:0;font-variant-numeric:tabular-nums;line-height:1">${fmt(left)}</p>
+      <p style="font-size:11px;color:#fca5a5;margin:4px 0 0">Over budget</p></div>`;
+  } else if(left<=50){
+    leftCard=`<div style="border-radius:16px;padding:20px 24px;background:#ecfdf5;border:1px solid #a7f3d0;box-shadow:0 1px 3px rgba(0,0,0,.05)">
+      <p style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#059669;margin:0 0 4px">Left to Plan</p>
+      <p style="font-size:30px;font-weight:700;color:#065f46;margin:0;font-variant-numeric:tabular-nums;line-height:1">${fmt(left)}</p>
+      <p style="font-size:11px;color:#34d399;margin:4px 0 0">Remaining to allocate</p></div>`;
   } else {
-    leftCardStyle='background:#fffbeb;border:1px solid #fca34d';
-    leftLabel='<span style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#d97706">Left to Plan</span>';
-    leftAmt=`<p style="font-size:30px;font-weight:700;color:#b45309;margin:0;font-variant-numeric:tabular-nums;line-height:1">${fmt(left)}</p>`;
-    leftSub='<p style="font-size:11px;color:#f59e0b;margin:4px 0 0">Unallocated funds remaining</p>';
+    leftCard=`<div style="border-radius:16px;padding:20px 24px;background:#fffbeb;border:1px solid #fca34d;box-shadow:0 1px 3px rgba(0,0,0,.05)">
+      <p style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#d97706;margin:0 0 4px">Left to Plan</p>
+      <p style="font-size:30px;font-weight:700;color:#b45309;margin:0;font-variant-numeric:tabular-nums;line-height:1">${fmt(left)}</p>
+      <p style="font-size:11px;color:#f59e0b;margin:4px 0 0">Unallocated funds remaining</p></div>`;
   }
 
-  const canSubmit = left>=0 && left<=50;
+  const canSubmit=left>=0&&left<=50;
+  const btnStyle=canSubmit?'background:#1a3557;color:#fff;cursor:pointer':'background:#e2e8f0;color:#94a3b8;cursor:not-allowed';
 
-  root.innerHTML=`
-  <div style="display:flex;flex-direction:column;gap:20px">
-    <!-- page sub-tabs -->
-    <div style="display:flex;gap:0;background:white;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;padding:0;box-shadow:0 1px 3px rgba(0,0,0,.05)">
-      <button onclick="nav('/projects/${id}/planning')" class="tab-btn active" style="padding:10px 20px;border-bottom:2px solid #1a3557">Planning</button>
-      <button onclick="nav('/projects/${id}/settings')" class="tab-btn" style="padding:10px 20px">Settings</button>
-      <button onclick="nav('/change-requests')" class="tab-btn" style="padding:10px 20px">Change Requests</button>
-    </div>
-
-    <!-- summary cards -->
+  root.innerHTML=`<div style="display:flex;flex-direction:column;gap:20px">
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
       <div style="border-radius:16px;padding:20px 24px;background:#1a3557;box-shadow:0 4px 12px rgba(26,53,87,.35)">
         <p style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#93c5fd;margin:0 0 4px">TOA</p>
@@ -542,172 +514,211 @@ function renderPlanning(root, id){
       </div>
       <div style="border-radius:16px;padding:20px 24px;background:white;border:1px solid #e2e8f0;box-shadow:0 1px 3px rgba(0,0,0,.05)">
         <p style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#94a3b8;margin:0 0 4px">Planned</p>
-        <p id="card-planned-${id}" style="font-size:30px;font-weight:700;color:#0f172a;margin:0;font-variant-numeric:tabular-nums;line-height:1">${fmt(totalPlanned)}</p>
+        <p id="card-planned" style="font-size:30px;font-weight:700;color:#0f172a;margin:0;font-variant-numeric:tabular-nums;line-height:1">${fmt(totalPlanned)}</p>
         <p style="font-size:11px;color:#94a3b8;margin:4px 0 0">Amount currently planned</p>
       </div>
-      <div id="card-left-${id}" style="border-radius:16px;padding:20px 24px;${leftCardStyle};box-shadow:0 1px 3px rgba(0,0,0,.05)">
-        ${leftLabel}${leftAmt}${leftSub}
-      </div>
+      ${leftCard}
     </div>
-
-    ${planSection(id,'labor','Labor','Employee / Org Code','Add Labor')}
-    ${planSection(id,'travel','Travel','Organization','Add Travel')}
-    ${planSection(id,'mats','Materials &amp; Other','Item','Add Item')}
-
+    ${planSection(id,'labor','Labor','Employee / Org Code','Add Labor','Search by name, org code, or department…',LABOR_OPTIONS)}
+    ${planSection(id,'travel','Travel','Organization','Add Travel','Search by name or org code…',TRAVEL_OPTIONS)}
+    ${planSection(id,'mats','Materials &amp; Other','Item','Add Item','Search items…',MATERIAL_OPTIONS)}
     <div style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 0 16px">
-      <button onclick="submitPlan('${id}')" style="padding:10px 48px;font-size:14px;font-weight:600;border-radius:8px;border:none;cursor:${canSubmit?'pointer':'not-allowed'};background:${canSubmit?'#1a3557':'#e2e8f0'};color:${canSubmit?'white':'#94a3b8'};box-shadow:0 1px 3px rgba(0,0,0,.06)">Submit Plan</button>
-      <p style="font-size:12px;color:#94a3b8;margin:0">${canSubmit?'':'Allocate remaining funds before submitting'}</p>
+      <button onclick="submitPlan('${id}')" style="padding:10px 48px;font-size:14px;font-weight:600;border-radius:8px;border:none;box-shadow:0 1px 3px rgba(0,0,0,.06);${btnStyle}">Submit Plan</button>
+      <p style="font-size:12px;color:#94a3b8;margin:0">${canSubmit?'':left<0?'Plan exceeds budget — reduce planned amounts before submitting':'Allocate remaining funds before submitting'}</p>
     </div>
   </div>`;
 }
 
-function planSection(pid, section, title, colHeader, addLabel){
-  const d = planningData[pid][section];
+function planSection(pid,section,title,colHeader,addLabel,pickerPlaceholder,pickerOptions){
+  const d=planningData[pid][section];
   const tp=d.reduce((s,r)=>s+r.planned,0), tr=d.reduce((s,r)=>s+r.requested,0);
   const tc=d.reduce((s,r)=>s+r.tc,0), oc=d.reduce((s,r)=>s+r.oc,0), ob=d.reduce((s,r)=>s+r.ob,0);
-  return `
-  <div style="background:white;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.05)">
+  const ABG='#fffbeb',ABD='1px solid #fcd34d',ABI='1px solid #e9a825',ATB='#fef3c7',BCB='#eff6ff',BBD='1px solid #bfdbfe';
+  return `<div style="background:white;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.05)">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:#1a3557">
       <span style="font-weight:700;color:white;font-size:14px">${title}</span>
-      <button class="btn-add" onclick="addPlanRow('${pid}','${section}')">${I.plus} ${addLabel}</button>
+      <button class="btn-add" onclick="openPicker('${pid}','${section}')">${I.plus} ${addLabel}</button>
     </div>
-    <div style="overflow-x:auto">
-    <table style="width:100%;table-layout:fixed;border-collapse:collapse;font-size:13px">
-      <colgroup>
-        <col style="width:180px"/><col style="width:108px"/><col style="width:108px"/>
-        <col style="width:108px"/><col style="width:108px"/><col style="width:98px"/>
-        <col/><col style="width:95px"/><col style="width:40px"/>
-      </colgroup>
-      <thead>
-        <tr class="hdr-row" style="border-bottom:2px solid #cbd5e1;border-top:1px solid #e2e8f0">
-          <th class="slate-th" style="text-align:left;border-right:none">${colHeader}</th>
-          <th class="amber-th" style="text-align:right;border-left:1px solid #fcd34d">Total<br>Planned</th>
-          <th class="amber-th" style="text-align:right;border-left:1px solid #e9a825">Total<br>Requested</th>
-          <th class="blue-th" style="border-left:2px solid #475569">Total<br>Commitments</th>
-          <th class="blue-th" style="border-left:1px solid #bfdbfe">Open<br>Commitments</th>
-          <th class="blue-th" style="border-left:1px solid #bfdbfe">Obligated</th>
-          <th class="slate-th" style="text-align:left;border-left:1px solid #e2e8f0">Description</th>
-          <th class="amber-th" style="text-align:left;border-left:1px solid #fcd34d">Notes</th>
-          <th style="background:#f1f5f9;border-left:1px solid #e2e8f0"></th>
-        </tr>
-      </thead>
-      <tbody>
-        ${d.map(row=>{
-          const hasOb=row.ob>0;
-          return `<tr style="border-bottom:1px solid #fef9c3">
-            <td style="padding:8px 12px;background:#f8fafc">
-              <p style="font-size:14px;font-weight:600;color:#1e293b;margin:0;line-height:1.3;overflow:hidden;white-space:nowrap;text-overflow:ellipsis" title="${esc(row.label)}">${esc(row.label)}</p>
-              ${row.sub?`<p style="font-size:12px;color:#94a3b8;margin:2px 0 0;line-height:1.3;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${esc(row.sub)}</p>`:''}
-            </td>
-            <td class="amber-td" style="padding:10px 12px;border-left:1px solid #fcd34d">
-              <button class="editable-amt" onclick="startPlanEdit(this,'${pid}','${section}',${row.id},'planned')">${row.planned===0?'—':fmt(row.planned)}</button>
-            </td>
-            <td class="amber-td" style="padding:10px 12px;border-left:1px solid #e9a825">
-              <button class="editable-amt" onclick="startPlanEdit(this,'${pid}','${section}',${row.id},'requested')">${row.requested===0?'—':fmt(row.requested)}</button>
-            </td>
-            <td class="blue-td" style="padding:10px 12px;border-left:2px solid #64748b">${fmt(row.tc)}</td>
-            <td class="blue-td" style="padding:10px 12px;border-left:1px solid #bfdbfe">${fmt(row.oc)}</td>
-            <td class="blue-td" style="padding:10px 12px;border-left:1px solid #bfdbfe">${fmt(row.ob)}</td>
-            <td class="mono" style="padding:10px 12px;font-size:11px;color:#64748b;background:white;border-left:1px solid #e2e8f0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;max-width:0" title="${esc(row.desc)}">${esc(row.desc)}</td>
-            <td class="amber-td" style="padding:10px 12px;border-left:1px solid #fcd34d">
-              <input class="notes-inp" value="${esc(row.notes)}" placeholder="notes" onchange="updatePlanNote('${pid}','${section}',${row.id},this.value)" style="background:transparent;border:none;outline:none;width:100%;font-size:13px"/>
-            </td>
-            <td style="padding:6px;text-align:center;background:#f8fafc;border-left:1px solid #e2e8f0">
-              ${hasOb
-                ?`<button class="btn-act zero" onclick="zeroPlanRow('${pid}','${section}',${row.id})" title="Zero out" style="color:#d97706">${I.minus}</button>`
-                :`<button class="btn-act del" onclick="deletePlanRow('${pid}','${section}',${row.id})" title="Delete" style="color:#ef4444">${I.trash}</button>`
-              }
-            </td>
-          </tr>`;
-        }).join('')}
-      </tbody>
-      <tfoot>
-        <tr style="border-top:2px solid #94a3b8">
-          <td style="padding:10px 12px;font-size:11px;color:#64748b;text-transform:uppercase;font-weight:700;background:#f1f5f9">Total</td>
-          <td class="foot-amber" style="padding:10px 12px;border-left:1px solid #fcd34d">${fmt(tp)}</td>
-          <td class="foot-amber" style="padding:10px 12px;border-left:1px solid #e9a825">${fmt(tr)}</td>
-          <td class="foot-blue" style="padding:10px 12px;border-left:2px solid #64748b">${fmt(tc)}</td>
-          <td class="foot-blue" style="padding:10px 12px;border-left:1px solid #bfdbfe">${fmt(oc)}</td>
-          <td class="foot-blue" style="padding:10px 12px;border-left:1px solid #bfdbfe">${fmt(ob)}</td>
-          <td style="background:white;border-left:1px solid #e2e8f0"></td>
-          <td style="background:#fef3c7;border-left:1px solid #fcd34d"></td>
-          <td style="background:#f8fafc;border-left:1px solid #e2e8f0"></td>
-        </tr>
-      </tfoot>
-    </table>
-    </div>
+    <div style="overflow-x:auto"><table style="width:100%;table-layout:fixed;border-collapse:collapse;font-size:13px">
+      <colgroup><col style="width:180px"/><col style="width:108px"/><col style="width:108px"/><col style="width:108px"/><col style="width:108px"/><col style="width:98px"/><col/><col style="width:95px"/><col style="width:40px"/></colgroup>
+      <thead><tr style="border-bottom:2px solid #cbd5e1;border-top:1px solid #e2e8f0">
+        <th style="padding:12px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#475569;background:#f1f5f9;vertical-align:bottom">${colHeader}</th>
+        <th style="padding:12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:right;vertical-align:bottom;leading-snug;background:#fef3c7;color:#78350f;border-left:${ABD}">Total<br>Planned</th>
+        <th style="padding:12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:right;vertical-align:bottom;background:#fef3c7;color:#78350f;border-left:${ABI}">Total<br>Requested</th>
+        <th style="padding:12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;vertical-align:bottom;color:white;background:#1a6ea8;border-left:2px solid #475569">Total<br>Commitments</th>
+        <th style="padding:12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;vertical-align:bottom;color:white;background:#1a6ea8;border-left:${BBD}">Open<br>Commitments</th>
+        <th style="padding:12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;vertical-align:bottom;color:white;background:#1a6ea8;border-left:${BBD}">Obligated</th>
+        <th style="padding:12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:left;vertical-align:bottom;color:#475569;background:#f1f5f9;border-left:1px solid #e2e8f0">Description</th>
+        <th style="padding:12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:left;vertical-align:bottom;background:#fef3c7;color:#78350f;border-left:${ABD}">Notes</th>
+        <th style="background:#f1f5f9;border-left:1px solid #e2e8f0"></th>
+      </tr></thead>
+      <tbody>${d.map(row=>{
+        const hasOb=row.ob>0;
+        return `<tr style="border-bottom:1px solid #fef9c3">
+          <td style="padding:8px 12px;background:#f8fafc">
+            <p style="font-size:14px;font-weight:600;color:#1e293b;margin:0;line-height:1.3;overflow:hidden;white-space:nowrap;text-overflow:ellipsis" title="${esc(row.label)}">${esc(row.label)}</p>
+            ${row.sub?`<p style="font-size:12px;color:#94a3b8;margin:2px 0 0;line-height:1.3;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${esc(row.sub)}</p>`:''}
+          </td>
+          <td style="padding:10px 12px;background:${ABG};border-left:${ABD}">
+            <button class="eamt" onclick="startEdit(this,'${pid}','${section}',${row.id},'planned')">${row.planned===0?'—':fmt(row.planned)}</button>
+          </td>
+          <td style="padding:10px 12px;background:${ABG};border-left:${ABI}">
+            <button class="eamt" onclick="startEdit(this,'${pid}','${section}',${row.id},'requested')">${row.requested===0?'—':fmt(row.requested)}</button>
+          </td>
+          <td style="padding:10px 12px;text-align:right;font-variant-numeric:tabular-nums;font-size:13px;color:#1e293b;background:${BCB};border-left:2px solid #64748b">${fmt(row.tc)}</td>
+          <td style="padding:10px 12px;text-align:right;font-variant-numeric:tabular-nums;font-size:13px;color:#1e293b;background:${BCB};border-left:${BBD}">${fmt(row.oc)}</td>
+          <td style="padding:10px 12px;text-align:right;font-variant-numeric:tabular-nums;font-size:13px;color:#1e293b;background:${BCB};border-left:${BBD}">${fmt(row.ob)}</td>
+          <td style="padding:10px 12px;font-size:11px;color:#64748b;font-family:monospace;background:white;border-left:1px solid #e2e8f0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;max-width:0" title="${esc(row.desc)}">${esc(row.desc)}</td>
+          <td style="padding:10px 12px;background:${ABG};border-left:${ABD}">
+            <input value="${esc(row.notes)}" placeholder="notes" style="background:transparent;border:none;outline:none;width:100%;font-size:13px;color:#334155" onchange="planNote('${pid}','${section}',${row.id},this.value)"/>
+          </td>
+          <td style="padding:6px;text-align:center;background:#f8fafc;border-left:1px solid #e2e8f0">
+            ${hasOb
+              ?`<button onclick="zeroPlan('${pid}','${section}',${row.id})" title="Zero out" style="padding:6px;border-radius:4px;background:none;border:none;color:#d97706;cursor:pointer;line-height:0" onmouseover="this.style.background='#fef3c7'" onmouseout="this.style.background='none'">${I.minus}</button>`
+              :`<button onclick="delPlan('${pid}','${section}',${row.id})" title="Delete" style="padding:6px;border-radius:4px;background:none;border:none;color:#ef4444;cursor:pointer;line-height:0" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='none'">${I.trash}</button>`
+            }
+          </td>
+        </tr>`;
+      }).join('')}</tbody>
+      <tfoot><tr style="border-top:2px solid #94a3b8">
+        <td style="padding:10px 12px;font-size:11px;color:#64748b;text-transform:uppercase;font-weight:700;background:#f1f5f9">Total</td>
+        <td style="padding:10px 12px;text-align:right;font-weight:700;font-size:13px;font-variant-numeric:tabular-nums;background:${ATB};border-left:${ABD}">${fmt(tp)}</td>
+        <td style="padding:10px 12px;text-align:right;font-weight:700;font-size:13px;font-variant-numeric:tabular-nums;background:${ATB};border-left:${ABI}">${fmt(tr)}</td>
+        <td style="padding:10px 12px;text-align:right;font-weight:700;font-size:13px;font-variant-numeric:tabular-nums;background:#dbeafe;border-left:2px solid #64748b">${fmt(tc)}</td>
+        <td style="padding:10px 12px;text-align:right;font-weight:700;font-size:13px;font-variant-numeric:tabular-nums;background:#dbeafe;border-left:${BBD}">${fmt(oc)}</td>
+        <td style="padding:10px 12px;text-align:right;font-weight:700;font-size:13px;font-variant-numeric:tabular-nums;background:#dbeafe;border-left:${BBD}">${fmt(ob)}</td>
+        <td style="background:white;border-left:1px solid #e2e8f0"></td>
+        <td style="background:${ATB};border-left:${ABD}"></td>
+        <td style="background:#f8fafc;border-left:1px solid #e2e8f0"></td>
+      </tr></tfoot>
+    </table></div>
   </div>`;
 }
 
-window.startPlanEdit = function(btn, pid, section, id, field){
-  const row = planningData[pid][section].find(r=>r.id===id);
-  const td = btn.parentElement;
-  const inp = document.createElement('input');
-  inp.className='edit-input'; inp.value=row[field];
-  td.replaceChild(inp, btn);
-  inp.focus(); inp.select();
-  const commit=()=>{ row[field]=parseInt(inp.value.replace(/[^0-9]/g,''))||0; refreshPlanning(pid); };
-  inp.addEventListener('blur', commit);
-  inp.addEventListener('keydown', e=>{ if(e.key==='Enter') commit(); if(e.key==='Escape') refreshPlanning(pid); });
+/* ---- Planning interactions ---- */
+window.startEdit=function(btn,pid,section,id,field){
+  const row=planningData[pid][section].find(r=>r.id===id);
+  const td=btn.parentElement;
+  const inp=document.createElement('input');
+  inp.className='einp'; inp.value=row[field];
+  td.replaceChild(inp,btn); inp.focus(); inp.select();
+  const commit=()=>{row[field]=parseInt(inp.value.replace(/[^0-9]/g,''))||0;refreshPlan(pid);};
+  inp.addEventListener('blur',commit);
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter')commit();if(e.key==='Escape')refreshPlan(pid);});
 };
-window.updatePlanNote = function(pid, section, id, val){ const r=planningData[pid][section].find(r=>r.id===id); if(r) r.notes=val; };
-window.deletePlanRow = function(pid, section, id){ planningData[pid][section]=planningData[pid][section].filter(r=>r.id!==id); refreshPlanning(pid); };
-window.zeroPlanRow  = function(pid, section, id){ const r=planningData[pid][section].find(r=>r.id===id); if(r){r.planned=0;r.requested=0;} refreshPlanning(pid); };
-window.addPlanRow   = function(pid, section){
-  const label=prompt(section==='mats'?'Item description:':section==='travel'?'Organization name:':'Employee name:');
-  if(!label) return;
-  const sub=section==='mats'?'':(prompt('Org code (optional):')||'');
-  const p=PROJECTS.find(x=>x.id===pid); const num=p?p.number:''; const fy=num.slice(0,2);
-  const pre={labor:'LABOR FUNDS',travel:'TRAVEL',mats:'MATL'}[section];
-  planningData[pid][section].push({id:uid(),label,sub,planned:0,requested:0,tc:0,oc:0,ob:0,desc:`FY${fy}/SANDC ${pre} FOR ${num}/${label}/`,notes:''});
-  refreshPlanning(pid);
+window.planNote=function(pid,section,id,val){const r=planningData[pid][section].find(r=>r.id===id);if(r)r.notes=val;};
+window.delPlan=function(pid,section,id){planningData[pid][section]=planningData[pid][section].filter(r=>r.id!==id);refreshPlan(pid);};
+window.zeroPlan=function(pid,section,id){const r=planningData[pid][section].find(r=>r.id===id);if(r){r.planned=0;r.requested=0;}refreshPlan(pid);};
+window.submitPlan=function(pid){
+  const p=PROJECTS.find(x=>x.id===pid);if(!p)return;
+  const d=planningData[pid];const tot=[...d.labor,...d.travel,...d.mats].reduce((s,r)=>s+r.planned,0);
+  const left=p.budget-tot;
+  if(left>=0&&left<=50)alert('Plan submitted successfully!');
 };
-window.submitPlan = function(pid){
-  const p=PROJECTS.find(x=>x.id===pid); if(!p) return;
-  const d=planningData[pid]; const total=[...d.labor,...d.travel,...d.mats].reduce((s,r)=>s+r.planned,0);
-  const left=p.budget-total;
-  if(left>=0&&left<=50){ alert('Plan submitted successfully!'); }
-};
+function refreshPlan(pid){renderPlanning(document.getElementById('page-root'),pid);}
 
-function refreshPlanning(pid){
-  renderPlanning(document.getElementById('page-root'), pid);
+/* ---- Picker modal ---- */
+let _pickerState={pid:null,section:null,selected:new Set(),query:''};
+
+window.openPicker=function(pid,section){
+  _pickerState={pid,section,selected:new Set(),query:''};
+  renderPicker();
+};
+function pickerOptions(){
+  const map={labor:LABOR_OPTIONS,travel:TRAVEL_OPTIONS,mats:MATERIAL_OPTIONS};
+  const opts=map[_pickerState.section]||[];
+  const existing=new Set((planningData[_pickerState.pid][_pickerState.section]||[]).map(r=>r.label));
+  const q=_pickerState.query.toLowerCase();
+  return opts.filter(o=>!existing.has(o.label)&&(o.label.toLowerCase().includes(q)||o.sub.toLowerCase().includes(q)));
 }
+function renderPicker(){
+  const opts=pickerOptions();
+  const sel=_pickerState.selected;
+  const titleMap={labor:'Add Labor',travel:'Add Travel',mats:'Add Items'};
+  const phMap={labor:'Search by name, org code, or department…',travel:'Search by name or org code…',mats:'Search items…'};
+  const mr=document.getElementById('modal-root');
+  mr.innerHTML=`<div class="mdrop" onclick="closePicker()">
+    <div class="mbox" style="width:340px" onclick="event.stopPropagation()">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:#1a3557;flex-shrink:0">
+        <span style="color:white;font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.06em">${titleMap[_pickerState.section]||'Add'}</span>
+        <button onclick="closePicker()" style="background:none;border:none;color:rgba(255,255,255,.6);cursor:pointer;padding:2px;line-height:0">${I.x}</button>
+      </div>
+      <div style="padding:10px 12px 8px;border-bottom:1px solid #f1f5f9;flex-shrink:0">
+        <div style="display:flex;align-items:center;gap:8px;border:1px solid #cbd5e1;border-radius:8px;padding:6px 10px;background:white">
+          <svg width="13" height="13" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input id="picker-q" value="${esc(_pickerState.query)}" placeholder="${phMap[_pickerState.section]||'Search…'}" style="border:none;outline:none;font-size:13px;width:100%;color:#334155;background:transparent" oninput="_pickerState.query=this.value;renderPicker()"/>
+        </div>
+      </div>
+      <div style="overflow-y:auto;flex:1;max-height:260px">
+        ${opts.length===0?`<p style="text-align:center;font-size:12px;color:#94a3b8;padding:20px 0">No matches</p>`:''}
+        ${opts.map(o=>{
+          const checked=sel.has(o.label);
+          return `<button class="pick-item" onclick="togglePick('${esc(o.label).replace(/'/g,"\\'")}')">
+            <div class="pick-cb" style="background:${checked?'#1a3557':'white'};border:2px solid ${checked?'#1a3557':'#cbd5e1'}">
+              ${checked?`<svg width="10" height="10" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>`:''}
+            </div>
+            <div style="min-width:0">
+              <p style="font-size:13px;font-weight:500;color:#1e293b;margin:0;line-height:1.3;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${esc(o.label)}</p>
+              <p style="font-size:12px;color:#94a3b8;margin:1px 0 0;line-height:1.3">${esc(o.sub)}</p>
+            </div>
+          </button>`;
+        }).join('')}
+      </div>
+      <div style="padding:12px 16px;border-top:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;background:#f8fafc;flex-shrink:0">
+        <span style="font-size:12px;color:#64748b">${sel.size===0?'Select items above':`${sel.size} selected`}</span>
+        <button onclick="confirmPick()" style="padding:7px 20px;font-size:13px;font-weight:600;border-radius:8px;border:none;${sel.size>0?'background:#1a3557;color:white;cursor:pointer':'background:#e2e8f0;color:#94a3b8;cursor:not-allowed'}">Add to Plan</button>
+      </div>
+    </div>
+  </div>`;
+  const qi=document.getElementById('picker-q');if(qi)qi.focus();
+}
+window.togglePick=function(label){
+  if(_pickerState.selected.has(label))_pickerState.selected.delete(label);else _pickerState.selected.add(label);
+  renderPicker();
+};
+window.confirmPick=function(){
+  if(_pickerState.selected.size===0)return;
+  const {pid,section,selected}=_pickerState;
+  const p=PROJECTS.find(x=>x.id===pid);
+  const num=p?p.number:''; const fy=num.slice(0,2);
+  const pre={labor:'LABOR FUNDS',travel:'TRAVEL',mats:'MATL'}[section];
+  const opts=pickerOptions();
+  opts.filter(o=>selected.has(o.label)).forEach(o=>{
+    planningData[pid][section].push({id:uid(),label:o.label,sub:o.sub,planned:0,requested:0,tc:0,oc:0,ob:0,desc:`FY${fy}/SANDC ${pre} FOR ${num}/${o.label.toUpperCase()}/`,notes:''});
+  });
+  closePicker();
+  refreshPlan(pid);
+};
+window.closePicker=function(){document.getElementById('modal-root').innerHTML='';};
 
-/* ============================================================ */
-/*  PROJECT SETTINGS                                             */
-/* ============================================================ */
-let settingsTab = {};
-let settingsFundingData = {};
-
-function getSettingsFundingData(pid){
-  if(!settingsFundingData[pid]){
-    const p=PROJECTS.find(x=>x.id===pid); if(!p) return null;
-    const b=p.budget;
-    const baseYear=parseInt(p.number.slice(0,2),10);
+/* ================================================================
+   PROJECT SETTINGS
+   ================================================================ */
+function getSettingsFd(pid){
+  if(!settingsFdData[pid]){
+    const p=PROJECTS.find(x=>x.id===pid);if(!p)return null;
+    const b=p.budget, baseYear=parseInt(p.number.slice(0,2),10);
     const years=[baseYear-2,baseYear-1,baseYear].map(y=>`FY${String(y).padStart(2,'0')}`);
-    settingsFundingData[pid]={
-      years,
+    settingsFdData[pid]={years,
       planLabor:[Math.round(b*.10),Math.round(b*.30),Math.round(b*.27)],
       planTravel:[Math.round(b*.00),Math.round(b*.02),Math.round(b*.01)],
       planOther:[Math.round(b*.00),Math.round(b*.10),Math.round(b*.20)],
     };
   }
-  return settingsFundingData[pid];
+  return settingsFdData[pid];
 }
 
-function renderSettings(root, id){
-  const p = PROJECTS.find(x=>x.id===id);
-  if(!p){ root.innerHTML='<p style="text-align:center;padding:48px;color:#94a3b8">Project not found.</p>'; return; }
-  const tab = settingsTab[id]||'charter';
-
+function renderSettings(root,id){
+  const p=PROJECTS.find(x=>x.id===id);
+  if(!p){root.innerHTML='<p style="text-align:center;padding:48px;color:#94a3b8">Project not found.</p>';return;}
+  const tab=settingsTab[id]||'charter';
   const tabs=[{id:'charter',label:'Charter'},{id:'funding',label:'Funding'},{id:'schedule',label:'Schedule'}];
   let body='';
-  if(tab==='charter') body=renderSettingsCharter(p);
-  else if(tab==='funding') body=renderSettingsFunding(p);
-  else body=renderSettingsSchedule(p);
+  if(tab==='charter')body=settingsCharter(p);
+  else if(tab==='funding')body=settingsFunding(p);
+  else body=scheduleTabHtml(p.startDate,p.endDate);
 
-  root.innerHTML=`
-  <div style="max-width:900px;margin:0 auto">
+  root.innerHTML=`<div style="max-width:900px;margin:0 auto">
     <div style="background:white;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.05)">
       <div style="padding:16px 24px;border-bottom:1px solid #e2e8f0;background:#fafafa;display:flex;align-items:center;justify-content:space-between">
         <div>
@@ -717,61 +728,53 @@ function renderSettings(root, id){
         <button onclick="nav('/projects/${id}/planning')" style="display:flex;align-items:center;gap:6px;font-size:14px;font-weight:500;color:#64748b;background:none;border:none;cursor:pointer;padding:6px 12px;border-radius:6px" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">${I.back} Back to Plan</button>
       </div>
       <div style="display:flex;border-bottom:1px solid #e2e8f0">
-        ${tabs.map(t=>`<button class="tab-btn ${tab===t.id?'active':''}" onclick="setSettingsTab('${id}','${t.id}')" style="flex:1;text-align:center">${t.label}</button>`).join('')}
+        ${tabs.map(t=>`<button class="tab-btn ${tab===t.id?'on':''}" onclick="setStab('${id}','${t.id}')" style="flex:1;text-align:center">${t.label}</button>`).join('')}
       </div>
       <div>${body}</div>
     </div>
   </div>`;
 }
+window.setStab=function(id,tab){settingsTab[id]=tab;renderSettings(document.getElementById('page-root'),id);};
+window.startSettingsEdit=function(btn,pid,arr,idx){
+  const fd=getSettingsFd(pid); const a=fd[arr];
+  const td=btn.parentElement;
+  const inp=document.createElement('input');
+  inp.className='einp'; inp.value=a[idx]; inp.style.width='100%'; inp.style.textAlign='right';
+  td.replaceChild(inp,btn); inp.focus(); inp.select();
+  const commit=()=>{a[idx]=parseInt(inp.value.replace(/[^0-9]/g,''))||0;renderSettings(document.getElementById('page-root'),pid);};
+  inp.addEventListener('blur',commit);
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter')commit();if(e.key==='Escape')renderSettings(document.getElementById('page-root'),pid);});
+};
 
-window.setSettingsTab=function(id,tab){ settingsTab[id]=tab; renderSettings(document.getElementById('page-root'),id); };
-
-function renderSettingsCharter(p){
-  const field=(label,value,url)=>{
-    let val=url&&value?`<a href="${esc(value)}" target="_blank" style="color:#1a6ea8;font-size:14px;font-weight:500;display:flex;align-items:center;gap:4px;text-decoration:none;word-break:break-all">${esc(value)} ${I.ext}</a>`
-      :`<div style="font-size:14px;font-weight:600;color:#1e293b">${esc(value)||'<span style="color:#94a3b8;font-style:italic">—</span>'}</div>`;
-    return `<div><div class="field-label">${label}</div>${val}</div>`;
+function settingsCharter(p){
+  const f=(l,v,url)=>{
+    const val=url&&v?`<a href="${esc(v)}" target="_blank" style="color:#1a6ea8;font-size:14px;font-weight:500;display:flex;align-items:center;gap:4px;text-decoration:none;word-break:break-all">${esc(v)} ${I.ext}</a>`
+      :`<div style="font-size:14px;font-weight:600;color:#1e293b">${esc(v)||'<span style="color:#94a3b8;font-style:italic">—</span>'}</div>`;
+    return `<div><div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;display:block;margin-bottom:4px">${l}</div>${val}</div>`;
   };
-  const yn=(label,v)=>`<div><div class="field-label">${label}</div><span style="display:inline-flex;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:600;${v?'background:#d1fae5;color:#065f46;border:1px solid #a7f3d0':'background:#f1f5f9;color:#475569;border:1px solid #e2e8f0'}">${v?'Yes':'No'}</span></div>`;
-
-  return `<div style="padding:24px;display:flex;flex-direction:column;gap:20px">
-    <div>
-      <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;display:flex;align-items:center;gap:8px;margin-bottom:12px">Project Overview <div style="flex:1;height:1px;background:#f1f5f9"></div></div>
-      <p style="font-size:14px;color:#64748b;line-height:1.6;margin:0">${esc(p.description)}</p>
-    </div>
-    <div>
-      <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;display:flex;align-items:center;gap:8px;margin-bottom:12px">Team &amp; Organization <div style="flex:1;height:1px;background:#f1f5f9"></div></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-        ${field('DWG / CoP',p.dwgCoP)}
-        ${yn('Need S&C Contract Support',p.needsContractSupport)}
-        ${field('HQ Proponent',p.hqProponent)}
-        ${field('Special Funding Type',p.specialFundingType||'—')}
-        ${field('Executing Org',p.executingOrg)}
-        ${field('Project Lead',p.projectLead)}
-      </div>
-    </div>
-    <div>
-      <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;display:flex;align-items:center;gap:8px;margin-bottom:12px">Financials <div style="flex:1;height:1px;background:#f1f5f9"></div></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-        ${field('Budget at Submission',fmt(p.budgetAtSubmission))}
-        ${field('Current Budget',fmt(p.budget))}
-        ${field('Actual Obligation',fmt(p.actualObligation))}
-        ${field('Start Date',fmtDate(p.startDate))}
-        ${field('End Date',fmtDate(p.endDate))}
-      </div>
-    </div>
-    <div>
-      <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;display:flex;align-items:center;gap:8px;margin-bottom:12px">CMS Links <div style="flex:1;height:1px;background:#f1f5f9"></div></div>
-      <div style="display:flex;flex-direction:column;gap:12px">
-        ${field('Primary CMS Link',p.primaryCmsLink,true)}
-        ${field('CMS Guest Link',p.cmsGuestLink,true)}
-      </div>
-    </div>
+  const yn=(l,v)=>`<div><div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin-bottom:4px">${l}</div>
+    <span style="display:inline-flex;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:600;${v?'background:#d1fae5;color:#065f46;border:1px solid #a7f3d0':'background:#f1f5f9;color:#475569;border:1px solid #e2e8f0'}">${v?'Yes':'No'}</span></div>`;
+  const sec=(label)=>`<div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;display:flex;align-items:center;gap:8px;margin-bottom:14px">${label} <div style="flex:1;height:1px;background:#f1f5f9"></div></div>`;
+  return `<div style="padding:24px;display:flex;flex-direction:column;gap:24px">
+    <div>${sec('Project Overview')}<p style="font-size:14px;color:#64748b;line-height:1.6;margin:0">${esc(p.description)}</p></div>
+    <div>${sec('Team &amp; Organization')}<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      ${f('DWG / CoP',p.dwgCoP)}${yn('Need S&amp;C Contract Support',p.needsContractSupport)}
+      ${f('HQ Proponent',p.hqProponent)}${f('Special Funding Type',p.specialFundingType||'—')}
+      ${f('Executing Org',p.executingOrg)}${f('Project Lead',p.projectLead)}
+    </div></div>
+    <div>${sec('Financials')}<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      ${f('Budget at Submission',fmt(p.budgetAtSubmission))}${f('Current Budget',fmt(p.budget))}
+      ${f('Actual Obligation',fmt(p.actualObligation))}${f('Start Date',fmtDate(p.startDate))}
+      ${f('End Date',fmtDate(p.endDate))}
+    </div></div>
+    <div>${sec('CMS Links')}<div style="display:flex;flex-direction:column;gap:12px">
+      ${f('Primary CMS Link',p.primaryCmsLink,true)}${f('CMS Guest Link',p.cmsGuestLink,true)}
+    </div></div>
   </div>`;
 }
 
-function renderSettingsFunding(p){
-  const fd=getSettingsFundingData(p.id);
+function settingsFunding(p){
+  const fd=getSettingsFd(p.id);
   const {years,planLabor,planTravel,planOther}=fd;
   const planTotals=years.map((_,i)=>planLabor[i]+planTravel[i]+planOther[i]);
   const totalPlanned=planTotals.reduce((s,v)=>s+v,0);
@@ -788,13 +791,12 @@ function renderSettingsFunding(p){
   const totalObl=years.map((_,i)=>statusLaborObl[i]+statusTravelObl[i]+statusOtherObl[i]);
   const atc=years.map((_,i)=>totalCom[i]-totalObl[i]);
   const auob=years.map((_,i)=>totalPlan[i]-totalCom[i]);
+  const ABG='#fffbeb',ABD='1px solid #fcd34d',BCB='#eff6ff',BBD='1px solid #bfdbfe';
 
-  const cell=(v,editable,pid,arr,i)=>editable
-    ?`<button class="editable-amt" style="text-align:right" onclick="startSettingsEdit(this,'${pid}','${arr}',${i})">${v===0?'—':fmt(v)}</button>`
-    :`<span class="tabnum">${v===0?'—':fmt(v)}</span>`;
+  const eCell=(v,arr,i)=>`<button class="eamt" style="text-align:right;font-size:13px" onclick="startSettingsEdit(this,'${p.id}','${arr}',${i})">${v===0?'—':fmt(v)}</button>`;
 
   return `<div style="padding:24px;display:flex;flex-direction:column;gap:24px;overflow-x:auto">
-  <!-- Plan table -->
+  <!-- PLAN -->
   <div style="border-radius:10px;overflow:hidden;border:1px solid #e2e8f0;box-shadow:0 1px 3px rgba(0,0,0,.05)">
     <div style="padding:12px 20px;background:#1a3557;display:flex;align-items:center;justify-content:space-between">
       <span style="font-weight:700;color:white;font-size:14px">Project Funding Plan</span>
@@ -803,57 +805,55 @@ function renderSettingsFunding(p){
     <table style="width:100%;border-collapse:collapse;font-size:13px">
       <thead><tr style="border-bottom:1px solid #e2e8f0">
         <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#64748b;background:#f8fafc;min-width:120px">Category</th>
-        ${years.map(y=>`<th style="padding:10px 12px;text-align:right;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;background:#fffbeb;color:#92400e;border-left:1px solid #fcd34d;width:110px">${y}</th>`).join('')}
+        ${years.map(y=>`<th style="padding:10px 12px;text-align:right;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;background:${ABG};color:#92400e;border-left:${ABD};width:110px">${y}</th>`).join('')}
         <th style="padding:10px 12px;text-align:right;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;background:#f1f5f9;color:#475569;border-left:1px solid #e2e8f0;width:110px">Total</th>
-        <th style="padding:10px 12px;text-align:right;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;background:#1a6ea8;color:white;border-left:1px solid #bfdbfe;width:110px">Total Planned</th>
-        <th style="padding:10px 12px;text-align:right;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;background:#1a6ea8;color:white;border-left:1px solid #bfdbfe;width:110px">Left to Plan</th>
+        <th style="padding:10px 12px;text-align:right;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;background:#1a6ea8;color:white;border-left:${BBD};width:110px">Total Planned</th>
+        <th style="padding:10px 12px;text-align:right;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;background:#1a6ea8;color:white;border-left:${BBD};width:110px">Left to Plan</th>
       </tr></thead>
       <tbody>
         ${[{label:'Labor',arr:'planLabor',vals:planLabor},{label:'Travel',arr:'planTravel',vals:planTravel},{label:'OutSource / Other',arr:'planOther',vals:planOther}].map((row,ri)=>`
         <tr style="border-bottom:1px solid #fef9c3">
           <td style="padding:10px 16px;font-weight:600;color:#334155;background:#f8fafc">${row.label}</td>
-          ${row.vals.map((v,i)=>`<td style="padding:10px 12px;background:#fffbeb;border-left:1px solid #fcd34d;text-align:right">${cell(v,true,p.id,row.arr,i)}</td>`).join('')}
-          <td style="padding:10px 12px;text-align:right;font-weight:600;color:#334155;background:#f8fafc;border-left:1px solid #e2e8f0" class="tabnum">${fmt(row.vals.reduce((s,v)=>s+v,0))}</td>
-          ${ri===0?`<td style="padding:10px 12px;text-align:right;font-weight:600;color:#334155;background:#eff6ff;border-left:1px solid #bfdbfe" class="tabnum">${fmt(totalPlanned)}</td>
-          <td style="padding:10px 12px;text-align:right;font-weight:600;background:${leftToPlan>=0?'#ecfdf5':'#fef2f2'};color:${leftToPlan>=0?'#065f46':'#dc2626'};border-left:1px solid #bfdbfe" class="tabnum">${fmt(leftToPlan)}</td>`
-          :`<td colspan="2" style="background:#f8fafc;border-left:1px solid #bfdbfe"></td>`}
+          ${row.vals.map((v,i)=>`<td style="padding:10px 12px;background:${ABG};border-left:${ABD};text-align:right">${eCell(v,row.arr,i)}</td>`).join('')}
+          <td style="padding:10px 12px;text-align:right;font-weight:600;color:#334155;background:#f8fafc;border-left:1px solid #e2e8f0;font-variant-numeric:tabular-nums">${fmt(row.vals.reduce((s,v)=>s+v,0))}</td>
+          ${ri===0?`<td style="padding:10px 12px;text-align:right;font-weight:600;color:#334155;background:${BCB};border-left:${BBD};font-variant-numeric:tabular-nums">${fmt(totalPlanned)}</td>
+          <td style="padding:10px 12px;text-align:right;font-weight:600;background:${leftToPlan>=0?'#ecfdf5':'#fef2f2'};color:${leftToPlan>=0?'#065f46':'#dc2626'};border-left:${BBD};font-variant-numeric:tabular-nums">${fmt(leftToPlan)}</td>`
+          :`<td colspan="2" style="background:#f8fafc;border-left:${BBD}"></td>`}
         </tr>`).join('')}
         <tr style="border-top:2px solid #94a3b8">
           <td style="padding:10px 16px;font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;background:#f1f5f9">Total</td>
-          ${planTotals.map(v=>`<td style="padding:10px 12px;text-align:right;font-weight:700;color:#1e293b;background:#fef3c7;border-left:1px solid #fcd34d" class="tabnum">${fmt(v)}</td>`).join('')}
-          <td style="padding:10px 12px;text-align:right;font-weight:700;color:#1e293b;background:#f1f5f9;border-left:1px solid #e2e8f0" class="tabnum">${fmt(totalPlanned)}</td>
-          <td colspan="2" style="background:#f1f5f9;border-left:1px solid #bfdbfe"></td>
+          ${planTotals.map(v=>`<td style="padding:10px 12px;text-align:right;font-weight:700;color:#1e293b;background:#fef3c7;border-left:${ABD};font-variant-numeric:tabular-nums">${fmt(v)}</td>`).join('')}
+          <td style="padding:10px 12px;text-align:right;font-weight:700;color:#1e293b;background:#f1f5f9;border-left:1px solid #e2e8f0;font-variant-numeric:tabular-nums">${fmt(totalPlanned)}</td>
+          <td colspan="2" style="background:#f1f5f9;border-left:${BBD}"></td>
         </tr>
       </tbody>
     </table>
   </div>
-
-  <!-- Status table -->
+  <!-- STATUS -->
   <div style="border-radius:10px;overflow:hidden;border:1px solid #e2e8f0;box-shadow:0 1px 3px rgba(0,0,0,.05)">
     <div style="padding:12px 20px;background:#1a3557;display:flex;align-items:center;justify-content:space-between">
       <span style="font-weight:700;color:white;font-size:14px">Project Funding Status</span>
-      <span style="font-size:12px;color:#93c5fd">Import Macro last run: 14 Nov 2025</span>
+      <span style="font-size:12px;color:#93c5fd">Import Macro last run: 14 Nov 2025 · It's now ${today()}</span>
     </div>
     <table style="width:100%;border-collapse:collapse;font-size:13px">
       <thead><tr style="border-bottom:1px solid #e2e8f0">
         <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#64748b;background:#f8fafc;min-width:100px">Category</th>
         <th style="padding:10px 12px;text-align:left;font-size:11px;color:#64748b;background:#f8fafc;border-left:1px solid #e2e8f0;width:50px"></th>
-        ${years.map(y=>`<th style="padding:10px 12px;text-align:right;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;background:#1a6ea8;color:white;border-left:1px solid #bfdbfe;width:120px">${y}</th>`).join('')}
+        ${years.map(y=>`<th style="padding:10px 12px;text-align:right;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;background:#1a6ea8;color:white;border-left:${BBD};width:120px">${y}</th>`).join('')}
         <th style="padding:10px 12px;text-align:right;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;background:#1a3557;color:white;border-left:1px solid #1e4a7a;width:110px">Totals</th>
       </tr></thead>
       <tbody>
-        ${[
-          {cat:'Labor',   plan:planLabor, com:statusLaborCom,  obl:statusLaborObl,  bg:'#ffffff'},
-          {cat:'Travel',  plan:planTravel,com:statusTravelCom, obl:statusTravelObl, bg:'#f8fafc'},
-          {cat:'OutSource / Other',plan:planOther,com:statusOtherCom,obl:statusOtherObl,bg:'#ffffff'},
+        ${[{cat:'Labor',plan:planLabor,com:statusLaborCom,obl:statusLaborObl,bg:'#ffffff'},
+           {cat:'Travel',plan:planTravel,com:statusTravelCom,obl:statusTravelObl,bg:'#f8fafc'},
+           {cat:'OutSource / Other',plan:planOther,com:statusOtherCom,obl:statusOtherObl,bg:'#ffffff'},
         ].flatMap((row,ci)=>(['Plan','Com','Obl']).map((sub,si)=>{
           const vals=sub==='Plan'?row.plan:sub==='Com'?row.com:row.obl;
           const tot=vals.reduce((a,v)=>a+v,0);
           return `<tr style="border-bottom:1px solid #f1f5f9;background:${row.bg}">
             <td style="padding:6px 16px;color:#334155;font-weight:600;vertical-align:middle">${si===0?row.cat:''}</td>
             <td style="padding:6px 12px;font-size:11px;color:#94a3b8;font-family:monospace;border-left:1px solid #e2e8f0">${sub}</td>
-            ${vals.map(v=>`<td style="padding:6px 12px;text-align:right;color:#475569;border-left:1px solid #bfdbfe" class="tabnum">${v===0?'—':fmt(v)}</td>`).join('')}
-            <td style="padding:6px 12px;text-align:right;font-weight:600;color:#1e293b;background:#eff6ff;border-left:1px solid #1e4a7a" class="tabnum">${tot===0?'—':fmt(tot)}</td>
+            ${vals.map(v=>`<td style="padding:6px 12px;text-align:right;color:#475569;border-left:${BBD};font-variant-numeric:tabular-nums">${v===0?'—':fmt(v)}</td>`).join('')}
+            <td style="padding:6px 12px;text-align:right;font-weight:600;color:#1e293b;background:${BCB};border-left:1px solid #1e4a7a;font-variant-numeric:tabular-nums">${tot===0?'—':fmt(tot)}</td>
           </tr>`;
         })).join('')}
         ${(['Plan','Com','Obl']).map((sub,si)=>{
@@ -862,16 +862,16 @@ function renderSettingsFunding(p){
           return `<tr style="border-bottom:1px solid #e2e8f0;background:#f8fafc">
             <td style="padding:6px 16px;font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase">${si===0?'Total':''}</td>
             <td style="padding:6px 12px;font-size:11px;color:#94a3b8;font-family:monospace;border-left:1px solid #e2e8f0">${sub}</td>
-            ${vals.map(v=>`<td style="padding:6px 12px;text-align:right;font-weight:700;color:#1e293b;border-left:1px solid #bfdbfe" class="tabnum">${fmt(v)}</td>`).join('')}
-            <td style="padding:6px 12px;text-align:right;font-weight:700;color:#1e293b;background:#eff6ff;border-left:1px solid #1e4a7a" class="tabnum">${fmt(tot)}</td>
+            ${vals.map(v=>`<td style="padding:6px 12px;text-align:right;font-weight:700;color:#1e293b;border-left:${BBD};font-variant-numeric:tabular-nums">${fmt(v)}</td>`).join('')}
+            <td style="padding:6px 12px;text-align:right;font-weight:700;color:#1e293b;background:${BCB};border-left:1px solid #1e4a7a;font-variant-numeric:tabular-nums">${fmt(tot)}</td>
           </tr>`;
         }).join('')}
         ${[{label:'Available to Commit',key:'AtC',vals:atc},{label:'Available Unobligated',key:'AUob',vals:auob}].map(r=>`
         <tr style="border-top:1px solid #cbd5e1;background:#f0f9ff">
           <td style="padding:6px 16px;font-size:13px;font-weight:600;color:#1d4ed8">${r.label}</td>
           <td style="padding:6px 12px;font-size:11px;color:#3b82f6;font-family:monospace;border-left:1px solid #e2e8f0">${r.key}</td>
-          ${r.vals.map(v=>`<td style="padding:6px 12px;text-align:right;font-size:12px;font-weight:600;color:${v<0?'#dc2626':'#1d4ed8'};border-left:1px solid #bfdbfe" class="tabnum">${fmt(v)}</td>`).join('')}
-          <td style="padding:6px 12px;text-align:right;font-size:12px;font-weight:600;color:#1d4ed8;background:#eff6ff;border-left:1px solid #1e4a7a" class="tabnum">${fmt(r.vals.reduce((a,v)=>a+v,0))}</td>
+          ${r.vals.map(v=>`<td style="padding:6px 12px;text-align:right;font-size:12px;font-weight:600;color:${v<0?'#dc2626':'#1d4ed8'};border-left:${BBD};font-variant-numeric:tabular-nums">${fmt(v)}</td>`).join('')}
+          <td style="padding:6px 12px;text-align:right;font-size:12px;font-weight:600;color:#1d4ed8;background:${BCB};border-left:1px solid #1e4a7a;font-variant-numeric:tabular-nums">${fmt(r.vals.reduce((a,v)=>a+v,0))}</td>
         </tr>`).join('')}
       </tbody>
     </table>
@@ -879,59 +879,39 @@ function renderSettingsFunding(p){
   </div>`;
 }
 
-window.startSettingsEdit = function(btn, pid, arrName, idx){
-  const fd=getSettingsFundingData(pid);
-  const arr=fd[arrName];
-  const td=btn.parentElement;
-  const inp=document.createElement('input');
-  inp.className='edit-input'; inp.value=arr[idx];
-  td.replaceChild(inp, btn);
-  inp.focus(); inp.select();
-  const commit=()=>{ arr[idx]=parseInt(inp.value.replace(/[^0-9]/g,''))||0; renderSettings(document.getElementById('page-root'),pid); };
-  inp.addEventListener('blur',commit);
-  inp.addEventListener('keydown',e=>{ if(e.key==='Enter') commit(); if(e.key==='Escape') renderSettings(document.getElementById('page-root'),pid); });
-};
-
-function renderSettingsSchedule(p){
-  return renderDetailSchedule(p);
-}
-
-/* ============================================================ */
-/*  CHANGE REQUESTS                                             */
-/* ============================================================ */
-function renderChangeRequests(root){
-  const q=crSearchQ.toLowerCase();
+/* ================================================================
+   CHANGE REQUESTS
+   ================================================================ */
+function renderCRs(root){
+  const q=crState.q.toLowerCase();
   const filtered=CRS.filter(cr=>{
-    const matchStatus=crStatusFilter==='All'||cr.status===crStatusFilter;
-    const matchQ=cr.projectNumber.toLowerCase().includes(q)||cr.projectName.toLowerCase().includes(q)||cr.submittedBy.toLowerCase().includes(q)||cr.lineItems.some(li=>li.description.toLowerCase().includes(q));
-    return matchStatus&&matchQ;
+    const ms=crState.filter==='All'||cr.status===crState.filter;
+    const mq=cr.projectNumber.toLowerCase().includes(q)||cr.projectName.toLowerCase().includes(q)||cr.submittedBy.toLowerCase().includes(q)||cr.lineItems.some(li=>li.description.toLowerCase().includes(q));
+    return ms&&mq;
   });
 
-  root.innerHTML=`
-  <div style="background:white;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.05);display:flex;flex-direction:column;height:calc(100vh - 10rem)">
-    <!-- toolbar -->
+  root.innerHTML=`<div style="background:white;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.05);display:flex;flex-direction:column;height:calc(100vh - 10rem)">
     <div style="padding:16px;border-bottom:1px solid #e2e8f0;background:#fafafa;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
       <div style="position:relative;width:288px">
-        <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%)">${I.search}</span>
-        <input type="text" value="${esc(crSearchQ)}" placeholder="Search requests..." style="padding-left:36px;height:36px" oninput="crSearchQ=this.value;renderChangeRequests(document.getElementById('page-root'))"/>
+        <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%)">${I.search}</span>
+        <input class="inp" value="${esc(crState.q)}" placeholder="Search requests…" style="padding-left:34px;height:36px" oninput="crState.q=this.value;renderCRs(document.getElementById('page-root'))"/>
       </div>
-      <div style="display:flex;align-items:center;gap:12px">
-        <svg width="16" height="16" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
-        <select onchange="crStatusFilter=this.value;renderChangeRequests(document.getElementById('page-root'))" style="height:36px;width:160px;padding:0 8px;background:white">
-          ${['All','Pending','Under Review','Approved','Rejected'].map(s=>`<option value="${s}" ${crStatusFilter===s?'selected':''}>${s==='All'?'All Statuses':s}</option>`).join('')}
+      <div style="display:flex;align-items:center;gap:10px">
+        ${I.filter}
+        <select class="inp" style="height:36px;width:160px;padding:0 8px" onchange="crState.filter=this.value;renderCRs(document.getElementById('page-root'))">
+          ${['All','Pending','Under Review','Approved','Rejected'].map(s=>`<option value="${s}" ${crState.filter===s?'selected':''}>${s==='All'?'All Statuses':s}</option>`).join('')}
         </select>
       </div>
     </div>
-    <!-- table -->
     <div style="overflow-x:auto;flex:1">
       <table style="width:100%;font-size:14px;text-align:left;border-collapse:collapse">
         <thead style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.06em;background:#fafafa;border-bottom:1px solid #e2e8f0">
           <tr>
-            <th style="padding:16px 24px;font-weight:600">Project</th>
-            <th style="padding:16px 24px;font-weight:600">Proponent</th>
-            <th style="padding:16px 24px;font-weight:600">Submitted By</th>
-            <th style="padding:16px 24px;font-weight:600">Requested</th>
-            <th style="padding:16px 24px;font-weight:600">Status</th>
+            <th style="padding:14px 24px;font-weight:600">Project</th>
+            <th style="padding:14px 24px;font-weight:600">Proponent</th>
+            <th style="padding:14px 24px;font-weight:600">Submitted By</th>
+            <th style="padding:14px 24px;font-weight:600">Requested</th>
+            <th style="padding:14px 24px;font-weight:600">Status</th>
           </tr>
         </thead>
         <tbody>
@@ -942,14 +922,14 @@ function renderChangeRequests(root){
             </div>
           </td></tr>`:filtered.map(cr=>`
           <tr onclick="openCR('${cr.id}')" style="border-bottom:1px solid #f1f5f9;cursor:pointer" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background=''">
-            <td style="padding:16px 24px">
+            <td style="padding:14px 24px">
               <div style="font-family:monospace;font-size:11px;font-weight:700;color:#64748b">${esc(cr.projectNumber)}</div>
               <div style="font-weight:600;color:#0f172a;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;max-width:200px">${esc(cr.projectName)}</div>
             </td>
-            <td style="padding:16px 24px;color:#475569">${esc(PROJECTS.find(p=>p.number===cr.projectNumber)?.hqProponent||'—')}</td>
-            <td style="padding:16px 24px;color:#475569">${esc(cr.submittedBy)}</td>
-            <td style="padding:16px 24px;color:#64748b">${esc(cr.date)}</td>
-            <td style="padding:16px 24px">${crBadge(cr.status)}</td>
+            <td style="padding:14px 24px;color:#475569">${esc(PROJECTS.find(p=>p.number===cr.projectNumber)?.hqProponent||'—')}</td>
+            <td style="padding:14px 24px;color:#475569">${esc(cr.submittedBy)}</td>
+            <td style="padding:14px 24px;color:#64748b">${esc(cr.date)}</td>
+            <td style="padding:14px 24px">${crBadge(cr.status)}</td>
           </tr>`).join('')}
         </tbody>
       </table>
@@ -957,24 +937,21 @@ function renderChangeRequests(root){
   </div>`;
 }
 
-window.openCR = function(id){
-  const cr=CRS.find(x=>x.id===id); if(!cr) return;
-  if(!crNoteTexts[id]) crNoteTexts[id]='';
+window.openCR=function(id){
+  const cr=CRS.find(x=>x.id===id);if(!cr)return;
+  if(!crState.noteTexts[id])crState.noteTexts[id]='';
+  let noteText=crState.noteTexts[id];
   const net=cr.lineItems.reduce((s,li)=>li.direction==='Increase'?s+li.amount:s-li.amount,0);
-  const fmtDelta=n=>(n>0?'+':'')+fmt(n);
-  const buildDesc=()=>cr.lineItems.map(li=>`FY${cr.projectNumber.slice(0,2)}/SANDC ${li.type.toUpperCase()} FUNDS FOR ${cr.projectNumber}/${li.description.toUpperCase()}/`).join('\n');
   const isActionable=cr.status!=='Approved'&&cr.status!=='Rejected';
+  const buildDesc=()=>cr.lineItems.map(li=>`FY${cr.projectNumber.slice(0,2)}/SANDC ${li.type.toUpperCase()} FUNDS FOR ${cr.projectNumber}/${li.description.toUpperCase()}/`).join('\n');
   const typeChip=t=>t==='Labor'?'background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe':t==='Travel'?'background:#f5f3ff;color:#6d28d9;border:1px solid #ddd6fe':'background:#f8fafc;color:#475569;border:1px solid #e2e8f0';
 
-  const modal=document.getElementById('modal-root');
-  modal.innerHTML=`
-  <div class="modal-backdrop" onclick="closeCR()">
-    <div class="modal-box" style="width:600px" onclick="event.stopPropagation()">
+  const mr=document.getElementById('modal-root');
+  mr.innerHTML=`<div class="mdrop" onclick="closeCR()">
+    <div class="mbox" style="width:600px" onclick="event.stopPropagation()">
       <!-- header -->
-      <div style="padding:16px 24px;border-bottom:1px solid #f1f5f9;background:#fafafa;flex-shrink:0">
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
-          ${I.folder}<span style="font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em">Budget Change Request</span>
-        </div>
+      <div style="padding:16px 24px;border-bottom:1px solid #f1f5f9;background:#fafafa;flex-shrink:0;position:relative">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">${I.folder}<span style="font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em">Budget Change Request</span></div>
         <div style="font-size:18px;font-weight:700;color:#0f172a;line-height:1.3;padding-right:32px">
           <span style="font-family:monospace;font-size:13px;color:#94a3b8;margin-right:8px">${esc(cr.projectNumber)}</span>${esc(cr.projectName)}
         </div>
@@ -982,16 +959,16 @@ window.openCR = function(id){
           ${crBadge(cr.status)}
           <span style="font-size:14px;color:#64748b;display:flex;align-items:center;gap:6px">${I.user}<strong style="color:#334155">${esc(cr.submittedBy)}</strong><span style="color:#cbd5e1">·</span>${esc(cr.date)}</span>
         </div>
-        <button onclick="closeCR()" style="position:absolute;top:16px;right:20px;background:none;border:none;cursor:pointer;color:#94a3b8;padding:4px;border-radius:4px">${I.x}</button>
+        <button onclick="closeCR()" style="position:absolute;top:14px;right:18px;background:none;border:none;cursor:pointer;color:#94a3b8;padding:4px;border-radius:4px;line-height:0">${I.x}</button>
       </div>
       <!-- body -->
-      <div style="overflow-y:auto;flex:1;padding:24px;display:flex;flex-direction:column;gap:20px">
+      <div style="overflow-y:auto;flex:1;padding:22px;display:flex;flex-direction:column;gap:18px">
         <div>
           <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin-bottom:8px">Project Overview</div>
           <p style="font-size:14px;color:#475569;line-height:1.6;background:#f8fafc;border:1px solid #f1f5f9;border-radius:8px;padding:12px 16px;margin:0">${esc(cr.projectDescription)}</p>
         </div>
         <div>
-          <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin-bottom:12px">Budget Changes</div>
+          <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin-bottom:10px">Budget Changes</div>
           <div style="border:1px solid #e2e8f0;border-radius:8px;overflow:hidden">
             <div style="display:grid;grid-template-columns:1fr 96px 20px 96px 96px;font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:8px 16px;gap:12px">
               <span>Line Item</span><span style="text-align:right">Current</span><span></span><span style="text-align:right">Proposed</span><span style="text-align:right">Change</span>
@@ -1004,84 +981,83 @@ window.openCR = function(id){
                   <span style="font-size:14px;color:#334155;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${esc(li.description)}</span>
                 </div>
                 <span style="font-size:14px;color:#64748b;text-align:right;font-variant-numeric:tabular-nums">${fmt(li.from)}</span>
-                <span style="color:#cbd5e1;text-align:center">${I.arrow}</span>
+                <span style="color:#cbd5e1;text-align:center">${I.arr13}</span>
                 <span style="font-size:14px;font-weight:500;color:#1e293b;text-align:right;font-variant-numeric:tabular-nums">${fmt(li.to)}</span>
                 <span style="font-size:14px;font-weight:600;text-align:right;font-variant-numeric:tabular-nums;color:${delta>0?'#065f46':'#dc2626'}">${delta>0?'+':''}${fmt(delta)}</span>
               </div>`;
             }).join('')}
             <div style="display:grid;grid-template-columns:1fr 96px 20px 96px 96px;align-items:center;padding:10px 16px;gap:12px;background:#f8fafc;border-top:2px solid #e2e8f0">
-              <span colspan="4" style="grid-column:1/5;font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;text-align:right">Net Change</span>
-              <span style="font-size:14px;font-weight:700;text-align:right;font-variant-numeric:tabular-nums;color:${net>0?'#065f46':net<0?'#dc2626':'#64748b'}">${net===0?'$0':fmtDelta(net)}</span>
+              <span style="grid-column:1/5;font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;text-align:right">Net Change</span>
+              <span style="font-size:14px;font-weight:700;text-align:right;font-variant-numeric:tabular-nums;color:${net>0?'#065f46':net<0?'#dc2626':'#64748b'}">${net===0?'$0':fmtD(net)}</span>
             </div>
           </div>
         </div>
         <div>
           <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin-bottom:8px">Justification</div>
-          <p style="font-size:14px;color:#334155;line-height:1.6;background:#f8fafc;padding:16px;border-radius:8px;border:1px solid #f1f5f9;margin:0">${esc(cr.justification)}</p>
+          <p style="font-size:14px;color:#334155;line-height:1.6;background:#f8fafc;padding:14px 16px;border-radius:8px;border:1px solid #f1f5f9;margin:0">${esc(cr.justification)}</p>
         </div>
         <div>
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
             <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8">Description</div>
-            <button id="cr-copy-desc" onclick="crCopyDesc('${id}')" style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:#64748b;background:none;border:none;cursor:pointer;padding:4px 8px;border-radius:4px" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">${I.copy} Copy</button>
+            <button id="cr-copy-desc" onclick="crCopyDesc('${id}')" style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:500;color:#64748b;background:none;border:none;cursor:pointer;padding:4px 8px;border-radius:4px" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">${I.copy} Copy</button>
           </div>
           <textarea id="cr-desc-${id}" readonly rows="${Math.max(3,cr.lineItems.length+1)}" style="width:100%;font-size:12px;color:#334155;font-family:monospace;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px;resize:none;outline:none;line-height:1.6">${buildDesc()}</textarea>
         </div>
         <div>
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
             <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8">Notes</div>
-            <button id="cr-copy-notes" onclick="crCopyNotes('${id}')" style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:#64748b;background:none;border:none;cursor:pointer;padding:4px 8px;border-radius:4px" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">${I.copy} Copy</button>
+            <button id="cr-copy-notes" onclick="crCopyNotes('${id}')" ${noteText.trim()?'':'disabled'} style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:500;color:#64748b;background:none;border:none;padding:4px 8px;border-radius:4px;${noteText.trim()?'cursor:pointer':'opacity:.4;cursor:not-allowed'}" onmouseover="if(!this.disabled)this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">${I.copy} Copy</button>
           </div>
-          <textarea id="cr-notes-${id}" rows="4" placeholder="Add any additional notes here…" style="width:100%;font-size:14px;color:#334155;background:white;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px;resize:none;outline:none" oninput="crNoteTexts['${id}']=this.value">${esc(crNoteTexts[id]||'')}</textarea>
+          <textarea id="cr-notes-${id}" rows="4" placeholder="Add any additional notes here…" style="width:100%;font-size:14px;color:#334155;background:white;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px;resize:none;outline:none" oninput="crNoteChange('${id}',this.value)">${esc(noteText)}</textarea>
         </div>
         ${isActionable?`<div>
-          <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;display:block;margin-bottom:6px">Reason (optional)</div>
+          <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;display:block;margin-bottom:6px">Reason (optional)</label>
           <textarea id="cr-reason-${id}" rows="3" placeholder="Provide a reason for your decision…" style="width:100%;font-size:14px;color:#334155;background:white;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px;resize:none;outline:none"></textarea>
         </div>`:''}
       </div>
       <!-- footer -->
-      <div style="padding:16px 24px;background:#fafafa;border-top:1px solid #e2e8f0;display:flex;justify-content:flex-end;gap:12px;flex-shrink:0">
+      <div style="padding:14px 22px;background:#fafafa;border-top:1px solid #e2e8f0;display:flex;justify-content:flex-end;gap:12px;flex-shrink:0">
         <button onclick="closeCR()" style="padding:8px 16px;font-size:14px;font-weight:500;color:#475569;background:none;border:none;cursor:pointer;border-radius:6px" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='none'">Close</button>
         ${isActionable?`
-        <button onclick="crAction('${id}','Reject')" style="padding:8px 16px;font-size:14px;font-weight:500;color:#dc2626;background:#fee2e2;border:1px solid #fecaca;border-radius:6px;cursor:pointer" onmouseover="this.style.background='#fecaca'" onmouseout="this.style.background='#fee2e2'">Reject</button>
-        <button onclick="crAction('${id}','Approve')" style="padding:8px 16px;font-size:14px;font-weight:600;color:white;background:#059669;border:none;border-radius:6px;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.1)" onmouseover="this.style.background='#047857'" onmouseout="this.style.background='#059669'">Approve Changes</button>`:''}
+        <button onclick="crAction('${id}','Reject')" style="padding:8px 16px;font-size:14px;font-weight:500;color:#dc2626;background:#fee2e2;border:1px solid #fecaca;border-radius:6px;cursor:pointer;display:flex;align-items:center;gap:6px" onmouseover="this.style.background='#fecaca'" onmouseout="this.style.background='#fee2e2'">${I.xCirc} Reject</button>
+        <button onclick="crAction('${id}','Approve')" style="padding:8px 16px;font-size:14px;font-weight:600;color:white;background:#059669;border:none;border-radius:6px;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.1);display:flex;align-items:center;gap:6px" onmouseover="this.style.background='#047857'" onmouseout="this.style.background='#059669'">${I.checkCirc} Approve Changes</button>`:''}
       </div>
     </div>
   </div>`;
 };
-
-window.closeCR = function(){ document.getElementById('modal-root').innerHTML=''; };
-window.crAction = function(id, action){
-  const cr=CRS.find(x=>x.id===id); if(!cr) return;
+window.closeCR=function(){document.getElementById('modal-root').innerHTML='';};
+window.crAction=function(id,action){
+  const cr=CRS.find(x=>x.id===id);if(!cr)return;
   cr.status=action==='Approve'?'Approved':'Rejected';
-  closeCR();
-  renderChangeRequests(document.getElementById('page-root'));
+  closeCR(); renderCRs(document.getElementById('page-root'));
 };
-window.crCopyDesc = function(id){
-  const ta=document.getElementById(`cr-desc-${id}`); if(!ta) return;
-  navigator.clipboard.writeText(ta.value).then(()=>{ const b=document.getElementById('cr-copy-desc'); if(b){b.innerHTML=`${I.check} Copied!`; setTimeout(()=>{b.innerHTML=`${I.copy} Copy`;},2000);} });
+window.crNoteChange=function(id,val){
+  crState.noteTexts[id]=val;
+  const btn=document.getElementById('cr-copy-notes');
+  if(btn){btn.disabled=!val.trim();btn.style.opacity=val.trim()?'1':'0.4';btn.style.cursor=val.trim()?'pointer':'not-allowed';}
 };
-window.crCopyNotes = function(id){
-  const ta=document.getElementById(`cr-notes-${id}`); if(!ta) return;
-  navigator.clipboard.writeText(ta.value).then(()=>{ const b=document.getElementById('cr-copy-notes'); if(b){b.innerHTML=`${I.check} Copied!`; setTimeout(()=>{b.innerHTML=`${I.copy} Copy`;},2000);} });
+window.crCopyDesc=function(id){
+  const ta=document.getElementById(`cr-desc-${id}`);if(!ta)return;
+  navigator.clipboard.writeText(ta.value).then(()=>{const b=document.getElementById('cr-copy-desc');if(b){b.innerHTML=`${I.check} Copied!`;setTimeout(()=>{b.innerHTML=`${I.copy} Copy`;},2000);}});
+};
+window.crCopyNotes=function(id){
+  const ta=document.getElementById(`cr-notes-${id}`);if(!ta)return;
+  navigator.clipboard.writeText(ta.value).then(()=>{const b=document.getElementById('cr-copy-notes');if(b){b.innerHTML=`${I.check} Copied!`;setTimeout(()=>{b.innerHTML=`${I.copy} Copy`;},2000);}});
 };
 
-/* ============================================================ */
-/*  SETUP QUEUE                                                  */
-/* ============================================================ */
-const REQUIRED_FIELDS=['pmName','dwgCoP','hqProponent','executingOrg','projectLead','needsContractSupport','startDate','endDate','primaryCmsLink','cmsGuestLink'];
-
-function completionOf(p){
-  const filled=REQUIRED_FIELDS.filter(f=>{const v=p[f];return v!==''&&v!==null&&v!==undefined;}).length;
-  return {filled,total:REQUIRED_FIELDS.length,pct:Math.round(filled/REQUIRED_FIELDS.length*100)};
+/* ================================================================
+   SETUP QUEUE
+   ================================================================ */
+const SETUP_REQ=['pmName','dwgCoP','hqProponent','executingOrg','projectLead','needsContractSupport','startDate','endDate','primaryCmsLink','cmsGuestLink'];
+function completion(p){
+  const filled=SETUP_REQ.filter(f=>{const v=p[f];return v!==''&&v!==null&&v!==undefined;}).length;
+  return {filled,total:SETUP_REQ.length,pct:Math.round(filled/SETUP_REQ.length*100)};
 }
 
 function renderSetupQueue(root){
-  root.innerHTML=`
-  <div style="max-width:700px;margin:0 auto;display:flex;flex-direction:column;gap:24px">
+  root.innerHTML=`<div style="max-width:700px;margin:0 auto;display:flex;flex-direction:column;gap:24px">
     <div style="display:flex;align-items:center;gap:12px">
-      <div style="width:40px;height:40px;border-radius:8px;background:#fffbeb;border:1px solid #fde68a;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-        ${I.clip}
-      </div>
+      <div style="width:40px;height:40px;border-radius:8px;background:#fffbeb;border:1px solid #fde68a;display:flex;align-items:center;justify-content:center;flex-shrink:0">${I.clip}</div>
       <div>
         <h2 style="font-size:20px;font-weight:700;color:#0f172a;margin:0">Project Setup Queue</h2>
         <p style="font-size:14px;color:#64748b;margin:2px 0 0">Projects recently picked up that require a BA to complete the EPMP charter data.</p>
@@ -1089,16 +1065,14 @@ function renderSetupQueue(root){
     </div>
     <div style="display:flex;flex-direction:column;gap:12px">
       ${SETUP_PROJECTS.map(p=>{
-        const {filled,total,pct}=completionOf(p);
+        const {filled,total,pct}=completion(p);
         const missing=total-filled;
         const col=pct===100?'#059669':pct>=50?'#d97706':'#dc2626';
-        const barCol=pct===100?'#10b981':pct>=50?'#f59e0b':'#ef4444';
-        return `<div onclick="nav('/setup/${p.id}')" class="card-hover" style="background:white;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.05);padding:20px;display:flex;align-items:center;gap:20px;cursor:pointer">
+        const bar=pct===100?'#10b981':pct>=50?'#f59e0b':'#ef4444';
+        return `<div onclick="nav('/setup/${p.id}')" class="ch" style="background:white;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.05);padding:20px;display:flex;align-items:center;gap:20px;cursor:pointer">
           <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px;width:56px">
             <span style="font-size:18px;font-weight:700;color:${col}">${pct}%</span>
-            <div style="width:56px;height:6px;background:#f1f5f9;border-radius:999px;overflow:hidden">
-              <div style="height:100%;width:${pct}%;background:${barCol};border-radius:999px"></div>
-            </div>
+            <div style="width:56px;height:6px;background:#f1f5f9;border-radius:999px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${bar};border-radius:999px"></div></div>
             <span style="font-size:10px;color:#94a3b8">${filled}/${total}</span>
           </div>
           <div style="flex:1;min-width:0">
@@ -1121,32 +1095,26 @@ function renderSetupQueue(root){
   </div>`;
 }
 
-/* ============================================================ */
-/*  PROJECT SETUP FORM                                           */
-/* ============================================================ */
-function renderProjectSetup(root, id){
+/* ================================================================
+   PROJECT SETUP FORM
+   ================================================================ */
+function renderSetupForm(root,id){
   const base=SETUP_PROJECTS.find(x=>x.id===id);
-  if(!base){ root.innerHTML='<p style="text-align:center;padding:48px;color:#94a3b8">Project not found.</p>'; return; }
-  if(!setupEdits[id]) setupEdits[id]={...base};
+  if(!base){root.innerHTML='<p style="text-align:center;padding:48px;color:#94a3b8">Project not found.</p>';return;}
+  if(!setupEdits[id])setupEdits[id]={...base};
   const p=setupEdits[id];
-  const {filled,total,pct}=completionOf(p);
-  const barCol=pct===100?'#10b981':pct>=50?'#f59e0b':'#ef4444';
-
-  const field=(label,key,type='text',opts)=>{
-    const val=esc(p[key]||'');
-    if(type==='select'){
-      return `<div><div class="field-label">${label}</div>
-        <select onchange="setupEdit('${id}','${key}',this.value)" style="height:38px">
-          <option value="">Select…</option>
-          ${(opts||[]).map(o=>`<option value="${o}" ${p[key]===o?'selected':''}>${o}</option>`).join('')}
-        </select></div>`;
-    }
-    return `<div><div class="field-label">${label}</div>
-      <input type="${type}" value="${val}" onchange="setupEdit('${id}','${key}',this.value)" style="height:38px"/></div>`;
+  const {filled,total,pct}=completion(p);
+  const bar=pct===100?'#10b981':pct>=50?'#f59e0b':'#ef4444';
+  const sec=l=>`<div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;display:flex;align-items:center;gap:8px;margin-bottom:14px">${l}<div style="flex:1;height:1px;background:#f1f5f9"></div></div>`;
+  const field=(l,k,type='text',opts)=>{
+    const v=esc(p[k]||'');
+    if(type==='select')return `<div><div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin-bottom:4px">${l}</div>
+      <select class="inp" style="height:38px" onchange="sedit('${id}','${k}',this.value)"><option value="">Select…</option>
+      ${(opts||[]).map(o=>`<option value="${o}" ${p[k]===o?'selected':''}>${o}</option>`).join('')}</select></div>`;
+    return `<div><div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin-bottom:4px">${l}</div>
+      <input type="${type}" value="${v}" class="inp" style="height:38px" onchange="sedit('${id}','${k}',this.value)"/></div>`;
   };
-
-  root.innerHTML=`
-  <div style="max-width:800px;margin:0 auto">
+  root.innerHTML=`<div style="max-width:800px;margin:0 auto">
     <div style="background:white;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.05)">
       <div style="padding:16px 24px;border-bottom:1px solid #e2e8f0;background:#fafafa;display:flex;align-items:center;justify-content:space-between">
         <div>
@@ -1154,49 +1122,28 @@ function renderProjectSetup(root, id){
           <p style="font-size:12px;color:#64748b;margin:2px 0 0">Complete all required fields to enable project activation.</p>
         </div>
         <div style="text-align:right">
-          <span style="font-size:14px;font-weight:700;color:${barCol}">${pct}% complete</span>
-          <div style="width:120px;height:6px;background:#f1f5f9;border-radius:999px;overflow:hidden;margin-top:4px">
-            <div style="height:100%;width:${pct}%;background:${barCol};border-radius:999px;transition:width .3s"></div>
-          </div>
+          <span style="font-size:14px;font-weight:700;color:${bar}">${pct}% complete</span>
+          <div style="width:120px;height:6px;background:#f1f5f9;border-radius:999px;overflow:hidden;margin-top:4px"><div style="height:100%;width:${pct}%;background:${bar};border-radius:999px;transition:width .3s"></div></div>
           <div style="font-size:11px;color:#94a3b8;margin-top:2px">${filled}/${total} fields</div>
         </div>
       </div>
-      <div style="padding:24px;display:flex;flex-direction:column;gap:24px">
-        <div>
-          <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;display:flex;align-items:center;gap:8px;margin-bottom:16px">Project Info <div style="flex:1;height:1px;background:#f1f5f9"></div></div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-            ${field('Project Number','number')}
-            ${field('Project Name','name')}
-            ${field('Description (brief)','description')}
-            ${field('Est. Budget','estimatedBudget')}
-          </div>
-        </div>
-        <div>
-          <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;display:flex;align-items:center;gap:8px;margin-bottom:16px">Team <div style="flex:1;height:1px;background:#f1f5f9"></div></div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-            ${field('PM Name','pmName')}
-            ${field('Project Lead','projectLead')}
-            ${field('HQ Proponent','hqProponent')}
-            ${field('Executing Org','executingOrg')}
-            ${field('DWG / CoP','dwgCoP')}
-            ${field('Need S&C Contract Support','needsContractSupport','select',['Yes','No'])}
-          </div>
-        </div>
-        <div>
-          <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;display:flex;align-items:center;gap:8px;margin-bottom:16px">Dates <div style="flex:1;height:1px;background:#f1f5f9"></div></div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-            ${field('Start Date','startDate','date')}
-            ${field('End Date','endDate','date')}
-          </div>
-        </div>
-        <div>
-          <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;display:flex;align-items:center;gap:8px;margin-bottom:16px">CMS Links <div style="flex:1;height:1px;background:#f1f5f9"></div></div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-            ${field('Primary CMS Link','primaryCmsLink')}
-            ${field('CMS Guest Link','cmsGuestLink')}
-            ${field('Additional CMS Links','additionalCmsLinks')}
-          </div>
-        </div>
+      <div style="padding:24px;display:flex;flex-direction:column;gap:22px">
+        <div>${sec('Project Info')}<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          ${field('Project Number','number')}${field('Project Name','name')}
+          ${field('Description','description')}${field('Est. Budget','estimatedBudget')}
+        </div></div>
+        <div>${sec('Team')}<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          ${field('PM Name','pmName')}${field('Project Lead','projectLead')}
+          ${field('HQ Proponent','hqProponent')}${field('Executing Org','executingOrg')}
+          ${field('DWG / CoP','dwgCoP')}${field('Need S&C Contract Support','needsContractSupport','select',['Yes','No'])}
+        </div></div>
+        <div>${sec('Dates')}<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          ${field('Start Date','startDate','date')}${field('End Date','endDate','date')}
+        </div></div>
+        <div>${sec('CMS Links')}<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          ${field('Primary CMS Link','primaryCmsLink')}${field('CMS Guest Link','cmsGuestLink')}
+          ${field('Additional CMS Links','additionalCmsLinks')}
+        </div></div>
         <div style="display:flex;justify-content:flex-end;gap:12px;padding-top:8px;border-top:1px solid #f1f5f9">
           <button onclick="nav('/setup')" style="padding:10px 20px;font-size:14px;font-weight:500;color:#475569;background:white;border:1px solid #e2e8f0;border-radius:8px;cursor:pointer">Cancel</button>
           <button onclick="saveSetup('${id}')" style="padding:10px 24px;font-size:14px;font-weight:600;color:white;background:#1a3557;border:none;border-radius:8px;cursor:pointer">Save Progress</button>
@@ -1205,18 +1152,8 @@ function renderProjectSetup(root, id){
     </div>
   </div>`;
 }
-
-window.setupEdit = function(id, key, val){
-  if(!setupEdits[id]) return;
-  setupEdits[id][key]=val;
-  renderProjectSetup(document.getElementById('page-root'), id);
-};
-window.saveSetup = function(id){
-  const p=SETUP_PROJECTS.find(x=>x.id===id);
-  if(p) Object.assign(p, setupEdits[id]);
-  alert('Progress saved!');
-  nav('/setup');
-};
+window.sedit=function(id,key,val){if(!setupEdits[id])return;setupEdits[id][key]=val;renderSetupForm(document.getElementById('page-root'),id);};
+window.saveSetup=function(id){const p=SETUP_PROJECTS.find(x=>x.id===id);if(p)Object.assign(p,setupEdits[id]);alert('Progress saved!');nav('/setup');};
 </script>
 </body>
 </html>
