@@ -1,14 +1,16 @@
 import { useState } from "react";
 import { Link, useParams } from "wouter";
-import { ChevronRight, Settings } from "lucide-react";
+import { ChevronRight, Settings, Plus, Trash2, MinusCircle, X, Check } from "lucide-react";
 import { MOCK_PROJECTS } from "@/lib/mockData";
-import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import Layout from "@/components/Layout";
 
 /* ─── helpers ─────────────────────────────────────────────────── */
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
+
+let _uid = 100;
+const uid = () => ++_uid;
 
 /* ─── types ────────────────────────────────────────────────────── */
 type FundingRow = {
@@ -37,7 +39,7 @@ function EditableAmount({ value, onChange }: { value: number; onChange: (v: numb
           if (e.key === "Enter") { onChange(parseInt(raw) || 0); setEditing(false); }
           if (e.key === "Escape") setEditing(false);
         }}
-        className="w-full text-right text-sm border border-amber-400 rounded px-1 py-0.5 focus:outline-none focus:ring-2 focus:ring-amber-300 tabular-nums bg-white"
+        className="w-full text-right text-sm border border-amber-400 rounded px-1 py-0.5 focus:outline-none focus:ring-1 focus:ring-amber-300 tabular-nums bg-white"
       />
     );
   }
@@ -54,23 +56,114 @@ function EditableAmount({ value, onChange }: { value: number; onChange: (v: numb
 /* ─── row state hook ───────────────────────────────────────────── */
 function useFundingRows(initial: FundingRow[]) {
   const [rows, setRows] = useState(initial);
+
   const updateAmount = (id: number, field: "planned" | "requested", value: number) =>
     setRows((r) => r.map((row) => row.id === id ? { ...row, [field]: value } : row));
+
   const updateNote = (id: number, value: string) =>
     setRows((r) => r.map((row) => row.id === id ? { ...row, notes: value } : row));
-  return [rows, updateAmount, updateNote] as const;
+
+  const deleteRow = (id: number) =>
+    setRows((r) => r.filter((row) => row.id !== id));
+
+  const zeroOutRow = (id: number) =>
+    setRows((r) => r.map((row) => row.id === id
+      ? { ...row, planned: 0, requested: 0 }
+      : row));
+
+  const addRow = (label: string, description: string) =>
+    setRows((r) => [...r, {
+      id: uid(), label, planned: 0, requested: 0,
+      totalCommitments: 0, openCommitments: 0, obligated: 0,
+      description, notes: "",
+    }]);
+
+  return { rows, updateAmount, updateNote, deleteRow, zeroOutRow, addRow };
+}
+
+/* ─── add-row inline form ──────────────────────────────────────── */
+function AddRowForm({
+  placeholder, descPlaceholder, colSpan,
+  onAdd, onCancel,
+}: {
+  placeholder: string;
+  descPlaceholder: string;
+  colSpan: number;
+  onAdd: (label: string, desc: string) => void;
+  onCancel: () => void;
+}) {
+  const [label, setLabel] = useState("");
+  const [desc,  setDesc]  = useState("");
+  const canSave = label.trim().length > 0;
+
+  return (
+    <tr style={{ backgroundColor: "#f0fdf4", borderTop: "1px dashed #86efac" }}>
+      <td className="px-3 py-2" colSpan={1}>
+        <input
+          autoFocus value={label} onChange={(e) => setLabel(e.target.value)}
+          placeholder={placeholder}
+          className="w-full text-sm border border-emerald-400 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-emerald-400"
+        />
+      </td>
+      {/* amber cols — blank */}
+      <td className="px-2 py-2" style={{ backgroundColor: "#fffbeb", borderLeft: "1px solid #fcd34d" }} />
+      <td className="px-2 py-2" style={{ backgroundColor: "#fffbeb", borderLeft: "1px solid #fcd34d" }} />
+      {/* blue cols — blank */}
+      <td className="px-2 py-2" style={{ backgroundColor: "#eff6ff", borderLeft: "1px solid #bfdbfe" }} />
+      <td className="px-2 py-2" style={{ backgroundColor: "#eff6ff", borderLeft: "1px solid #bfdbfe" }} />
+      <td className="px-2 py-2" style={{ backgroundColor: "#eff6ff", borderLeft: "1px solid #bfdbfe" }} />
+      {/* description */}
+      <td className="px-2 py-2" style={{ borderLeft: "1px solid #e2e8f0" }}>
+        <input value={desc} onChange={(e) => setDesc(e.target.value)}
+          placeholder={descPlaceholder}
+          className="w-full text-xs border border-slate-300 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-slate-400"
+        />
+      </td>
+      {/* notes col — blank */}
+      <td className="px-2 py-2" style={{ backgroundColor: "#fffbeb", borderLeft: "1px solid #fcd34d" }} />
+      {/* actions */}
+      <td className="px-2 py-2 text-center" style={{ borderLeft: "1px solid #e2e8f0" }}>
+        <div className="flex items-center justify-center gap-1">
+          <button
+            onClick={() => canSave && onAdd(label.trim(), desc.trim())}
+            disabled={!canSave}
+            className="p-1 rounded text-white text-xs font-semibold transition-colors disabled:opacity-40"
+            style={{ backgroundColor: "#16a34a" }}
+            title="Save"
+          >
+            <Check size={14} />
+          </button>
+          <button
+            onClick={onCancel}
+            className="p-1 rounded text-slate-500 hover:text-slate-700 hover:bg-slate-200 transition-colors"
+            title="Cancel"
+          >
+            <X size={14} />
+          </button>
+        </div>
+      </td>
+    </tr>
+  );
 }
 
 /* ─── single funding section table ─────────────────────────────── */
 function FundingSection({
-  title, columnHeader, rows, onUpdateAmount, onUpdateNote,
+  title, columnHeader, addLabel, descTemplate, rows,
+  onUpdateAmount, onUpdateNote, onDelete, onZeroOut, onAdd,
 }: {
   title: string;
   columnHeader: string;
+  addLabel: string;
+  descTemplate: string;
   rows: FundingRow[];
   onUpdateAmount: (id: number, field: "planned" | "requested", value: number) => void;
   onUpdateNote: (id: number, value: string) => void;
+  onDelete: (id: number) => void;
+  onZeroOut: (id: number) => void;
+  onAdd: (label: string, desc: string) => void;
 }) {
+  const [showAddRow, setShowAddRow] = useState(false);
+
   const totalPlanned     = rows.reduce((s, r) => s + r.planned, 0);
   const totalRequested   = rows.reduce((s, r) => s + r.requested, 0);
   const totalCommitments = rows.reduce((s, r) => s + r.totalCommitments, 0);
@@ -80,81 +173,138 @@ function FundingSection({
   const blueHd = "px-3 py-2.5 text-center text-xs font-semibold text-white uppercase tracking-wide";
   const blueTd = "px-3 py-2.5 text-right text-sm tabular-nums text-slate-800";
 
-  /* amber = #fffbeb | amber border = #fcd34d | blue header = #1a6ea8 | blue cell = #eff6ff */
-  const amberBg = "#fffbeb";
+  const amberBg     = "#fffbeb";
   const amberBorder = "1px solid #fcd34d";
   const amberTotalBg = "#fef3c7";
-  const blueCellBg = "#eff6ff";
-  const blueBorder = "1px solid #bfdbfe";
-  const blueHdBg = "#1a6ea8";
+  const blueCellBg  = "#eff6ff";
+  const blueBorder  = "1px solid #bfdbfe";
+  const blueHdBg    = "#1a6ea8";
+
+  const handleAdd = (label: string, desc: string) => {
+    onAdd(label, desc || descTemplate);
+    setShowAddRow(false);
+  };
 
   return (
     <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-      {/* section header */}
-      <div className="px-4 py-3" style={{ backgroundColor: "#1a3557" }}>
-        <span className="font-bold text-white text-sm tracking-wide">{title}</span>
+
+      {/* ── section header ── */}
+      <div className="flex items-center justify-between px-4 py-2.5" style={{ backgroundColor: "#1a3557" }}>
+        <div className="flex items-center gap-2">
+          <span className="font-bold text-white text-sm tracking-wide">{title}</span>
+          <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ backgroundColor: "rgba(255,255,255,0.12)", color: "#93c5fd" }}>
+            {rows.length} {rows.length === 1 ? "line" : "lines"}
+          </span>
+        </div>
+        <button
+          onClick={() => setShowAddRow(true)}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors"
+          style={{ backgroundColor: "rgba(255,255,255,0.15)", color: "#fff", border: "1px solid rgba(255,255,255,0.25)" }}
+          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.25)")}
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.15)")}
+        >
+          <Plus size={13} />
+          Add {addLabel}
+        </button>
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full text-sm" style={{ borderCollapse: "collapse", minWidth: 900 }}>
+        <table className="w-full text-sm" style={{ borderCollapse: "collapse", minWidth: 960 }}>
           <thead>
             <tr style={{ borderBottom: "1px solid #e2e8f0" }}>
-              {/* label col */}
-              <th className="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide bg-slate-50" style={{ minWidth: 140 }}>
+              <th className="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide bg-slate-50" style={{ minWidth: 150 }}>
                 {columnHeader}
               </th>
-              {/* editable cols — amber */}
-              <th className="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide" style={{ backgroundColor: amberBg, color: "#92400e", borderLeft: amberBorder, width: 120 }}>
+              <th className="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide" style={{ backgroundColor: amberBg, color: "#92400e", borderLeft: amberBorder, width: 115 }}>
                 Total Planned
               </th>
-              <th className="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide" style={{ backgroundColor: amberBg, color: "#92400e", borderLeft: amberBorder, width: 120 }}>
+              <th className="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide" style={{ backgroundColor: amberBg, color: "#92400e", borderLeft: amberBorder, width: 115 }}>
                 Total Requested
               </th>
-              {/* read-only cols — blue */}
-              <th className={blueHd} style={{ backgroundColor: blueHdBg, borderLeft: blueBorder, width: 130 }}>Total Commitments</th>
-              <th className={blueHd} style={{ backgroundColor: blueHdBg, borderLeft: blueBorder, width: 130 }}>Open Commitments</th>
-              <th className={blueHd} style={{ backgroundColor: blueHdBg, borderLeft: blueBorder, width: 110 }}>Obligated</th>
-              {/* description + notes */}
-              <th className="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide bg-slate-50" style={{ borderLeft: "1px solid #e2e8f0", minWidth: 210 }}>
+              <th className={blueHd} style={{ backgroundColor: blueHdBg, borderLeft: blueBorder, width: 125 }}>Total Commitments</th>
+              <th className={blueHd} style={{ backgroundColor: blueHdBg, borderLeft: blueBorder, width: 125 }}>Open Commitments</th>
+              <th className={blueHd} style={{ backgroundColor: blueHdBg, borderLeft: blueBorder, width: 105 }}>Obligated</th>
+              <th className="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide bg-slate-50" style={{ borderLeft: "1px solid #e2e8f0", minWidth: 200 }}>
                 Description
               </th>
-              <th className="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide" style={{ backgroundColor: amberBg, color: "#92400e", borderLeft: amberBorder, minWidth: 110 }}>
+              <th className="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide" style={{ backgroundColor: amberBg, color: "#92400e", borderLeft: amberBorder, minWidth: 100 }}>
                 Notes
+              </th>
+              <th className="px-3 py-2.5 text-center text-xs font-semibold text-slate-400 uppercase tracking-wide bg-slate-50" style={{ borderLeft: "1px solid #e2e8f0", width: 72 }}>
+                Actions
               </th>
             </tr>
           </thead>
 
           <tbody>
-            {rows.map((row) => (
-              <tr key={row.id} style={{ borderBottom: "1px solid #fef9c3" }}>
-                <td className="px-3 py-2.5 text-slate-700 font-medium bg-slate-50">{row.label}</td>
-                {/* editable */}
-                <td className="px-3 py-2.5" style={{ backgroundColor: amberBg, borderLeft: amberBorder }}>
-                  <EditableAmount value={row.planned}   onChange={(v) => onUpdateAmount(row.id, "planned", v)} />
-                </td>
-                <td className="px-3 py-2.5" style={{ backgroundColor: amberBg, borderLeft: amberBorder }}>
-                  <EditableAmount value={row.requested} onChange={(v) => onUpdateAmount(row.id, "requested", v)} />
-                </td>
-                {/* read-only blue */}
-                <td className={blueTd} style={{ backgroundColor: blueCellBg, borderLeft: blueBorder }}>{fmt(row.totalCommitments)}</td>
-                <td className={blueTd} style={{ backgroundColor: blueCellBg, borderLeft: blueBorder }}>{fmt(row.openCommitments)}</td>
-                <td className={blueTd} style={{ backgroundColor: blueCellBg, borderLeft: blueBorder }}>{fmt(row.obligated)}</td>
-                {/* description */}
-                <td className="px-3 py-2.5 text-xs text-slate-400 font-mono bg-white truncate max-w-[220px]" style={{ borderLeft: "1px solid #e2e8f0" }} title={row.description}>
-                  {row.description}
-                </td>
-                {/* notes — editable amber */}
-                <td className="px-3 py-2.5" style={{ backgroundColor: amberBg, borderLeft: amberBorder }}>
-                  <input
-                    type="text" value={row.notes}
-                    onChange={(e) => onUpdateNote(row.id, e.target.value)}
-                    placeholder="notes"
-                    className="w-full text-sm text-slate-700 border-none focus:outline-none"
-                    style={{ backgroundColor: "transparent" }}
-                  />
-                </td>
-              </tr>
-            ))}
+            {rows.map((row) => {
+              const hasObligations = row.obligated > 0;
+              return (
+                <tr key={row.id} style={{ borderBottom: "1px solid #fef9c3" }}>
+                  <td className="px-3 py-2.5 text-slate-700 font-medium bg-slate-50">{row.label}</td>
+                  <td className="px-3 py-2.5" style={{ backgroundColor: amberBg, borderLeft: amberBorder }}>
+                    <EditableAmount value={row.planned}   onChange={(v) => onUpdateAmount(row.id, "planned", v)} />
+                  </td>
+                  <td className="px-3 py-2.5" style={{ backgroundColor: amberBg, borderLeft: amberBorder }}>
+                    <EditableAmount value={row.requested} onChange={(v) => onUpdateAmount(row.id, "requested", v)} />
+                  </td>
+                  <td className={blueTd} style={{ backgroundColor: blueCellBg, borderLeft: blueBorder }}>{fmt(row.totalCommitments)}</td>
+                  <td className={blueTd} style={{ backgroundColor: blueCellBg, borderLeft: blueBorder }}>{fmt(row.openCommitments)}</td>
+                  <td className={blueTd} style={{ backgroundColor: blueCellBg, borderLeft: blueBorder }}>{fmt(row.obligated)}</td>
+                  <td className="px-3 py-2.5 text-xs text-slate-400 font-mono bg-white truncate max-w-[210px]" style={{ borderLeft: "1px solid #e2e8f0" }} title={row.description}>
+                    {row.description}
+                  </td>
+                  <td className="px-3 py-2.5" style={{ backgroundColor: amberBg, borderLeft: amberBorder }}>
+                    <input
+                      type="text" value={row.notes}
+                      onChange={(e) => onUpdateNote(row.id, e.target.value)}
+                      placeholder="notes"
+                      className="w-full text-sm text-slate-700 border-none focus:outline-none"
+                      style={{ backgroundColor: "transparent" }}
+                    />
+                  </td>
+
+                  {/* actions column */}
+                  <td className="px-2 py-2.5 text-center bg-slate-50" style={{ borderLeft: "1px solid #e2e8f0" }}>
+                    {hasObligations ? (
+                      <button
+                        onClick={() => onZeroOut(row.id)}
+                        title="Zero out — row has obligations so it cannot be deleted"
+                        className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-colors"
+                        style={{ backgroundColor: "#fef3c7", color: "#92400e", border: "1px solid #fcd34d" }}
+                        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#fde68a")}
+                        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#fef3c7")}
+                      >
+                        <MinusCircle size={12} />
+                        Zero
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => onDelete(row.id)}
+                        title="Delete row"
+                        className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-colors"
+                        style={{ backgroundColor: "#fef2f2", color: "#dc2626", border: "1px solid #fecaca" }}
+                        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#fee2e2")}
+                        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#fef2f2")}
+                      >
+                        <Trash2 size={12} />
+                        Delete
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+
+            {showAddRow && (
+              <AddRowForm
+                placeholder={`New ${addLabel}...`}
+                descPlaceholder={descTemplate}
+                colSpan={9}
+                onAdd={handleAdd}
+                onCancel={() => setShowAddRow(false)}
+              />
+            )}
           </tbody>
 
           <tfoot>
@@ -167,6 +317,7 @@ function FundingSection({
               <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-bold bg-blue-100" style={{ borderLeft: blueBorder }}>{fmt(totalObligated)}</td>
               <td className="bg-white" style={{ borderLeft: "1px solid #e2e8f0" }} />
               <td style={{ backgroundColor: amberTotalBg, borderLeft: amberBorder }} />
+              <td className="bg-slate-100" style={{ borderLeft: "1px solid #e2e8f0" }} />
             </tr>
           </tfoot>
         </table>
@@ -181,8 +332,8 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
   const fy = projectNumber.slice(0, 2);
   const num = projectNumber;
 
-  const [laborRows, updateLaborAmt, updateLaborNote] = useFundingRows([
-    { id: 1, label: "Nugent, Joseph Pat", planned: Math.round(b * 0.09), requested: Math.round(b * 0.09 * 0.05),
+  const labor  = useFundingRows([
+    { id: 1, label: "Nugent, Joseph Pat", planned: Math.round(b * 0.09),  requested: Math.round(b * 0.09 * 0.05),
       totalCommitments: Math.round(b * 0.09 * 0.05), openCommitments: Math.round(b * 0.09 * 0.03), obligated: Math.round(b * 0.09 * 0.02),
       description: `FY${fy}/SANDC LABOR FUNDS FOR ${num}/CEFMS/`, notes: "notes" },
     { id: 2, label: "U435310", planned: Math.round(b * 0.05), requested: Math.round(b * 0.05 * 0.95),
@@ -193,25 +344,25 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
       description: `FY${fy}/SANDC LABOR FUNDS FOR ${num}/Chen D/`, notes: "" },
   ]);
 
-  const [travelRows, updateTravelAmt, updateTravelNote] = useFundingRows([
-    { id: 1, label: "Site Visits", planned: Math.round(b * 0.02), requested: Math.round(b * 0.02),
+  const travel = useFundingRows([
+    { id: 10, label: "Site Visits", planned: Math.round(b * 0.02), requested: Math.round(b * 0.02),
       totalCommitments: Math.round(b * 0.02), openCommitments: Math.round(b * 0.02 * 0.59), obligated: Math.round(b * 0.02 * 0.41),
       description: `FY${fy}/SANDC TRAVEL FOR ${num}/Site Visits/`, notes: "" },
-    { id: 2, label: "Equipment Transport", planned: Math.round(b * 0.013), requested: Math.round(b * 0.013),
-      totalCommitments: Math.round(b * 0.013), openCommitments: Math.round(b * 0.013 * 0.50), obligated: Math.round(b * 0.013 * 0.50),
+    { id: 11, label: "Equipment Transport", planned: Math.round(b * 0.013), requested: Math.round(b * 0.013),
+      totalCommitments: Math.round(b * 0.013), openCommitments: Math.round(b * 0.013 * 0.50), obligated: 0,
       description: `FY${fy}/SANDC TRAVEL FOR ${num}/Equip Transport/`, notes: "" },
   ]);
 
-  const [matRows, updateMatAmt, updateMatNote] = useFundingRows([
-    { id: 1, label: "Concrete (500 units)", planned: Math.round(b * 0.031), requested: Math.round(b * 0.031),
+  const mats   = useFundingRows([
+    { id: 20, label: "Concrete (500 units)", planned: Math.round(b * 0.031), requested: Math.round(b * 0.031),
       totalCommitments: Math.round(b * 0.031), openCommitments: Math.round(b * 0.031 * 0.53), obligated: Math.round(b * 0.031 * 0.47),
       description: `FY${fy}/SANDC MATL FOR ${num}/Concrete/500 units`, notes: "" },
-    { id: 2, label: "Steel Rebar (2000 ft)", planned: Math.round(b * 0.021), requested: Math.round(b * 0.021 * 0.98),
-      totalCommitments: Math.round(b * 0.021 * 0.98), openCommitments: Math.round(b * 0.021 * 0.49), obligated: Math.round(b * 0.021 * 0.49),
+    { id: 21, label: "Steel Rebar (2000 ft)", planned: Math.round(b * 0.021), requested: Math.round(b * 0.021 * 0.98),
+      totalCommitments: Math.round(b * 0.021 * 0.98), openCommitments: Math.round(b * 0.021 * 0.49), obligated: 0,
       description: `FY${fy}/SANDC MATL FOR ${num}/Rebar/2000 units`, notes: "" },
   ]);
 
-  const allPlanned = [...laborRows, ...travelRows, ...matRows].reduce((s, r) => s + r.planned, 0);
+  const allPlanned = [...labor.rows, ...travel.rows, ...mats.rows].reduce((s, r) => s + r.planned, 0);
   const leftToPlan = budget - allPlanned;
 
   return (
@@ -236,9 +387,24 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
       </div>
 
       {/* tables */}
-      <FundingSection title="Labor"             columnHeader="Employee / Org Code" rows={laborRows}  onUpdateAmount={updateLaborAmt}  onUpdateNote={updateLaborNote}  />
-      <FundingSection title="Travel"            columnHeader="Travel Line"         rows={travelRows} onUpdateAmount={updateTravelAmt} onUpdateNote={updateTravelNote} />
-      <FundingSection title="Materials & Other" columnHeader="Item"                rows={matRows}    onUpdateAmount={updateMatAmt}    onUpdateNote={updateMatNote}    />
+      <FundingSection
+        title="Labor" columnHeader="Employee / Org Code" addLabel="Person" descTemplate={`FY${fy}/SANDC LABOR FUNDS FOR ${num}//`}
+        rows={labor.rows}
+        onUpdateAmount={labor.updateAmount} onUpdateNote={labor.updateNote}
+        onDelete={labor.deleteRow}  onZeroOut={labor.zeroOutRow} onAdd={labor.addRow}
+      />
+      <FundingSection
+        title="Travel" columnHeader="Travel Line" addLabel="Travel Line" descTemplate={`FY${fy}/SANDC TRAVEL FOR ${num}//`}
+        rows={travel.rows}
+        onUpdateAmount={travel.updateAmount} onUpdateNote={travel.updateNote}
+        onDelete={travel.deleteRow} onZeroOut={travel.zeroOutRow} onAdd={travel.addRow}
+      />
+      <FundingSection
+        title="Materials & Other" columnHeader="Item" addLabel="Item" descTemplate={`FY${fy}/SANDC MATL FOR ${num}//`}
+        rows={mats.rows}
+        onUpdateAmount={mats.updateAmount} onUpdateNote={mats.updateNote}
+        onDelete={mats.deleteRow}   onZeroOut={mats.zeroOutRow} onAdd={mats.addRow}
+      />
 
       {/* submit */}
       <div className="flex justify-center pt-2 pb-4">
@@ -256,8 +422,6 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
 /* ─── page ─────────────────────────────────────────────────────── */
 export default function ProjectPlanning() {
   const params = useParams();
-  const { toast } = useToast();
-
   const projectId = params.id;
   const project = MOCK_PROJECTS.find((p) => p.id === projectId);
 
@@ -286,8 +450,6 @@ export default function ProjectPlanning() {
       </button>
     </Link>
   );
-
-  void toast; // kept for potential future use
 
   return (
     <Layout breadcrumb={breadcrumb} headerActions={headerActions}>
