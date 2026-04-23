@@ -13,24 +13,21 @@ let _uid = 100;
 const uid = () => ++_uid;
 
 /* ─── option data ──────────────────────────────────────────────── */
-const PERSON_OPTIONS = [
-  { label: "Nugent, Joseph Pat",  sub: "GS-12 · Transportation" },
-  { label: "Chen, David",         sub: "GS-13 · Engineering" },
-  { label: "Williams, Sandra K.", sub: "GS-11 · Planning" },
-  { label: "Torres, Miguel A.",   sub: "GS-14 · Project Mgmt" },
-  { label: "Park, Jennifer",      sub: "GS-12 · Environmental" },
-  { label: "Harrison, Mark T.",   sub: "GS-13 · Civil Engineering" },
-  { label: "Okafor, Chioma",      sub: "GS-12 · Environmental" },
-  { label: "Reyes, Carlos",       sub: "GS-11 · Construction" },
-];
-
-const ORG_OPTIONS = [
-  { label: "U435310", sub: "Logistics" },
-  { label: "U582094", sub: "Contracts" },
-  { label: "U601847", sub: "Finance" },
-  { label: "U719203", sub: "Engineering" },
-  { label: "U834512", sub: "Operations" },
-  { label: "U920183", sub: "Planning" },
+const LABOR_OPTIONS = [
+  { label: "Nugent, Joseph Pat",  sub: "U435310 · GS-12 Transportation" },
+  { label: "Chen, David",         sub: "U719203 · GS-13 Engineering" },
+  { label: "Williams, Sandra K.", sub: "U920183 · GS-11 Planning" },
+  { label: "Torres, Miguel A.",   sub: "U582094 · GS-14 Project Mgmt" },
+  { label: "Park, Jennifer",      sub: "U601847 · GS-12 Environmental" },
+  { label: "Harrison, Mark T.",   sub: "U719203 · GS-13 Civil Engineering" },
+  { label: "Okafor, Chioma",      sub: "U601847 · GS-12 Environmental" },
+  { label: "Reyes, Carlos",       sub: "U834512 · GS-11 Construction" },
+  { label: "U435310",             sub: "Logistics · Org Code" },
+  { label: "U582094",             sub: "Contracts · Org Code" },
+  { label: "U601847",             sub: "Finance · Org Code" },
+  { label: "U719203",             sub: "Engineering · Org Code" },
+  { label: "U834512",             sub: "Operations · Org Code" },
+  { label: "U920183",             sub: "Planning · Org Code" },
 ];
 
 const TRAVEL_OPTIONS = [
@@ -131,103 +128,7 @@ function CheckList({
   );
 }
 
-/* ─── dual-panel picker modal (reused for Labor and Travel) ────── */
-function DualPickerModal({
-  title,
-  leftTitle,
-  leftOptions,
-  leftPlaceholder,
-  rightTitle,
-  rightOptions,
-  rightPlaceholder,
-  emptyHint,
-  existingLabels,
-  onAdd,
-  onClose,
-}: {
-  title: string;
-  leftTitle: string;
-  leftOptions: { label: string; sub: string }[];
-  leftPlaceholder: string;
-  rightTitle: string;
-  rightOptions: { label: string; sub: string }[];
-  rightPlaceholder: string;
-  emptyHint: string;
-  existingLabels: Set<string>;
-  onAdd: (labels: string[]) => void;
-  onClose: () => void;
-}) {
-  const [selectedLeft,  setSelectedLeft]  = useState<Set<string>>(new Set());
-  const [selectedRight, setSelectedRight] = useState<Set<string>>(new Set());
-
-  const availLeft  = useMemo(() => leftOptions.filter((o)  => !existingLabels.has(o.label)), [leftOptions,  existingLabels]);
-  const availRight = useMemo(() => rightOptions.filter((o) => !existingLabels.has(o.label)), [rightOptions, existingLabels]);
-
-  const toggleLeft  = (label: string) =>
-    setSelectedLeft((prev)  => { const next = new Set(prev); next.has(label) ? next.delete(label) : next.add(label); return next; });
-  const toggleRight = (label: string) =>
-    setSelectedRight((prev) => { const next = new Set(prev); next.has(label) ? next.delete(label) : next.add(label); return next; });
-
-  const totalSelected = selectedLeft.size + selectedRight.size;
-
-  const handleAdd = () => {
-    const labels = [...selectedLeft, ...selectedRight];
-    if (labels.length > 0) onAdd(labels);
-    onClose();
-  };
-
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center"
-      style={{ backgroundColor: "rgba(15,23,42,0.45)" }}
-      onClick={onClose}
-    >
-      <div
-        className="bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col"
-        style={{ width: 560, maxHeight: "80vh" }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center justify-between px-4 py-2.5 flex-shrink-0" style={{ backgroundColor: "#1a3557" }}>
-          <span className="text-white font-semibold text-xs tracking-wide uppercase">{title}</span>
-          <button onClick={onClose} className="text-white/60 hover:text-white transition-colors">
-            <X size={15} />
-          </button>
-        </div>
-
-        <div className="flex flex-1 min-h-0 divide-x divide-slate-200">
-          <div className="flex flex-col flex-1 min-w-0">
-            <div className="px-3 pt-2.5 pb-1 flex-shrink-0">
-              <p className="text-xs font-bold text-slate-600 uppercase tracking-wider">{leftTitle}</p>
-            </div>
-            <CheckList options={availLeft} selected={selectedLeft} onToggle={toggleLeft} placeholder={leftPlaceholder} />
-          </div>
-          <div className="flex flex-col flex-1 min-w-0">
-            <div className="px-3 pt-2.5 pb-1 flex-shrink-0">
-              <p className="text-xs font-bold text-slate-600 uppercase tracking-wider">{rightTitle}</p>
-            </div>
-            <CheckList options={availRight} selected={selectedRight} onToggle={toggleRight} placeholder={rightPlaceholder} />
-          </div>
-        </div>
-
-        <div className="px-4 py-3 border-t border-slate-200 flex items-center justify-between flex-shrink-0 bg-slate-50">
-          <p className="text-xs text-slate-500">
-            {totalSelected === 0 ? emptyHint : `${totalSelected} selected`}
-          </p>
-          <button
-            onClick={handleAdd}
-            disabled={totalSelected === 0}
-            className="px-5 py-2 text-sm font-semibold rounded-lg transition-colors disabled:cursor-not-allowed"
-            style={totalSelected > 0 ? { backgroundColor: "#1a3557", color: "#fff" } : { backgroundColor: "#e2e8f0", color: "#94a3b8" }}
-          >
-            Add to Plan
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ─── general multi-select picker modal ────────────────────────── */
+/* ─── picker modal ──────────────────────────────────────────────── */
 function MultiPickerModal({
   title,
   options,
@@ -392,7 +293,7 @@ function FundingSection({
   onDelete: (id: number) => void;
   onZeroOut: (id: number) => void;
   onAddMany: (labels: string[]) => void;
-  pickerMode: "labor" | "travel" | "multi";
+  pickerMode: "multi";
   existingLabels: Set<string>;
   pickerTitle?: string;
   pickerOptions?: { label: string; sub: string }[];
@@ -419,29 +320,7 @@ function FundingSection({
 
   return (
     <>
-      {showPicker && pickerMode === "labor" && (
-        <DualPickerModal
-          title="Add Labor"
-          leftTitle="By Person" leftOptions={PERSON_OPTIONS} leftPlaceholder="Search name…"
-          rightTitle="By Org Code" rightOptions={ORG_OPTIONS} rightPlaceholder="Search org code…"
-          emptyHint="Select people or org codes above"
-          existingLabels={existingLabels}
-          onAdd={(labels) => onAddMany(labels)}
-          onClose={() => setShowPicker(false)}
-        />
-      )}
-      {showPicker && pickerMode === "travel" && (
-        <DualPickerModal
-          title="Add Travel"
-          leftTitle="Travel Line" leftOptions={TRAVEL_OPTIONS} leftPlaceholder="Search travel…"
-          rightTitle="By Org Code" rightOptions={ORG_OPTIONS} rightPlaceholder="Search org code…"
-          emptyHint="Select travel lines or org codes above"
-          existingLabels={existingLabels}
-          onAdd={(labels) => onAddMany(labels)}
-          onClose={() => setShowPicker(false)}
-        />
-      )}
-      {showPicker && pickerMode === "multi" && pickerOptions && (
+      {showPicker && pickerOptions && (
         <MultiPickerModal
           title={pickerTitle ?? ""}
           options={pickerOptions}
@@ -666,8 +545,11 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
         onUpdateAmount={labor.updateAmount} onUpdateNote={labor.updateNote}
         onDelete={labor.deleteRow} onZeroOut={labor.zeroOutRow}
         onAddMany={(labels) => labor.addMany(labels, laborDescTemplate)}
-        pickerMode="labor"
+        pickerMode="multi"
         existingLabels={laborExisting}
+        pickerTitle="Add Labor"
+        pickerOptions={LABOR_OPTIONS}
+        pickerPlaceholder="Search by name, org code, or department…"
       />
       <FundingSection
         title="Travel" columnHeader="Organization"
