@@ -1,324 +1,348 @@
 import { useState, useMemo } from "react";
 import { Link, useParams, useLocation } from "wouter";
-import { ChevronRight, Save, Settings, ChevronDown, ChevronUp, Plus, Trash2 } from "lucide-react";
-import Layout from "@/components/Layout";
+import { Home, Settings, ChevronRight, AlignJustify, MoreHorizontal } from "lucide-react";
 import { MOCK_PROJECTS } from "@/lib/mockData";
 import { useToast } from "@/hooks/use-toast";
-import { Input } from "@/components/ui/input";
+import { Toaster } from "@/components/ui/toaster";
 
-// Initial mock data for the planning tables
-const INITIAL_LABOR = [
-  { id: 1, role: "Project Manager", hours: 80, rate: 95 },
-  { id: 2, role: "Senior Engineer", hours: 120, rate: 120 },
-  { id: 3, role: "Field Technician", hours: 200, rate: 65 }
+interface LaborRow {
+  id: number;
+  employeeOrg: string;
+  totalPlanned: number;
+  totalRequested: number;
+  totalCommitments: number;
+  openCommitments: number;
+  obligated: number;
+  description: string;
+  notes: string;
+}
+
+const INITIAL_LABOR: LaborRow[] = [
+  {
+    id: 1,
+    employeeOrg: "Nugent, Joseph Pat",
+    totalPlanned: 10000,
+    totalRequested: 500,
+    totalCommitments: 500,
+    openCommitments: 300,
+    obligated: 200,
+    description: "FY25/SANDC LABOR FUNDS FOR SC-001/CEFMS name/",
+    notes: "notes",
+  },
+  {
+    id: 2,
+    employeeOrg: "U435310",
+    totalPlanned: 20000,
+    totalRequested: 19000,
+    totalCommitments: 19000,
+    openCommitments: 10000,
+    obligated: 9000,
+    description: "FY25/SANDC LABOR FUNDS FOR SC-001/org code/",
+    notes: "notes",
+  },
 ];
 
-const INITIAL_TRAVEL = [
-  { id: 1, desc: "Site Visits", trips: 4, costPerTrip: 850 },
-  { id: 2, desc: "Equipment Transport", trips: 2, costPerTrip: 1200 }
-];
-
-const INITIAL_MATERIALS = [
-  { id: 1, desc: "Concrete", quantity: 500, unitCost: 150 },
-  { id: 2, desc: "Steel Rebar", quantity: 2000, unitCost: 25 }
-];
+const fmt = (n: number) =>
+  new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(n);
 
 export default function ProjectPlanning() {
   const params = useParams();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  
+
   const projectId = params.id;
-  const project = MOCK_PROJECTS.find(p => p.id === projectId);
+  const project = MOCK_PROJECTS.find((p) => p.id === projectId);
 
-  const [labor, setLabor] = useState(INITIAL_LABOR);
-  const [travel, setTravel] = useState(INITIAL_TRAVEL);
-  const [materials, setMaterials] = useState(INITIAL_MATERIALS);
+  const [labor] = useState<LaborRow[]>(INITIAL_LABOR);
+  const [showMore, setShowMore] = useState(false);
 
-  const [sectionsExpanded, setSectionsExpanded] = useState({
-    labor: true,
-    travel: true,
-    materials: false
-  });
-
-  const toggleSection = (section: keyof typeof sectionsExpanded) => {
-    setSectionsExpanded(prev => ({
-      ...prev,
-      [section]: !prev[section]
-    }));
-  };
-
-  const handleLaborChange = (id: number, field: string, value: string) => {
-    const numValue = Number(value) || 0;
-    setLabor(prev => prev.map(item => 
-      item.id === id ? { ...item, [field]: numValue } : item
-    ));
-  };
-
-  const handleTravelChange = (id: number, field: string, value: string) => {
-    const numValue = Number(value) || 0;
-    setTravel(prev => prev.map(item => 
-      item.id === id ? { ...item, [field]: numValue } : item
-    ));
-  };
-
-  const handleMaterialsChange = (id: number, field: string, value: string) => {
-    const numValue = Number(value) || 0;
-    setMaterials(prev => prev.map(item => 
-      item.id === id ? { ...item, [field]: numValue } : item
-    ));
-  };
-
-  // Calculate totals
-  const laborTotal = useMemo(() => labor.reduce((acc, item) => acc + (item.hours * item.rate), 0), [labor]);
-  const travelTotal = useMemo(() => travel.reduce((acc, item) => acc + (item.trips * item.costPerTrip), 0), [travel]);
-  const materialsTotal = useMemo(() => materials.reduce((acc, item) => acc + (item.quantity * item.unitCost), 0), [materials]);
-  
-  const totalPlanned = laborTotal + travelTotal + materialsTotal;
-  const budget = project?.budget || 0;
-  const leftToPlan = budget - totalPlanned;
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      maximumFractionDigits: 0
-    }).format(amount);
-  };
+  const toa = project?.budget ?? 0;
+  const planned = useMemo(
+    () => labor.reduce((s, r) => s + r.totalPlanned, 0),
+    [labor]
+  );
+  const leftToPlan = toa - planned;
 
   const handleSubmit = () => {
     toast({
-      title: "Success",
-      description: "Plan submitted successfully",
-      variant: "default",
+      title: "Plan submitted successfully",
+      description: "Your plan has been sent for review.",
     });
   };
 
   if (!project) {
     return (
-      <Layout>
-        <div className="p-8 text-center">Project not found</div>
-      </Layout>
+      <div className="flex items-center justify-center h-screen bg-slate-100 text-slate-600">
+        Project not found.
+      </div>
     );
   }
 
   return (
-    <Layout title={project.name}>
-      <div className="flex flex-col max-w-5xl mx-auto space-y-6">
-        <nav className="text-sm font-medium text-slate-500 flex items-center">
-          <Link href="/" className="hover:text-slate-900 transition-colors">Home</Link>
-          <ChevronRight size={16} className="mx-1 text-slate-400" />
-          <Link href="/projects" className="hover:text-slate-900 transition-colors">Project List</Link>
-          <ChevronRight size={16} className="mx-1 text-slate-400" />
-          <span className="text-slate-900 bg-slate-200 px-1.5 py-0.5 rounded text-xs font-mono">{project.number}</span>
-        </nav>
-
-        {/* Rollup Header */}
-        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
-            <div>
-              <h2 className="text-xl font-bold text-slate-900">{project.name}</h2>
-              <p className="text-slate-500 text-sm mt-1">Planning View</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <Link href={`/projects/${project.id}/settings`}>
-                <button className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-md transition-colors" data-testid="button-settings">
-                  <Settings size={16} />
-                  Settings
-                </button>
-              </Link>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-slate-100 pt-4">
-            <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
-              <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Total Budget (TOA)</div>
-              <div className="text-2xl font-bold text-slate-900">{formatCurrency(budget)}</div>
-            </div>
-            <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
-              <div className="text-xs font-semibold text-blue-600 uppercase tracking-wider mb-1">Planned</div>
-              <div className="text-2xl font-bold text-blue-900">{formatCurrency(totalPlanned)}</div>
-            </div>
-            <div className={`p-4 rounded-lg border ${leftToPlan < 0 ? 'bg-red-50 border-red-100' : 'bg-emerald-50 border-emerald-100'}`}>
-              <div className={`text-xs font-semibold uppercase tracking-wider mb-1 ${leftToPlan < 0 ? 'text-red-600' : 'text-emerald-600'}`}>Left to Plan</div>
-              <div className={`text-2xl font-bold ${leftToPlan < 0 ? 'text-red-900' : 'text-emerald-900'}`}>
-                {formatCurrency(leftToPlan)}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Planning Tables */}
-        <div className="space-y-4">
-          {/* LABOR TABLE */}
-          <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-            <div 
-              className="flex items-center justify-between p-4 bg-slate-50 border-b border-slate-200 cursor-pointer hover:bg-slate-100 transition-colors"
-              onClick={() => toggleSection('labor')}
-              data-testid="toggle-labor"
-            >
-              <div className="flex items-center gap-3">
-                {sectionsExpanded.labor ? <ChevronUp size={20} className="text-slate-400" /> : <ChevronDown size={20} className="text-slate-400" />}
-                <h3 className="font-semibold text-slate-900 text-lg">Labor</h3>
-              </div>
-              <div className="font-bold text-slate-900">{formatCurrency(laborTotal)}</div>
-            </div>
-            
-            {sectionsExpanded.labor && (
-              <div className="p-0 overflow-x-auto">
-                <table className="w-full text-sm text-left">
-                  <thead className="text-xs text-slate-500 bg-slate-50 border-b border-slate-200">
-                    <tr>
-                      <th className="px-6 py-3 font-semibold w-1/3">Role</th>
-                      <th className="px-6 py-3 font-semibold text-right w-1/5">Hours</th>
-                      <th className="px-6 py-3 font-semibold text-right w-1/5">Rate ($)</th>
-                      <th className="px-6 py-3 font-semibold text-right">Subtotal</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {labor.map((item, idx) => (
-                      <tr key={item.id} className={idx !== labor.length - 1 ? "border-b border-slate-100" : ""}>
-                        <td className="px-6 py-3 font-medium text-slate-900">{item.role}</td>
-                        <td className="px-6 py-3">
-                          <Input 
-                            type="number" 
-                            min="0"
-                            className="w-full text-right h-8"
-                            value={item.hours}
-                            onChange={(e) => handleLaborChange(item.id, 'hours', e.target.value)}
-                            data-testid={`input-labor-hours-${item.id}`}
-                          />
-                        </td>
-                        <td className="px-6 py-3 text-right text-slate-600">${item.rate}/hr</td>
-                        <td className="px-6 py-3 text-right font-medium text-slate-900">
-                          {formatCurrency(item.hours * item.rate)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-
-          {/* TRAVEL TABLE */}
-          <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-            <div 
-              className="flex items-center justify-between p-4 bg-slate-50 border-b border-slate-200 cursor-pointer hover:bg-slate-100 transition-colors"
-              onClick={() => toggleSection('travel')}
-              data-testid="toggle-travel"
-            >
-              <div className="flex items-center gap-3">
-                {sectionsExpanded.travel ? <ChevronUp size={20} className="text-slate-400" /> : <ChevronDown size={20} className="text-slate-400" />}
-                <h3 className="font-semibold text-slate-900 text-lg">Travel</h3>
-              </div>
-              <div className="font-bold text-slate-900">{formatCurrency(travelTotal)}</div>
-            </div>
-            
-            {sectionsExpanded.travel && (
-              <div className="p-0 overflow-x-auto">
-                <table className="w-full text-sm text-left">
-                  <thead className="text-xs text-slate-500 bg-slate-50 border-b border-slate-200">
-                    <tr>
-                      <th className="px-6 py-3 font-semibold w-1/3">Description</th>
-                      <th className="px-6 py-3 font-semibold text-right w-1/5">Trips</th>
-                      <th className="px-6 py-3 font-semibold text-right w-1/5">Cost/Trip ($)</th>
-                      <th className="px-6 py-3 font-semibold text-right">Subtotal</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {travel.map((item, idx) => (
-                      <tr key={item.id} className={idx !== travel.length - 1 ? "border-b border-slate-100" : ""}>
-                        <td className="px-6 py-3 font-medium text-slate-900">{item.desc}</td>
-                        <td className="px-6 py-3">
-                          <Input 
-                            type="number" 
-                            min="0"
-                            className="w-full text-right h-8"
-                            value={item.trips}
-                            onChange={(e) => handleTravelChange(item.id, 'trips', e.target.value)}
-                            data-testid={`input-travel-trips-${item.id}`}
-                          />
-                        </td>
-                        <td className="px-6 py-3 text-right text-slate-600">${item.costPerTrip}</td>
-                        <td className="px-6 py-3 text-right font-medium text-slate-900">
-                          {formatCurrency(item.trips * item.costPerTrip)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-
-          {/* MATERIALS TABLE */}
-          <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-            <div 
-              className="flex items-center justify-between p-4 bg-slate-50 border-b border-slate-200 cursor-pointer hover:bg-slate-100 transition-colors"
-              onClick={() => toggleSection('materials')}
-              data-testid="toggle-materials"
-            >
-              <div className="flex items-center gap-3">
-                {sectionsExpanded.materials ? <ChevronUp size={20} className="text-slate-400" /> : <ChevronDown size={20} className="text-slate-400" />}
-                <h3 className="font-semibold text-slate-900 text-lg">Materials & Other</h3>
-                <button className="ml-2 text-slate-400 hover:text-primary transition-colors p-1" onClick={(e) => { e.stopPropagation(); toggleSection('materials'); }}>
-                  <span className="font-bold tracking-widest text-lg leading-none">...</span>
-                </button>
-              </div>
-              <div className="font-bold text-slate-900">{formatCurrency(materialsTotal)}</div>
-            </div>
-            
-            {sectionsExpanded.materials && (
-              <div className="p-0 overflow-x-auto">
-                <table className="w-full text-sm text-left">
-                  <thead className="text-xs text-slate-500 bg-slate-50 border-b border-slate-200">
-                    <tr>
-                      <th className="px-6 py-3 font-semibold w-1/3">Description</th>
-                      <th className="px-6 py-3 font-semibold text-right w-1/5">Quantity</th>
-                      <th className="px-6 py-3 font-semibold text-right w-1/5">Unit Cost ($)</th>
-                      <th className="px-6 py-3 font-semibold text-right">Subtotal</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {materials.map((item, idx) => (
-                      <tr key={item.id} className={idx !== materials.length - 1 ? "border-b border-slate-100" : ""}>
-                        <td className="px-6 py-3 font-medium text-slate-900">{item.desc}</td>
-                        <td className="px-6 py-3">
-                          <Input 
-                            type="number" 
-                            min="0"
-                            className="w-full text-right h-8"
-                            value={item.quantity}
-                            onChange={(e) => handleMaterialsChange(item.id, 'quantity', e.target.value)}
-                            data-testid={`input-materials-qty-${item.id}`}
-                          />
-                        </td>
-                        <td className="px-6 py-3 text-right text-slate-600">${item.unitCost}</td>
-                        <td className="px-6 py-3 text-right font-medium text-slate-900">
-                          {formatCurrency(item.quantity * item.unitCost)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Action Bar */}
-        <div className="flex justify-end pt-4 pb-8">
-          <button 
-            onClick={handleSubmit}
-            className="bg-primary hover:bg-primary/90 text-white font-medium py-2.5 px-6 rounded-lg shadow-sm transition-colors flex items-center gap-2"
-            data-testid="button-submit-plan"
+    <div className="min-h-screen flex flex-col bg-[#f0f2f5]">
+      {/* ── TOP HEADER BAR ── */}
+      <header className="bg-[#1a3557] text-white flex items-stretch min-h-[52px]">
+        {/* LEFT: breadcrumb */}
+        <div className="flex items-center gap-1.5 px-4 py-2 border-r border-white/20 flex-shrink-0">
+          <Link href="/" data-testid="nav-home-icon">
+            <Home size={16} className="text-white/80 hover:text-white transition-colors" />
+          </Link>
+          <ChevronRight size={13} className="text-white/50" />
+          <Link
+            href="/projects"
+            className="text-white/80 hover:text-white text-sm font-medium transition-colors"
+            data-testid="nav-project-list"
           >
-            <Save size={18} />
-            Submit Plan
+            Project List
+          </Link>
+          <ChevronRight size={13} className="text-white/50" />
+          <span className="text-white text-sm font-semibold bg-white/20 px-2 py-0.5 rounded">
+            {project.number}
+          </span>
+        </div>
+
+        {/* CENTER: TOA / Planned / Left to Plan */}
+        <div className="flex-1 flex items-center justify-center gap-6 px-4 py-2">
+          <div className="flex items-center gap-2 text-sm">
+            <span className="text-white/60 font-medium uppercase tracking-wide text-xs">TOA</span>
+            <span className="font-bold text-white text-base">{fmt(toa)}</span>
+          </div>
+          <div className="text-white/30 text-lg">/</div>
+          <div className="flex items-center gap-2 text-sm">
+            <span className="text-white/60 font-medium uppercase tracking-wide text-xs">Planned</span>
+            <span className="font-bold text-white text-base">{fmt(planned)}</span>
+          </div>
+          <div className="text-white/30 text-lg">/</div>
+          <div className="flex items-center gap-2 text-sm">
+            <span className="text-white/60 font-medium uppercase tracking-wide text-xs">Left to Plan</span>
+            <span
+              className={`font-bold text-base ${leftToPlan < 0 ? "text-red-300" : "text-emerald-300"}`}
+            >
+              {fmt(leftToPlan)}
+            </span>
+          </div>
+        </div>
+
+        {/* RIGHT: Request button + hamburger */}
+        <div className="flex items-center gap-2 px-4 py-2 border-l border-white/20 flex-shrink-0">
+          <button
+            className="text-xs font-medium bg-[#2a5080] hover:bg-[#3a6090] border border-white/30 text-white px-3 py-1.5 rounded transition-colors"
+            data-testid="button-request-quarter"
+          >
+            Request through quarter
+          </button>
+          <button
+            className="p-1.5 hover:bg-white/10 rounded transition-colors"
+            data-testid="button-hamburger"
+          >
+            <AlignJustify size={20} className="text-white" />
           </button>
         </div>
-      </div>
-    </Layout>
+      </header>
+
+      {/* ── MAIN CONTENT ── */}
+      <main className="flex-1 p-5 pb-24 overflow-x-auto">
+        {/* LABOR TABLE */}
+        <div className="bg-white border border-slate-300 rounded-lg overflow-hidden shadow-sm mb-5">
+          <div className="px-4 py-3 border-b border-slate-200 bg-slate-50">
+            <h2 className="text-base font-bold text-slate-800">Labor</h2>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm border-collapse min-w-[900px]">
+              <thead>
+                <tr>
+                  {/* Gray header columns */}
+                  <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-left text-xs w-[160px]">
+                    Employee/org code
+                  </th>
+                  <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-right text-xs w-[110px]">
+                    Total Planned
+                  </th>
+                  <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-right text-xs w-[110px]">
+                    Total Requested
+                  </th>
+                  {/* Blue header columns */}
+                  <th className="border border-slate-300 bg-[#1a6ea8] text-white font-semibold px-3 py-2 text-right text-xs w-[120px]">
+                    Total Commitments
+                  </th>
+                  <th className="border border-slate-300 bg-[#1a6ea8] text-white font-semibold px-3 py-2 text-right text-xs w-[120px]">
+                    Open Commitments
+                  </th>
+                  <th className="border border-slate-300 bg-[#1a6ea8] text-white font-semibold px-3 py-2 text-right text-xs w-[100px]">
+                    Obligated
+                  </th>
+                  {/* Gray again */}
+                  <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-left text-xs">
+                    Description
+                  </th>
+                  <th className="border border-slate-300 bg-slate-100 text-slate-700 font-semibold px-3 py-2 text-left text-xs w-[90px]">
+                    Notes
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {labor.map((row, idx) => (
+                  <tr
+                    key={row.id}
+                    className={idx % 2 === 0 ? "bg-slate-50" : "bg-white"}
+                    data-testid={`row-labor-${row.id}`}
+                  >
+                    <td className="border border-slate-200 px-3 py-2 font-medium text-slate-800">
+                      {row.employeeOrg}
+                    </td>
+                    <td className="border border-slate-200 px-3 py-2 text-right text-slate-700">
+                      {fmt(row.totalPlanned)}
+                    </td>
+                    <td className="border border-slate-200 px-3 py-2 text-right text-slate-700">
+                      {fmt(row.totalRequested)}
+                    </td>
+                    {/* Blue cells */}
+                    <td className="border border-slate-200 px-3 py-2 text-right font-medium text-slate-900 bg-[#5ab4e8]/25">
+                      {fmt(row.totalCommitments)}
+                    </td>
+                    <td className="border border-slate-200 px-3 py-2 text-right font-medium text-slate-900 bg-[#5ab4e8]/25">
+                      {fmt(row.openCommitments)}
+                    </td>
+                    <td className="border border-slate-200 px-3 py-2 text-right font-medium text-slate-900 bg-[#5ab4e8]/25">
+                      {fmt(row.obligated)}
+                    </td>
+                    <td className="border border-slate-200 px-3 py-2 text-slate-600 text-xs">
+                      {row.description}
+                    </td>
+                    <td className="border border-slate-200 px-3 py-2 text-slate-500 text-xs">
+                      {row.notes}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* "..." expand button */}
+        <div className="flex justify-center my-4">
+          <button
+            onClick={() => setShowMore((v) => !v)}
+            className="bg-[#1a3557] hover:bg-[#254a72] text-white font-bold px-10 py-3 rounded shadow transition-colors"
+            data-testid="button-expand-more"
+          >
+            <MoreHorizontal size={20} />
+          </button>
+        </div>
+
+        {/* Additional tables revealed by "..." */}
+        {showMore && (
+          <div className="space-y-5">
+            {/* TRAVEL TABLE */}
+            <div className="bg-white border border-slate-300 rounded-lg overflow-hidden shadow-sm">
+              <div className="px-4 py-3 border-b border-slate-200 bg-slate-50">
+                <h2 className="text-base font-bold text-slate-800">Travel</h2>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm border-collapse min-w-[700px]">
+                  <thead>
+                    <tr>
+                      <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-left text-xs">Description</th>
+                      <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-right text-xs w-[100px]">Total Planned</th>
+                      <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-right text-xs w-[110px]">Total Requested</th>
+                      <th className="border border-slate-300 bg-[#1a6ea8] text-white font-semibold px-3 py-2 text-right text-xs w-[120px]">Total Commitments</th>
+                      <th className="border border-slate-300 bg-[#1a6ea8] text-white font-semibold px-3 py-2 text-right text-xs w-[120px]">Open Commitments</th>
+                      <th className="border border-slate-300 bg-[#1a6ea8] text-white font-semibold px-3 py-2 text-right text-xs w-[100px]">Obligated</th>
+                      <th className="border border-slate-300 bg-slate-100 text-slate-700 font-semibold px-3 py-2 text-left text-xs w-[90px]">Notes</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[
+                      { id: 1, desc: "Site Visits", planned: 3400, requested: 3400, commits: 3400, open: 2000, obligated: 1400, notes: "" },
+                      { id: 2, desc: "Equipment Transport", planned: 2400, requested: 2400, commits: 2400, open: 1200, obligated: 1200, notes: "" },
+                    ].map((row, idx) => (
+                      <tr key={row.id} className={idx % 2 === 0 ? "bg-slate-50" : "bg-white"}>
+                        <td className="border border-slate-200 px-3 py-2 text-slate-800">{row.desc}</td>
+                        <td className="border border-slate-200 px-3 py-2 text-right text-slate-700">{fmt(row.planned)}</td>
+                        <td className="border border-slate-200 px-3 py-2 text-right text-slate-700">{fmt(row.requested)}</td>
+                        <td className="border border-slate-200 px-3 py-2 text-right bg-[#5ab4e8]/25">{fmt(row.commits)}</td>
+                        <td className="border border-slate-200 px-3 py-2 text-right bg-[#5ab4e8]/25">{fmt(row.open)}</td>
+                        <td className="border border-slate-200 px-3 py-2 text-right bg-[#5ab4e8]/25">{fmt(row.obligated)}</td>
+                        <td className="border border-slate-200 px-3 py-2 text-slate-500 text-xs">{row.notes}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* MATERIALS TABLE */}
+            <div className="bg-white border border-slate-300 rounded-lg overflow-hidden shadow-sm">
+              <div className="px-4 py-3 border-b border-slate-200 bg-slate-50">
+                <h2 className="text-base font-bold text-slate-800">Materials &amp; Other</h2>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm border-collapse min-w-[700px]">
+                  <thead>
+                    <tr>
+                      <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-left text-xs">Description</th>
+                      <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-right text-xs w-[100px]">Total Planned</th>
+                      <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-right text-xs w-[110px]">Total Requested</th>
+                      <th className="border border-slate-300 bg-[#1a6ea8] text-white font-semibold px-3 py-2 text-right text-xs w-[120px]">Total Commitments</th>
+                      <th className="border border-slate-300 bg-[#1a6ea8] text-white font-semibold px-3 py-2 text-right text-xs w-[120px]">Open Commitments</th>
+                      <th className="border border-slate-300 bg-[#1a6ea8] text-white font-semibold px-3 py-2 text-right text-xs w-[100px]">Obligated</th>
+                      <th className="border border-slate-300 bg-slate-100 text-slate-700 font-semibold px-3 py-2 text-left text-xs w-[90px]">Notes</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[
+                      { id: 1, desc: "Concrete (500 units)", planned: 75000, requested: 75000, commits: 75000, open: 40000, obligated: 35000, notes: "" },
+                      { id: 2, desc: "Steel Rebar (2000 units)", planned: 50000, requested: 50000, commits: 50000, open: 25000, obligated: 25000, notes: "" },
+                    ].map((row, idx) => (
+                      <tr key={row.id} className={idx % 2 === 0 ? "bg-slate-50" : "bg-white"}>
+                        <td className="border border-slate-200 px-3 py-2 text-slate-800">{row.desc}</td>
+                        <td className="border border-slate-200 px-3 py-2 text-right text-slate-700">{fmt(row.planned)}</td>
+                        <td className="border border-slate-200 px-3 py-2 text-right text-slate-700">{fmt(row.requested)}</td>
+                        <td className="border border-slate-200 px-3 py-2 text-right bg-[#5ab4e8]/25">{fmt(row.commits)}</td>
+                        <td className="border border-slate-200 px-3 py-2 text-right bg-[#5ab4e8]/25">{fmt(row.open)}</td>
+                        <td className="border border-slate-200 px-3 py-2 text-right bg-[#5ab4e8]/25">{fmt(row.obligated)}</td>
+                        <td className="border border-slate-200 px-3 py-2 text-slate-500 text-xs">{row.notes}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+      </main>
+
+      {/* ── BOTTOM FOOTER BAR ── */}
+      <footer className="fixed bottom-0 w-full bg-[#1a3557] flex items-center justify-between px-4 py-2 z-10">
+        {/* Back button */}
+        <Link href="/projects" data-testid="nav-back">
+          <button className="bg-[#2a5080] hover:bg-[#3a6090] border border-white/30 text-white font-bold px-6 py-2 rounded text-sm transition-colors">
+            &lt;
+          </button>
+        </Link>
+
+        {/* Submit button */}
+        <button
+          onClick={handleSubmit}
+          className="bg-[#2a5080] hover:bg-[#3a6090] border border-white/30 text-white font-semibold px-16 py-2 rounded text-sm transition-colors"
+          data-testid="button-submit-plan"
+        >
+          Submit
+        </button>
+
+        {/* Settings icon */}
+        <Link href={`/projects/${project.id}/settings`} data-testid="nav-settings">
+          <button className="bg-[#2a5080] hover:bg-[#3a6090] border border-white/30 text-white p-2 rounded transition-colors">
+            <Settings size={18} />
+          </button>
+        </Link>
+      </footer>
+
+      <Toaster />
+    </div>
   );
 }
