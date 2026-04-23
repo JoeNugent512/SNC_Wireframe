@@ -1,17 +1,16 @@
 import { useState } from "react";
 import { Link } from "wouter";
-import { ChevronRight, Filter, FileText, CheckCircle, XCircle, Search, TrendingUp, TrendingDown } from "lucide-react";
+import {
+  ChevronRight, Filter, FileText, CheckCircle, XCircle,
+  Search, TrendingUp, TrendingDown, FolderPlus
+} from "lucide-react";
 import Layout from "@/components/Layout";
-import { MOCK_CHANGE_REQUESTS, MOCK_PROJECTS, ChangeRequest } from "@/lib/mockData";
+import { MOCK_CHANGE_REQUESTS, ChangeRequest } from "@/lib/mockData";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Toaster } from "@/components/ui/toaster";
-
-function typeLabel(cr: ChangeRequest) {
-  return `${cr.category} — ${cr.target} — ${cr.direction}`;
-}
 
 export default function ChangeRequests() {
   const { toast } = useToast();
@@ -20,21 +19,15 @@ export default function ChangeRequests() {
   const [selectedCR, setSelectedCR] = useState<ChangeRequest | null>(null);
   const [actionReason, setActionReason] = useState("");
 
-  const enrichedCRs = MOCK_CHANGE_REQUESTS.map(cr => ({
-    ...cr,
-    projectName: MOCK_PROJECTS.find(p => p.id === cr.projectId)?.name ?? "Unknown Project",
-    projectNumber: MOCK_PROJECTS.find(p => p.id === cr.projectId)?.number ?? "",
-  }));
-
-  const filteredCRs = enrichedCRs.filter(cr => {
+  const filteredCRs = MOCK_CHANGE_REQUESTS.filter(cr => {
     const matchesStatus = filterStatus === "All" || cr.status === filterStatus;
     const q = searchQuery.toLowerCase();
     const matchesSearch =
-      cr.projectName.toLowerCase().includes(q) ||
-      cr.projectNumber.toLowerCase().includes(q) ||
+      cr.proposedNumber.toLowerCase().includes(q) ||
+      cr.proposedName.toLowerCase().includes(q) ||
       cr.category.toLowerCase().includes(q) ||
       cr.target.toLowerCase().includes(q) ||
-      cr.direction.toLowerCase().includes(q);
+      cr.submittedBy.toLowerCase().includes(q);
     return matchesStatus && matchesSearch;
   });
 
@@ -61,30 +54,25 @@ export default function ChangeRequests() {
   const fmt = (n: number) =>
     new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
 
-  const handleOpen = (cr: ChangeRequest) => {
-    setSelectedCR(cr);
-    setActionReason("");
-  };
-
-  const handleClose = () => {
-    setSelectedCR(null);
-    setActionReason("");
-  };
+  const handleOpen = (cr: ChangeRequest) => { setSelectedCR(cr); setActionReason(""); };
+  const handleClose = () => { setSelectedCR(null); setActionReason(""); };
 
   const handleAction = (action: "Approve" | "Reject") => {
+    const verb = action === "Approve" ? "approved" : "rejected";
     toast({
-      title: `Request ${action}d`,
-      description: actionReason.trim()
-        ? `Reason: ${actionReason.trim()}`
-        : `${typeLabel(selectedCR!)} has been ${action.toLowerCase()}d.`,
+      title: `Proposal ${verb}`,
+      description: action === "Approve"
+        ? `${selectedCR!.proposedNumber} — ${selectedCR!.proposedName} has been approved and will be created in the project list.`
+        : actionReason.trim()
+          ? `Rejected: ${actionReason.trim()}`
+          : `${selectedCR!.proposedNumber} proposal has been rejected.`,
       variant: action === "Approve" ? "default" : "destructive",
     });
     handleClose();
   };
 
-  const selectedEnriched = selectedCR
-    ? enrichedCRs.find(c => c.id === selectedCR.id)
-    : null;
+  const isActionable = (status: ChangeRequest["status"]) =>
+    status !== "Approved" && status !== "Rejected";
 
   return (
     <Layout title="Change Requests" roleBadge="BA View">
@@ -132,7 +120,7 @@ export default function ChangeRequests() {
             <table className="w-full text-sm text-left">
               <thead className="text-xs text-slate-500 uppercase tracking-wider bg-slate-50/50 sticky top-0 border-b border-slate-200">
                 <tr>
-                  <th className="px-6 py-4 font-semibold">Project</th>
+                  <th className="px-6 py-4 font-semibold">Proposed Project</th>
                   <th className="px-6 py-4 font-semibold">Category</th>
                   <th className="px-6 py-4 font-semibold">Target</th>
                   <th className="px-6 py-4 font-semibold">Direction</th>
@@ -161,8 +149,8 @@ export default function ChangeRequests() {
                       data-testid={`row-cr-${cr.id}`}
                     >
                       <td className="px-6 py-4">
-                        <div className="font-mono font-semibold text-slate-900 text-xs">{cr.projectNumber}</div>
-                        <div className="text-slate-500 text-xs truncate max-w-[180px]">{cr.projectName}</div>
+                        <div className="font-mono font-semibold text-xs text-slate-500">{cr.proposedNumber}</div>
+                        <div className="font-medium text-slate-900 truncate max-w-[200px]">{cr.proposedName}</div>
                       </td>
                       <td className="px-6 py-4 font-medium text-slate-800">{cr.category}</td>
                       <td className="px-6 py-4 text-slate-600">{cr.target}</td>
@@ -182,15 +170,21 @@ export default function ChangeRequests() {
 
       {/* ── Detail Modal ── */}
       <Dialog open={!!selectedCR} onOpenChange={(open) => !open && handleClose()}>
-        <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden gap-0">
-          {selectedCR && selectedEnriched && (
+        <DialogContent className="sm:max-w-[520px] p-0 overflow-hidden gap-0">
+          {selectedCR && (
             <>
+              {/* Header */}
               <div className="px-6 py-4 border-b border-slate-100 bg-slate-50">
                 <DialogHeader>
-                  <DialogTitle className="text-lg font-bold text-slate-900 pr-8">
-                    {selectedCR.category} — {selectedCR.target}
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <FolderPlus size={16} className="text-primary/70" />
+                    <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Proposed Project</span>
+                  </div>
+                  <DialogTitle className="text-lg font-bold text-slate-900 pr-8 leading-snug">
+                    <span className="font-mono text-sm text-slate-500 mr-2">{selectedCR.proposedNumber}</span>
+                    {selectedCR.proposedName}
                   </DialogTitle>
-                  <div className="flex items-center gap-3 mt-1">
+                  <div className="flex items-center gap-3 mt-1.5">
                     {getStatusBadge(selectedCR.status)}
                     <DialogDescription className="text-sm text-slate-500 m-0">
                       Submitted on {selectedCR.date} by {selectedCR.submittedBy}
@@ -200,35 +194,46 @@ export default function ChangeRequests() {
               </div>
 
               <div className="p-6 space-y-5">
-                <div className="bg-white border border-slate-200 rounded-lg p-4 grid grid-cols-2 gap-4">
-                  <div className="col-span-2">
-                    <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Project</div>
-                    <div className="font-medium text-slate-900">{selectedEnriched.projectNumber} — {selectedEnriched.projectName}</div>
+                {/* Project description */}
+                <p className="text-sm text-slate-600 leading-relaxed">
+                  {selectedCR.proposedDescription}
+                </p>
+
+                {/* Funding request details */}
+                <div className="bg-white border border-slate-200 rounded-lg p-4 grid grid-cols-3 gap-4">
+                  <div>
+                    <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Category</div>
+                    <div className="font-medium text-slate-900">{selectedCR.category}</div>
                   </div>
                   <div>
-                    <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Direction</div>
-                    <div>{getDirectionBadge(selectedCR.direction)}</div>
+                    <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Target</div>
+                    <div className="font-medium text-slate-900 text-sm">{selectedCR.target}</div>
                   </div>
                   <div>
-                    <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Amount</div>
-                    <div className={`font-bold text-lg ${selectedCR.direction === "Increase" ? "text-emerald-700" : "text-red-700"}`}>
+                    <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Direction</div>
+                    {getDirectionBadge(selectedCR.direction)}
+                  </div>
+                  <div className="col-span-3 border-t border-slate-100 pt-3">
+                    <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Requested Amount</div>
+                    <div className={`font-bold text-xl ${selectedCR.direction === "Increase" ? "text-emerald-700" : "text-red-700"}`}>
                       {selectedCR.direction === "Decrease" ? "−" : "+"}{fmt(selectedCR.amount)}
                     </div>
                   </div>
                 </div>
 
+                {/* Justification */}
                 <div>
-                  <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Justification</div>
+                  <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Justification</div>
                   <p className="text-sm text-slate-700 leading-relaxed bg-slate-50 p-4 rounded-lg border border-slate-100">
                     {selectedCR.justification}
                   </p>
                 </div>
               </div>
 
-              {/* Reason field — only for actionable statuses */}
-              {selectedCR.status !== "Approved" && selectedCR.status !== "Rejected" && (
-                <div className="px-6 pb-2">
-                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1.5">
+              {/* Reason field — only when actionable */}
+              {isActionable(selectedCR.status) && (
+                <div className="px-6 pb-4">
+                  <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1.5">
                     Reason
                   </label>
                   <textarea
@@ -242,6 +247,7 @@ export default function ChangeRequests() {
                 </div>
               )}
 
+              {/* Footer */}
               <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-3">
                 <button
                   onClick={handleClose}
@@ -249,7 +255,7 @@ export default function ChangeRequests() {
                 >
                   Close
                 </button>
-                {selectedCR.status !== "Approved" && selectedCR.status !== "Rejected" && (
+                {isActionable(selectedCR.status) && (
                   <>
                     <button
                       onClick={() => handleAction("Reject")}
@@ -263,7 +269,7 @@ export default function ChangeRequests() {
                       className="px-4 py-2 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded-md transition-colors flex items-center gap-1.5 shadow-sm"
                       data-testid="button-cr-approve"
                     >
-                      <CheckCircle size={16} /> Approve
+                      <CheckCircle size={16} /> Approve &amp; Create Project
                     </button>
                   </>
                 )}
