@@ -308,7 +308,7 @@ function FundingSection({
   const totalOpen        = rows.reduce((s, r) => s + r.openCommitments, 0);
   const totalObligated   = rows.reduce((s, r) => s + r.obligated, 0);
 
-  const blueHd = "px-3 py-2.5 text-center text-xs font-semibold text-white uppercase tracking-wide leading-tight";
+  const blueHd = "px-3 py-3 text-center text-xs font-semibold text-white uppercase tracking-wide leading-snug";
   const blueTd = "px-3 py-2.5 text-right tabular-nums text-slate-800";
 
   const amberBg        = "#fffbeb";
@@ -363,25 +363,25 @@ function FundingSection({
           </colgroup>
           <thead>
             <tr style={{ borderBottom: "2px solid #cbd5e1", borderTop: "1px solid #e2e8f0" }}>
-              <th className="px-3 py-2 text-left text-xs font-bold text-slate-600 uppercase tracking-wider whitespace-nowrap" style={{ backgroundColor: "#f1f5f9" }}>
+              <th className="px-3 py-3 text-left text-xs font-bold text-slate-600 uppercase tracking-wider whitespace-nowrap align-bottom" style={{ backgroundColor: "#f1f5f9" }}>
                 {columnHeader}
               </th>
-              <th className="px-3 py-2 text-right text-xs font-bold uppercase tracking-wide leading-tight" style={{ backgroundColor: "#fef3c7", color: "#78350f", borderLeft: amberBorder }}>
-                Total Planned
+              <th className="px-3 py-3 text-right text-xs font-bold uppercase tracking-wide leading-snug align-bottom" style={{ backgroundColor: "#fef3c7", color: "#78350f", borderLeft: amberBorder }}>
+                Total<br />Planned
               </th>
-              <th className="px-3 py-2 text-right text-xs font-bold uppercase tracking-wide leading-tight" style={{ backgroundColor: "#fef3c7", color: "#78350f", borderLeft: amberInner }}>
-                Total Requested
+              <th className="px-3 py-3 text-right text-xs font-bold uppercase tracking-wide leading-snug align-bottom" style={{ backgroundColor: "#fef3c7", color: "#78350f", borderLeft: amberInner }}>
+                Total<br />Requested
               </th>
-              <th className={blueHd} style={{ backgroundColor: blueHdBg, borderLeft: "2px solid #475569" }}>Total Commitments</th>
-              <th className={blueHd} style={{ backgroundColor: blueHdBg, borderLeft: blueBorder }}>Open Commitments</th>
-              <th className={blueHd} style={{ backgroundColor: blueHdBg, borderLeft: blueBorder }}>Obligated</th>
-              <th className="px-3 py-2 text-left text-xs font-bold text-slate-600 uppercase tracking-wider" style={{ backgroundColor: "#f1f5f9", borderLeft: "1px solid #e2e8f0" }}>
+              <th className={blueHd + " align-bottom"} style={{ backgroundColor: blueHdBg, borderLeft: "2px solid #475569" }}>Total<br />Commitments</th>
+              <th className={blueHd + " align-bottom"} style={{ backgroundColor: blueHdBg, borderLeft: blueBorder }}>Open<br />Commitments</th>
+              <th className={blueHd + " align-bottom"} style={{ backgroundColor: blueHdBg, borderLeft: blueBorder }}>Obligated</th>
+              <th className="px-3 py-3 text-left text-xs font-bold text-slate-600 uppercase tracking-wider align-bottom" style={{ backgroundColor: "#f1f5f9", borderLeft: "1px solid #e2e8f0" }}>
                 Description
               </th>
-              <th className="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider whitespace-nowrap" style={{ backgroundColor: "#fef3c7", color: "#78350f", borderLeft: amberBorder }}>
+              <th className="px-3 py-3 text-left text-xs font-bold uppercase tracking-wider whitespace-nowrap align-bottom" style={{ backgroundColor: "#fef3c7", color: "#78350f", borderLeft: amberBorder }}>
                 Notes
               </th>
-              <th className="px-3 py-2 bg-slate-100" style={{ borderLeft: "1px solid #e2e8f0" }} />
+              <th className="py-3 bg-slate-100" style={{ borderLeft: "1px solid #e2e8f0" }} />
             </tr>
           </thead>
 
