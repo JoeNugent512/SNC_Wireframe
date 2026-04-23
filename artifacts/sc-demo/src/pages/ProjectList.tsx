@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "wouter";
-import { ChevronRight, Calendar, DollarSign, User, Briefcase, Search, Activity, PauseCircle, CheckCircle2, Clock } from "lucide-react";
+import { ChevronRight, Calendar, DollarSign, User, Briefcase, Search, Activity, PauseCircle, CheckCircle2, Clock, FileSpreadsheet } from "lucide-react";
 import Layout from "@/components/Layout";
 import { MOCK_PROJECTS, Project } from "@/lib/mockData";
 import { Input } from "@/components/ui/input";
