@@ -139,7 +139,7 @@ export default function ProjectPlanning() {
       </header>
 
       {/* ── MAIN CONTENT ── */}
-      <main className="flex-1 p-5 pb-24 overflow-x-auto">
+      <main className="flex-1 p-5 overflow-x-auto">
         {/* LABOR TABLE */}
         <div className="bg-white border border-slate-300 rounded-lg overflow-hidden shadow-sm mb-5">
           <div className="px-4 py-3 border-b border-slate-200 bg-slate-50">
@@ -254,33 +254,18 @@ export default function ProjectPlanning() {
               </div>
             </div>
           </div>
+
+          {/* Submit */}
+          <div className="flex justify-center pt-2 pb-6">
+            <button
+              onClick={handleSubmit}
+              className="bg-[#1a3557] hover:bg-[#243f6a] text-white font-semibold px-16 py-2.5 rounded text-sm transition-colors shadow-sm"
+              data-testid="button-submit-plan"
+            >
+              Submit
+            </button>
+          </div>
       </main>
-
-      {/* ── BOTTOM FOOTER BAR ── */}
-      <footer className="fixed bottom-0 w-full bg-[#1a3557] flex items-center justify-between px-4 py-2 z-10">
-        {/* Back button */}
-        <Link href="/projects" data-testid="nav-back">
-          <button className="bg-[#2a5080] hover:bg-[#3a6090] border border-white/30 text-white font-bold px-6 py-2 rounded text-sm transition-colors">
-            &lt;
-          </button>
-        </Link>
-
-        {/* Submit button */}
-        <button
-          onClick={handleSubmit}
-          className="bg-[#2a5080] hover:bg-[#3a6090] border border-white/30 text-white font-semibold px-16 py-2 rounded text-sm transition-colors"
-          data-testid="button-submit-plan"
-        >
-          Submit
-        </button>
-
-        {/* Settings icon */}
-        <Link href={`/projects/${project.id}/settings`} data-testid="nav-settings">
-          <button className="bg-[#2a5080] hover:bg-[#3a6090] border border-white/30 text-white p-2 rounded transition-colors">
-            <Settings size={18} />
-          </button>
-        </Link>
-      </footer>
 
       <Toaster />
     </div>
