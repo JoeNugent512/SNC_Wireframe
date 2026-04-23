@@ -121,7 +121,7 @@ export const MOCK_CHANGE_REQUESTS: ChangeRequest[] = [
     submittedBy: "Sarah Jenkins",
     date: "2024-01-25",
     justification: "Org code U435310 to provide geotechnical survey and environmental compliance review in support of project initiation.",
-    status: "Approved"
+    status: "Pending"
   },
   {
     id: "103",
@@ -135,7 +135,7 @@ export const MOCK_CHANGE_REQUESTS: ChangeRequest[] = [
     submittedBy: "Elena Rodriguez",
     date: "2024-02-05",
     justification: "Three planned site visits to regional airport for runway alignment assessment. Covers airfare, ground transport, and per diem for two team members.",
-    status: "Under Review"
+    status: "Pending"
   },
   {
     id: "104",
@@ -148,8 +148,8 @@ export const MOCK_CHANGE_REQUESTS: ChangeRequest[] = [
     amount: 12000,
     submittedBy: "Marcus Thorne",
     date: "2024-01-18",
-    justification: "Labor request for systems integration scoping. Rejected — revised estimate required before re-submission; original scope was underdefined.",
-    status: "Rejected"
+    justification: "Labor request for systems integration scoping. Estimate covers initial phase of transit control upgrades across 14 stations; Nugent, Joseph Pat assigned as lead engineer.",
+    status: "Pending"
   },
   {
     id: "105",
