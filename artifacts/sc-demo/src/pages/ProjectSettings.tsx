@@ -403,7 +403,7 @@ export default function ProjectSettings() {
 
   return (
     <Layout breadcrumb={breadcrumb}>
-      <div className="max-w-3xl mx-auto space-y-5">
+      <div className="max-w-5xl mx-auto space-y-5">
         <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
 
           {/* Card header */}

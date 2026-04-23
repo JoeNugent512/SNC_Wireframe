@@ -401,7 +401,7 @@ function FundingSection({
   const totalObligated   = rows.reduce((s, r) => s + r.obligated, 0);
 
   const blueHd = "px-3 py-2.5 text-center text-xs font-semibold text-white uppercase tracking-wide leading-tight";
-  const blueTd = "px-3 py-2.5 text-right text-sm tabular-nums text-slate-800";
+  const blueTd = "px-3 py-2.5 text-right tabular-nums text-slate-800" ;
 
   const amberBg      = "#fffbeb";
   const amberBorder  = "1px solid #fcd34d";
@@ -447,7 +447,7 @@ function FundingSection({
         </div>
 
         {/* table — no overflow wrapper; fixed layout fills width */}
-        <table className="w-full text-sm" style={{ borderCollapse: "collapse", tableLayout: "fixed" }}>
+        <table className="w-full" style={{ borderCollapse: "collapse", tableLayout: "fixed", fontSize: 13 }}>
           <colgroup>
             <col style={{ width: 155 }} />
             <col style={{ width: 108 }} />
