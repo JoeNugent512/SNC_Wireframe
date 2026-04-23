@@ -247,6 +247,24 @@ export default function ProjectList() {
                   </div>
                 </div>
 
+                {/* ── Tabs (top of detail section) ── */}
+                <div className="flex border-b border-slate-200 bg-white">
+                  {TABS.map((tab) => (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`flex-1 py-3 text-sm font-semibold transition-colors border-b-2 -mb-px ${
+                        activeTab === tab.id
+                          ? "border-primary text-primary"
+                          : "border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50"
+                      }`}
+                      data-testid={`tab-${tab.id}`}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+
                 {/* ── Tab content (scrollable) ── */}
                 <div className="flex-1 overflow-y-auto">
                   {/* CHARTER TAB */}
@@ -326,56 +344,35 @@ export default function ProjectList() {
                   )}
                 </div>
 
-                {/* ── Tabs + Edit button (bottom) ── */}
-                <div className="border-t border-slate-200 bg-slate-50">
-                  {/* Tab bar */}
-                  <div className="flex">
-                    {TABS.map((tab) => (
-                      <button
-                        key={tab.id}
-                        onClick={() => setActiveTab(tab.id)}
-                        className={`flex-1 py-3 text-sm font-semibold transition-colors border-b-2 ${
-                          activeTab === tab.id
-                            ? "border-primary text-primary bg-white"
-                            : "border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-100"
-                        }`}
-                        data-testid={`tab-${tab.id}`}
-                      >
-                        {tab.label}
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* Action buttons */}
-                  <div className="flex gap-3 px-5 py-4">
-                    <Link
-                      href={detailReady ? `/projects/${selectedProject.id}/planning` : "#"}
-                      className="flex-1"
+                {/* ── Action buttons (inline, no bar) ── */}
+                <div className="flex gap-3 px-6 py-5 border-t border-slate-100">
+                  <Link
+                    href={detailReady ? `/projects/${selectedProject.id}/planning` : "#"}
+                    className="flex-1"
+                  >
+                    <button
+                      disabled={!detailReady}
+                      className={`w-full font-medium py-2.5 px-4 rounded-lg text-sm flex items-center justify-center gap-2 transition-colors ${
+                        detailReady
+                          ? "bg-primary hover:bg-primary/90 text-white shadow-sm"
+                          : "bg-slate-200 text-slate-400 cursor-wait"
+                      }`}
+                      data-testid="button-edit-plan"
                     >
-                      <button
-                        disabled={!detailReady}
-                        className={`w-full font-medium py-2.5 px-4 rounded-lg text-sm flex items-center justify-center gap-2 transition-colors ${
-                          detailReady
-                            ? "bg-primary hover:bg-primary/90 text-white shadow-sm"
-                            : "bg-slate-200 text-slate-400 cursor-wait"
-                        }`}
-                        data-testid="button-edit-plan"
-                      >
-                        {detailReady
-                          ? <><FileSpreadsheet size={15} /> Edit Project</>
-                          : <><Loader2 size={15} className="animate-spin" /> Loading…</>
-                        }
-                      </button>
-                    </Link>
-                    <Link href={`/projects/${selectedProject.id}/settings`} className="flex-1">
-                      <button
-                        className="w-full bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 font-medium py-2.5 px-4 rounded-lg text-sm transition-colors"
-                        data-testid="button-project-settings"
-                      >
-                        Settings
-                      </button>
-                    </Link>
-                  </div>
+                      {detailReady
+                        ? <><FileSpreadsheet size={15} /> Edit Project</>
+                        : <><Loader2 size={15} className="animate-spin" /> Loading…</>
+                      }
+                    </button>
+                  </Link>
+                  <Link href={`/projects/${selectedProject.id}/settings`} className="flex-1">
+                    <button
+                      className="w-full bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-medium py-2.5 px-4 rounded-lg text-sm transition-colors"
+                      data-testid="button-project-settings"
+                    >
+                      Settings
+                    </button>
+                  </Link>
                 </div>
 
               </div>

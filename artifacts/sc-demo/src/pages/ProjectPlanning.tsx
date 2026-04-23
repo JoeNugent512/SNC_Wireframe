@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { Link, useParams, useLocation } from "wouter";
-import { Home, Settings, ChevronRight, AlignJustify, MoreHorizontal } from "lucide-react";
+import { Home, Settings, ChevronRight, AlignJustify } from "lucide-react";
 import { MOCK_PROJECTS } from "@/lib/mockData";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
@@ -61,8 +61,6 @@ export default function ProjectPlanning() {
   const project = MOCK_PROJECTS.find((p) => p.id === projectId);
 
   const [labor] = useState<LaborRow[]>(() => makeInitialLabor(project?.number ?? ""));
-  const [showMore, setShowMore] = useState(false);
-
   const toa = project?.budget ?? 0;
   const planned = useMemo(
     () => labor.reduce((s, r) => s + r.totalPlanned, 0),
@@ -226,20 +224,7 @@ export default function ProjectPlanning() {
           </div>
         </div>
 
-        {/* "..." expand button */}
-        <div className="flex justify-center my-4">
-          <button
-            onClick={() => setShowMore((v) => !v)}
-            className="bg-[#1a3557] hover:bg-[#254a72] text-white font-bold px-10 py-3 rounded shadow transition-colors"
-            data-testid="button-expand-more"
-          >
-            <MoreHorizontal size={20} />
-          </button>
-        </div>
-
-        {/* Additional tables revealed by "..." */}
-        {showMore && (
-          <div className="space-y-5">
+        <div className="space-y-5 mt-5">
             {/* TRAVEL TABLE */}
             <div className="bg-white border border-slate-300 rounded-lg overflow-hidden shadow-sm">
               <div className="px-4 py-3 border-b border-slate-200 bg-slate-50">
@@ -316,7 +301,6 @@ export default function ProjectPlanning() {
               </div>
             </div>
           </div>
-        )}
       </main>
 
       {/* ── BOTTOM FOOTER BAR ── */}
