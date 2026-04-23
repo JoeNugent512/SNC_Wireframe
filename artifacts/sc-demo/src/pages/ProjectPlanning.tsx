@@ -379,10 +379,24 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
           <p className="text-3xl font-bold text-slate-900 tabular-nums leading-none">{fmt(allPlanned)}</p>
           <p className="text-xs text-slate-400 mt-1">Amount currently planned</p>
         </div>
-        <div className={`rounded-2xl px-6 py-5 shadow-sm border ${leftToPlan >= 0 ? "bg-emerald-50 border-emerald-200" : "bg-red-50 border-red-200"}`}>
-          <p className={`text-xs font-semibold uppercase tracking-widest mb-1 ${leftToPlan >= 0 ? "text-emerald-600" : "text-red-500"}`}>Left to Plan</p>
-          <p className={`text-3xl font-bold tabular-nums leading-none ${leftToPlan >= 0 ? "text-emerald-700" : "text-red-600"}`}>{fmt(leftToPlan)}</p>
-          <p className={`text-xs mt-1 ${leftToPlan >= 0 ? "text-emerald-500" : "text-red-400"}`}>{leftToPlan >= 0 ? "Remaining to allocate" : "Over budget"}</p>
+        <div className={`rounded-2xl px-6 py-5 shadow-sm border ${
+          leftToPlan < 0
+            ? "bg-red-50 border-red-200"
+            : leftToPlan <= 50
+              ? "bg-emerald-50 border-emerald-200"
+              : "bg-amber-50 border-amber-300"
+        }`}>
+          <p className={`text-xs font-semibold uppercase tracking-widest mb-1 ${
+            leftToPlan < 0 ? "text-red-500" : leftToPlan <= 50 ? "text-emerald-600" : "text-amber-600"
+          }`}>Left to Plan</p>
+          <p className={`text-3xl font-bold tabular-nums leading-none ${
+            leftToPlan < 0 ? "text-red-600" : leftToPlan <= 50 ? "text-emerald-700" : "text-amber-700"
+          }`}>{fmt(leftToPlan)}</p>
+          <p className={`text-xs mt-1 ${
+            leftToPlan < 0 ? "text-red-400" : leftToPlan <= 50 ? "text-emerald-500" : "text-amber-500"
+          }`}>
+            {leftToPlan < 0 ? "Over budget" : leftToPlan <= 50 ? "Remaining to allocate" : "Unallocated funds remaining"}
+          </p>
         </div>
       </div>
 
