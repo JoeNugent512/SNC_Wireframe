@@ -14,20 +14,20 @@ const uid = () => ++_uid;
 
 /* ─── option data ──────────────────────────────────────────────── */
 const LABOR_OPTIONS = [
-  { label: "Nugent, Joseph Pat",  sub: "U435310 · GS-12 Transportation" },
-  { label: "Chen, David",         sub: "U719203 · GS-13 Engineering" },
-  { label: "Williams, Sandra K.", sub: "U920183 · GS-11 Planning" },
-  { label: "Torres, Miguel A.",   sub: "U582094 · GS-14 Project Mgmt" },
-  { label: "Park, Jennifer",      sub: "U601847 · GS-12 Environmental" },
-  { label: "Harrison, Mark T.",   sub: "U719203 · GS-13 Civil Engineering" },
-  { label: "Okafor, Chioma",      sub: "U601847 · GS-12 Environmental" },
-  { label: "Reyes, Carlos",       sub: "U834512 · GS-11 Construction" },
-  { label: "U435310",             sub: "Logistics · Org Code" },
-  { label: "U582094",             sub: "Contracts · Org Code" },
-  { label: "U601847",             sub: "Finance · Org Code" },
-  { label: "U719203",             sub: "Engineering · Org Code" },
-  { label: "U834512",             sub: "Operations · Org Code" },
-  { label: "U920183",             sub: "Planning · Org Code" },
+  { label: "Nugent, Joseph Pat",       sub: "U435310" },
+  { label: "Chen, David",              sub: "U719203" },
+  { label: "Williams, Sandra K.",      sub: "U920183" },
+  { label: "Torres, Miguel A.",        sub: "U582094" },
+  { label: "Park, Jennifer",           sub: "U601847" },
+  { label: "Harrison, Mark T.",        sub: "U719203" },
+  { label: "Okafor, Chioma",           sub: "U601847" },
+  { label: "Reyes, Carlos",            sub: "U834512" },
+  { label: "USACE Chicago District",   sub: "U435310" },
+  { label: "USACE Omaha District",     sub: "U582094" },
+  { label: "USACE Kansas City District", sub: "U601847" },
+  { label: "USACE Tulsa District",     sub: "U719203" },
+  { label: "USACE Little Rock District", sub: "U834512" },
+  { label: "USACE Memphis District",   sub: "U920183" },
 ];
 
 const TRAVEL_OPTIONS = [
@@ -465,15 +465,15 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
   const num = projectNumber;
 
   const labor = useFundingRows([
-    { id: 1, label: "Nugent, Joseph Pat", sub: "U435310 · GS-12 Transportation",
+    { id: 1, label: "Nugent, Joseph Pat", sub: "U435310",
       planned: Math.round(b * 0.09), requested: Math.round(b * 0.09 * 0.05),
       totalCommitments: Math.round(b * 0.09 * 0.05), openCommitments: Math.round(b * 0.09 * 0.03), obligated: Math.round(b * 0.09 * 0.02),
       description: `FY${fy}/SANDC LABOR FUNDS FOR ${num}/CEFMS/`, notes: "notes" },
-    { id: 2, label: "U435310", sub: "Logistics · Org Code",
+    { id: 2, label: "USACE Chicago District", sub: "U435310",
       planned: Math.round(b * 0.05), requested: Math.round(b * 0.05 * 0.95),
       totalCommitments: Math.round(b * 0.05 * 0.95), openCommitments: Math.round(b * 0.05 * 0.50), obligated: Math.round(b * 0.05 * 0.45),
       description: `FY${fy}/SANDC LABOR FUNDS FOR ${num}/U435310/`, notes: "notes" },
-    { id: 3, label: "Chen, David", sub: "U719203 · GS-13 Engineering",
+    { id: 3, label: "Chen, David", sub: "U719203",
       planned: Math.round(b * 0.035), requested: Math.round(b * 0.035),
       totalCommitments: Math.round(b * 0.035 * 0.60), openCommitments: Math.round(b * 0.035 * 0.30), obligated: Math.round(b * 0.035 * 0.30),
       description: `FY${fy}/SANDC LABOR FUNDS FOR ${num}/Chen D/`, notes: "" },
