@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { Link, useParams } from "wouter";
-import { ChevronRight, Settings, Plus, Trash2, MinusCircle, X, Search } from "lucide-react";
+import { ChevronRight, Settings, Plus, Trash2, MinusCircle, X, Search, Check } from "lucide-react";
 import { MOCK_PROJECTS } from "@/lib/mockData";
 import { Toaster } from "@/components/ui/toaster";
 import Layout from "@/components/Layout";
@@ -12,119 +12,285 @@ const fmt = (n: number) =>
 let _uid = 100;
 const uid = () => ++_uid;
 
-/* ─── picker option lists ──────────────────────────────────────── */
-const LABOR_OPTIONS = [
-  { label: "Nugent, Joseph Pat",   sub: "GS-12 · Transportation" },
-  { label: "Chen, David",          sub: "GS-13 · Engineering" },
-  { label: "Williams, Sandra K.",  sub: "GS-11 · Planning" },
-  { label: "Torres, Miguel A.",    sub: "GS-14 · Project Mgmt" },
-  { label: "Park, Jennifer",       sub: "GS-12 · Environmental" },
-  { label: "U435310",              sub: "Org Code · Logistics" },
-  { label: "U582094",              sub: "Org Code · Contracts" },
-  { label: "U601847",              sub: "Org Code · Finance" },
-  { label: "U719203",              sub: "Org Code · Engineering" },
-  { label: "Harrison, Mark T.",    sub: "GS-13 · Civil Engineering" },
-  { label: "Okafor, Chioma",       sub: "GS-12 · Environmental" },
-  { label: "Reyes, Carlos",        sub: "GS-11 · Construction" },
+/* ─── option data ──────────────────────────────────────────────── */
+const PERSON_OPTIONS = [
+  { label: "Nugent, Joseph Pat",  sub: "GS-12 · Transportation" },
+  { label: "Chen, David",         sub: "GS-13 · Engineering" },
+  { label: "Williams, Sandra K.", sub: "GS-11 · Planning" },
+  { label: "Torres, Miguel A.",   sub: "GS-14 · Project Mgmt" },
+  { label: "Park, Jennifer",      sub: "GS-12 · Environmental" },
+  { label: "Harrison, Mark T.",   sub: "GS-13 · Civil Engineering" },
+  { label: "Okafor, Chioma",      sub: "GS-12 · Environmental" },
+  { label: "Reyes, Carlos",       sub: "GS-11 · Construction" },
+];
+
+const ORG_OPTIONS = [
+  { label: "U435310", sub: "Logistics" },
+  { label: "U582094", sub: "Contracts" },
+  { label: "U601847", sub: "Finance" },
+  { label: "U719203", sub: "Engineering" },
+  { label: "U834512", sub: "Operations" },
+  { label: "U920183", sub: "Planning" },
 ];
 
 const TRAVEL_OPTIONS = [
-  { label: "Site Visits",           sub: "Field inspection & assessment" },
-  { label: "Equipment Transport",   sub: "Movement of project equipment" },
-  { label: "Training",              sub: "Staff training & certification" },
-  { label: "Stakeholder Meetings",  sub: "Coordination with partners" },
-  { label: "Conference Travel",     sub: "Professional conferences" },
-  { label: "Survey Trips",          sub: "Data collection & surveys" },
-  { label: "Permitting Visits",     sub: "Regulatory agency coordination" },
-  { label: "Kickoff / Closeout",    sub: "Project start and end activities" },
+  { label: "Site Visits",          sub: "Field inspection & assessment" },
+  { label: "Equipment Transport",  sub: "Movement of project equipment" },
+  { label: "Training",             sub: "Staff training & certification" },
+  { label: "Stakeholder Meetings", sub: "Coordination with partners" },
+  { label: "Conference Travel",    sub: "Professional conferences" },
+  { label: "Survey Trips",         sub: "Data collection & surveys" },
+  { label: "Permitting Visits",    sub: "Regulatory agency coordination" },
+  { label: "Kickoff / Closeout",   sub: "Project start and end activities" },
 ];
 
 const MATERIAL_OPTIONS = [
-  { label: "Concrete",              sub: "Structural concrete materials" },
-  { label: "Steel Rebar",           sub: "Reinforcement steel" },
-  { label: "Lumber / Timber",       sub: "Wood structural members" },
-  { label: "Pipe & Fittings",       sub: "Plumbing and drainage" },
-  { label: "Electrical Conduit",    sub: "Wiring and conduit supplies" },
-  { label: "Geotextile Fabric",     sub: "Erosion control material" },
-  { label: "Asphalt",               sub: "Paving materials" },
-  { label: "Gravel / Aggregate",    sub: "Base course and fill" },
-  { label: "Equipment Rental",      sub: "Heavy machinery rental" },
-  { label: "Consulting Services",   sub: "Professional services contract" },
+  { label: "Concrete",             sub: "Structural concrete materials" },
+  { label: "Steel Rebar",          sub: "Reinforcement steel" },
+  { label: "Lumber / Timber",      sub: "Wood structural members" },
+  { label: "Pipe & Fittings",      sub: "Plumbing and drainage" },
+  { label: "Electrical Conduit",   sub: "Wiring and conduit supplies" },
+  { label: "Geotextile Fabric",    sub: "Erosion control material" },
+  { label: "Asphalt",              sub: "Paving materials" },
+  { label: "Gravel / Aggregate",   sub: "Base course and fill" },
+  { label: "Equipment Rental",     sub: "Heavy machinery rental" },
+  { label: "Consulting Services",  sub: "Professional services contract" },
 ];
 
-/* ─── picker modal ─────────────────────────────────────────────── */
-function PickerModal({
-  title,
+/* ─── multi-select checkbox list panel ─────────────────────────── */
+function CheckList({
   options,
-  onPick,
-  onClose,
+  selected,
+  onToggle,
+  placeholder,
 }: {
-  title: string;
   options: { label: string; sub: string }[];
-  onPick: (label: string) => void;
-  onClose: () => void;
+  selected: Set<string>;
+  onToggle: (label: string) => void;
+  placeholder: string;
 }) {
   const [query, setQuery] = useState("");
-
   const filtered = useMemo(() => {
     const q = query.toLowerCase();
-    return options.filter(
-      (o) => o.label.toLowerCase().includes(q) || o.sub.toLowerCase().includes(q)
-    );
+    return options.filter((o) => o.label.toLowerCase().includes(q) || o.sub.toLowerCase().includes(q));
   }, [query, options]);
 
   return (
-    /* backdrop */
+    <div className="flex flex-col" style={{ minWidth: 0 }}>
+      {/* search */}
+      <div className="px-3 pt-3 pb-2">
+        <div className="flex items-center gap-1.5 border border-slate-300 rounded-lg px-2.5 py-1.5 focus-within:border-blue-400 focus-within:ring-1 focus-within:ring-blue-100 bg-white">
+          <Search size={13} className="text-slate-400 flex-shrink-0" />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={placeholder}
+            className="text-sm w-full focus:outline-none text-slate-700 placeholder-slate-400 bg-transparent"
+          />
+        </div>
+      </div>
+      {/* list */}
+      <ul className="overflow-y-auto flex-1" style={{ maxHeight: 220 }}>
+        {filtered.length === 0 && (
+          <li className="px-4 py-3 text-center text-xs text-slate-400">No matches</li>
+        )}
+        {filtered.map((opt) => {
+          const checked = selected.has(opt.label);
+          return (
+            <li key={opt.label}>
+              <button
+                onClick={() => onToggle(opt.label)}
+                className="w-full text-left px-3 py-2 hover:bg-slate-50 transition-colors border-b border-slate-100 last:border-none flex items-center gap-2.5"
+              >
+                <div
+                  className="flex-shrink-0 rounded flex items-center justify-center transition-colors"
+                  style={{
+                    width: 16, height: 16,
+                    backgroundColor: checked ? "#1a3557" : "#fff",
+                    border: checked ? "2px solid #1a3557" : "2px solid #cbd5e1",
+                  }}
+                >
+                  {checked && <Check size={10} color="#fff" strokeWidth={3} />}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-slate-800 leading-tight truncate">{opt.label}</p>
+                  <p className="text-xs text-slate-400 leading-tight">{opt.sub}</p>
+                </div>
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
+/* ─── labor picker modal (two panels) ─────────────────────────── */
+function LaborPickerModal({
+  existingLabels,
+  onAdd,
+  onClose,
+}: {
+  existingLabels: Set<string>;
+  onAdd: (labels: string[]) => void;
+  onClose: () => void;
+}) {
+  const [selectedPersons, setSelectedPersons] = useState<Set<string>>(new Set());
+  const [selectedOrgs,    setSelectedOrgs]    = useState<Set<string>>(new Set());
+
+  const availPersons = useMemo(() => PERSON_OPTIONS.filter((o) => !existingLabels.has(o.label)), [existingLabels]);
+  const availOrgs    = useMemo(() => ORG_OPTIONS.filter((o) => !existingLabels.has(o.label)),    [existingLabels]);
+
+  const togglePerson = (label: string) =>
+    setSelectedPersons((prev) => { const next = new Set(prev); next.has(label) ? next.delete(label) : next.add(label); return next; });
+  const toggleOrg = (label: string) =>
+    setSelectedOrgs((prev) => { const next = new Set(prev); next.has(label) ? next.delete(label) : next.add(label); return next; });
+
+  const totalSelected = selectedPersons.size + selectedOrgs.size;
+
+  const handleAdd = () => {
+    const labels = [...selectedPersons, ...selectedOrgs];
+    if (labels.length > 0) { onAdd(labels); }
+    onClose();
+  };
+
+  return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center"
       style={{ backgroundColor: "rgba(15,23,42,0.45)" }}
       onClick={onClose}
     >
-      {/* card — compact */}
       <div
-        className="bg-white rounded-xl shadow-2xl overflow-hidden"
-        style={{ width: 300 }}
+        className="bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col"
+        style={{ width: 560, maxHeight: "80vh" }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* header */}
-        <div className="flex items-center justify-between px-4 py-2.5" style={{ backgroundColor: "#1a3557" }}>
+        <div className="flex items-center justify-between px-4 py-2.5 flex-shrink-0" style={{ backgroundColor: "#1a3557" }}>
+          <span className="text-white font-semibold text-xs tracking-wide uppercase">Add Labor</span>
+          <button onClick={onClose} className="text-white/60 hover:text-white transition-colors">
+            <X size={15} />
+          </button>
+        </div>
+
+        {/* two panels */}
+        <div className="flex flex-1 min-h-0 divide-x divide-slate-200">
+          {/* By Person */}
+          <div className="flex flex-col flex-1 min-w-0">
+            <div className="px-3 pt-2.5 pb-1 flex-shrink-0">
+              <p className="text-xs font-bold text-slate-600 uppercase tracking-wider">By Person</p>
+            </div>
+            <CheckList
+              options={availPersons}
+              selected={selectedPersons}
+              onToggle={togglePerson}
+              placeholder="Search name…"
+            />
+          </div>
+
+          {/* By Org Code */}
+          <div className="flex flex-col flex-1 min-w-0">
+            <div className="px-3 pt-2.5 pb-1 flex-shrink-0">
+              <p className="text-xs font-bold text-slate-600 uppercase tracking-wider">By Org Code</p>
+            </div>
+            <CheckList
+              options={availOrgs}
+              selected={selectedOrgs}
+              onToggle={toggleOrg}
+              placeholder="Search org code…"
+            />
+          </div>
+        </div>
+
+        {/* footer */}
+        <div className="px-4 py-3 border-t border-slate-200 flex items-center justify-between flex-shrink-0 bg-slate-50">
+          <p className="text-xs text-slate-500">
+            {totalSelected === 0 ? "Select people or org codes above" : `${totalSelected} selected`}
+          </p>
+          <button
+            onClick={handleAdd}
+            disabled={totalSelected === 0}
+            className="px-5 py-2 text-sm font-semibold rounded-lg transition-colors disabled:cursor-not-allowed"
+            style={
+              totalSelected > 0
+                ? { backgroundColor: "#1a3557", color: "#fff" }
+                : { backgroundColor: "#e2e8f0", color: "#94a3b8" }
+            }
+          >
+            Add to Plan
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── general multi-select picker modal ────────────────────────── */
+function MultiPickerModal({
+  title,
+  options,
+  existingLabels,
+  placeholder,
+  onAdd,
+  onClose,
+}: {
+  title: string;
+  options: { label: string; sub: string }[];
+  existingLabels: Set<string>;
+  placeholder: string;
+  onAdd: (labels: string[]) => void;
+  onClose: () => void;
+}) {
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const avail = useMemo(() => options.filter((o) => !existingLabels.has(o.label)), [options, existingLabels]);
+
+  const toggle = (label: string) =>
+    setSelected((prev) => { const next = new Set(prev); next.has(label) ? next.delete(label) : next.add(label); return next; });
+
+  const handleAdd = () => {
+    if (selected.size > 0) onAdd([...selected]);
+    onClose();
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center"
+      style={{ backgroundColor: "rgba(15,23,42,0.45)" }}
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col"
+        style={{ width: 340, maxHeight: "70vh" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between px-4 py-2.5 flex-shrink-0" style={{ backgroundColor: "#1a3557" }}>
           <span className="text-white font-semibold text-xs tracking-wide uppercase">{title}</span>
           <button onClick={onClose} className="text-white/60 hover:text-white transition-colors">
             <X size={15} />
           </button>
         </div>
 
-        {/* search */}
-        <div className="px-3 pt-3 pb-1.5">
-          <div className="flex items-center gap-1.5 border border-slate-300 rounded-lg px-2.5 py-1.5 focus-within:border-blue-400 focus-within:ring-1 focus-within:ring-blue-100">
-            <Search size={13} className="text-slate-400 flex-shrink-0" />
-            <input
-              autoFocus
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search…"
-              className="text-sm w-full focus:outline-none text-slate-700 placeholder-slate-400"
-            />
-          </div>
+        <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
+          <CheckList options={avail} selected={selected} onToggle={toggle} placeholder={placeholder} />
         </div>
 
-        {/* list */}
-        <ul className="overflow-y-auto" style={{ maxHeight: 240 }}>
-          {filtered.length === 0 && (
-            <li className="px-4 py-4 text-center text-xs text-slate-400">No matches</li>
-          )}
-          {filtered.map((opt) => (
-            <li key={opt.label}>
-              <button
-                onClick={() => { onPick(opt.label); onClose(); }}
-                className="w-full text-left px-4 py-2 hover:bg-slate-50 transition-colors border-b border-slate-100 last:border-none"
-              >
-                <p className="text-sm font-medium text-slate-800 leading-tight">{opt.label}</p>
-                <p className="text-xs text-slate-400">{opt.sub}</p>
-              </button>
-            </li>
-          ))}
-        </ul>
+        <div className="px-4 py-3 border-t border-slate-200 flex items-center justify-between flex-shrink-0 bg-slate-50">
+          <p className="text-xs text-slate-500">
+            {selected.size === 0 ? "Select items above" : `${selected.size} selected`}
+          </p>
+          <button
+            onClick={handleAdd}
+            disabled={selected.size === 0}
+            className="px-5 py-2 text-sm font-semibold rounded-lg transition-colors disabled:cursor-not-allowed"
+            style={
+              selected.size > 0
+                ? { backgroundColor: "#1a3557", color: "#fff" }
+                : { backgroundColor: "#e2e8f0", color: "#94a3b8" }
+            }
+          >
+            Add to Plan
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -194,26 +360,41 @@ function useFundingRows(initial: FundingRow[]) {
       description, notes: "",
     }]);
 
-  return { rows, updateAmount, updateNote, deleteRow, zeroOutRow, addRow };
+  const addMany = (labels: string[], descTemplate: string) =>
+    setRows((r) => [
+      ...r,
+      ...labels.map((label) => ({
+        id: uid(), label, planned: 0, requested: 0,
+        totalCommitments: 0, openCommitments: 0, obligated: 0,
+        description: descTemplate, notes: "",
+      })),
+    ]);
+
+  return { rows, updateAmount, updateNote, deleteRow, zeroOutRow, addRow, addMany };
 }
 
 /* ─── single funding section table ─────────────────────────────── */
 function FundingSection({
-  title, columnHeader, addButtonLabel, pickerTitle, pickerOptions, descTemplate, rows,
-  onUpdateAmount, onUpdateNote, onDelete, onZeroOut, onAdd,
+  title, columnHeader, addButtonLabel, descTemplate, rows,
+  onUpdateAmount, onUpdateNote, onDelete, onZeroOut, onAddMany,
+  laborMode, existingLabels,
+  pickerTitle, pickerOptions, pickerPlaceholder,
 }: {
   title: string;
   columnHeader: string;
   addButtonLabel: string;
-  pickerTitle: string;
-  pickerOptions: { label: string; sub: string }[];
   descTemplate: string;
   rows: FundingRow[];
   onUpdateAmount: (id: number, field: "planned" | "requested", value: number) => void;
   onUpdateNote: (id: number, value: string) => void;
   onDelete: (id: number) => void;
   onZeroOut: (id: number) => void;
-  onAdd: (label: string, desc: string) => void;
+  onAddMany: (labels: string[]) => void;
+  laborMode?: boolean;
+  existingLabels: Set<string>;
+  pickerTitle?: string;
+  pickerOptions?: { label: string; sub: string }[];
+  pickerPlaceholder?: string;
 }) {
   const [showPicker, setShowPicker] = useState(false);
 
@@ -223,7 +404,7 @@ function FundingSection({
   const totalOpen        = rows.reduce((s, r) => s + r.openCommitments, 0);
   const totalObligated   = rows.reduce((s, r) => s + r.obligated, 0);
 
-  const blueHd = "px-3 py-2.5 text-center text-xs font-semibold text-white uppercase tracking-wide";
+  const blueHd = "px-3 py-2.5 text-center text-xs font-semibold text-white uppercase tracking-wide leading-tight";
   const blueTd = "px-3 py-2.5 text-right text-sm tabular-nums text-slate-800";
 
   const amberBg      = "#fffbeb";
@@ -233,23 +414,28 @@ function FundingSection({
   const blueBorder   = "1px solid #bfdbfe";
   const blueHdBg     = "#1a6ea8";
 
-  const handlePick = (label: string) => {
-    onAdd(label, descTemplate);
-  };
-
   return (
     <>
-      {showPicker && (
-        <PickerModal
-          title={pickerTitle}
+      {showPicker && laborMode && (
+        <LaborPickerModal
+          existingLabels={existingLabels}
+          onAdd={(labels) => onAddMany(labels)}
+          onClose={() => setShowPicker(false)}
+        />
+      )}
+      {showPicker && !laborMode && pickerOptions && (
+        <MultiPickerModal
+          title={pickerTitle ?? ""}
           options={pickerOptions}
-          onPick={handlePick}
+          existingLabels={existingLabels}
+          placeholder={pickerPlaceholder ?? "Search…"}
+          onAdd={(labels) => onAddMany(labels)}
           onClose={() => setShowPicker(false)}
         />
       )}
 
       <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-        {/* ── section header ── */}
+        {/* section header */}
         <div className="flex items-center justify-between px-4 py-2.5" style={{ backgroundColor: "#1a3557" }}>
           <span className="font-bold text-white text-sm tracking-wide">{title}</span>
           <button
@@ -264,98 +450,108 @@ function FundingSection({
           </button>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm" style={{ borderCollapse: "collapse", minWidth: 1150 }}>
-            <thead>
-              <tr style={{ borderBottom: "2px solid #cbd5e1", borderTop: "1px solid #e2e8f0" }}>
-                <th className="px-3 py-2 text-left text-xs font-bold text-slate-600 uppercase tracking-wider whitespace-nowrap" style={{ backgroundColor: "#f1f5f9", minWidth: 160 }}>
-                  {columnHeader}
-                </th>
-                <th className="px-3 py-2 text-right text-xs font-bold uppercase tracking-wider whitespace-nowrap" style={{ backgroundColor: "#fef3c7", color: "#78350f", borderLeft: amberBorder, width: 115 }}>
-                  Total Planned
-                </th>
-                <th className="px-3 py-2 text-right text-xs font-bold uppercase tracking-wider whitespace-nowrap" style={{ backgroundColor: "#fef3c7", color: "#78350f", borderLeft: amberBorder, width: 115 }}>
-                  Total Requested
-                </th>
-                <th className={blueHd} style={{ backgroundColor: blueHdBg, borderLeft: blueBorder, width: 125 }}>Total Commitments</th>
-                <th className={blueHd} style={{ backgroundColor: blueHdBg, borderLeft: blueBorder, width: 125 }}>Open Commitments</th>
-                <th className={blueHd} style={{ backgroundColor: blueHdBg, borderLeft: blueBorder, width: 105 }}>Obligated</th>
-                <th className="px-3 py-2 text-left text-xs font-bold text-slate-600 uppercase tracking-wider whitespace-nowrap" style={{ backgroundColor: "#f1f5f9", borderLeft: "1px solid #e2e8f0", minWidth: 320 }}>
-                  Description
-                </th>
-                <th className="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider whitespace-nowrap" style={{ backgroundColor: "#fef3c7", color: "#78350f", borderLeft: amberBorder, minWidth: 100 }}>
-                  Notes
-                </th>
-                <th className="px-3 py-2 bg-slate-100" style={{ borderLeft: "1px solid #e2e8f0", width: 52 }} />
-              </tr>
-            </thead>
+        {/* table — no overflow wrapper; fixed layout fills width */}
+        <table className="w-full text-sm" style={{ borderCollapse: "collapse", tableLayout: "fixed" }}>
+          <colgroup>
+            <col style={{ width: 155 }} />
+            <col style={{ width: 108 }} />
+            <col style={{ width: 108 }} />
+            <col style={{ width: 108 }} />
+            <col style={{ width: 108 }} />
+            <col style={{ width: 98 }} />
+            <col />
+            <col style={{ width: 95 }} />
+            <col style={{ width: 44 }} />
+          </colgroup>
+          <thead>
+            <tr style={{ borderBottom: "2px solid #cbd5e1", borderTop: "1px solid #e2e8f0" }}>
+              <th className="px-3 py-2 text-left text-xs font-bold text-slate-600 uppercase tracking-wider whitespace-nowrap" style={{ backgroundColor: "#f1f5f9" }}>
+                {columnHeader}
+              </th>
+              <th className="px-3 py-2 text-right text-xs font-bold uppercase tracking-wide leading-tight" style={{ backgroundColor: "#fef3c7", color: "#78350f", borderLeft: amberBorder }}>
+                Total Planned
+              </th>
+              <th className="px-3 py-2 text-right text-xs font-bold uppercase tracking-wide leading-tight" style={{ backgroundColor: "#fef3c7", color: "#78350f", borderLeft: amberBorder }}>
+                Total Requested
+              </th>
+              <th className={blueHd} style={{ backgroundColor: blueHdBg, borderLeft: blueBorder }}>Total Commitments</th>
+              <th className={blueHd} style={{ backgroundColor: blueHdBg, borderLeft: blueBorder }}>Open Commitments</th>
+              <th className={blueHd} style={{ backgroundColor: blueHdBg, borderLeft: blueBorder }}>Obligated</th>
+              <th className="px-3 py-2 text-left text-xs font-bold text-slate-600 uppercase tracking-wider" style={{ backgroundColor: "#f1f5f9", borderLeft: "1px solid #e2e8f0" }}>
+                Description
+              </th>
+              <th className="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider whitespace-nowrap" style={{ backgroundColor: "#fef3c7", color: "#78350f", borderLeft: amberBorder }}>
+                Notes
+              </th>
+              <th className="px-3 py-2 bg-slate-100" style={{ borderLeft: "1px solid #e2e8f0" }} />
+            </tr>
+          </thead>
 
-            <tbody>
-              {rows.map((row) => {
-                const hasObligations = row.obligated > 0;
-                return (
-                  <tr key={row.id} style={{ borderBottom: "1px solid #fef9c3" }}>
-                    <td className="px-3 py-2.5 text-slate-700 font-medium bg-slate-50">{row.label}</td>
-                    <td className="px-3 py-2.5" style={{ backgroundColor: amberBg, borderLeft: amberBorder }}>
-                      <EditableAmount value={row.planned}   onChange={(v) => onUpdateAmount(row.id, "planned", v)} />
-                    </td>
-                    <td className="px-3 py-2.5" style={{ backgroundColor: amberBg, borderLeft: amberBorder }}>
-                      <EditableAmount value={row.requested} onChange={(v) => onUpdateAmount(row.id, "requested", v)} />
-                    </td>
-                    <td className={blueTd} style={{ backgroundColor: blueCellBg, borderLeft: blueBorder }}>{fmt(row.totalCommitments)}</td>
-                    <td className={blueTd} style={{ backgroundColor: blueCellBg, borderLeft: blueBorder }}>{fmt(row.openCommitments)}</td>
-                    <td className={blueTd} style={{ backgroundColor: blueCellBg, borderLeft: blueBorder }}>{fmt(row.obligated)}</td>
-                    <td className="px-3 py-2.5 text-xs text-slate-500 font-mono bg-white" style={{ borderLeft: "1px solid #e2e8f0", minWidth: 320 }}>
-                      {row.description}
-                    </td>
-                    <td className="px-3 py-2.5" style={{ backgroundColor: amberBg, borderLeft: amberBorder }}>
-                      <input
-                        type="text" value={row.notes}
-                        onChange={(e) => onUpdateNote(row.id, e.target.value)}
-                        placeholder="notes"
-                        className="w-full text-sm text-slate-700 border-none focus:outline-none"
-                        style={{ backgroundColor: "transparent" }}
-                      />
-                    </td>
-                    <td className="px-2 py-2.5 text-center bg-slate-50" style={{ borderLeft: "1px solid #e2e8f0" }}>
-                      {hasObligations ? (
-                        <button
-                          onClick={() => onZeroOut(row.id)}
-                          title="Zero out planned amounts (has obligations — cannot be deleted)"
-                          className="p-1.5 rounded transition-colors text-amber-600 hover:bg-amber-100"
-                        >
-                          <MinusCircle size={15} />
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => onDelete(row.id)}
-                          title="Delete row"
-                          className="p-1.5 rounded transition-colors text-red-500 hover:bg-red-100"
-                        >
-                          <Trash2 size={15} />
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
+          <tbody>
+            {rows.map((row) => {
+              const hasObligations = row.obligated > 0;
+              return (
+                <tr key={row.id} style={{ borderBottom: "1px solid #fef9c3" }}>
+                  <td className="px-3 py-2.5 text-slate-700 font-medium bg-slate-50 truncate" title={row.label}>{row.label}</td>
+                  <td className="px-3 py-2.5" style={{ backgroundColor: amberBg, borderLeft: amberBorder }}>
+                    <EditableAmount value={row.planned}   onChange={(v) => onUpdateAmount(row.id, "planned", v)} />
+                  </td>
+                  <td className="px-3 py-2.5" style={{ backgroundColor: amberBg, borderLeft: amberBorder }}>
+                    <EditableAmount value={row.requested} onChange={(v) => onUpdateAmount(row.id, "requested", v)} />
+                  </td>
+                  <td className={blueTd} style={{ backgroundColor: blueCellBg, borderLeft: blueBorder }}>{fmt(row.totalCommitments)}</td>
+                  <td className={blueTd} style={{ backgroundColor: blueCellBg, borderLeft: blueBorder }}>{fmt(row.openCommitments)}</td>
+                  <td className={blueTd} style={{ backgroundColor: blueCellBg, borderLeft: blueBorder }}>{fmt(row.obligated)}</td>
+                  <td className="px-3 py-2.5 text-xs text-slate-500 font-mono bg-white truncate" style={{ borderLeft: "1px solid #e2e8f0" }} title={row.description}>
+                    {row.description}
+                  </td>
+                  <td className="px-3 py-2.5" style={{ backgroundColor: amberBg, borderLeft: amberBorder }}>
+                    <input
+                      type="text" value={row.notes}
+                      onChange={(e) => onUpdateNote(row.id, e.target.value)}
+                      placeholder="notes"
+                      className="w-full text-sm text-slate-700 border-none focus:outline-none"
+                      style={{ backgroundColor: "transparent" }}
+                    />
+                  </td>
+                  <td className="px-2 py-2.5 text-center bg-slate-50" style={{ borderLeft: "1px solid #e2e8f0" }}>
+                    {hasObligations ? (
+                      <button
+                        onClick={() => onZeroOut(row.id)}
+                        title="Zero out planned amounts (has obligations — cannot be deleted)"
+                        className="p-1.5 rounded transition-colors text-amber-600 hover:bg-amber-100"
+                      >
+                        <MinusCircle size={15} />
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => onDelete(row.id)}
+                        title="Delete row"
+                        className="p-1.5 rounded transition-colors text-red-500 hover:bg-red-100"
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
 
-            <tfoot>
-              <tr style={{ borderTop: "2px solid #94a3b8" }}>
-                <td className="px-3 py-2.5 text-xs text-slate-500 uppercase tracking-wide font-bold bg-slate-100">Total</td>
-                <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-bold" style={{ backgroundColor: amberTotalBg, borderLeft: amberBorder }}>{fmt(totalPlanned)}</td>
-                <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-bold" style={{ backgroundColor: amberTotalBg, borderLeft: amberBorder }}>{fmt(totalRequested)}</td>
-                <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-bold bg-blue-100" style={{ borderLeft: blueBorder }}>{fmt(totalCommitments)}</td>
-                <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-bold bg-blue-100" style={{ borderLeft: blueBorder }}>{fmt(totalOpen)}</td>
-                <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-bold bg-blue-100" style={{ borderLeft: blueBorder }}>{fmt(totalObligated)}</td>
-                <td className="bg-white" style={{ borderLeft: "1px solid #e2e8f0" }} />
-                <td style={{ backgroundColor: amberTotalBg, borderLeft: amberBorder }} />
-                <td className="bg-slate-100" style={{ borderLeft: "1px solid #e2e8f0" }} />
-              </tr>
-            </tfoot>
-          </table>
-        </div>
+          <tfoot>
+            <tr style={{ borderTop: "2px solid #94a3b8" }}>
+              <td className="px-3 py-2.5 text-xs text-slate-500 uppercase tracking-wide font-bold bg-slate-100">Total</td>
+              <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-bold" style={{ backgroundColor: amberTotalBg, borderLeft: amberBorder }}>{fmt(totalPlanned)}</td>
+              <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-bold" style={{ backgroundColor: amberTotalBg, borderLeft: amberBorder }}>{fmt(totalRequested)}</td>
+              <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-bold bg-blue-100" style={{ borderLeft: blueBorder }}>{fmt(totalCommitments)}</td>
+              <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-bold bg-blue-100" style={{ borderLeft: blueBorder }}>{fmt(totalOpen)}</td>
+              <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-bold bg-blue-100" style={{ borderLeft: blueBorder }}>{fmt(totalObligated)}</td>
+              <td className="bg-white" style={{ borderLeft: "1px solid #e2e8f0" }} />
+              <td style={{ backgroundColor: amberTotalBg, borderLeft: amberBorder }} />
+              <td className="bg-slate-100" style={{ borderLeft: "1px solid #e2e8f0" }} />
+            </tr>
+          </tfoot>
+        </table>
       </div>
     </>
   );
@@ -373,7 +569,7 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
       description: `FY${fy}/SANDC LABOR FUNDS FOR ${num}/CEFMS/`, notes: "notes" },
     { id: 2, label: "U435310", planned: Math.round(b * 0.05), requested: Math.round(b * 0.05 * 0.95),
       totalCommitments: Math.round(b * 0.05 * 0.95), openCommitments: Math.round(b * 0.05 * 0.50), obligated: Math.round(b * 0.05 * 0.45),
-      description: `FY${fy}/SANDC LABOR FUNDS FOR ${num}/org code/`, notes: "notes" },
+      description: `FY${fy}/SANDC LABOR FUNDS FOR ${num}/U435310/`, notes: "notes" },
     { id: 3, label: "Chen, David", planned: Math.round(b * 0.035), requested: Math.round(b * 0.035),
       totalCommitments: Math.round(b * 0.035 * 0.60), openCommitments: Math.round(b * 0.035 * 0.30), obligated: Math.round(b * 0.035 * 0.30),
       description: `FY${fy}/SANDC LABOR FUNDS FOR ${num}/Chen D/`, notes: "" },
@@ -396,6 +592,14 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
       totalCommitments: Math.round(b * 0.021 * 0.98), openCommitments: Math.round(b * 0.021 * 0.49), obligated: 0,
       description: `FY${fy}/SANDC MATL FOR ${num}/Rebar/2000 units`, notes: "" },
   ]);
+
+  const laborDescTemplate  = `FY${fy}/SANDC LABOR FUNDS FOR ${num}//`;
+  const travelDescTemplate = `FY${fy}/SANDC TRAVEL FOR ${num}//`;
+  const matlDescTemplate   = `FY${fy}/SANDC MATL FOR ${num}//`;
+
+  const laborExisting  = useMemo(() => new Set(labor.rows.map((r) => r.label)),  [labor.rows]);
+  const travelExisting = useMemo(() => new Set(travel.rows.map((r) => r.label)), [travel.rows]);
+  const matsExisting   = useMemo(() => new Set(mats.rows.map((r) => r.label)),   [mats.rows]);
 
   const allPlanned = [...labor.rows, ...travel.rows, ...mats.rows].reduce((s, r) => s + r.planned, 0);
   const leftToPlan = budget - allPlanned;
@@ -438,27 +642,40 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
       {/* tables */}
       <FundingSection
         title="Labor" columnHeader="Employee / Org Code"
-        addButtonLabel="Add Person" pickerTitle="Select Employee or Org Code" pickerOptions={LABOR_OPTIONS}
-        descTemplate={`FY${fy}/SANDC LABOR FUNDS FOR ${num}//`}
+        addButtonLabel="Add Labor"
+        descTemplate={laborDescTemplate}
         rows={labor.rows}
         onUpdateAmount={labor.updateAmount} onUpdateNote={labor.updateNote}
-        onDelete={labor.deleteRow} onZeroOut={labor.zeroOutRow} onAdd={labor.addRow}
+        onDelete={labor.deleteRow} onZeroOut={labor.zeroOutRow}
+        onAddMany={(labels) => labor.addMany(labels, laborDescTemplate)}
+        laborMode
+        existingLabels={laborExisting}
       />
       <FundingSection
         title="Travel" columnHeader="Travel Line"
-        addButtonLabel="Add Travel Line" pickerTitle="Select Travel Line" pickerOptions={TRAVEL_OPTIONS}
-        descTemplate={`FY${fy}/SANDC TRAVEL FOR ${num}//`}
+        addButtonLabel="Add Travel Line"
+        descTemplate={travelDescTemplate}
         rows={travel.rows}
         onUpdateAmount={travel.updateAmount} onUpdateNote={travel.updateNote}
-        onDelete={travel.deleteRow} onZeroOut={travel.zeroOutRow} onAdd={travel.addRow}
+        onDelete={travel.deleteRow} onZeroOut={travel.zeroOutRow}
+        onAddMany={(labels) => travel.addMany(labels, travelDescTemplate)}
+        existingLabels={travelExisting}
+        pickerTitle="Add Travel Lines"
+        pickerOptions={TRAVEL_OPTIONS}
+        pickerPlaceholder="Search travel lines…"
       />
       <FundingSection
         title="Materials & Other" columnHeader="Item"
-        addButtonLabel="Add Item" pickerTitle="Select Item or Service" pickerOptions={MATERIAL_OPTIONS}
-        descTemplate={`FY${fy}/SANDC MATL FOR ${num}//`}
+        addButtonLabel="Add Item"
+        descTemplate={matlDescTemplate}
         rows={mats.rows}
         onUpdateAmount={mats.updateAmount} onUpdateNote={mats.updateNote}
-        onDelete={mats.deleteRow} onZeroOut={mats.zeroOutRow} onAdd={mats.addRow}
+        onDelete={mats.deleteRow} onZeroOut={mats.zeroOutRow}
+        onAddMany={(labels) => mats.addMany(labels, matlDescTemplate)}
+        existingLabels={matsExisting}
+        pickerTitle="Add Items"
+        pickerOptions={MATERIAL_OPTIONS}
+        pickerPlaceholder="Search items…"
       />
 
       {/* submit */}
