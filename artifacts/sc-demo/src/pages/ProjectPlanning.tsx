@@ -269,26 +269,18 @@ function FundingSection({
                     {hasObligations ? (
                       <button
                         onClick={() => onZeroOut(row.id)}
-                        title="Zero out — row has obligations so it cannot be deleted"
-                        className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-colors"
-                        style={{ backgroundColor: "#fef3c7", color: "#92400e", border: "1px solid #fcd34d" }}
-                        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#fde68a")}
-                        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#fef3c7")}
+                        title="Zero out planned amounts (row has obligations and cannot be deleted)"
+                        className="p-1.5 rounded transition-colors text-amber-600 hover:bg-amber-100"
                       >
-                        <MinusCircle size={12} />
-                        Zero
+                        <MinusCircle size={15} />
                       </button>
                     ) : (
                       <button
                         onClick={() => onDelete(row.id)}
                         title="Delete row"
-                        className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-colors"
-                        style={{ backgroundColor: "#fef2f2", color: "#dc2626", border: "1px solid #fecaca" }}
-                        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#fee2e2")}
-                        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#fef2f2")}
+                        className="p-1.5 rounded transition-colors text-red-500 hover:bg-red-100"
                       >
-                        <Trash2 size={12} />
-                        Delete
+                        <Trash2 size={15} />
                       </button>
                     )}
                   </td>
@@ -421,13 +413,33 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
       />
 
       {/* submit */}
-      <div className="flex justify-center pt-2 pb-4">
-        <button className="px-12 py-2.5 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors" style={{ backgroundColor: "#1a3557" }}
-          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#16304d")}
-          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#1a3557")}
+      <div className="flex flex-col items-center gap-1.5 pt-2 pb-4">
+        <button
+          disabled={leftToPlan < 0 || leftToPlan > 50}
+          className="px-12 py-2.5 text-sm font-semibold rounded-lg shadow-sm transition-colors disabled:cursor-not-allowed"
+          style={
+            leftToPlan >= 0 && leftToPlan <= 50
+              ? { backgroundColor: "#1a3557", color: "#fff" }
+              : { backgroundColor: "#e2e8f0", color: "#94a3b8" }
+          }
+          onMouseEnter={(e) => {
+            if (leftToPlan >= 0 && leftToPlan <= 50)
+              e.currentTarget.style.backgroundColor = "#16304d";
+          }}
+          onMouseLeave={(e) => {
+            if (leftToPlan >= 0 && leftToPlan <= 50)
+              e.currentTarget.style.backgroundColor = "#1a3557";
+          }}
         >
-          Submit
+          Submit Plan
         </button>
+        {(leftToPlan < 0 || leftToPlan > 50) && (
+          <p className="text-xs text-slate-400">
+            {leftToPlan < 0
+              ? "Plan exceeds budget — reduce planned amounts before submitting"
+              : "Allocate remaining funds before submitting"}
+          </p>
+        )}
       </div>
     </div>
   );
