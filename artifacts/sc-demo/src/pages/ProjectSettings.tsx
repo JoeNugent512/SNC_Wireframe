@@ -75,7 +75,7 @@ function EditableAmount({ value, onChange }: { value: number; onChange: (v: numb
   return (
     <button
       onClick={() => { setRaw(String(value)); setEditing(true); }}
-      className="w-full text-right text-sm text-slate-700 tabular-nums hover:text-blue-700 hover:underline decoration-dotted focus:outline-none group"
+      className="w-full text-right text-sm text-slate-700 tabular-nums px-2 py-0.5 rounded bg-blue-50 hover:bg-blue-100 hover:text-blue-800 focus:outline-none focus:ring-1 focus:ring-blue-300 transition-colors"
       title="Click to edit"
     >
       {display}
