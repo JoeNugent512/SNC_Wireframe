@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
-import { Link, useLocation } from "wouter";
-import { Home, FolderKanban, FileSpreadsheet, User } from "lucide-react";
+import { useLocation } from "wouter";
+import { User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface LayoutProps {
@@ -62,7 +62,7 @@ export default function Layout({ children, title, roleBadge, breadcrumb, headerA
         </div>
       </header>
 
-      <main className="flex-1 w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 pb-24 overflow-x-hidden">
+      <main className="flex-1 w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 overflow-x-hidden">
         <AnimatePresence mode="wait">
           <motion.div
             key={location}
@@ -77,22 +77,6 @@ export default function Layout({ children, title, roleBadge, breadcrumb, headerA
         </AnimatePresence>
       </main>
 
-      <footer className="fixed bottom-0 w-full bg-white border-t border-slate-200 pb-safe">
-        <div className="flex justify-around items-center h-16 max-w-md mx-auto px-4">
-          <Link href="/" className={`flex flex-col items-center justify-center w-full h-full gap-1 transition-colors ${location === "/" ? "text-primary" : "text-slate-500 hover:text-slate-900"}`} data-testid="nav-home">
-            <Home size={20} strokeWidth={location === "/" ? 2.5 : 2} />
-            <span className="text-[10px] font-medium">Home</span>
-          </Link>
-          <Link href="/projects" className={`flex flex-col items-center justify-center w-full h-full gap-1 transition-colors ${location.startsWith("/projects") ? "text-primary" : "text-slate-500 hover:text-slate-900"}`} data-testid="nav-projects">
-            <FolderKanban size={20} strokeWidth={location.startsWith("/projects") ? 2.5 : 2} />
-            <span className="text-[10px] font-medium">Projects</span>
-          </Link>
-          <Link href="/change-requests" className={`flex flex-col items-center justify-center w-full h-full gap-1 transition-colors ${location.startsWith("/change-requests") ? "text-primary" : "text-slate-500 hover:text-slate-900"}`} data-testid="nav-change-requests">
-            <FileSpreadsheet size={20} strokeWidth={location.startsWith("/change-requests") ? 2.5 : 2} />
-            <span className="text-[10px] font-medium">Change Requests</span>
-          </Link>
-        </div>
-      </footer>
     </div>
   );
 }
