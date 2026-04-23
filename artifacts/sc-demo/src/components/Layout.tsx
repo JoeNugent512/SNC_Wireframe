@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { useLocation } from "wouter";
-import { User } from "lucide-react";
+import { User, ArrowLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface LayoutProps {
@@ -32,7 +32,14 @@ export default function Layout({ children, title, roleBadge, breadcrumb, headerA
               S&C
             </div>
             {breadcrumb ? (
-              <div className="min-w-0">
+              <div className="flex items-center gap-2 min-w-0">
+                <button
+                  onClick={() => window.history.back()}
+                  className="flex-shrink-0 p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+                  title="Go back"
+                >
+                  <ArrowLeft size={16} />
+                </button>
                 <div className="flex items-center gap-1.5 flex-wrap text-sm font-medium leading-tight">
                   {breadcrumb}
                 </div>
