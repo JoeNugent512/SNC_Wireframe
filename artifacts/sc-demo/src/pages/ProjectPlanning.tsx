@@ -513,16 +513,16 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
   return (
     <div className="space-y-5">
       {/* summary cards */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-3 gap-4">
         <div className="rounded-2xl px-6 py-5 shadow-md" style={{ backgroundColor: "#1a3557" }}>
           <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: "#93c5fd" }}>TOA</p>
           <p className="text-3xl font-bold text-white tabular-nums leading-none">{fmt(budget)}</p>
           <p className="text-xs mt-1" style={{ color: "#93c5fd" }}>Total Obligating Authority</p>
         </div>
-        <div className="col-span-2 rounded-2xl px-8 py-5 shadow-sm border border-slate-200 bg-white flex flex-col justify-center">
+        <div className="rounded-2xl px-6 py-5 shadow-sm border border-slate-200 bg-white">
           <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-1">Planned</p>
           <p className="text-3xl font-bold text-slate-900 tabular-nums leading-none">{fmt(allPlanned)}</p>
-          <p className="text-xs text-slate-400 mt-1.5">Amount currently planned across all categories</p>
+          <p className="text-xs text-slate-400 mt-1">Amount currently planned</p>
         </div>
         <div className={`rounded-2xl px-6 py-5 shadow-sm border ${
           leftToPlan < 0
