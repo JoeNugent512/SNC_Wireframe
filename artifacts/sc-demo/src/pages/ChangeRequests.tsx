@@ -27,31 +27,11 @@ function getProponent(projectNumber: string) {
   return MOCK_PROJECTS.find(p => p.number === projectNumber)?.hqProponent ?? "—";
 }
 
-function buildDescription(cr: ChangeRequest, proponent: string): string {
-  const net = cr.lineItems.reduce((s, li) =>
-    li.direction === "Increase" ? s + li.amount : s - li.amount, 0);
-  const pad = (s: string, w: number) => s.padEnd(w, " ");
-  const lines = cr.lineItems.map(li => {
-    const delta = li.direction === "Increase" ? li.amount : -li.amount;
-    const sign  = delta >= 0 ? "+" : "";
-    return `  ${li.direction === "Increase" ? "[+]" : "[-]"} ${pad(li.type + ": " + li.description, 38)} ${pad(fmt(li.from), 12)} -> ${pad(fmt(li.to), 12)} (${sign}${fmt(delta)})`;
-  });
-  const netLabel = net === 0 ? "$0" : (net > 0 ? "+" : "") + fmt(net);
-  return [
-    "Budget Change Request",
-    `Project:       ${cr.projectNumber} — ${cr.projectName}`,
-    `Proponent:     ${proponent}`,
-    `Requested by:  ${cr.submittedBy}  |  Date: ${cr.date}`,
-    `Status:        ${cr.status}`,
-    "",
-    "Budget Changes:",
-    ...lines,
-    `${"".padEnd(62, "-")}`,
-    `  Net Change: ${netLabel}`,
-    "",
-    "Justification:",
-    `  ${cr.justification}`,
-  ].join("\n");
+function buildDescription(cr: ChangeRequest): string {
+  const fy = cr.projectNumber.substring(0, 2);
+  return cr.lineItems
+    .map(li => `FY${fy}/SANDC ${li.type.toUpperCase()} FUNDS FOR ${cr.projectNumber}/${li.description.toUpperCase()}/`)
+    .join("\n");
 }
 
 function typeChipClass(type: CRLineItem["type"]) {
@@ -330,7 +310,7 @@ export default function ChangeRequests() {
                       <div className="flex items-center justify-between mb-2">
                         <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Description</div>
                         <button
-                          onClick={() => copyToClipboard(buildDescription(selectedCR, getProponent(selectedCR.projectNumber)), "desc")}
+                          onClick={() => copyToClipboard(buildDescription(selectedCR), "desc")}
                           className="flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-slate-800 hover:bg-slate-100 px-2 py-1 rounded transition-colors"
                         >
                           {copiedDesc ? <Check size={13} className="text-emerald-600" /> : <Copy size={13} />}
@@ -339,8 +319,8 @@ export default function ChangeRequests() {
                       </div>
                       <textarea
                         readOnly
-                        rows={10}
-                        value={buildDescription(selectedCR, getProponent(selectedCR.projectNumber))}
+                        rows={Math.max(3, selectedCR.lineItems.length + 1)}
+                        value={buildDescription(selectedCR)}
                         className="w-full text-xs text-slate-700 font-mono bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 resize-none focus:outline-none focus:ring-2 focus:ring-primary/30 leading-relaxed"
                       />
                     </div>
