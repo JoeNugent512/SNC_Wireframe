@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import { PlusCircle, FileSpreadsheet, FolderEdit, ArrowRight } from "lucide-react";
 import Layout from "@/components/Layout";
+import { PENDING_SETUP_PROJECTS } from "@/lib/mockData";
 
 export default function Home() {
   return (
@@ -12,17 +13,24 @@ export default function Home() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Link href="/projects" className="group">
-            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-primary/30 transition-all cursor-pointer h-full flex flex-col justify-between" data-testid="action-new-project">
+          <Link href="/setup" className="group">
+            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-amber-300 transition-all cursor-pointer h-full flex flex-col justify-between" data-testid="action-new-project">
               <div>
-                <div className="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center mb-4 group-hover:bg-blue-100 transition-colors">
-                  <PlusCircle className="text-primary" size={24} />
+                <div className="relative w-12 h-12 mb-4">
+                  <div className="w-12 h-12 rounded-lg bg-amber-50 flex items-center justify-center group-hover:bg-amber-100 transition-colors">
+                    <PlusCircle className="text-amber-600" size={24} />
+                  </div>
+                  {PENDING_SETUP_PROJECTS.length > 0 && (
+                    <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-amber-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                      {PENDING_SETUP_PROJECTS.length}
+                    </span>
+                  )}
                 </div>
                 <h3 className="text-lg font-semibold text-slate-900">Set Up New Project</h3>
-                <p className="text-sm text-slate-500 mt-2">Initialize a new S&C project, allocate initial budget, and assign team members.</p>
+                <p className="text-sm text-slate-500 mt-2">Complete EPMP charter data for newly picked-up projects awaiting BA setup.</p>
               </div>
-              <div className="flex items-center text-primary text-sm font-medium mt-6 group-hover:translate-x-1 transition-transform">
-                Start setup <ArrowRight size={16} className="ml-1" />
+              <div className="flex items-center text-amber-600 text-sm font-medium mt-6 group-hover:translate-x-1 transition-transform">
+                View setup queue <ArrowRight size={16} className="ml-1" />
               </div>
             </div>
           </Link>

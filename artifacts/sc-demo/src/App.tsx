@@ -9,6 +9,8 @@ import ProjectList from "@/pages/ProjectList";
 import ProjectPlanning from "@/pages/ProjectPlanning";
 import ProjectSettings from "@/pages/ProjectSettings";
 import ChangeRequests from "@/pages/ChangeRequests";
+import SetupQueue from "@/pages/SetupQueue";
+import ProjectSetup from "@/pages/ProjectSetup";
 
 const queryClient = new QueryClient();
 
@@ -20,6 +22,8 @@ function Router() {
       <Route path="/projects/:id/planning" component={ProjectPlanning} />
       <Route path="/projects/:id/settings" component={ProjectSettings} />
       <Route path="/change-requests" component={ChangeRequests} />
+      <Route path="/setup" component={SetupQueue} />
+      <Route path="/setup/:id" component={ProjectSetup} />
       <Route component={NotFound} />
     </Switch>
   );

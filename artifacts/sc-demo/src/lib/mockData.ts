@@ -22,6 +22,102 @@ export interface Project {
   additionalCmsLinks: string;
 }
 
+export interface SetupProject {
+  id: string;
+  number: string;
+  name: string;
+  description: string;
+  estimatedBudget: number;
+  pmName: string;
+  dwgCoP: string;
+  hqProponent: string;
+  executingOrg: string;
+  projectLead: string;
+  needsContractSupport: "" | "Yes" | "No";
+  specialFundingType: string;
+  budgetAtSubmission: number;
+  startDate: string;
+  endDate: string;
+  primaryCmsLink: string;
+  cmsGuestLink: string;
+  additionalCmsLinks: string;
+  sourceRef: string;
+  submittedBy: string;
+  receivedDate: string;
+}
+
+export const PENDING_SETUP_PROJECTS: SetupProject[] = [
+  {
+    id: "setup-1",
+    number: "26A05",
+    name: "Levee Reinforcement Study",
+    description: "Structural assessment and reinforcement of aging levee segments along the southern flood basin.",
+    estimatedBudget: 1850000,
+    pmName: "John Smith",
+    dwgCoP: "",
+    hqProponent: "Patricia Moore",
+    executingOrg: "ERDC",
+    projectLead: "",
+    needsContractSupport: "",
+    specialFundingType: "",
+    budgetAtSubmission: 1850000,
+    startDate: "",
+    endDate: "",
+    primaryCmsLink: "",
+    cmsGuestLink: "",
+    additionalCmsLinks: "",
+    sourceRef: "CR-26A05",
+    submittedBy: "Patricia Moore",
+    receivedDate: "2024-03-01",
+  },
+  {
+    id: "setup-2",
+    number: "26T04",
+    name: "Pavement Condition Assessment",
+    description: "Network-wide pavement distress survey and condition index scoring for prioritization of rehabilitation.",
+    estimatedBudget: 420000,
+    pmName: "",
+    dwgCoP: "Transportation",
+    hqProponent: "Joe Bush",
+    executingOrg: "",
+    projectLead: "",
+    needsContractSupport: "Yes",
+    specialFundingType: "",
+    budgetAtSubmission: 420000,
+    startDate: "2024-04-01",
+    endDate: "",
+    primaryCmsLink: "",
+    cmsGuestLink: "",
+    additionalCmsLinks: "",
+    sourceRef: "CR-26T04",
+    submittedBy: "Joe Bush",
+    receivedDate: "2024-03-05",
+  },
+  {
+    id: "setup-3",
+    number: "26A06",
+    name: "Dam Spillway Repair",
+    description: "Emergency repair and seismic retrofitting of the main spillway gate assembly at Ridgecrest Dam.",
+    estimatedBudget: 3200000,
+    pmName: "",
+    dwgCoP: "",
+    hqProponent: "",
+    executingOrg: "",
+    projectLead: "",
+    needsContractSupport: "",
+    specialFundingType: "Emergency",
+    budgetAtSubmission: 3200000,
+    startDate: "",
+    endDate: "",
+    primaryCmsLink: "",
+    cmsGuestLink: "",
+    additionalCmsLinks: "",
+    sourceRef: "CR-26A06",
+    submittedBy: "Marcus Thorne",
+    receivedDate: "2024-03-10",
+  },
+];
+
 export interface ChangeRequest {
   id: string;
   proposedNumber: string;
