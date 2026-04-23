@@ -180,59 +180,41 @@ export default function ProjectList() {
                 <div className="p-6 md:p-8 bg-slate-50/50 flex-1 flex flex-col">
                   <h3 className="text-sm font-bold text-slate-400 tracking-wider uppercase mb-4">Key Metrics</h3>
 
-                  {detailReady ? (
-                    /* Loaded metrics */
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 animate-in fade-in duration-300">
-                      <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm flex items-start gap-3">
-                        <div className="bg-emerald-50 text-emerald-600 p-2 rounded-md mt-0.5">
-                          <DollarSign size={20} />
-                        </div>
-                        <div>
-                          <div className="text-xs font-medium text-slate-500 mb-1">Total Budget</div>
-                          <div className="text-lg font-bold text-slate-900">{fmt(selectedProject.budget)}</div>
-                        </div>
+                  {/* All high-level data shows instantly */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                    <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm flex items-start gap-3">
+                      <div className="bg-emerald-50 text-emerald-600 p-2 rounded-md mt-0.5">
+                        <DollarSign size={20} />
                       </div>
-
-                      <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm flex items-start gap-3">
-                        <div className="bg-blue-50 text-blue-600 p-2 rounded-md mt-0.5">
-                          <Calendar size={20} />
-                        </div>
-                        <div>
-                          <div className="text-xs font-medium text-slate-500 mb-1">Timeline</div>
-                          <div className="text-sm font-semibold text-slate-900">
-                            {new Date(selectedProject.startDate).toLocaleDateString("en-US", { month: "short", year: "numeric" })} –{" "}
-                            {new Date(selectedProject.endDate).toLocaleDateString("en-US", { month: "short", year: "numeric" })}
-                          </div>
-                        </div>
+                      <div>
+                        <div className="text-xs font-medium text-slate-500 mb-1">Total Budget</div>
+                        <div className="text-lg font-bold text-slate-900">{fmt(selectedProject.budget)}</div>
                       </div>
+                    </div>
 
-                      <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm flex items-start gap-3 md:col-span-2">
-                        <div className="bg-indigo-50 text-indigo-600 p-2 rounded-md mt-0.5">
-                          <User size={20} />
-                        </div>
-                        <div>
-                          <div className="text-xs font-medium text-slate-500 mb-1">Project Manager</div>
-                          <div className="text-sm font-semibold text-slate-900">{selectedProject.pmName}</div>
+                    <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm flex items-start gap-3">
+                      <div className="bg-blue-50 text-blue-600 p-2 rounded-md mt-0.5">
+                        <Calendar size={20} />
+                      </div>
+                      <div>
+                        <div className="text-xs font-medium text-slate-500 mb-1">Timeline</div>
+                        <div className="text-sm font-semibold text-slate-900">
+                          {new Date(selectedProject.startDate).toLocaleDateString("en-US", { month: "short", year: "numeric" })} –{" "}
+                          {new Date(selectedProject.endDate).toLocaleDateString("en-US", { month: "short", year: "numeric" })}
                         </div>
                       </div>
                     </div>
-                  ) : (
-                    /* Skeleton placeholders while loading */
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                      {[1, 2, 3].map((i) => (
-                        <div
-                          key={i}
-                          className={`bg-white p-4 rounded-lg border border-slate-200 shadow-sm flex items-start gap-3 ${i === 3 ? "md:col-span-2" : ""}`}
-                        >
-                          <div className="w-9 h-9 rounded-md bg-slate-100 animate-pulse flex-shrink-0" />
-                          <div className="flex-1 space-y-2 pt-1">
-                            <div className="h-2.5 bg-slate-100 rounded animate-pulse w-1/3" />
-                            <div className="h-4 bg-slate-100 rounded animate-pulse w-2/3" />
-                          </div>
-                        </div>
-                      ))}
+
+                    <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm flex items-start gap-3 md:col-span-2">
+                      <div className="bg-indigo-50 text-indigo-600 p-2 rounded-md mt-0.5">
+                        <User size={20} />
+                      </div>
+                      <div>
+                        <div className="text-xs font-medium text-slate-500 mb-1">Project Manager</div>
+                        <div className="text-sm font-semibold text-slate-900">{selectedProject.pmName}</div>
+                      </div>
                     </div>
-                  )}
+                  </div>
 
                   {/* ── Edit Project button with progress bar ── */}
                   <div className="flex gap-3 mt-auto">
@@ -259,7 +241,7 @@ export default function ProjectList() {
                           data-testid="button-edit-plan"
                         >
                           <FileSpreadsheet size={16} />
-                          {detailReady ? "Edit Project" : "Loading data…"}
+                          {detailReady ? "Edit Project" : "Loading plans & actuals…"}
                         </button>
                       </Link>
                     </div>
