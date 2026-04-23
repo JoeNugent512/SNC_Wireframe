@@ -125,8 +125,6 @@ export default function ChangeRequests() {
               <thead className="text-xs text-slate-500 uppercase tracking-wider bg-slate-50/50 sticky top-0 border-b border-slate-200">
                 <tr>
                   <th className="px-6 py-4 font-semibold">Project</th>
-                  <th className="px-6 py-4 font-semibold">Changes</th>
-                  <th className="px-6 py-4 font-semibold text-right">Net Change</th>
                   <th className="px-6 py-4 font-semibold hidden lg:table-cell">Proponent</th>
                   <th className="px-6 py-4 font-semibold hidden md:table-cell">Submitted By</th>
                   <th className="px-6 py-4 font-semibold hidden sm:table-cell">Requested</th>
@@ -145,7 +143,6 @@ export default function ChangeRequests() {
                   </tr>
                 ) : (
                   filteredCRs.map((cr) => {
-                    const net = netChange(cr);
                     return (
                       <tr
                         key={cr.id}
@@ -155,26 +152,6 @@ export default function ChangeRequests() {
                         <td className="px-6 py-4">
                           <div className="font-mono font-semibold text-xs text-slate-400">{cr.projectNumber}</div>
                           <div className="font-medium text-slate-900 truncate max-w-[200px]">{cr.projectName}</div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex flex-wrap gap-1">
-                            {cr.lineItems.map((li, i) => (
-                              <span
-                                key={i}
-                                className={`inline-flex items-center gap-1 text-[11px] font-medium px-1.5 py-0.5 rounded border ${typeChipClass(li.type)}`}
-                              >
-                                {li.direction === "Increase"
-                                  ? <TrendingUp size={10} />
-                                  : <TrendingDown size={10} />}
-                                {li.description}
-                              </span>
-                            ))}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 text-right font-medium tabular-nums">
-                          <span className={net > 0 ? "text-emerald-700" : net < 0 ? "text-red-600" : "text-slate-400"}>
-                            {net === 0 ? "$0" : fmtDelta(net)}
-                          </span>
                         </td>
                         <td className="px-6 py-4 text-slate-600 hidden lg:table-cell">{getProponent(cr.projectNumber)}</td>
                         <td className="px-6 py-4 text-slate-600 hidden md:table-cell">{cr.submittedBy}</td>
