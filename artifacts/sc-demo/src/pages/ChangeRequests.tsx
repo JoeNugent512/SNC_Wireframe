@@ -5,7 +5,7 @@ import {
   Search, TrendingUp, TrendingDown, FolderOpen, User, ArrowRight
 } from "lucide-react";
 import Layout from "@/components/Layout";
-import { MOCK_CHANGE_REQUESTS, ChangeRequest, CRLineItem } from "@/lib/mockData";
+import { MOCK_CHANGE_REQUESTS, MOCK_PROJECTS, ChangeRequest, CRLineItem } from "@/lib/mockData";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
@@ -21,6 +21,10 @@ const fmtDelta = (n: number) =>
 function netChange(cr: ChangeRequest) {
   return cr.lineItems.reduce((sum, li) =>
     li.direction === "Increase" ? sum + li.amount : sum - li.amount, 0);
+}
+
+function getProponent(projectNumber: string) {
+  return MOCK_PROJECTS.find(p => p.number === projectNumber)?.hqProponent ?? "—";
 }
 
 function typeChipClass(type: CRLineItem["type"]) {
@@ -123,6 +127,7 @@ export default function ChangeRequests() {
                   <th className="px-6 py-4 font-semibold">Project</th>
                   <th className="px-6 py-4 font-semibold">Changes</th>
                   <th className="px-6 py-4 font-semibold text-right">Net Change</th>
+                  <th className="px-6 py-4 font-semibold hidden lg:table-cell">Proponent</th>
                   <th className="px-6 py-4 font-semibold hidden md:table-cell">Submitted By</th>
                   <th className="px-6 py-4 font-semibold hidden sm:table-cell">Requested</th>
                   <th className="px-6 py-4 font-semibold">Status</th>
@@ -171,6 +176,7 @@ export default function ChangeRequests() {
                             {net === 0 ? "$0" : fmtDelta(net)}
                           </span>
                         </td>
+                        <td className="px-6 py-4 text-slate-600 hidden lg:table-cell">{getProponent(cr.projectNumber)}</td>
                         <td className="px-6 py-4 text-slate-600 hidden md:table-cell">{cr.submittedBy}</td>
                         <td className="px-6 py-4 text-slate-500 hidden sm:table-cell">{cr.date}</td>
                         <td className="px-6 py-4">{getStatusBadge(cr.status)}</td>
