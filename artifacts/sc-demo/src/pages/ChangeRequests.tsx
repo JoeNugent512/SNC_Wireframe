@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "wouter";
 import {
   ChevronRight, Filter, FileText, CheckCircle, XCircle,
-  Search, TrendingUp, TrendingDown, FolderPlus
+  Search, FolderPlus
 } from "lucide-react";
 import Layout from "@/components/Layout";
 import { MOCK_CHANGE_REQUESTS, ChangeRequest } from "@/lib/mockData";
@@ -39,17 +39,6 @@ export default function ChangeRequests() {
       case "Rejected":     return <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 border border-red-200">Rejected</span>;
     }
   };
-
-  const getDirectionBadge = (direction: ChangeRequest["direction"]) =>
-    direction === "Increase" ? (
-      <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">
-        <TrendingUp size={11} /> Increase
-      </span>
-    ) : (
-      <span className="inline-flex items-center gap-1 text-xs font-semibold text-red-700 bg-red-50 border border-red-200 px-2 py-0.5 rounded">
-        <TrendingDown size={11} /> Decrease
-      </span>
-    );
 
   const fmt = (n: number) =>
     new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
@@ -122,7 +111,6 @@ export default function ChangeRequests() {
                   <th className="px-6 py-4 font-semibold">Proposed Project</th>
                   <th className="px-6 py-4 font-semibold">Category</th>
                   <th className="px-6 py-4 font-semibold">Target</th>
-                  <th className="px-6 py-4 font-semibold">Direction</th>
                   <th className="px-6 py-4 font-semibold text-right">Amount</th>
                   <th className="px-6 py-4 font-semibold hidden md:table-cell">Submitted By</th>
                   <th className="px-6 py-4 font-semibold hidden sm:table-cell">Date</th>
@@ -132,7 +120,7 @@ export default function ChangeRequests() {
               <tbody className="divide-y divide-slate-100">
                 {filteredCRs.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="px-6 py-12 text-center text-slate-500">
+                    <td colSpan={7} className="px-6 py-12 text-center text-slate-500">
                       <div className="flex flex-col items-center justify-center">
                         <FileText size={32} className="text-slate-300 mb-3" />
                         <p>No change requests found matching your criteria.</p>
@@ -153,7 +141,6 @@ export default function ChangeRequests() {
                       </td>
                       <td className="px-6 py-4 font-medium text-slate-800">{cr.category}</td>
                       <td className="px-6 py-4 text-slate-600">{cr.target}</td>
-                      <td className="px-6 py-4">{getDirectionBadge(cr.direction)}</td>
                       <td className="px-6 py-4 text-right font-medium text-slate-900">{fmt(cr.amount)}</td>
                       <td className="px-6 py-4 text-slate-600 hidden md:table-cell">{cr.submittedBy}</td>
                       <td className="px-6 py-4 text-slate-600 hidden sm:table-cell">{cr.date}</td>
@@ -208,15 +195,9 @@ export default function ChangeRequests() {
                     <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Target</div>
                     <div className="font-medium text-slate-900 text-sm">{selectedCR.target}</div>
                   </div>
-                  <div>
-                    <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Direction</div>
-                    {getDirectionBadge(selectedCR.direction)}
-                  </div>
                   <div className="col-span-3 border-t border-slate-100 pt-3">
                     <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Requested Amount</div>
-                    <div className={`font-bold text-xl ${selectedCR.direction === "Increase" ? "text-emerald-700" : "text-red-700"}`}>
-                      {selectedCR.direction === "Decrease" ? "−" : "+"}{fmt(selectedCR.amount)}
-                    </div>
+                    <div className="font-bold text-xl text-slate-900">{fmt(selectedCR.amount)}</div>
                   </div>
                 </div>
 
