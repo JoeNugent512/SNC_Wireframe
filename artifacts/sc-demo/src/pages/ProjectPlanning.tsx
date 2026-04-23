@@ -373,7 +373,7 @@ function useFundingRows(initial: FundingRow[]) {
 function FundingSection({
   title, columnHeader, addButtonLabel, descTemplate, rows,
   onUpdateAmount, onUpdateNote, onDelete, onZeroOut, onAddMany,
-  laborMode, existingLabels,
+  pickerMode, existingLabels,
   pickerTitle, pickerOptions, pickerPlaceholder,
 }: {
   title: string;
@@ -386,7 +386,7 @@ function FundingSection({
   onDelete: (id: number) => void;
   onZeroOut: (id: number) => void;
   onAddMany: (labels: string[]) => void;
-  laborMode?: boolean;
+  pickerMode: "labor" | "travel" | "multi";
   existingLabels: Set<string>;
   pickerTitle?: string;
   pickerOptions?: { label: string; sub: string }[];
@@ -401,25 +401,41 @@ function FundingSection({
   const totalObligated   = rows.reduce((s, r) => s + r.obligated, 0);
 
   const blueHd = "px-3 py-2.5 text-center text-xs font-semibold text-white uppercase tracking-wide leading-tight";
-  const blueTd = "px-3 py-2.5 text-right tabular-nums text-slate-800" ;
+  const blueTd = "px-3 py-2.5 text-right tabular-nums text-slate-800";
 
-  const amberBg      = "#fffbeb";
-  const amberBorder  = "1px solid #fcd34d";
-  const amberTotalBg = "#fef3c7";
-  const blueCellBg   = "#eff6ff";
-  const blueBorder   = "1px solid #bfdbfe";
-  const blueHdBg     = "#1a6ea8";
+  const amberBg        = "#fffbeb";
+  const amberBorder    = "1px solid #fcd34d";   /* outer left edge of amber zone */
+  const amberInner     = "1px solid #e9a825";   /* inner divider between amber cols */
+  const amberTotalBg   = "#fef3c7";
+  const blueCellBg     = "#eff6ff";
+  const blueBorder     = "1px solid #bfdbfe";
+  const blueHdBg       = "#1a6ea8";
 
   return (
     <>
-      {showPicker && laborMode && (
-        <LaborPickerModal
+      {showPicker && pickerMode === "labor" && (
+        <DualPickerModal
+          title="Add Labor"
+          leftTitle="By Person" leftOptions={PERSON_OPTIONS} leftPlaceholder="Search name…"
+          rightTitle="By Org Code" rightOptions={ORG_OPTIONS} rightPlaceholder="Search org code…"
+          emptyHint="Select people or org codes above"
           existingLabels={existingLabels}
           onAdd={(labels) => onAddMany(labels)}
           onClose={() => setShowPicker(false)}
         />
       )}
-      {showPicker && !laborMode && pickerOptions && (
+      {showPicker && pickerMode === "travel" && (
+        <DualPickerModal
+          title="Add Travel"
+          leftTitle="Travel Line" leftOptions={TRAVEL_OPTIONS} leftPlaceholder="Search travel…"
+          rightTitle="By Org Code" rightOptions={ORG_OPTIONS} rightPlaceholder="Search org code…"
+          emptyHint="Select travel lines or org codes above"
+          existingLabels={existingLabels}
+          onAdd={(labels) => onAddMany(labels)}
+          onClose={() => setShowPicker(false)}
+        />
+      )}
+      {showPicker && pickerMode === "multi" && pickerOptions && (
         <MultiPickerModal
           title={pickerTitle ?? ""}
           options={pickerOptions}
@@ -467,7 +483,7 @@ function FundingSection({
               <th className="px-3 py-2 text-right text-xs font-bold uppercase tracking-wide leading-tight" style={{ backgroundColor: "#fef3c7", color: "#78350f", borderLeft: amberBorder }}>
                 Total Planned
               </th>
-              <th className="px-3 py-2 text-right text-xs font-bold uppercase tracking-wide leading-tight" style={{ backgroundColor: "#fef3c7", color: "#78350f", borderLeft: amberBorder }}>
+              <th className="px-3 py-2 text-right text-xs font-bold uppercase tracking-wide leading-tight" style={{ backgroundColor: "#fef3c7", color: "#78350f", borderLeft: amberInner }}>
                 Total Requested
               </th>
               <th className={blueHd} style={{ backgroundColor: blueHdBg, borderLeft: "2px solid #475569" }}>Total Commitments</th>
@@ -492,7 +508,7 @@ function FundingSection({
                   <td className="px-3 py-2.5" style={{ backgroundColor: amberBg, borderLeft: amberBorder }}>
                     <EditableAmount value={row.planned}   onChange={(v) => onUpdateAmount(row.id, "planned", v)} />
                   </td>
-                  <td className="px-3 py-2.5" style={{ backgroundColor: amberBg, borderLeft: amberBorder }}>
+                  <td className="px-3 py-2.5" style={{ backgroundColor: amberBg, borderLeft: amberInner }}>
                     <EditableAmount value={row.requested} onChange={(v) => onUpdateAmount(row.id, "requested", v)} />
                   </td>
                   <td className={blueTd} style={{ backgroundColor: blueCellBg, borderLeft: "2px solid #64748b" }}>{fmt(row.totalCommitments)}</td>
@@ -538,7 +554,7 @@ function FundingSection({
             <tr style={{ borderTop: "2px solid #94a3b8" }}>
               <td className="px-3 py-2.5 text-xs text-slate-500 uppercase tracking-wide font-bold bg-slate-100">Total</td>
               <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-bold" style={{ backgroundColor: amberTotalBg, borderLeft: amberBorder }}>{fmt(totalPlanned)}</td>
-              <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-bold" style={{ backgroundColor: amberTotalBg, borderLeft: amberBorder }}>{fmt(totalRequested)}</td>
+              <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-bold" style={{ backgroundColor: amberTotalBg, borderLeft: amberInner }}>{fmt(totalRequested)}</td>
               <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-bold bg-blue-100" style={{ borderLeft: "2px solid #64748b" }}>{fmt(totalCommitments)}</td>
               <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-bold bg-blue-100" style={{ borderLeft: blueBorder }}>{fmt(totalOpen)}</td>
               <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-bold bg-blue-100" style={{ borderLeft: blueBorder }}>{fmt(totalObligated)}</td>
@@ -644,21 +660,19 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
         onUpdateAmount={labor.updateAmount} onUpdateNote={labor.updateNote}
         onDelete={labor.deleteRow} onZeroOut={labor.zeroOutRow}
         onAddMany={(labels) => labor.addMany(labels, laborDescTemplate)}
-        laborMode
+        pickerMode="labor"
         existingLabels={laborExisting}
       />
       <FundingSection
-        title="Travel" columnHeader="Travel Line"
-        addButtonLabel="Add Travel Line"
+        title="Travel" columnHeader="Travel Line / Org Code"
+        addButtonLabel="Add Travel"
         descTemplate={travelDescTemplate}
         rows={travel.rows}
         onUpdateAmount={travel.updateAmount} onUpdateNote={travel.updateNote}
         onDelete={travel.deleteRow} onZeroOut={travel.zeroOutRow}
         onAddMany={(labels) => travel.addMany(labels, travelDescTemplate)}
+        pickerMode="travel"
         existingLabels={travelExisting}
-        pickerTitle="Add Travel Lines"
-        pickerOptions={TRAVEL_OPTIONS}
-        pickerPlaceholder="Search travel lines…"
       />
       <FundingSection
         title="Materials & Other" columnHeader="Item"
@@ -668,6 +682,7 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
         onUpdateAmount={mats.updateAmount} onUpdateNote={mats.updateNote}
         onDelete={mats.deleteRow} onZeroOut={mats.zeroOutRow}
         onAddMany={(labels) => mats.addMany(labels, matlDescTemplate)}
+        pickerMode="multi"
         existingLabels={matsExisting}
         pickerTitle="Add Items"
         pickerOptions={MATERIAL_OPTIONS}
