@@ -521,7 +521,7 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
         </div>
         <div className="col-span-2 rounded-2xl px-8 py-5 shadow-sm border border-slate-200 bg-white flex flex-col justify-center">
           <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-1">Planned</p>
-          <p className="text-4xl font-bold text-slate-900 tabular-nums leading-none">{fmt(allPlanned)}</p>
+          <p className="text-3xl font-bold text-slate-900 tabular-nums leading-none">{fmt(allPlanned)}</p>
           <p className="text-xs text-slate-400 mt-1.5">Amount currently planned across all categories</p>
         </div>
         <div className={`rounded-2xl px-6 py-5 shadow-sm border ${
