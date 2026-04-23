@@ -153,70 +153,30 @@ export default function ProjectPlanning() {
             <h2 className="text-base font-bold text-slate-800">Labor</h2>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full text-sm border-collapse min-w-[900px]">
+            <table className="w-full text-sm border-collapse min-w-[1050px]">
               <thead>
                 <tr>
-                  {/* Gray header columns */}
-                  <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-left text-xs w-[160px]">
-                    Employee/org code
-                  </th>
-                  <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-right text-xs w-[110px]">
-                    Total Planned
-                  </th>
-                  <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-right text-xs w-[110px]">
-                    Total Requested
-                  </th>
-                  {/* Blue header columns */}
-                  <th className="border border-slate-300 bg-[#1a6ea8] text-white font-semibold px-3 py-2 text-right text-xs w-[120px]">
-                    Total Commitments
-                  </th>
-                  <th className="border border-slate-300 bg-[#1a6ea8] text-white font-semibold px-3 py-2 text-right text-xs w-[120px]">
-                    Open Commitments
-                  </th>
-                  <th className="border border-slate-300 bg-[#1a6ea8] text-white font-semibold px-3 py-2 text-right text-xs w-[100px]">
-                    Obligated
-                  </th>
-                  {/* Gray again */}
-                  <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-left text-xs">
-                    Description
-                  </th>
-                  <th className="border border-slate-300 bg-slate-100 text-slate-700 font-semibold px-3 py-2 text-left text-xs w-[90px]">
-                    Notes
-                  </th>
+                  <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-left text-xs w-[170px]">Employee/org code</th>
+                  <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-right text-xs w-[105px]">Total Planned</th>
+                  <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-right text-xs w-[105px]">Total Requested</th>
+                  <th className="border border-slate-300 bg-[#1a6ea8] text-white font-semibold px-3 py-2 text-right text-xs w-[120px]">Total Commitments</th>
+                  <th className="border border-slate-300 bg-[#1a6ea8] text-white font-semibold px-3 py-2 text-right text-xs w-[120px]">Open Commitments</th>
+                  <th className="border border-slate-300 bg-[#1a6ea8] text-white font-semibold px-3 py-2 text-right text-xs w-[100px]">Obligated</th>
+                  <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-left text-xs w-[260px]">Description</th>
+                  <th className="border border-slate-300 bg-slate-100 text-slate-700 font-semibold px-3 py-2 text-left text-xs">Notes</th>
                 </tr>
               </thead>
               <tbody>
                 {labor.map((row, idx) => (
-                  <tr
-                    key={row.id}
-                    className={idx % 2 === 0 ? "bg-slate-50" : "bg-white"}
-                    data-testid={`row-labor-${row.id}`}
-                  >
-                    <td className="border border-slate-200 px-3 py-2 font-medium text-slate-800">
-                      {row.employeeOrg}
-                    </td>
-                    <td className="border border-slate-200 px-3 py-2 text-right text-slate-700">
-                      {fmt(row.totalPlanned)}
-                    </td>
-                    <td className="border border-slate-200 px-3 py-2 text-right text-slate-700">
-                      {fmt(row.totalRequested)}
-                    </td>
-                    {/* Blue cells */}
-                    <td className="border border-slate-200 px-3 py-2 text-right font-medium text-slate-900 bg-[#5ab4e8]/25">
-                      {fmt(row.totalCommitments)}
-                    </td>
-                    <td className="border border-slate-200 px-3 py-2 text-right font-medium text-slate-900 bg-[#5ab4e8]/25">
-                      {fmt(row.openCommitments)}
-                    </td>
-                    <td className="border border-slate-200 px-3 py-2 text-right font-medium text-slate-900 bg-[#5ab4e8]/25">
-                      {fmt(row.obligated)}
-                    </td>
-                    <td className="border border-slate-200 px-3 py-2 text-slate-600 text-xs">
-                      {row.description}
-                    </td>
-                    <td className="border border-slate-200 px-3 py-2 text-slate-500 text-xs">
-                      {row.notes}
-                    </td>
+                  <tr key={row.id} className={idx % 2 === 0 ? "bg-slate-50" : "bg-white"} data-testid={`row-labor-${row.id}`}>
+                    <td className="border border-slate-200 px-3 py-2 font-medium text-slate-800">{row.employeeOrg}</td>
+                    <td className="border border-slate-200 px-3 py-2 text-right text-slate-700">{fmt(row.totalPlanned)}</td>
+                    <td className="border border-slate-200 px-3 py-2 text-right text-slate-700">{fmt(row.totalRequested)}</td>
+                    <td className="border border-slate-200 px-3 py-2 text-right font-medium text-slate-900 bg-[#5ab4e8]/25">{fmt(row.totalCommitments)}</td>
+                    <td className="border border-slate-200 px-3 py-2 text-right font-medium text-slate-900 bg-[#5ab4e8]/25">{fmt(row.openCommitments)}</td>
+                    <td className="border border-slate-200 px-3 py-2 text-right font-medium text-slate-900 bg-[#5ab4e8]/25">{fmt(row.obligated)}</td>
+                    <td className="border border-slate-200 px-3 py-2 text-slate-600 text-xs">{row.description}</td>
+                    <td className="border border-slate-200 px-3 py-2 text-slate-600 text-sm">{row.notes}</td>
                   </tr>
                 ))}
               </tbody>
@@ -231,16 +191,16 @@ export default function ProjectPlanning() {
                 <h2 className="text-base font-bold text-slate-800">Travel</h2>
               </div>
               <div className="overflow-x-auto">
-                <table className="w-full text-sm border-collapse min-w-[700px]">
+                <table className="w-full text-sm border-collapse min-w-[880px]">
                   <thead>
                     <tr>
-                      <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-left text-xs">Description</th>
-                      <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-right text-xs w-[100px]">Total Planned</th>
-                      <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-right text-xs w-[110px]">Total Requested</th>
+                      <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-left text-xs w-[200px]">Description</th>
+                      <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-right text-xs w-[105px]">Total Planned</th>
+                      <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-right text-xs w-[105px]">Total Requested</th>
                       <th className="border border-slate-300 bg-[#1a6ea8] text-white font-semibold px-3 py-2 text-right text-xs w-[120px]">Total Commitments</th>
                       <th className="border border-slate-300 bg-[#1a6ea8] text-white font-semibold px-3 py-2 text-right text-xs w-[120px]">Open Commitments</th>
                       <th className="border border-slate-300 bg-[#1a6ea8] text-white font-semibold px-3 py-2 text-right text-xs w-[100px]">Obligated</th>
-                      <th className="border border-slate-300 bg-slate-100 text-slate-700 font-semibold px-3 py-2 text-left text-xs w-[90px]">Notes</th>
+                      <th className="border border-slate-300 bg-slate-100 text-slate-700 font-semibold px-3 py-2 text-left text-xs">Notes</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -255,7 +215,7 @@ export default function ProjectPlanning() {
                         <td className="border border-slate-200 px-3 py-2 text-right bg-[#5ab4e8]/25">{fmt(row.commits)}</td>
                         <td className="border border-slate-200 px-3 py-2 text-right bg-[#5ab4e8]/25">{fmt(row.open)}</td>
                         <td className="border border-slate-200 px-3 py-2 text-right bg-[#5ab4e8]/25">{fmt(row.obligated)}</td>
-                        <td className="border border-slate-200 px-3 py-2 text-slate-500 text-xs">{row.notes}</td>
+                        <td className="border border-slate-200 px-3 py-2 text-slate-600 text-sm">{row.notes}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -269,16 +229,16 @@ export default function ProjectPlanning() {
                 <h2 className="text-base font-bold text-slate-800">Materials &amp; Other</h2>
               </div>
               <div className="overflow-x-auto">
-                <table className="w-full text-sm border-collapse min-w-[700px]">
+                <table className="w-full text-sm border-collapse min-w-[880px]">
                   <thead>
                     <tr>
-                      <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-left text-xs">Description</th>
-                      <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-right text-xs w-[100px]">Total Planned</th>
-                      <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-right text-xs w-[110px]">Total Requested</th>
+                      <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-left text-xs w-[200px]">Description</th>
+                      <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-right text-xs w-[105px]">Total Planned</th>
+                      <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-right text-xs w-[105px]">Total Requested</th>
                       <th className="border border-slate-300 bg-[#1a6ea8] text-white font-semibold px-3 py-2 text-right text-xs w-[120px]">Total Commitments</th>
                       <th className="border border-slate-300 bg-[#1a6ea8] text-white font-semibold px-3 py-2 text-right text-xs w-[120px]">Open Commitments</th>
                       <th className="border border-slate-300 bg-[#1a6ea8] text-white font-semibold px-3 py-2 text-right text-xs w-[100px]">Obligated</th>
-                      <th className="border border-slate-300 bg-slate-100 text-slate-700 font-semibold px-3 py-2 text-left text-xs w-[90px]">Notes</th>
+                      <th className="border border-slate-300 bg-slate-100 text-slate-700 font-semibold px-3 py-2 text-left text-xs">Notes</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -293,7 +253,7 @@ export default function ProjectPlanning() {
                         <td className="border border-slate-200 px-3 py-2 text-right bg-[#5ab4e8]/25">{fmt(row.commits)}</td>
                         <td className="border border-slate-200 px-3 py-2 text-right bg-[#5ab4e8]/25">{fmt(row.open)}</td>
                         <td className="border border-slate-200 px-3 py-2 text-right bg-[#5ab4e8]/25">{fmt(row.obligated)}</td>
-                        <td className="border border-slate-200 px-3 py-2 text-slate-500 text-xs">{row.notes}</td>
+                        <td className="border border-slate-200 px-3 py-2 text-slate-600 text-sm">{row.notes}</td>
                       </tr>
                     ))}
                   </tbody>
