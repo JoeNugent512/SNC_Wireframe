@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "wouter";
 import {
   ChevronRight, Filter, FileText, CheckCircle, XCircle,
-  Search, TrendingUp, TrendingDown, FolderOpen, User
+  Search, TrendingUp, TrendingDown, FolderOpen, User, ArrowRight
 } from "lucide-react";
 import Layout from "@/components/Layout";
 import { MOCK_CHANGE_REQUESTS, ChangeRequest, CRLineItem } from "@/lib/mockData";
@@ -15,12 +15,15 @@ import { Toaster } from "@/components/ui/toaster";
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
 
+const fmtDelta = (n: number) =>
+  (n > 0 ? "+" : "") + fmt(n);
+
 function netChange(cr: ChangeRequest) {
   return cr.lineItems.reduce((sum, li) =>
     li.direction === "Increase" ? sum + li.amount : sum - li.amount, 0);
 }
 
-function typeColor(type: CRLineItem["type"]) {
+function typeChipClass(type: CRLineItem["type"]) {
   if (type === "Labor")     return "bg-blue-50 text-blue-700 border-blue-200";
   if (type === "Travel")    return "bg-violet-50 text-violet-700 border-violet-200";
   return                           "bg-slate-50 text-slate-600 border-slate-200";
@@ -91,14 +94,13 @@ export default function ChangeRequests() {
                 className="pl-9 h-9 text-sm bg-white"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                data-testid="input-search-crs"
               />
             </div>
             <div className="flex items-center gap-3">
               <Filter size={16} className="text-slate-400" />
               <div className="w-40">
                 <Select value={filterStatus} onValueChange={setFilterStatus}>
-                  <SelectTrigger className="h-9 text-sm" data-testid="select-filter-status">
+                  <SelectTrigger className="h-9 text-sm">
                     <SelectValue placeholder="Filter Status" />
                   </SelectTrigger>
                   <SelectContent>
@@ -144,10 +146,9 @@ export default function ChangeRequests() {
                         key={cr.id}
                         className="hover:bg-slate-50 transition-colors cursor-pointer"
                         onClick={() => handleOpen(cr)}
-                        data-testid={`row-cr-${cr.id}`}
                       >
                         <td className="px-6 py-4">
-                          <div className="font-mono font-semibold text-xs text-slate-500">{cr.projectNumber}</div>
+                          <div className="font-mono font-semibold text-xs text-slate-400">{cr.projectNumber}</div>
                           <div className="font-medium text-slate-900 truncate max-w-[200px]">{cr.projectName}</div>
                         </td>
                         <td className="px-6 py-4">
@@ -155,7 +156,7 @@ export default function ChangeRequests() {
                             {cr.lineItems.map((li, i) => (
                               <span
                                 key={i}
-                                className={`inline-flex items-center gap-1 text-[11px] font-medium px-1.5 py-0.5 rounded border ${typeColor(li.type)}`}
+                                className={`inline-flex items-center gap-1 text-[11px] font-medium px-1.5 py-0.5 rounded border ${typeChipClass(li.type)}`}
                               >
                                 {li.direction === "Increase"
                                   ? <TrendingUp size={10} />
@@ -166,12 +167,12 @@ export default function ChangeRequests() {
                           </div>
                         </td>
                         <td className="px-6 py-4 text-right font-medium tabular-nums">
-                          <span className={net > 0 ? "text-emerald-700" : net < 0 ? "text-red-600" : "text-slate-600"}>
-                            {net > 0 ? "+" : ""}{fmt(net)}
+                          <span className={net > 0 ? "text-emerald-700" : net < 0 ? "text-red-600" : "text-slate-400"}>
+                            {net === 0 ? "$0" : fmtDelta(net)}
                           </span>
                         </td>
                         <td className="px-6 py-4 text-slate-600 hidden md:table-cell">{cr.submittedBy}</td>
-                        <td className="px-6 py-4 text-slate-600 hidden sm:table-cell">{cr.date}</td>
+                        <td className="px-6 py-4 text-slate-500 hidden sm:table-cell">{cr.date}</td>
                         <td className="px-6 py-4">{getStatusBadge(cr.status)}</td>
                       </tr>
                     );
@@ -185,7 +186,7 @@ export default function ChangeRequests() {
 
       {/* ── Detail Modal ── */}
       <Dialog open={!!selectedCR} onOpenChange={(open) => !open && handleClose()}>
-        <DialogContent className="sm:max-w-[560px] p-0 overflow-hidden gap-0 max-h-[90vh] flex flex-col">
+        <DialogContent className="sm:max-w-[600px] p-0 overflow-hidden gap-0 max-h-[90vh] flex flex-col">
           {selectedCR && (() => {
             const net = netChange(selectedCR);
             return (
@@ -194,11 +195,11 @@ export default function ChangeRequests() {
                 <div className="px-6 py-4 border-b border-slate-100 bg-slate-50 flex-shrink-0">
                   <DialogHeader>
                     <div className="flex items-center gap-2 mb-0.5">
-                      <FolderOpen size={15} className="text-primary/70" />
+                      <FolderOpen size={14} className="text-primary/70" />
                       <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Budget Change Request</span>
                     </div>
                     <DialogTitle className="text-lg font-bold text-slate-900 pr-8 leading-snug">
-                      <span className="font-mono text-sm text-slate-500 mr-2">{selectedCR.projectNumber}</span>
+                      <span className="font-mono text-sm text-slate-400 mr-2">{selectedCR.projectNumber}</span>
                       {selectedCR.projectName}
                     </DialogTitle>
                     <div className="flex items-center gap-3 mt-2 flex-wrap">
@@ -206,7 +207,7 @@ export default function ChangeRequests() {
                       <DialogDescription className="text-sm text-slate-500 m-0 flex items-center gap-1.5">
                         <User size={13} className="text-slate-400" />
                         <strong className="text-slate-700 font-semibold">{selectedCR.submittedBy}</strong>
-                        <span className="text-slate-400">·</span>
+                        <span className="text-slate-300">·</span>
                         {selectedCR.date}
                       </DialogDescription>
                     </div>
@@ -224,38 +225,61 @@ export default function ChangeRequests() {
                       </p>
                     </div>
 
-                    {/* Line Items */}
+                    {/* Before / After table */}
                     <div>
-                      <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Requested Changes</div>
-                      <div className="divide-y divide-slate-100 border border-slate-200 rounded-lg overflow-hidden">
-                        {selectedCR.lineItems.map((li, i) => (
-                          <div key={i} className={`flex items-center justify-between px-4 py-3 ${
-                            li.direction === "Increase" ? "bg-emerald-50/40" : "bg-red-50/40"
-                          }`}>
-                            <div className="flex items-center gap-3">
-                              {li.direction === "Increase"
-                                ? <TrendingUp size={16} className="text-emerald-600 flex-shrink-0" />
-                                : <TrendingDown size={16} className="text-red-500 flex-shrink-0" />}
-                              <div>
-                                <div className="text-sm font-semibold text-slate-800">
-                                  {li.direction} {li.type}: {li.description}
-                                </div>
+                      <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Budget Changes</div>
+                      <div className="rounded-lg border border-slate-200 overflow-hidden">
+                        {/* Column headers */}
+                        <div className="grid grid-cols-[1fr_auto_auto_auto_auto] text-[11px] font-semibold text-slate-400 uppercase tracking-wider bg-slate-50 border-b border-slate-200 px-4 py-2 gap-x-4">
+                          <span>Line Item</span>
+                          <span className="text-right w-24">Current</span>
+                          <span className="w-4" />
+                          <span className="text-right w-24">Proposed</span>
+                          <span className="text-right w-24">Change</span>
+                        </div>
+
+                        {/* Line item rows */}
+                        {selectedCR.lineItems.map((li, i) => {
+                          const delta = li.direction === "Increase" ? li.amount : -li.amount;
+                          return (
+                            <div
+                              key={i}
+                              className="grid grid-cols-[1fr_auto_auto_auto_auto] items-center px-4 py-3 gap-x-4 border-b border-slate-100 last:border-0"
+                            >
+                              {/* Description */}
+                              <div className="flex items-center gap-2 min-w-0">
+                                <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded border flex-shrink-0 ${typeChipClass(li.type)}`}>
+                                  {li.type}
+                                </span>
+                                <span className="text-sm text-slate-700 truncate">{li.description}</span>
                               </div>
+
+                              {/* Current */}
+                              <span className="text-sm tabular-nums text-slate-500 text-right w-24">{fmt(li.from)}</span>
+
+                              {/* Arrow */}
+                              <ArrowRight size={13} className="text-slate-300 w-4" />
+
+                              {/* Proposed */}
+                              <span className="text-sm tabular-nums font-medium text-slate-800 text-right w-24">{fmt(li.to)}</span>
+
+                              {/* Delta */}
+                              <span className={`text-sm tabular-nums font-semibold text-right w-24 ${
+                                delta > 0 ? "text-emerald-700" : "text-red-600"
+                              }`}>
+                                {delta > 0 ? "+" : ""}{fmt(delta)}
+                              </span>
                             </div>
-                            <div className={`text-sm font-bold tabular-nums ${
-                              li.direction === "Increase" ? "text-emerald-700" : "text-red-600"
-                            }`}>
-                              {li.direction === "Increase" ? "+" : "-"}{fmt(li.amount)}
-                            </div>
-                          </div>
-                        ))}
+                          );
+                        })}
+
                         {/* Net total row */}
-                        <div className="flex items-center justify-between px-4 py-3 bg-slate-50 border-t-2 border-slate-200">
-                          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Net Change</span>
-                          <span className={`text-base font-bold tabular-nums ${
-                            net > 0 ? "text-emerald-700" : net < 0 ? "text-red-600" : "text-slate-600"
+                        <div className="grid grid-cols-[1fr_auto_auto_auto_auto] items-center px-4 py-3 gap-x-4 bg-slate-50 border-t-2 border-slate-200">
+                          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider col-span-4 text-right">Net Change</span>
+                          <span className={`text-sm font-bold tabular-nums text-right w-24 ${
+                            net > 0 ? "text-emerald-700" : net < 0 ? "text-red-600" : "text-slate-500"
                           }`}>
-                            {net > 0 ? "+" : ""}{fmt(net)}
+                            {net === 0 ? "$0" : fmtDelta(net)}
                           </span>
                         </div>
                       </div>
@@ -270,7 +294,7 @@ export default function ChangeRequests() {
                     </div>
                   </div>
 
-                  {/* Reason field — only when actionable */}
+                  {/* Reason textarea — only when actionable */}
                   {isActionable(selectedCR.status) && (
                     <div className="px-6 pb-4">
                       <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1.5">
@@ -282,7 +306,6 @@ export default function ChangeRequests() {
                         onChange={(e) => setActionReason(e.target.value)}
                         placeholder="Provide a reason for your decision…"
                         className="w-full text-sm text-slate-700 border border-slate-200 rounded-lg px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-primary/40 bg-white"
-                        data-testid="textarea-action-reason"
                       />
                     </div>
                   )}
@@ -301,14 +324,12 @@ export default function ChangeRequests() {
                       <button
                         onClick={() => handleAction("Reject")}
                         className="px-4 py-2 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 rounded-md transition-colors flex items-center gap-1.5"
-                        data-testid="button-cr-reject"
                       >
                         <XCircle size={16} /> Reject
                       </button>
                       <button
                         onClick={() => handleAction("Approve")}
                         className="px-4 py-2 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded-md transition-colors flex items-center gap-1.5 shadow-sm"
-                        data-testid="button-cr-approve"
                       >
                         <CheckCircle size={16} /> Approve Changes
                       </button>

@@ -123,6 +123,8 @@ export interface CRLineItem {
   type: "Labor" | "Travel" | "Materials";
   description: string;
   amount: number;
+  from: number;
+  to: number;
 }
 
 export interface ChangeRequest {
@@ -283,8 +285,8 @@ export const MOCK_CHANGE_REQUESTS: ChangeRequest[] = [
     justification: "Labor reallocation needed after geotechnical scope expanded. Nugent picked up additional survey tasks; offsetting by reducing planned site visits that can be combined into fewer trips.",
     status: "Pending",
     lineItems: [
-      { direction: "Increase", type: "Labor",  description: "Nugent, Joseph Pat",   amount: 22000 },
-      { direction: "Decrease", type: "Travel", description: "Site Visits",           amount: 8000  },
+      { direction: "Increase", type: "Labor",  description: "Nugent, Joseph Pat", amount: 22000, from: 215000, to: 237000 },
+      { direction: "Decrease", type: "Travel", description: "Site Visits",         amount: 22000, from: 48000,  to: 26000  },
     ],
   },
   {
@@ -294,12 +296,13 @@ export const MOCK_CHANGE_REQUESTS: ChangeRequest[] = [
     projectDescription: "Structural reinforcement and resurfacing of the downtown suspension bridge.",
     submittedBy: "Sarah Jenkins",
     date: "2024-01-25",
-    justification: "Additional org-code labor is required for the extended environmental compliance phase. Equipment transport trips have been consolidated, freeing up travel funds.",
+    justification: "Additional org-code labor is required for the extended environmental compliance phase. Equipment transport trips have been consolidated and steel fasteners sourced locally, freeing those funds.",
     status: "Pending",
     lineItems: [
-      { direction: "Increase", type: "Labor",  description: "U435310",              amount: 45000 },
-      { direction: "Increase", type: "Labor",  description: "Chen, David",           amount: 15000 },
-      { direction: "Decrease", type: "Travel", description: "Equipment Transport",   amount: 12000 },
+      { direction: "Increase", type: "Labor",     description: "U435310",              amount: 45000, from: 280000, to: 325000 },
+      { direction: "Increase", type: "Labor",     description: "Chen, David",           amount: 15000, from: 195000, to: 210000 },
+      { direction: "Decrease", type: "Travel",    description: "Equipment Transport",   amount: 47000, from: 155000, to: 108000 },
+      { direction: "Decrease", type: "Materials", description: "Steel Fasteners",       amount: 13000, from: 45000,  to: 32000  },
     ],
   },
   {
@@ -312,8 +315,8 @@ export const MOCK_CHANGE_REQUESTS: ChangeRequest[] = [
     justification: "Shifting budget from contractor labor to materials to cover higher-than-anticipated cost of 6-inch HDPE pipe fittings. Net budget impact is zero.",
     status: "Pending",
     lineItems: [
-      { direction: "Decrease", type: "Labor",     description: "Contractor Pool",       amount: 30000 },
-      { direction: "Increase", type: "Materials", description: "Pipe Fittings (HDPE)",  amount: 30000 },
+      { direction: "Decrease", type: "Labor",     description: "Contractor Pool",      amount: 30000, from: 412000, to: 382000 },
+      { direction: "Increase", type: "Materials", description: "Pipe Fittings (HDPE)", amount: 30000, from: 285000, to: 315000 },
     ],
   },
   {
@@ -323,12 +326,12 @@ export const MOCK_CHANGE_REQUESTS: ChangeRequest[] = [
     projectDescription: "Modernization of Terminal B including new security checkpoints and concession areas.",
     submittedBy: "Marcus Thorne",
     date: "2024-01-18",
-    justification: "Additional senior labor required for systems integration across all checkpoints. Minor materials reduction reflects value-engineered panel selection.",
+    justification: "Additional senior labor required for systems integration across all checkpoints. Value-engineered panel selection reduces materials spend to offset the labor increase.",
     status: "Pending",
     lineItems: [
-      { direction: "Increase", type: "Labor",     description: "Rodriguez, Elena",      amount: 75000 },
-      { direction: "Increase", type: "Labor",     description: "Thorne, Marcus",         amount: 25000 },
-      { direction: "Decrease", type: "Materials", description: "Steel & Glass Panels",   amount: 15000 },
+      { direction: "Increase", type: "Labor",     description: "Rodriguez, Elena",    amount: 75000,  from: 1125000, to: 1200000 },
+      { direction: "Increase", type: "Labor",     description: "Thorne, Marcus",       amount: 25000,  from: 625000,  to: 650000  },
+      { direction: "Decrease", type: "Materials", description: "Steel & Glass Panels", amount: 100000, from: 2850000, to: 2750000 },
     ],
   },
   {
@@ -338,11 +341,11 @@ export const MOCK_CHANGE_REQUESTS: ChangeRequest[] = [
     projectDescription: "Feasibility study and initial planning for the Westside light rail extension.",
     submittedBy: "David Chen",
     date: "2024-02-12",
-    justification: "Scope reduction on field inspections due to remote survey availability. Remaining travel savings redirected to survey equipment procurement.",
+    justification: "Remote survey technology reduces required field trips. Resulting travel savings are redirected to survey equipment procurement to support the same scope.",
     status: "Pending",
     lineItems: [
-      { direction: "Decrease", type: "Travel",    description: "Site Inspections",      amount: 20000 },
-      { direction: "Increase", type: "Materials", description: "Survey Equipment",       amount: 5000  },
+      { direction: "Decrease", type: "Travel",    description: "Site Inspections", amount: 20000, from: 62000, to: 42000 },
+      { direction: "Increase", type: "Materials", description: "Survey Equipment", amount: 20000, from: 28000, to: 48000 },
     ],
   },
 ];
