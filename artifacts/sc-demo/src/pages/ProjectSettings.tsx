@@ -130,53 +130,54 @@ function FundingSection({
           <thead>
             <tr className="border-b border-slate-200">
               <th className="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide bg-slate-50 min-w-[130px]">{columnHeader}</th>
-              <th className="px-3 py-2.5 text-right text-xs font-semibold text-amber-700 uppercase tracking-wide bg-amber-50 border-l border-amber-200 w-28">Total Planned</th>
-              <th className="px-3 py-2.5 text-right text-xs font-semibold text-amber-700 uppercase tracking-wide bg-amber-50 border-l border-amber-200 w-28">Total Requested</th>
+              <th className="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide w-28" style={{backgroundColor:"#fffbeb",color:"#92400e",borderLeft:"1px solid #fcd34d"}}>Total Planned</th>
+              <th className="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide w-28" style={{backgroundColor:"#fffbeb",color:"#92400e",borderLeft:"1px solid #fcd34d"}}>Total Requested</th>
               <th className={`${blueHd} border-l border-blue-300 w-28`}>Total Commitments</th>
               <th className={`${blueHd} border-l border-blue-300 w-28`}>Open Commitments</th>
               <th className={`${blueHd} border-l border-blue-300 w-24`}>Obligated</th>
               <th className="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide bg-slate-50 border-l border-slate-200 min-w-[200px]">Description</th>
-              <th className="px-3 py-2.5 text-left text-xs font-semibold text-amber-700 uppercase tracking-wide bg-amber-50 border-l border-amber-200 min-w-[100px]">Notes</th>
+              <th className="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide min-w-[100px]" style={{backgroundColor:"#fffbeb",color:"#92400e",borderLeft:"1px solid #fcd34d"}}>Notes</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-amber-100">
+          <tbody>
             {rows.map((row) => (
-              <tr key={row.id}>
-                <td className="px-3 py-2.5 text-slate-700 bg-slate-50 font-medium border-b border-slate-100">{row.label}</td>
-                <td className="px-3 py-2.5 bg-amber-50 border-l border-amber-200 border-b border-amber-100">
+              <tr key={row.id} style={{borderBottom:"1px solid #fef3c7"}}>
+                <td className="px-3 py-2.5 text-slate-700 font-medium" style={{backgroundColor:"#f8fafc"}}>{row.label}</td>
+                <td className="px-3 py-2.5" style={{backgroundColor:"#fffbeb",borderLeft:"1px solid #fcd34d"}}>
                   <EditableAmount value={row.planned}   onChange={(v) => onUpdateAmount(row.id, "planned",   v)} />
                 </td>
-                <td className="px-3 py-2.5 bg-amber-50 border-l border-amber-200 border-b border-amber-100">
+                <td className="px-3 py-2.5" style={{backgroundColor:"#fffbeb",borderLeft:"1px solid #fcd34d"}}>
                   <EditableAmount value={row.requested} onChange={(v) => onUpdateAmount(row.id, "requested", v)} />
                 </td>
-                <td className={`${blueTd} border-l border-blue-200 border-b border-blue-100`}>{fmt(row.totalCommitments)}</td>
-                <td className={`${blueTd} border-l border-blue-200 border-b border-blue-100`}>{fmt(row.openCommitments)}</td>
-                <td className={`${blueTd} border-l border-blue-200 border-b border-blue-100`}>{fmt(row.obligated)}</td>
-                <td className="px-3 py-2.5 text-xs text-slate-500 font-mono border-l border-slate-200 bg-white border-b border-slate-100 max-w-[220px] truncate" title={row.description}>
+                <td className={`${blueTd} border-l border-blue-200`}>{fmt(row.totalCommitments)}</td>
+                <td className={`${blueTd} border-l border-blue-200`}>{fmt(row.openCommitments)}</td>
+                <td className={`${blueTd} border-l border-blue-200`}>{fmt(row.obligated)}</td>
+                <td className="px-3 py-2.5 text-xs text-slate-500 font-mono bg-white max-w-[220px] truncate" style={{borderLeft:"1px solid #e2e8f0"}} title={row.description}>
                   {row.description}
                 </td>
-                <td className="px-3 py-2.5 border-l border-amber-200 bg-amber-50 border-b border-amber-100">
+                <td className="px-3 py-2.5" style={{backgroundColor:"#fffbeb",borderLeft:"1px solid #fcd34d"}}>
                   <input
                     type="text"
                     value={row.notes}
                     onChange={(e) => onUpdateNote(row.id, e.target.value)}
                     placeholder="notes"
-                    className="w-full text-sm text-slate-700 bg-transparent border-none focus:outline-none placeholder:text-amber-300"
+                    className="w-full text-sm text-slate-700 border-none focus:outline-none"
+                    style={{backgroundColor:"transparent"}}
                   />
                 </td>
               </tr>
             ))}
           </tbody>
           <tfoot>
-            <tr className="border-t-2 border-slate-300 font-semibold">
-              <td className="px-3 py-2.5 text-xs text-slate-500 uppercase tracking-wide bg-slate-100">Total</td>
-              <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums bg-amber-100 border-l border-amber-200">{fmt(totalPlanned)}</td>
-              <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums bg-amber-100 border-l border-amber-200">{fmt(totalRequested)}</td>
-              <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums bg-blue-100 border-l border-blue-200">{fmt(totalCommitments)}</td>
-              <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums bg-blue-100 border-l border-blue-200">{fmt(totalOpen)}</td>
-              <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums bg-blue-100 border-l border-blue-200">{fmt(totalObligated)}</td>
-              <td className="border-l border-slate-200 bg-white" />
-              <td className="border-l border-amber-200 bg-amber-100" />
+            <tr style={{borderTop:"2px solid #94a3b8"}}>
+              <td className="px-3 py-2.5 text-xs text-slate-500 uppercase tracking-wide font-semibold" style={{backgroundColor:"#f1f5f9"}}>Total</td>
+              <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-semibold" style={{backgroundColor:"#fef3c7",borderLeft:"1px solid #fcd34d"}}>{fmt(totalPlanned)}</td>
+              <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-semibold" style={{backgroundColor:"#fef3c7",borderLeft:"1px solid #fcd34d"}}>{fmt(totalRequested)}</td>
+              <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-semibold bg-blue-100 border-l border-blue-200">{fmt(totalCommitments)}</td>
+              <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-semibold bg-blue-100 border-l border-blue-200">{fmt(totalOpen)}</td>
+              <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-semibold bg-blue-100 border-l border-blue-200">{fmt(totalObligated)}</td>
+              <td className="bg-white border-l border-slate-200" />
+              <td style={{backgroundColor:"#fef3c7",borderLeft:"1px solid #fcd34d"}} />
             </tr>
           </tfoot>
         </table>
