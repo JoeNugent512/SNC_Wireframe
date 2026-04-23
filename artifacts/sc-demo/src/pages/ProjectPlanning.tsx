@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { Link, useParams, useLocation } from "wouter";
-import { Home, Settings, ChevronRight, AlignJustify } from "lucide-react";
+import { Home, Settings, ChevronRight } from "lucide-react";
 import { MOCK_PROJECTS } from "@/lib/mockData";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
@@ -128,20 +128,13 @@ export default function ProjectPlanning() {
           </div>
         </div>
 
-        {/* RIGHT: Request button + hamburger */}
+        {/* RIGHT: Settings button */}
         <div className="flex items-center gap-2 px-4 py-2 border-l border-white/20 flex-shrink-0">
-          <button
-            className="text-xs font-medium bg-[#2a5080] hover:bg-[#3a6090] border border-white/30 text-white px-3 py-1.5 rounded transition-colors"
-            data-testid="button-request-quarter"
-          >
-            Request through quarter
-          </button>
-          <button
-            className="p-1.5 hover:bg-white/10 rounded transition-colors"
-            data-testid="button-hamburger"
-          >
-            <AlignJustify size={20} className="text-white" />
-          </button>
+          <Link href={`/projects/${project.id}/settings`} data-testid="nav-settings-header">
+            <button className="bg-[#2a5080] hover:bg-[#3a6090] border border-white/30 text-white p-2 rounded transition-colors">
+              <Settings size={18} />
+            </button>
+          </Link>
         </div>
       </header>
 
