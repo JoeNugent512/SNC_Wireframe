@@ -328,27 +328,90 @@ export default function ProjectList() {
 
                   {/* SCHEDULE TAB */}
                   {activeTab === "schedule" && (
-                    <div className="p-6 animate-in fade-in duration-200">
-                      {detailReady ? (
-                        <div className="space-y-2">
-                          {[
-                            { phase: "Project Initiation",    date: selectedProject.startDate,  done: true  },
-                            { phase: "Requirements Review",   date: "2024-03-15",               done: true  },
-                            { phase: "Design Complete",       date: "2024-06-01",               done: true  },
-                            { phase: "Construction Start",    date: "2024-08-01",               done: false },
-                            { phase: "Mid-Project Review",    date: "2025-01-15",               done: false },
-                            { phase: "Project Closeout",      date: selectedProject.endDate,    done: false },
-                          ].map((m, i) => (
-                            <div key={i} className="flex items-center gap-3 p-3 bg-slate-50 border border-slate-200 rounded-lg">
-                              <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${m.done ? "bg-emerald-500" : "bg-slate-300"}`} />
-                              <div className="flex-1 text-sm font-medium text-slate-700">{m.phase}</div>
-                              <div className="text-xs text-slate-400 font-mono">
-                                {new Date(m.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                    <div className="animate-in fade-in duration-200">
+                      {detailReady ? (() => {
+                        const milestones = [
+                          { name: "Awarded / Started",               pct: 0,   required: true,  planned: selectedProject.startDate, actual: selectedProject.startDate, status: "complete" },
+                          { name: "Kickoff Meeting",                 pct: 1,   required: false, planned: "2024-02-01", actual: "2024-02-03",  status: "complete" },
+                          { name: "Outline / Concept Review",        pct: 10,  required: false, planned: "2024-04-01", actual: "2024-04-08",  status: "complete" },
+                          { name: "Outline Comments Resolved",       pct: 15,  required: false, planned: "2024-05-01", actual: "2024-05-10",  status: "complete" },
+                          { name: "35% Review",                      pct: 30,  required: false, planned: "2024-07-15", actual: "2024-07-18",  status: "complete" },
+                          { name: "35% Comments Resolved",           pct: 35,  required: false, planned: "2024-08-15", actual: null,          status: "in-progress" },
+                          { name: "Interim Review",                  pct: 60,  required: true,  planned: "2024-12-01", actual: null,          status: "upcoming" },
+                          { name: "Interim Review Comments Resolved",pct: 65,  required: false, planned: "2025-01-15", actual: null,          status: "upcoming" },
+                          { name: "Pre-Final Review",                pct: 90,  required: true,  planned: "2025-06-01", actual: null,          status: "upcoming" },
+                          { name: "Pre-Final Comments Resolved",     pct: 95,  required: false, planned: "2025-07-01", actual: null,          status: "upcoming" },
+                          { name: "Final Review & Coordination",     pct: 97,  required: false, planned: "2025-08-15", actual: null,          status: "upcoming" },
+                          { name: "Final to DWG",                    pct: 98,  required: true,  planned: "2025-09-30", actual: null,          status: "upcoming" },
+                          { name: "DWG Comments Resolved",           pct: 99,  required: false, planned: "2025-10-31", actual: null,          status: "upcoming" },
+                          { name: "Complete",                        pct: 100, required: true,  planned: selectedProject.endDate, actual: null, status: "upcoming" },
+                        ];
+                        const overallPct = 35;
+                        const fmtDate = (d: string | null) => d ? new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "";
+                        const statusDot: Record<string, string> = {
+                          "complete":    "bg-emerald-500",
+                          "in-progress": "bg-blue-500 ring-2 ring-blue-200",
+                          "upcoming":    "bg-slate-200",
+                        };
+                        return (
+                          <div>
+                            {/* Progress bar header */}
+                            <div className="px-6 pt-5 pb-4 border-b border-slate-100">
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Overall Progress</span>
+                                <span className="text-sm font-bold text-slate-700">{overallPct}% Complete</span>
+                              </div>
+                              <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                                <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${overallPct}%` }} />
                               </div>
                             </div>
-                          ))}
-                        </div>
-                      ) : (
+
+                            {/* Milestones table */}
+                            <div className="overflow-x-auto">
+                              <table className="w-full text-sm">
+                                <thead>
+                                  <tr className="bg-slate-50 border-b border-slate-200">
+                                    <th className="px-6 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Milestone</th>
+                                    <th className="px-3 py-2.5 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider w-12">%</th>
+                                    <th className="px-3 py-2.5 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider w-24">Planned</th>
+                                    <th className="px-3 py-2.5 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider w-24">Actual</th>
+                                  </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-100">
+                                  {milestones.map((m, i) => (
+                                    <tr key={i} className={m.status === "in-progress" ? "bg-blue-50/60" : "hover:bg-slate-50/60"}>
+                                      <td className="px-6 py-2.5">
+                                        <div className="flex items-center gap-2.5">
+                                          <div className={`w-2 h-2 rounded-full flex-shrink-0 ${statusDot[m.status]}`} />
+                                          <span className={`font-medium ${m.status === "complete" ? "text-slate-500" : m.status === "in-progress" ? "text-blue-800" : "text-slate-700"}`}>
+                                            {m.name}
+                                          </span>
+                                          {m.required && (
+                                            <span className="text-[10px] font-semibold uppercase tracking-wide text-amber-700 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded">
+                                              Required
+                                            </span>
+                                          )}
+                                        </div>
+                                      </td>
+                                      <td className="px-3 py-2.5 text-center text-xs text-slate-500 font-mono">{m.pct}%</td>
+                                      <td className="px-3 py-2.5 text-center text-xs text-slate-500 font-mono whitespace-nowrap">{fmtDate(m.planned)}</td>
+                                      <td className="px-3 py-2.5 text-center text-xs whitespace-nowrap">
+                                        {m.actual ? (
+                                          <span className="text-emerald-700 font-mono">{fmtDate(m.actual)}</span>
+                                        ) : m.status === "in-progress" ? (
+                                          <span className="text-blue-500 italic">In progress</span>
+                                        ) : (
+                                          <span className="text-slate-300">—</span>
+                                        )}
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        );
+                      })() : (
                         <div className="flex flex-col items-center justify-center py-16 text-slate-400 gap-3">
                           <Loader2 size={28} className="animate-spin text-primary/60" />
                           <p className="text-sm">Loading plans &amp; actuals…</p>
