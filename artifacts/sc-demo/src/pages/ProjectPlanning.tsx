@@ -34,14 +34,20 @@ const ORG_OPTIONS = [
 ];
 
 const TRAVEL_OPTIONS = [
-  { label: "Site Visits",          sub: "Field inspection & assessment" },
-  { label: "Equipment Transport",  sub: "Movement of project equipment" },
-  { label: "Training",             sub: "Staff training & certification" },
-  { label: "Stakeholder Meetings", sub: "Coordination with partners" },
-  { label: "Conference Travel",    sub: "Professional conferences" },
-  { label: "Survey Trips",         sub: "Data collection & surveys" },
-  { label: "Permitting Visits",    sub: "Regulatory agency coordination" },
-  { label: "Kickoff / Closeout",   sub: "Project start and end activities" },
+  { label: "CERL",                              sub: "U435310" },
+  { label: "ERDC Headquarters",                 sub: "U582094" },
+  { label: "Cold Regions Research Lab",         sub: "U601847" },
+  { label: "Waterways Experiment Station",      sub: "U719203" },
+  { label: "Vicksburg District",                sub: "U834512" },
+  { label: "Nashville District",                sub: "U920183" },
+  { label: "Fort Worth District",               sub: "U110234" },
+  { label: "Huntsville Center",                 sub: "U223456" },
+  { label: "Pacific Ocean Division",            sub: "U334567" },
+  { label: "South Atlantic Division",           sub: "U445678" },
+  { label: "Great Lakes & Ohio River Division", sub: "U556789" },
+  { label: "Fort Campbell",                     sub: "U667890" },
+  { label: "Fort Bragg",                        sub: "U778901" },
+  { label: "Aberdeen Proving Ground",           sub: "U889012" },
 ];
 
 const MATERIAL_OPTIONS = [
@@ -664,15 +670,18 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
         existingLabels={laborExisting}
       />
       <FundingSection
-        title="Travel" columnHeader="Travel Line / Org Code"
+        title="Travel" columnHeader="Organization"
         addButtonLabel="Add Travel"
         descTemplate={travelDescTemplate}
         rows={travel.rows}
         onUpdateAmount={travel.updateAmount} onUpdateNote={travel.updateNote}
         onDelete={travel.deleteRow} onZeroOut={travel.zeroOutRow}
         onAddMany={(labels) => travel.addMany(labels, travelDescTemplate)}
-        pickerMode="travel"
+        pickerMode="multi"
         existingLabels={travelExisting}
+        pickerTitle="Add Travel"
+        pickerOptions={TRAVEL_OPTIONS}
+        pickerPlaceholder="Search by name or org code…"
       />
       <FundingSection
         title="Materials & Other" columnHeader="Item"
