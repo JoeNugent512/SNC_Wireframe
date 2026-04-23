@@ -49,12 +49,11 @@ function YesNoBadge({ value }: { value: boolean }) {
   );
 }
 
-type FundingRow = { id: number; label: string; planned: number; requested: number };
+type FundingRow = { id: number; label: string; planned: number; requested: number; notes: string };
 
 function EditableAmount({ value, onChange }: { value: number; onChange: (v: number) => void }) {
   const [editing, setEditing] = useState(false);
   const [raw, setRaw] = useState("");
-  const display = value === 0 ? "—" : fmt(value);
 
   if (editing) {
     return (
@@ -68,34 +67,49 @@ function EditableAmount({ value, onChange }: { value: number; onChange: (v: numb
           if (e.key === "Enter") { onChange(parseInt(raw) || 0); setEditing(false); }
           if (e.key === "Escape") setEditing(false);
         }}
-        className="w-full text-right text-sm border border-blue-400 rounded px-2 py-0.5 focus:outline-none focus:ring-1 focus:ring-blue-400 tabular-nums bg-white"
+        className="w-full text-right text-sm border border-blue-500 rounded px-2 py-0.5 focus:outline-none focus:ring-2 focus:ring-blue-400 tabular-nums bg-white"
       />
     );
   }
   return (
     <button
       onClick={() => { setRaw(String(value)); setEditing(true); }}
-      className="w-full text-right text-sm text-slate-700 tabular-nums px-2 py-0.5 rounded bg-blue-50 hover:bg-blue-100 hover:text-blue-800 focus:outline-none focus:ring-1 focus:ring-blue-300 transition-colors"
-      title="Click to edit"
+      className="w-full text-right text-sm text-slate-800 tabular-nums focus:outline-none"
     >
-      {display}
+      {value === 0 ? "—" : fmt(value)}
     </button>
+  );
+}
+
+function EditableNote({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  return (
+    <input
+      type="text"
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder="Add note…"
+      className="w-full text-sm text-slate-600 bg-transparent border-none focus:outline-none focus:ring-0 placeholder:text-slate-300"
+    />
   );
 }
 
 function useFundingRows(initial: FundingRow[]) {
   const [rows, setRows] = useState(initial);
-  const update = (id: number, field: "planned" | "requested", value: number) =>
-    setRows((r) => r.map((row) => (row.id === id ? { ...row, [field]: value } : row)));
-  return [rows, update] as const;
+  const updateAmount = (id: number, field: "planned" | "requested", value: number) =>
+    setRows((r) => r.map((row) => row.id === id ? { ...row, [field]: value } : row));
+  const updateNote = (id: number, value: string) =>
+    setRows((r) => r.map((row) => row.id === id ? { ...row, notes: value } : row));
+  return [rows, updateAmount, updateNote] as const;
 }
 
 function FundingSection({
-  title, columnHeader, rows, onUpdate,
+  title, columnHeader, rows, onUpdateAmount, onUpdateNote,
 }: {
-  title: string; columnHeader: string;
+  title: string;
+  columnHeader: string;
   rows: FundingRow[];
-  onUpdate: (id: number, field: "planned" | "requested", value: number) => void;
+  onUpdateAmount: (id: number, field: "planned" | "requested", value: number) => void;
+  onUpdateNote: (id: number, value: string) => void;
 }) {
   const totalPlanned   = rows.reduce((s, r) => s + r.planned, 0);
   const totalRequested = rows.reduce((s, r) => s + r.requested, 0);
@@ -106,30 +120,35 @@ function FundingSection({
       </div>
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-slate-200 bg-slate-50">
-            <th className="px-4 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{columnHeader}</th>
-            <th className="px-4 py-2.5 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider w-36">Total Planned</th>
-            <th className="px-4 py-2.5 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider w-36">Total Requested</th>
+          <tr className="border-b border-slate-200">
+            <th className="px-4 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider bg-slate-50">{columnHeader}</th>
+            <th className="px-4 py-2.5 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider w-36 bg-blue-50 border-l border-blue-100">Total Planned</th>
+            <th className="px-4 py-2.5 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider w-36 bg-blue-50 border-l border-blue-100">Total Requested</th>
+            <th className="px-4 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider bg-slate-50 border-l border-slate-200">Notes</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100">
           {rows.map((row) => (
-            <tr key={row.id} className="hover:bg-slate-50/60">
-              <td className="px-4 py-3 text-slate-700">{row.label}</td>
-              <td className="px-4 py-3">
-                <EditableAmount value={row.planned}   onChange={(v) => onUpdate(row.id, "planned",   v)} />
+            <tr key={row.id}>
+              <td className="px-4 py-3 text-slate-700 bg-white">{row.label}</td>
+              <td className="px-4 py-2.5 bg-blue-50 border-l border-blue-100">
+                <EditableAmount value={row.planned}   onChange={(v) => onUpdateAmount(row.id, "planned",   v)} />
               </td>
-              <td className="px-4 py-3">
-                <EditableAmount value={row.requested} onChange={(v) => onUpdate(row.id, "requested", v)} />
+              <td className="px-4 py-2.5 bg-blue-50 border-l border-blue-100">
+                <EditableAmount value={row.requested} onChange={(v) => onUpdateAmount(row.id, "requested", v)} />
+              </td>
+              <td className="px-4 py-2.5 bg-white border-l border-slate-200">
+                <EditableNote value={row.notes} onChange={(v) => onUpdateNote(row.id, v)} />
               </td>
             </tr>
           ))}
         </tbody>
         <tfoot>
-          <tr className="border-t-2 border-slate-200 bg-slate-50 font-semibold">
-            <td className="px-4 py-2.5 text-xs text-slate-500 uppercase tracking-wider">Total</td>
-            <td className="px-4 py-2.5 text-right text-sm text-slate-800 tabular-nums">{fmt(totalPlanned)}</td>
-            <td className="px-4 py-2.5 text-right text-sm text-slate-800 tabular-nums">{fmt(totalRequested)}</td>
+          <tr className="border-t-2 border-slate-200 font-semibold">
+            <td className="px-4 py-2.5 text-xs text-slate-500 uppercase tracking-wider bg-slate-50">Total</td>
+            <td className="px-4 py-2.5 text-right text-sm text-slate-800 tabular-nums bg-blue-50 border-l border-blue-100">{fmt(totalPlanned)}</td>
+            <td className="px-4 py-2.5 text-right text-sm text-slate-800 tabular-nums bg-blue-50 border-l border-blue-100">{fmt(totalRequested)}</td>
+            <td className="bg-white border-l border-slate-200" />
           </tr>
         </tfoot>
       </table>
@@ -139,25 +158,25 @@ function FundingSection({
 
 function FundingTable({ budget }: { budget: number }) {
   const b = budget;
-  const [laborRows, updateLabor] = useFundingRows([
-    { id: 1, label: "Nugent, Joseph Pat",  planned: Math.round(b * 0.090), requested: Math.round(b * 0.090) },
-    { id: 2, label: "U435310",             planned: Math.round(b * 0.050), requested: Math.round(b * 0.048) },
-    { id: 3, label: "Chen, David",         planned: Math.round(b * 0.035), requested: Math.round(b * 0.035) },
+  const [laborRows, updateLaborAmount, updateLaborNote] = useFundingRows([
+    { id: 1, label: "Nugent, Joseph Pat",  planned: Math.round(b * 0.090), requested: Math.round(b * 0.090), notes: "" },
+    { id: 2, label: "U435310",             planned: Math.round(b * 0.050), requested: Math.round(b * 0.048), notes: "" },
+    { id: 3, label: "Chen, David",         planned: Math.round(b * 0.035), requested: Math.round(b * 0.035), notes: "" },
   ]);
-  const [travelRows, updateTravel] = useFundingRows([
-    { id: 1, label: "Site Visits",          planned: Math.round(b * 0.020), requested: Math.round(b * 0.020) },
-    { id: 2, label: "Equipment Transport",  planned: Math.round(b * 0.013), requested: Math.round(b * 0.013) },
+  const [travelRows, updateTravelAmount, updateTravelNote] = useFundingRows([
+    { id: 1, label: "Site Visits",         planned: Math.round(b * 0.020), requested: Math.round(b * 0.020), notes: "" },
+    { id: 2, label: "Equipment Transport", planned: Math.round(b * 0.013), requested: Math.round(b * 0.013), notes: "" },
   ]);
-  const [materialsRows, updateMaterials] = useFundingRows([
-    { id: 1, label: "Concrete (500 units)", planned: Math.round(b * 0.031), requested: Math.round(b * 0.031) },
-    { id: 2, label: "Steel Rebar (2000 ft)",planned: Math.round(b * 0.021), requested: Math.round(b * 0.020) },
+  const [materialsRows, updateMaterialsAmount, updateMaterialsNote] = useFundingRows([
+    { id: 1, label: "Concrete (500 units)",  planned: Math.round(b * 0.031), requested: Math.round(b * 0.031), notes: "" },
+    { id: 2, label: "Steel Rebar (2000 ft)", planned: Math.round(b * 0.021), requested: Math.round(b * 0.020), notes: "" },
   ]);
 
   return (
     <div className="space-y-4">
-      <FundingSection title="Labor"            columnHeader="Employee / Org Code" rows={laborRows}     onUpdate={updateLabor}     />
-      <FundingSection title="Travel"           columnHeader="Travel Line"         rows={travelRows}    onUpdate={updateTravel}    />
-      <FundingSection title="Materials & Other" columnHeader="Item"               rows={materialsRows} onUpdate={updateMaterials} />
+      <FundingSection title="Labor"             columnHeader="Employee / Org Code" rows={laborRows}     onUpdateAmount={updateLaborAmount}     onUpdateNote={updateLaborNote}     />
+      <FundingSection title="Travel"            columnHeader="Travel Line"         rows={travelRows}    onUpdateAmount={updateTravelAmount}    onUpdateNote={updateTravelNote}    />
+      <FundingSection title="Materials & Other" columnHeader="Item"                rows={materialsRows} onUpdateAmount={updateMaterialsAmount} onUpdateNote={updateMaterialsNote} />
     </div>
   );
 }
