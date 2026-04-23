@@ -1,16 +1,11 @@
 import { useState } from "react";
-import { Link, useParams, useLocation } from "wouter";
-import { ChevronRight, Save, ArrowLeft, FileText, Settings2, ExternalLink } from "lucide-react";
+import { Link, useParams } from "wouter";
+import { ChevronRight, ArrowLeft, FileText, DollarSign, CalendarDays, ExternalLink } from "lucide-react";
 import Layout from "@/components/Layout";
-import { MOCK_PROJECTS, Project } from "@/lib/mockData";
-import { useToast } from "@/hooks/use-toast";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { MOCK_PROJECTS } from "@/lib/mockData";
 import { Label } from "@/components/ui/label";
-import { Toaster } from "@/components/ui/toaster";
 
-type Tab = "charter" | "settings";
+type Tab = "charter" | "funding" | "schedule";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
@@ -54,26 +49,166 @@ function YesNoBadge({ value }: { value: boolean }) {
   );
 }
 
+function FundingTable({ budget }: { budget: number }) {
+  const split  = [0.1, 0.2, 0.35, 0.25, 0.1];
+  const years  = ["FY23", "FY24", "FY25", "FY26", "FY27"];
+  const rows = [
+    { label: "Labor",              pct: 0.55 },
+    { label: "Travel",             pct: 0.15 },
+    { label: "Outsourced / Other", pct: 0.30 },
+  ];
+  const f = (n: number) =>
+    n === 0 ? "—" : new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
+
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full text-xs border-collapse min-w-[500px]">
+        <thead>
+          <tr>
+            <th className="border border-slate-300 bg-[#1a3557] text-white font-semibold px-3 py-2 text-left w-[140px]">
+              Project Overview
+            </th>
+            {years.map((fy) => (
+              <th key={fy} className="border border-slate-300 bg-[#2a6496] text-white font-semibold px-2 py-2 text-center">
+                {fy}
+              </th>
+            ))}
+            <th className="border border-slate-300 bg-[#1a3557] text-white font-semibold px-2 py-2 text-center">
+              Total
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row, ri) => {
+            const rowBudget = budget * row.pct;
+            return (
+              <tr key={row.label} className={ri % 2 === 0 ? "bg-slate-50" : "bg-white"}>
+                <td className="border border-slate-200 px-3 py-2 font-medium text-slate-700">{row.label}</td>
+                {split.map((s, i) => (
+                  <td key={i} className="border border-slate-200 px-2 py-2 text-right text-slate-600">
+                    {f(rowBudget * s)}
+                  </td>
+                ))}
+                <td className="border border-slate-200 px-2 py-2 text-right font-semibold text-slate-800">
+                  {f(rowBudget)}
+                </td>
+              </tr>
+            );
+          })}
+          <tr className="bg-[#1a3557]/10 font-semibold">
+            <td className="border border-slate-300 px-3 py-2 text-slate-800">Total</td>
+            {split.map((s, i) => (
+              <td key={i} className="border border-slate-300 px-2 py-2 text-right text-slate-800">
+                {f(budget * s)}
+              </td>
+            ))}
+            <td className="border border-slate-300 px-2 py-2 text-right text-slate-900 font-bold">
+              {f(budget)}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function ScheduleTab({ startDate, endDate }: { startDate: string; endDate: string }) {
+  const milestones = [
+    { name: "Awarded / Started",                pct: 0,   required: true,  planned: startDate,    actual: startDate,    status: "complete"    },
+    { name: "Kickoff Meeting",                  pct: 1,   required: false, planned: "2024-02-01", actual: "2024-02-03", status: "complete"    },
+    { name: "Outline / Concept Review",         pct: 10,  required: false, planned: "2024-04-01", actual: "2024-04-08", status: "complete"    },
+    { name: "Outline Comments Resolved",        pct: 15,  required: false, planned: "2024-05-01", actual: "2024-05-10", status: "complete"    },
+    { name: "35% Review",                       pct: 30,  required: false, planned: "2024-07-15", actual: "2024-07-18", status: "complete"    },
+    { name: "35% Comments Resolved",            pct: 35,  required: false, planned: "2024-08-15", actual: null,         status: "in-progress" },
+    { name: "Interim Review",                   pct: 60,  required: true,  planned: "2024-12-01", actual: null,         status: "upcoming"    },
+    { name: "Interim Review Comments Resolved", pct: 65,  required: false, planned: "2025-01-15", actual: null,         status: "upcoming"    },
+    { name: "Pre-Final Review",                 pct: 90,  required: true,  planned: "2025-06-01", actual: null,         status: "upcoming"    },
+    { name: "Pre-Final Comments Resolved",      pct: 95,  required: false, planned: "2025-07-01", actual: null,         status: "upcoming"    },
+    { name: "Final Review & Coordination",      pct: 97,  required: false, planned: "2025-08-15", actual: null,         status: "upcoming"    },
+    { name: "Final to DWG",                     pct: 98,  required: true,  planned: "2025-09-30", actual: null,         status: "upcoming"    },
+    { name: "DWG Comments Resolved",            pct: 99,  required: false, planned: "2025-10-31", actual: null,         status: "upcoming"    },
+    { name: "Complete",                         pct: 100, required: true,  planned: endDate,       actual: null,         status: "upcoming"    },
+  ];
+
+  const overallPct = 35;
+  const fmtDate = (d: string | null) =>
+    d ? new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "";
+  const statusDot: Record<string, string> = {
+    "complete":    "bg-emerald-500",
+    "in-progress": "bg-blue-500 ring-2 ring-blue-200",
+    "upcoming":    "bg-slate-200",
+  };
+
+  return (
+    <div>
+      {/* Progress bar */}
+      <div className="px-6 pt-5 pb-4 border-b border-slate-100">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Overall Progress</span>
+          <span className="text-sm font-bold text-slate-700">{overallPct}% Complete</span>
+        </div>
+        <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+          <div className="h-full bg-[#1a3557] rounded-full" style={{ width: `${overallPct}%` }} />
+        </div>
+      </div>
+
+      {/* Milestones */}
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="bg-slate-50 border-b border-slate-200">
+              <th className="px-6 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Milestone</th>
+              <th className="px-3 py-2.5 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider w-12">%</th>
+              <th className="px-3 py-2.5 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider w-28">Planned</th>
+              <th className="px-3 py-2.5 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider w-28">Actual</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100">
+            {milestones.map((m, i) => (
+              <tr key={i} className={m.status === "in-progress" ? "bg-blue-50/60" : "hover:bg-slate-50/60"}>
+                <td className="px-6 py-2.5">
+                  <div className="flex items-center gap-2.5">
+                    <div className={`w-2 h-2 rounded-full flex-shrink-0 ${statusDot[m.status]}`} />
+                    <span className={`font-medium ${
+                      m.status === "complete" ? "text-slate-500"
+                      : m.status === "in-progress" ? "text-blue-800"
+                      : "text-slate-700"
+                    }`}>
+                      {m.name}
+                    </span>
+                    {m.required && (
+                      <span className="text-[10px] font-semibold uppercase tracking-wide text-amber-700 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded">
+                        Required
+                      </span>
+                    )}
+                  </div>
+                </td>
+                <td className="px-3 py-2.5 text-center text-xs text-slate-500 font-mono">{m.pct}%</td>
+                <td className="px-3 py-2.5 text-center text-xs text-slate-500 font-mono whitespace-nowrap">{fmtDate(m.planned)}</td>
+                <td className="px-3 py-2.5 text-center text-xs whitespace-nowrap">
+                  {m.actual ? (
+                    <span className="text-emerald-700 font-mono">{fmtDate(m.actual)}</span>
+                  ) : m.status === "in-progress" ? (
+                    <span className="text-blue-500 italic">In progress</span>
+                  ) : (
+                    <span className="text-slate-300">—</span>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
 export default function ProjectSettings() {
   const params = useParams();
-  const [, setLocation] = useLocation();
-  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<Tab>("charter");
 
   const projectId = params.id;
   const project = MOCK_PROJECTS.find((p) => p.id === projectId);
-
-  const [form, setForm] = useState({
-    name: project?.name ?? "",
-    status: project?.status ?? "Planning",
-    pmName: project?.pmName ?? "",
-    description: project?.description ?? "",
-  });
-
-  const handleSave = () => {
-    toast({ title: "Settings saved", description: "Project details have been updated." });
-    setTimeout(() => setLocation(`/projects/${projectId}/planning`), 900);
-  };
 
   if (!project) {
     return (
@@ -91,15 +226,19 @@ export default function ProjectSettings() {
       <ChevronRight size={14} className="text-slate-300 flex-shrink-0" />
       <Link href={`/projects/${project.id}/planning`} className="text-slate-400 hover:text-slate-700 transition-colors font-mono text-xs">{project.number}</Link>
       <ChevronRight size={14} className="text-slate-300 flex-shrink-0" />
-      <span className="font-semibold text-slate-800">Settings</span>
+      <span className="font-semibold text-slate-800">Charter</span>
     </>
   );
+
+  const tabs: { key: Tab; icon: typeof FileText; label: string }[] = [
+    { key: "charter",  icon: FileText,      label: "Charter"  },
+    { key: "funding",  icon: DollarSign,    label: "Funding"  },
+    { key: "schedule", icon: CalendarDays,  label: "Schedule" },
+  ];
 
   return (
     <Layout breadcrumb={breadcrumb}>
       <div className="max-w-3xl mx-auto space-y-5">
-
-        {/* Card */}
         <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
 
           {/* Card header */}
@@ -117,10 +256,7 @@ export default function ProjectSettings() {
 
           {/* Tabs */}
           <div className="flex border-b border-slate-200">
-            {([ 
-              { key: "charter", icon: FileText, label: "Charter" },
-              { key: "settings", icon: Settings2, label: "Settings" },
-            ] as { key: Tab; icon: typeof FileText; label: string }[]).map(({ key, icon: Icon, label }) => (
+            {tabs.map(({ key, icon: Icon, label }) => (
               <button
                 key={key}
                 onClick={() => setActiveTab(key)}
@@ -139,8 +275,6 @@ export default function ProjectSettings() {
           {/* ── CHARTER TAB ── */}
           {activeTab === "charter" && (
             <div className="p-6 space-y-7">
-
-              {/* Project Identity */}
               <div>
                 <SectionLabel>Project Identity</SectionLabel>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -149,7 +283,6 @@ export default function ProjectSettings() {
                 </div>
               </div>
 
-              {/* Team */}
               <div>
                 <SectionLabel>Team</SectionLabel>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -160,7 +293,6 @@ export default function ProjectSettings() {
                 </div>
               </div>
 
-              {/* Contract & Funding */}
               <div>
                 <SectionLabel>Contract &amp; Funding Type</SectionLabel>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -182,14 +314,13 @@ export default function ProjectSettings() {
                 </div>
               </div>
 
-              {/* Budget */}
               <div>
                 <SectionLabel>Budget</SectionLabel>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   {[
-                    { label: "Budget at Submission", value: project.budgetAtSubmission },
-                    { label: "Current Project Budget", value: project.budget },
-                    { label: "Actual Obligation", value: project.actualObligation },
+                    { label: "Budget at Submission",   value: project.budgetAtSubmission },
+                    { label: "Current Project Budget", value: project.budget             },
+                    { label: "Actual Obligation",      value: project.actualObligation   },
                   ].map(({ label, value }) => (
                     <div key={label} className="bg-slate-50 border border-slate-100 rounded-lg px-4 py-3">
                       <div className="text-xs text-slate-400 uppercase tracking-wider font-semibold mb-1">{label}</div>
@@ -199,95 +330,38 @@ export default function ProjectSettings() {
                 </div>
               </div>
 
-              {/* CMS Information */}
               <div>
                 <SectionLabel>CMS Information</SectionLabel>
                 <p className="text-xs text-slate-400 mb-3">Required for ALL Tri-Service Projects</p>
                 <div className="space-y-4">
-                  <ReadonlyField label="Primary CMS Link" value={project.primaryCmsLink} url />
-                  <ReadonlyField label="CMS Guest Link" value={project.cmsGuestLink} url />
+                  <ReadonlyField label="Primary CMS Link"     value={project.primaryCmsLink}     url />
+                  <ReadonlyField label="CMS Guest Link"       value={project.cmsGuestLink}       url />
                   <ReadonlyField label="Additional CMS Links" value={project.additionalCmsLinks} url />
                 </div>
               </div>
-
             </div>
           )}
 
-          {/* ── SETTINGS TAB ── */}
-          {activeTab === "settings" && (
-            <div className="p-6 space-y-5">
+          {/* ── FUNDING TAB ── */}
+          {activeTab === "funding" && (
+            <div className="p-6 animate-in fade-in duration-200">
+              <FundingTable budget={project.budget} />
+            </div>
+          )}
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <div className="space-y-2">
-                  <Label htmlFor="projectName">Project Name</Label>
-                  <Input
-                    id="projectName"
-                    value={form.name}
-                    onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
-                    data-testid="input-project-name"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="status">Status</Label>
-                  <Select
-                    value={form.status}
-                    onValueChange={(val: Project["status"]) => setForm((p) => ({ ...p, status: val }))}
-                  >
-                    <SelectTrigger id="status" data-testid="select-status">
-                      <SelectValue placeholder="Select status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Planning">Planning</SelectItem>
-                      <SelectItem value="Active">Active</SelectItem>
-                      <SelectItem value="On Hold">On Hold</SelectItem>
-                      <SelectItem value="Complete">Complete</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="pmName">Project Manager</Label>
-                <Input
-                  id="pmName"
-                  value={form.pmName}
-                  onChange={(e) => setForm((p) => ({ ...p, pmName: e.target.value }))}
-                  data-testid="input-pm-name"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  rows={4}
-                  value={form.description}
-                  onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))}
-                  data-testid="input-description"
-                  className="resize-none"
-                />
-              </div>
+          {/* ── SCHEDULE TAB ── */}
+          {activeTab === "schedule" && (
+            <div className="animate-in fade-in duration-200">
+              <ScheduleTab startDate={project.startDate} endDate={project.endDate} />
             </div>
           )}
 
           {/* Footer */}
           <div className="px-6 py-4 border-t border-slate-200 bg-slate-50/60 flex justify-end">
-            {activeTab === "settings" ? (
-              <button
-                onClick={handleSave}
-                className="bg-[#1a3557] hover:bg-[#243f6a] text-white font-medium py-2 px-6 rounded-lg shadow-sm transition-colors flex items-center gap-2 text-sm"
-                data-testid="button-save-settings"
-              >
-                <Save size={15} />
-                Save Changes
-              </button>
-            ) : (
-              <span className="text-xs text-slate-400 italic">Charter fields are read-only in this demo</span>
-            )}
+            <span className="text-xs text-slate-400 italic">Fields are read-only in this demo</span>
           </div>
         </div>
       </div>
-      <Toaster />
     </Layout>
   );
 }
