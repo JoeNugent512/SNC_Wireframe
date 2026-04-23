@@ -49,234 +49,229 @@ function YesNoBadge({ value }: { value: boolean }) {
   );
 }
 
-type FundingRow = {
-  id: number;
-  label: string;
-  planned: number;
-  requested: number;
-  totalCommitments: number;
-  openCommitments: number;
-  obligated: number;
-  description: string;
-  notes: string;
-};
+/* ── Fiscal-Year Funding Plan (Settings > Funding tab) ──────────── */
 
-function EditableAmount({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+
+function FyCell({ value, editable, onChange }: { value: number; editable?: boolean; onChange?: (v: number) => void }) {
   const [editing, setEditing] = useState(false);
   const [raw, setRaw] = useState("");
+  const display = value === 0 ? "—" : fmt(value);
+  if (!editable) return <span className="tabular-nums">{display}</span>;
   if (editing) {
     return (
-      <input
-        autoFocus type="text" value={raw}
+      <input autoFocus type="text" value={raw}
         onChange={(e) => setRaw(e.target.value.replace(/[^0-9]/g, ""))}
-        onBlur={() => { onChange(parseInt(raw) || 0); setEditing(false); }}
+        onBlur={() => { onChange?.(parseInt(raw) || 0); setEditing(false); }}
         onKeyDown={(e) => {
-          if (e.key === "Enter") { onChange(parseInt(raw) || 0); setEditing(false); }
+          if (e.key === "Enter") { onChange?.(parseInt(raw) || 0); setEditing(false); }
           if (e.key === "Escape") setEditing(false);
         }}
-        className="w-full text-right text-sm border border-blue-400 rounded px-1 py-0.5 focus:outline-none focus:ring-2 focus:ring-blue-400 tabular-nums bg-white"
+        className="w-full text-right text-sm border border-amber-400 rounded px-1 py-0.5 focus:outline-none focus:ring-1 focus:ring-amber-300 tabular-nums bg-white"
+        style={{ minWidth: 80 }}
       />
     );
   }
   return (
-    <button
-      onClick={() => { setRaw(String(value)); setEditing(true); }}
-      className="w-full text-right text-sm text-slate-800 tabular-nums hover:underline decoration-dotted underline-offset-2 focus:outline-none"
-    >
-      {value === 0 ? "—" : fmt(value)}
+    <button onClick={() => { setRaw(String(value)); setEditing(true); }}
+      className="w-full text-right text-sm text-slate-800 tabular-nums hover:underline decoration-dotted underline-offset-2 focus:outline-none">
+      {display}
     </button>
-  );
-}
-
-function useFundingRows(initial: FundingRow[]) {
-  const [rows, setRows] = useState(initial);
-  const updateAmount = (id: number, field: "planned" | "requested", value: number) =>
-    setRows((r) => r.map((row) => row.id === id ? { ...row, [field]: value } : row));
-  const updateNote = (id: number, value: string) =>
-    setRows((r) => r.map((row) => row.id === id ? { ...row, notes: value } : row));
-  return [rows, updateAmount, updateNote] as const;
-}
-
-/* Column groups for visual reference:
-   WHITE bg  → Label | Total Planned | Total Requested
-   BLUE bg   → Total Commitments | Open Commitments | Obligated  (read-only system data)
-   WHITE bg  → Description | Notes
-*/
-function FundingSection({
-  title, columnHeader, rows, onUpdateAmount, onUpdateNote,
-}: {
-  title: string;
-  columnHeader: string;
-  rows: FundingRow[];
-  onUpdateAmount: (id: number, field: "planned" | "requested", value: number) => void;
-  onUpdateNote: (id: number, value: string) => void;
-}) {
-  const totalPlanned       = rows.reduce((s, r) => s + r.planned, 0);
-  const totalRequested     = rows.reduce((s, r) => s + r.requested, 0);
-  const totalCommitments   = rows.reduce((s, r) => s + r.totalCommitments, 0);
-  const totalOpen          = rows.reduce((s, r) => s + r.openCommitments, 0);
-  const totalObligated     = rows.reduce((s, r) => s + r.obligated, 0);
-
-  const blueHd = "px-3 py-2.5 text-center text-xs font-semibold text-white uppercase tracking-wide bg-[#1a6ea8]";
-  const blueTd = "px-3 py-2.5 text-right text-sm tabular-nums bg-blue-50 text-slate-800";
-
-  return (
-    <div className="border border-slate-200 rounded-lg overflow-hidden">
-      <div className="bg-[#1a3557] px-4 py-2.5">
-        <span className="font-semibold text-white text-sm">{title}</span>
-      </div>
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm whitespace-nowrap">
-          <thead>
-            <tr className="border-b border-slate-200">
-              <th className="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide bg-slate-50 min-w-[130px]">{columnHeader}</th>
-              <th className="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide w-28" style={{backgroundColor:"#fffbeb",color:"#92400e",borderLeft:"1px solid #fcd34d"}}>Total Planned</th>
-              <th className="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide w-28" style={{backgroundColor:"#fffbeb",color:"#92400e",borderLeft:"1px solid #fcd34d"}}>Total Requested</th>
-              <th className={`${blueHd} border-l border-blue-300 w-28`}>Total Commitments</th>
-              <th className={`${blueHd} border-l border-blue-300 w-28`}>Open Commitments</th>
-              <th className={`${blueHd} border-l border-blue-300 w-24`}>Obligated</th>
-              <th className="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide bg-slate-50 border-l border-slate-200 min-w-[200px]">Description</th>
-              <th className="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide min-w-[100px]" style={{backgroundColor:"#fffbeb",color:"#92400e",borderLeft:"1px solid #fcd34d"}}>Notes</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => (
-              <tr key={row.id} style={{borderBottom:"1px solid #fef3c7"}}>
-                <td className="px-3 py-2.5 text-slate-700 font-medium" style={{backgroundColor:"#f8fafc"}}>{row.label}</td>
-                <td className="px-3 py-2.5" style={{backgroundColor:"#fffbeb",borderLeft:"1px solid #fcd34d"}}>
-                  <EditableAmount value={row.planned}   onChange={(v) => onUpdateAmount(row.id, "planned",   v)} />
-                </td>
-                <td className="px-3 py-2.5" style={{backgroundColor:"#fffbeb",borderLeft:"1px solid #fcd34d"}}>
-                  <EditableAmount value={row.requested} onChange={(v) => onUpdateAmount(row.id, "requested", v)} />
-                </td>
-                <td className={`${blueTd} border-l border-blue-200`}>{fmt(row.totalCommitments)}</td>
-                <td className={`${blueTd} border-l border-blue-200`}>{fmt(row.openCommitments)}</td>
-                <td className={`${blueTd} border-l border-blue-200`}>{fmt(row.obligated)}</td>
-                <td className="px-3 py-2.5 text-xs text-slate-500 font-mono bg-white max-w-[220px] truncate" style={{borderLeft:"1px solid #e2e8f0"}} title={row.description}>
-                  {row.description}
-                </td>
-                <td className="px-3 py-2.5" style={{backgroundColor:"#fffbeb",borderLeft:"1px solid #fcd34d"}}>
-                  <input
-                    type="text"
-                    value={row.notes}
-                    onChange={(e) => onUpdateNote(row.id, e.target.value)}
-                    placeholder="notes"
-                    className="w-full text-sm text-slate-700 border-none focus:outline-none"
-                    style={{backgroundColor:"transparent"}}
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-          <tfoot>
-            <tr style={{borderTop:"2px solid #94a3b8"}}>
-              <td className="px-3 py-2.5 text-xs text-slate-500 uppercase tracking-wide font-semibold" style={{backgroundColor:"#f1f5f9"}}>Total</td>
-              <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-semibold" style={{backgroundColor:"#fef3c7",borderLeft:"1px solid #fcd34d"}}>{fmt(totalPlanned)}</td>
-              <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-semibold" style={{backgroundColor:"#fef3c7",borderLeft:"1px solid #fcd34d"}}>{fmt(totalRequested)}</td>
-              <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-semibold bg-blue-100 border-l border-blue-200">{fmt(totalCommitments)}</td>
-              <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-semibold bg-blue-100 border-l border-blue-200">{fmt(totalOpen)}</td>
-              <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-semibold bg-blue-100 border-l border-blue-200">{fmt(totalObligated)}</td>
-              <td className="bg-white border-l border-slate-200" />
-              <td style={{backgroundColor:"#fef3c7",borderLeft:"1px solid #fcd34d"}} />
-            </tr>
-          </tfoot>
-        </table>
-      </div>
-    </div>
   );
 }
 
 function FundingTable({ budget, projectNumber }: { budget: number; projectNumber: string }) {
   const b = budget;
-  const fy = projectNumber.slice(0, 2);
-  const num = projectNumber;
+  const baseYear = parseInt(projectNumber.slice(0, 2), 10); // e.g. 25
+  const years = [baseYear - 2, baseYear - 1, baseYear].map((y) => `FY${String(y).padStart(2, "0")}`);
+  // e.g. ["FY23","FY24","FY25"]
 
-  const [laborRows, updateLaborAmount, updateLaborNote] = useFundingRows([
-    {
-      id: 1, label: "Nugent, Joseph Pat",
-      planned: Math.round(b * 0.090), requested: Math.round(b * 0.090 * 0.05),
-      totalCommitments: Math.round(b * 0.090 * 0.05), openCommitments: Math.round(b * 0.090 * 0.03), obligated: Math.round(b * 0.090 * 0.02),
-      description: `FY${fy}/SANDC LABOR FUNDS FOR ${num}/CEFMS/`, notes: "notes",
-    },
-    {
-      id: 2, label: "U435310",
-      planned: Math.round(b * 0.050), requested: Math.round(b * 0.050 * 0.95),
-      totalCommitments: Math.round(b * 0.050 * 0.95), openCommitments: Math.round(b * 0.050 * 0.50), obligated: Math.round(b * 0.050 * 0.45),
-      description: `FY${fy}/SANDC LABOR FUNDS FOR ${num}/org code/`, notes: "notes",
-    },
-    {
-      id: 3, label: "Chen, David",
-      planned: Math.round(b * 0.035), requested: Math.round(b * 0.035),
-      totalCommitments: Math.round(b * 0.035 * 0.60), openCommitments: Math.round(b * 0.035 * 0.30), obligated: Math.round(b * 0.035 * 0.30),
-      description: `FY${fy}/SANDC LABOR FUNDS FOR ${num}/Chen D/`, notes: "",
-    },
-  ]);
+  /* PLAN rows: [FY-2, FY-1, FY] — editable */
+  const [planLabor,   setPlanLabor]   = useState([Math.round(b * 0.10), Math.round(b * 0.30), Math.round(b * 0.27)]);
+  const [planTravel,  setPlanTravel]  = useState([Math.round(b * 0.00), Math.round(b * 0.02), Math.round(b * 0.01)]);
+  const [planOther,   setPlanOther]   = useState([Math.round(b * 0.00), Math.round(b * 0.10), Math.round(b * 0.20)]);
 
-  const [travelRows, updateTravelAmount, updateTravelNote] = useFundingRows([
-    {
-      id: 1, label: "Site Visits",
-      planned: Math.round(b * 0.020), requested: Math.round(b * 0.020),
-      totalCommitments: Math.round(b * 0.020), openCommitments: Math.round(b * 0.020 * 0.59), obligated: Math.round(b * 0.020 * 0.41),
-      description: `FY${fy}/SANDC TRAVEL FOR ${num}/Site Visits/`, notes: "",
-    },
-    {
-      id: 2, label: "Equipment Transport",
-      planned: Math.round(b * 0.013), requested: Math.round(b * 0.013),
-      totalCommitments: Math.round(b * 0.013), openCommitments: Math.round(b * 0.013 * 0.50), obligated: Math.round(b * 0.013 * 0.50),
-      description: `FY${fy}/SANDC TRAVEL FOR ${num}/Equip Transport/`, notes: "",
-    },
-  ]);
+  const approvedBudget = budget;
 
-  const [materialsRows, updateMaterialsAmount, updateMaterialsNote] = useFundingRows([
-    {
-      id: 1, label: "Concrete (500 units)",
-      planned: Math.round(b * 0.031), requested: Math.round(b * 0.031),
-      totalCommitments: Math.round(b * 0.031), openCommitments: Math.round(b * 0.031 * 0.53), obligated: Math.round(b * 0.031 * 0.47),
-      description: `FY${fy}/SANDC MATL FOR ${num}/Concrete/500 units`, notes: "",
-    },
-    {
-      id: 2, label: "Steel Rebar (2000 ft)",
-      planned: Math.round(b * 0.021), requested: Math.round(b * 0.021 * 0.98),
-      totalCommitments: Math.round(b * 0.021 * 0.98), openCommitments: Math.round(b * 0.021 * 0.49), obligated: Math.round(b * 0.021 * 0.49),
-      description: `FY${fy}/SANDC MATL FOR ${num}/Rebar/2000 units`, notes: "",
-    },
-  ]);
+  const planTotals = years.map((_, i) => planLabor[i] + planTravel[i] + planOther[i]);
+  const totalPlanned = planTotals.reduce((s, v) => s + v, 0);
+  const leftToPlan = approvedBudget - totalPlanned;
 
-  const allRows = [...laborRows, ...travelRows, ...materialsRows];
-  const totalPlanned = allRows.reduce((s, r) => s + r.planned, 0);
-  const leftToPlan = budget - totalPlanned;
+  /* STATUS rows: Plan/Com/Obl for each category — read-only */
+  const status = {
+    labor:  { plan: planLabor, com: planLabor.map((v) => Math.round(v * 0.95)), obl: planLabor.map((v) => Math.round(v * 0.80)) },
+    travel: { plan: planTravel, com: planTravel.map((v) => Math.round(v * 1.00)), obl: planTravel.map((v) => Math.round(v * 0.90)) },
+    other:  { plan: planOther, com: planOther.map((v, i) => i < years.length - 1 ? Math.round(v * 0.98) : Math.round(v * 0.60)), obl: planOther.map((v, i) => i < years.length - 1 ? Math.round(v * 0.95) : Math.round(v * 0.40)) },
+  };
+  const totalStatus = {
+    plan: years.map((_, i) => status.labor.plan[i] + status.travel.plan[i] + status.other.plan[i]),
+    com:  years.map((_, i) => status.labor.com[i]  + status.travel.com[i]  + status.other.com[i]),
+    obl:  years.map((_, i) => status.labor.obl[i]  + status.travel.obl[i]  + status.other.obl[i]),
+  };
+  const atc  = years.map((_, i) => totalStatus.com[i] - totalStatus.obl[i]);
+  const auob = years.map((_, i) => totalStatus.plan[i] - totalStatus.com[i]);
+
+  const thBase = "px-4 py-2.5 text-xs font-semibold uppercase tracking-wide";
+  const navyBg = { backgroundColor: "#1a3557" };
+  const amberBg = "#fffbeb";
+  const amberBd = "1px solid #fcd34d";
+  const blueCellBg = "#eff6ff";
+  const blueBd = "1px solid #bfdbfe";
+
+  const setVal = (arr: number[], setArr: (a: number[]) => void, i: number) => (v: number) => {
+    const next = [...arr]; next[i] = v; setArr(next);
+  };
 
   return (
-    <div className="space-y-5">
-      {/* Summary cards */}
-      <div className="grid grid-cols-3 gap-4">
-        <div className="rounded-xl bg-[#1a3557] px-5 py-4 text-white">
-          <p className="text-xs font-semibold uppercase tracking-widest text-blue-300 mb-1">TOA</p>
-          <p className="text-2xl font-bold tabular-nums">{fmt(budget)}</p>
-          <p className="text-xs text-blue-300 mt-1">Total Obligating Authority</p>
+    <div className="space-y-6">
+
+      {/* ── PROJECT FUNDING PLAN ────────────────────────────────── */}
+      <div className="rounded-xl overflow-hidden border border-slate-200 shadow-sm">
+        {/* title bar */}
+        <div className="px-5 py-3 flex items-center justify-between" style={navyBg}>
+          <span className="text-white font-bold tracking-wide text-sm">Project Funding Plan</span>
+          <span className="text-xs text-blue-300">Approved Budget: {fmt(approvedBudget)}</span>
         </div>
-        <div className="rounded-xl bg-white border border-slate-200 px-5 py-4">
-          <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-1">Planned</p>
-          <p className="text-2xl font-bold tabular-nums text-slate-800">{fmt(totalPlanned)}</p>
-          <p className="text-xs text-slate-400 mt-1">Amount currently planned</p>
-        </div>
-        <div className={`rounded-xl border px-5 py-4 ${leftToPlan >= 0 ? "bg-emerald-50 border-emerald-200" : "bg-red-50 border-red-200"}`}>
-          <p className={`text-xs font-semibold uppercase tracking-widest mb-1 ${leftToPlan >= 0 ? "text-emerald-600" : "text-red-500"}`}>Left to Plan</p>
-          <p className={`text-2xl font-bold tabular-nums ${leftToPlan >= 0 ? "text-emerald-700" : "text-red-600"}`}>{fmt(leftToPlan)}</p>
-          <p className={`text-xs mt-1 ${leftToPlan >= 0 ? "text-emerald-500" : "text-red-400"}`}>Remaining to allocate</p>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm" style={{ borderCollapse: "collapse" }}>
+            <thead>
+              <tr style={{ borderBottom: "1px solid #e2e8f0" }}>
+                <th className={`${thBase} text-left text-slate-500 bg-slate-50`} style={{ minWidth: 120 }}>Category</th>
+                {years.map((fy) => (
+                  <th key={fy} className={`${thBase} text-right`} style={{ backgroundColor: amberBg, color: "#92400e", borderLeft: amberBd, width: 110 }}>
+                    {fy}
+                  </th>
+                ))}
+                <th className={`${thBase} text-right text-slate-600 bg-slate-100`} style={{ borderLeft: "1px solid #e2e8f0", width: 110 }}>Total</th>
+                <th className={`${thBase} text-right`} style={{ backgroundColor: "#1a6ea8", color: "white", borderLeft: blueBd, width: 110 }}>Total Planned</th>
+                <th className={`${thBase} text-right`} style={{ backgroundColor: "#1a6ea8", color: "white", borderLeft: blueBd, width: 110 }}>Left to Plan</th>
+              </tr>
+            </thead>
+            <tbody>
+              {/* Labor */}
+              <tr style={{ borderBottom: "1px solid #fef9c3" }}>
+                <td className="px-4 py-2.5 text-slate-700 font-semibold bg-slate-50">Labor</td>
+                {planLabor.map((v, i) => (
+                  <td key={i} className="px-3 py-2.5" style={{ backgroundColor: amberBg, borderLeft: amberBd }}>
+                    <FyCell value={v} editable onChange={setVal(planLabor, setPlanLabor, i)} />
+                  </td>
+                ))}
+                <td className="px-4 py-2.5 text-right font-semibold text-slate-700 bg-slate-50" style={{ borderLeft: "1px solid #e2e8f0" }}>{fmt(planLabor.reduce((s, v) => s + v, 0))}</td>
+                <td className="px-4 py-2.5 text-right font-semibold text-slate-700" style={{ backgroundColor: blueCellBg, borderLeft: blueBd }}>{fmt(totalPlanned)}</td>
+                <td className={`px-4 py-2.5 text-right font-semibold ${leftToPlan >= 0 ? "text-emerald-700" : "text-red-600"}`} style={{ backgroundColor: leftToPlan >= 0 ? "#ecfdf5" : "#fef2f2", borderLeft: blueBd }}>{fmt(leftToPlan)}</td>
+              </tr>
+              {/* Travel */}
+              <tr style={{ borderBottom: "1px solid #fef9c3" }}>
+                <td className="px-4 py-2.5 text-slate-700 font-semibold bg-slate-50">Travel</td>
+                {planTravel.map((v, i) => (
+                  <td key={i} className="px-3 py-2.5" style={{ backgroundColor: amberBg, borderLeft: amberBd }}>
+                    <FyCell value={v} editable onChange={setVal(planTravel, setPlanTravel, i)} />
+                  </td>
+                ))}
+                <td className="px-4 py-2.5 text-right font-semibold text-slate-700 bg-slate-50" style={{ borderLeft: "1px solid #e2e8f0" }}>{fmt(planTravel.reduce((s, v) => s + v, 0))}</td>
+                <td colSpan={2} className="bg-slate-50" style={{ borderLeft: blueBd }} />
+              </tr>
+              {/* Other */}
+              <tr style={{ borderBottom: "1px solid #fef9c3" }}>
+                <td className="px-4 py-2.5 text-slate-700 font-semibold bg-slate-50">OutSource / Other</td>
+                {planOther.map((v, i) => (
+                  <td key={i} className="px-3 py-2.5" style={{ backgroundColor: amberBg, borderLeft: amberBd }}>
+                    <FyCell value={v} editable onChange={setVal(planOther, setPlanOther, i)} />
+                  </td>
+                ))}
+                <td className="px-4 py-2.5 text-right font-semibold text-slate-700 bg-slate-50" style={{ borderLeft: "1px solid #e2e8f0" }}>{fmt(planOther.reduce((s, v) => s + v, 0))}</td>
+                <td colSpan={2} className="bg-slate-50" style={{ borderLeft: blueBd }} />
+              </tr>
+              {/* TOTAL row */}
+              <tr style={{ borderTop: "2px solid #94a3b8" }}>
+                <td className="px-4 py-2.5 text-xs text-slate-500 uppercase font-bold tracking-wide bg-slate-100">Total</td>
+                {planTotals.map((v, i) => (
+                  <td key={i} className="px-4 py-2.5 text-right font-bold text-slate-800 tabular-nums" style={{ backgroundColor: "#fef3c7", borderLeft: amberBd }}>{fmt(v)}</td>
+                ))}
+                <td className="px-4 py-2.5 text-right font-bold text-slate-800 tabular-nums bg-slate-100" style={{ borderLeft: "1px solid #e2e8f0" }}>{fmt(totalPlanned)}</td>
+                <td colSpan={2} className="bg-slate-100" style={{ borderLeft: blueBd }} />
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
-      {/* Tables */}
-      <FundingSection title="Labor"             columnHeader="Employee / Org Code" rows={laborRows}     onUpdateAmount={updateLaborAmount}     onUpdateNote={updateLaborNote}     />
-      <FundingSection title="Travel"            columnHeader="Travel Line"         rows={travelRows}    onUpdateAmount={updateTravelAmount}    onUpdateNote={updateTravelNote}    />
-      <FundingSection title="Materials & Other" columnHeader="Item"                rows={materialsRows} onUpdateAmount={updateMaterialsAmount} onUpdateNote={updateMaterialsNote} />
+      {/* ── PROJECT FUNDING STATUS ──────────────────────────────── */}
+      <div className="rounded-xl overflow-hidden border border-slate-200 shadow-sm">
+        <div className="px-5 py-3 flex items-center justify-between" style={navyBg}>
+          <span className="text-white font-bold tracking-wide text-sm">Project Funding Status</span>
+          <span className="text-xs text-blue-300">Import Macro last run: 14 Nov 2025 · It's now {new Date().toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}</span>
+        </div>
 
-      {/* Submit */}
-      <div className="flex justify-center pt-2">
-        <button className="px-10 py-2.5 bg-[#1a3557] hover:bg-[#16304d] text-white text-sm font-semibold rounded-lg shadow-sm transition-colors">
-          Submit
-        </button>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm" style={{ borderCollapse: "collapse" }}>
+            <thead>
+              <tr style={{ borderBottom: "1px solid #e2e8f0" }}>
+                <th className={`${thBase} text-left text-slate-500 bg-slate-50`} style={{ minWidth: 100 }}>Category</th>
+                <th className={`${thBase} text-left text-slate-500 bg-slate-50`} style={{ width: 50, borderLeft: "1px solid #e2e8f0" }}></th>
+                {years.map((fy) => (
+                  <th key={fy} className={`${thBase} text-right text-white`} style={{ backgroundColor: "#1a6ea8", borderLeft: blueBd, width: 120 }}>{fy}</th>
+                ))}
+                <th className={`${thBase} text-right text-white`} style={{ backgroundColor: "#1a3557", borderLeft: "1px solid #1e4a7a", width: 110 }}>Totals</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(["Labor","Travel","OutSource / Other"] as const).map((cat, ci) => {
+                const key = (["labor","travel","other"] as const)[ci];
+                const s = status[key];
+                return (["Plan","Com","Obl"] as const).map((sub, si) => {
+                  const vals = s[sub.toLowerCase() as "plan" | "com" | "obl"];
+                  const total = vals.reduce((a, v) => a + v, 0);
+                  const isFirst = si === 0;
+                  const rowBg = ci % 2 === 0 ? "#ffffff" : "#f8fafc";
+                  return (
+                    <tr key={`${cat}-${sub}`} style={{ borderBottom: "1px solid #f1f5f9", backgroundColor: rowBg }}>
+                      <td className="px-4 py-1.5 text-slate-700 font-semibold" style={{ verticalAlign: "middle" }}>
+                        {isFirst ? cat : ""}
+                      </td>
+                      <td className="px-3 py-1.5 text-xs text-slate-400 font-mono" style={{ borderLeft: "1px solid #e2e8f0" }}>{sub}</td>
+                      {vals.map((v, i) => (
+                        <td key={i} className="px-4 py-1.5 text-right text-slate-700 tabular-nums" style={{ borderLeft: blueBd }}>{v === 0 ? "—" : fmt(v)}</td>
+                      ))}
+                      <td className="px-4 py-1.5 text-right font-semibold text-slate-800 tabular-nums" style={{ backgroundColor: blueCellBg, borderLeft: "1px solid #1e4a7a" }}>{total === 0 ? "—" : fmt(total)}</td>
+                    </tr>
+                  );
+                });
+              })}
+
+              {/* TOTAL rows */}
+              {(["Plan","Com","Obl"] as const).map((sub, si) => {
+                const vals = totalStatus[sub.toLowerCase() as "plan" | "com" | "obl"];
+                const total = vals.reduce((a, v) => a + v, 0);
+                return (
+                  <tr key={`total-${sub}`} style={{ borderBottom: "1px solid #e2e8f0", backgroundColor: "#f8fafc" }}>
+                    <td className="px-4 py-1.5 text-xs text-slate-500 uppercase tracking-wide font-bold">{si === 0 ? "Total" : ""}</td>
+                    <td className="px-3 py-1.5 text-xs text-slate-400 font-mono" style={{ borderLeft: "1px solid #e2e8f0" }}>{sub}</td>
+                    {vals.map((v, i) => (
+                      <td key={i} className="px-4 py-1.5 text-right font-bold text-slate-800 tabular-nums" style={{ borderLeft: blueBd }}>{fmt(v)}</td>
+                    ))}
+                    <td className="px-4 py-1.5 text-right font-bold text-slate-800 tabular-nums" style={{ backgroundColor: blueCellBg, borderLeft: "1px solid #1e4a7a" }}>{fmt(total)}</td>
+                  </tr>
+                );
+              })}
+
+              {/* AtC / AUob */}
+              {[
+                { label: "AtC", labelFull: "Available to Commit", vals: atc },
+                { label: "AUob", labelFull: "Available Unobligated", vals: auob },
+              ].map(({ label, labelFull, vals }) => (
+                <tr key={label} style={{ borderTop: "1px solid #cbd5e1", backgroundColor: "#f0f9ff" }}>
+                  <td className="px-4 py-1.5 text-xs text-blue-700 font-semibold">{labelFull}</td>
+                  <td className="px-3 py-1.5 text-xs text-blue-500 font-mono" style={{ borderLeft: "1px solid #e2e8f0" }}>{label}</td>
+                  {vals.map((v, i) => (
+                    <td key={i} className={`px-4 py-1.5 text-right text-xs font-semibold tabular-nums ${v < 0 ? "text-red-600" : "text-blue-700"}`} style={{ borderLeft: blueBd }}>{fmt(v)}</td>
+                  ))}
+                  <td className="px-4 py-1.5 text-right text-xs font-semibold tabular-nums text-blue-700" style={{ backgroundColor: blueCellBg, borderLeft: "1px solid #1e4a7a" }}>{fmt(vals.reduce((a, v) => a + v, 0))}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
