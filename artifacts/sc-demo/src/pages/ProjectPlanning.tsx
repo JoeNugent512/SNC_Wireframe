@@ -17,30 +17,33 @@ interface LaborRow {
   notes: string;
 }
 
-const INITIAL_LABOR: LaborRow[] = [
-  {
-    id: 1,
-    employeeOrg: "Nugent, Joseph Pat",
-    totalPlanned: 10000,
-    totalRequested: 500,
-    totalCommitments: 500,
-    openCommitments: 300,
-    obligated: 200,
-    description: "FY25/SANDC LABOR FUNDS FOR SC-001/CEFMS name/",
-    notes: "notes",
-  },
-  {
-    id: 2,
-    employeeOrg: "U435310",
-    totalPlanned: 20000,
-    totalRequested: 19000,
-    totalCommitments: 19000,
-    openCommitments: 10000,
-    obligated: 9000,
-    description: "FY25/SANDC LABOR FUNDS FOR SC-001/org code/",
-    notes: "notes",
-  },
-];
+const makeInitialLabor = (scNumber: string): LaborRow[] => {
+  const fy = scNumber.slice(0, 2); // e.g. "25" from "25A001"
+  return [
+    {
+      id: 1,
+      employeeOrg: "Nugent, Joseph Pat",
+      totalPlanned: 10000,
+      totalRequested: 500,
+      totalCommitments: 500,
+      openCommitments: 300,
+      obligated: 200,
+      description: `FY${fy}/SANDC LABOR FUNDS FOR ${scNumber}/CEFMS name/`,
+      notes: "notes",
+    },
+    {
+      id: 2,
+      employeeOrg: "U435310",
+      totalPlanned: 20000,
+      totalRequested: 19000,
+      totalCommitments: 19000,
+      openCommitments: 10000,
+      obligated: 9000,
+      description: `FY${fy}/SANDC LABOR FUNDS FOR ${scNumber}/org code/`,
+      notes: "notes",
+    },
+  ];
+};
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-US", {
@@ -57,7 +60,7 @@ export default function ProjectPlanning() {
   const projectId = params.id;
   const project = MOCK_PROJECTS.find((p) => p.id === projectId);
 
-  const [labor] = useState<LaborRow[]>(INITIAL_LABOR);
+  const [labor] = useState<LaborRow[]>(() => makeInitialLabor(project?.number ?? ""));
   const [showMore, setShowMore] = useState(false);
 
   const toa = project?.budget ?? 0;
