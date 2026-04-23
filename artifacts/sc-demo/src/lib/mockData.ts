@@ -24,7 +24,7 @@ export interface ChangeRequest {
 export const MOCK_PROJECTS: Project[] = [
   {
     id: "1",
-    number: "25A001",
+    number: "25A01",
     name: "Highway 45 Expansion",
     description: "Adding 2 lanes to the northbound and southbound sections of Highway 45.",
     status: "Active",
@@ -35,7 +35,7 @@ export const MOCK_PROJECTS: Project[] = [
   },
   {
     id: "2",
-    number: "25T002",
+    number: "25T02",
     name: "Bridge Rehabilitation",
     description: "Structural reinforcement and resurfacing of the downtown suspension bridge.",
     status: "Planning",
@@ -46,7 +46,7 @@ export const MOCK_PROJECTS: Project[] = [
   },
   {
     id: "3",
-    number: "24A003",
+    number: "24A03",
     name: "Downtown Water Main",
     description: "Replacement of 100-year-old water main infrastructure in the central business district.",
     status: "Active",
@@ -57,7 +57,7 @@ export const MOCK_PROJECTS: Project[] = [
   },
   {
     id: "4",
-    number: "24T004",
+    number: "24T04",
     name: "Airport Terminal Upgrade",
     description: "Modernization of Terminal B including new security checkpoints and concession areas.",
     status: "On Hold",
@@ -68,7 +68,7 @@ export const MOCK_PROJECTS: Project[] = [
   },
   {
     id: "5",
-    number: "25A005",
+    number: "25A05",
     name: "Metro Rail Extension",
     description: "Feasibility study and initial planning for the Westside light rail extension.",
     status: "Planning",
@@ -79,7 +79,7 @@ export const MOCK_PROJECTS: Project[] = [
   },
   {
     id: "6",
-    number: "23T006",
+    number: "23T06",
     name: "Coastal Erosion Control",
     description: "Construction of breakwaters and beach renourishment along the southern coastline.",
     status: "Complete",
