@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Link, useParams } from "wouter";
-import { ChevronRight, Settings, Plus, Trash2, MinusCircle, X, Check } from "lucide-react";
+import { ChevronRight, Settings, Plus, Trash2, MinusCircle, X, Search } from "lucide-react";
 import { MOCK_PROJECTS } from "@/lib/mockData";
 import { Toaster } from "@/components/ui/toaster";
 import Layout from "@/components/Layout";
@@ -11,6 +11,123 @@ const fmt = (n: number) =>
 
 let _uid = 100;
 const uid = () => ++_uid;
+
+/* ─── picker option lists ──────────────────────────────────────── */
+const LABOR_OPTIONS = [
+  { label: "Nugent, Joseph Pat",   sub: "GS-12 · Transportation" },
+  { label: "Chen, David",          sub: "GS-13 · Engineering" },
+  { label: "Williams, Sandra K.",  sub: "GS-11 · Planning" },
+  { label: "Torres, Miguel A.",    sub: "GS-14 · Project Mgmt" },
+  { label: "Park, Jennifer",       sub: "GS-12 · Environmental" },
+  { label: "U435310",              sub: "Org Code · Logistics" },
+  { label: "U582094",              sub: "Org Code · Contracts" },
+  { label: "U601847",              sub: "Org Code · Finance" },
+  { label: "U719203",              sub: "Org Code · Engineering" },
+  { label: "Harrison, Mark T.",    sub: "GS-13 · Civil Engineering" },
+  { label: "Okafor, Chioma",       sub: "GS-12 · Environmental" },
+  { label: "Reyes, Carlos",        sub: "GS-11 · Construction" },
+];
+
+const TRAVEL_OPTIONS = [
+  { label: "Site Visits",           sub: "Field inspection & assessment" },
+  { label: "Equipment Transport",   sub: "Movement of project equipment" },
+  { label: "Training",              sub: "Staff training & certification" },
+  { label: "Stakeholder Meetings",  sub: "Coordination with partners" },
+  { label: "Conference Travel",     sub: "Professional conferences" },
+  { label: "Survey Trips",          sub: "Data collection & surveys" },
+  { label: "Permitting Visits",     sub: "Regulatory agency coordination" },
+  { label: "Kickoff / Closeout",    sub: "Project start and end activities" },
+];
+
+const MATERIAL_OPTIONS = [
+  { label: "Concrete",              sub: "Structural concrete materials" },
+  { label: "Steel Rebar",           sub: "Reinforcement steel" },
+  { label: "Lumber / Timber",       sub: "Wood structural members" },
+  { label: "Pipe & Fittings",       sub: "Plumbing and drainage" },
+  { label: "Electrical Conduit",    sub: "Wiring and conduit supplies" },
+  { label: "Geotextile Fabric",     sub: "Erosion control material" },
+  { label: "Asphalt",               sub: "Paving materials" },
+  { label: "Gravel / Aggregate",    sub: "Base course and fill" },
+  { label: "Equipment Rental",      sub: "Heavy machinery rental" },
+  { label: "Consulting Services",   sub: "Professional services contract" },
+];
+
+/* ─── picker modal ─────────────────────────────────────────────── */
+function PickerModal({
+  title,
+  options,
+  onPick,
+  onClose,
+}: {
+  title: string;
+  options: { label: string; sub: string }[];
+  onPick: (label: string) => void;
+  onClose: () => void;
+}) {
+  const [query, setQuery] = useState("");
+
+  const filtered = useMemo(() => {
+    const q = query.toLowerCase();
+    return options.filter(
+      (o) => o.label.toLowerCase().includes(q) || o.sub.toLowerCase().includes(q)
+    );
+  }, [query, options]);
+
+  return (
+    /* backdrop */
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center"
+      style={{ backgroundColor: "rgba(15,23,42,0.45)" }}
+      onClick={onClose}
+    >
+      {/* card */}
+      <div
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* header */}
+        <div className="flex items-center justify-between px-5 py-4" style={{ backgroundColor: "#1a3557" }}>
+          <span className="text-white font-semibold text-sm">{title}</span>
+          <button onClick={onClose} className="text-white/60 hover:text-white transition-colors">
+            <X size={18} />
+          </button>
+        </div>
+
+        {/* search */}
+        <div className="px-4 pt-4 pb-2">
+          <div className="flex items-center gap-2 border border-slate-300 rounded-lg px-3 py-2 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-100">
+            <Search size={15} className="text-slate-400 flex-shrink-0" />
+            <input
+              autoFocus
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search…"
+              className="text-sm w-full focus:outline-none text-slate-700 placeholder-slate-400"
+            />
+          </div>
+        </div>
+
+        {/* list */}
+        <ul className="overflow-y-auto" style={{ maxHeight: 320 }}>
+          {filtered.length === 0 && (
+            <li className="px-5 py-6 text-center text-sm text-slate-400">No matches</li>
+          )}
+          {filtered.map((opt) => (
+            <li key={opt.label}>
+              <button
+                onClick={() => { onPick(opt.label); onClose(); }}
+                className="w-full text-left px-5 py-3 hover:bg-slate-50 transition-colors border-b border-slate-100 last:border-none"
+              >
+                <p className="text-sm font-medium text-slate-800">{opt.label}</p>
+                <p className="text-xs text-slate-400 mt-0.5">{opt.sub}</p>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+}
 
 /* ─── types ────────────────────────────────────────────────────── */
 type FundingRow = {
@@ -67,9 +184,7 @@ function useFundingRows(initial: FundingRow[]) {
     setRows((r) => r.filter((row) => row.id !== id));
 
   const zeroOutRow = (id: number) =>
-    setRows((r) => r.map((row) => row.id === id
-      ? { ...row, planned: 0, requested: 0 }
-      : row));
+    setRows((r) => r.map((row) => row.id === id ? { ...row, planned: 0, requested: 0 } : row));
 
   const addRow = (label: string, description: string) =>
     setRows((r) => [...r, {
@@ -81,79 +196,16 @@ function useFundingRows(initial: FundingRow[]) {
   return { rows, updateAmount, updateNote, deleteRow, zeroOutRow, addRow };
 }
 
-/* ─── add-row inline form ──────────────────────────────────────── */
-function AddRowForm({
-  placeholder, descPlaceholder, colSpan,
-  onAdd, onCancel,
-}: {
-  placeholder: string;
-  descPlaceholder: string;
-  colSpan: number;
-  onAdd: (label: string, desc: string) => void;
-  onCancel: () => void;
-}) {
-  const [label, setLabel] = useState("");
-  const [desc,  setDesc]  = useState("");
-  const canSave = label.trim().length > 0;
-
-  return (
-    <tr style={{ backgroundColor: "#f0fdf4", borderTop: "1px dashed #86efac" }}>
-      <td className="px-3 py-2" colSpan={1}>
-        <input
-          autoFocus value={label} onChange={(e) => setLabel(e.target.value)}
-          placeholder={placeholder}
-          className="w-full text-sm border border-emerald-400 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-emerald-400"
-        />
-      </td>
-      {/* amber cols — blank */}
-      <td className="px-2 py-2" style={{ backgroundColor: "#fffbeb", borderLeft: "1px solid #fcd34d" }} />
-      <td className="px-2 py-2" style={{ backgroundColor: "#fffbeb", borderLeft: "1px solid #fcd34d" }} />
-      {/* blue cols — blank */}
-      <td className="px-2 py-2" style={{ backgroundColor: "#eff6ff", borderLeft: "1px solid #bfdbfe" }} />
-      <td className="px-2 py-2" style={{ backgroundColor: "#eff6ff", borderLeft: "1px solid #bfdbfe" }} />
-      <td className="px-2 py-2" style={{ backgroundColor: "#eff6ff", borderLeft: "1px solid #bfdbfe" }} />
-      {/* description */}
-      <td className="px-2 py-2" style={{ borderLeft: "1px solid #e2e8f0" }}>
-        <input value={desc} onChange={(e) => setDesc(e.target.value)}
-          placeholder={descPlaceholder}
-          className="w-full text-xs border border-slate-300 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-slate-400"
-        />
-      </td>
-      {/* notes col — blank */}
-      <td className="px-2 py-2" style={{ backgroundColor: "#fffbeb", borderLeft: "1px solid #fcd34d" }} />
-      {/* actions */}
-      <td className="px-2 py-2 text-center" style={{ borderLeft: "1px solid #e2e8f0" }}>
-        <div className="flex items-center justify-center gap-1">
-          <button
-            onClick={() => canSave && onAdd(label.trim(), desc.trim())}
-            disabled={!canSave}
-            className="p-1 rounded text-white text-xs font-semibold transition-colors disabled:opacity-40"
-            style={{ backgroundColor: "#16a34a" }}
-            title="Save"
-          >
-            <Check size={14} />
-          </button>
-          <button
-            onClick={onCancel}
-            className="p-1 rounded text-slate-500 hover:text-slate-700 hover:bg-slate-200 transition-colors"
-            title="Cancel"
-          >
-            <X size={14} />
-          </button>
-        </div>
-      </td>
-    </tr>
-  );
-}
-
 /* ─── single funding section table ─────────────────────────────── */
 function FundingSection({
-  title, columnHeader, addLabel, descTemplate, rows,
+  title, columnHeader, addButtonLabel, pickerTitle, pickerOptions, descTemplate, rows,
   onUpdateAmount, onUpdateNote, onDelete, onZeroOut, onAdd,
 }: {
   title: string;
   columnHeader: string;
-  addLabel: string;
+  addButtonLabel: string;
+  pickerTitle: string;
+  pickerOptions: { label: string; sub: string }[];
   descTemplate: string;
   rows: FundingRow[];
   onUpdateAmount: (id: number, field: "planned" | "requested", value: number) => void;
@@ -162,7 +214,7 @@ function FundingSection({
   onZeroOut: (id: number) => void;
   onAdd: (label: string, desc: string) => void;
 }) {
-  const [showAddRow, setShowAddRow] = useState(false);
+  const [showPicker, setShowPicker] = useState(false);
 
   const totalPlanned     = rows.reduce((s, r) => s + r.planned, 0);
   const totalRequested   = rows.reduce((s, r) => s + r.requested, 0);
@@ -173,159 +225,150 @@ function FundingSection({
   const blueHd = "px-3 py-2.5 text-center text-xs font-semibold text-white uppercase tracking-wide";
   const blueTd = "px-3 py-2.5 text-right text-sm tabular-nums text-slate-800";
 
-  const amberBg     = "#fffbeb";
-  const amberBorder = "1px solid #fcd34d";
+  const amberBg      = "#fffbeb";
+  const amberBorder  = "1px solid #fcd34d";
   const amberTotalBg = "#fef3c7";
-  const blueCellBg  = "#eff6ff";
-  const blueBorder  = "1px solid #bfdbfe";
-  const blueHdBg    = "#1a6ea8";
+  const blueCellBg   = "#eff6ff";
+  const blueBorder   = "1px solid #bfdbfe";
+  const blueHdBg     = "#1a6ea8";
 
-  const handleAdd = (label: string, desc: string) => {
-    onAdd(label, desc || descTemplate);
-    setShowAddRow(false);
+  const handlePick = (label: string) => {
+    onAdd(label, descTemplate);
   };
 
   return (
-    <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+    <>
+      {showPicker && (
+        <PickerModal
+          title={pickerTitle}
+          options={pickerOptions}
+          onPick={handlePick}
+          onClose={() => setShowPicker(false)}
+        />
+      )}
 
-      {/* ── section header ── */}
-      <div className="flex items-center justify-between px-4 py-2.5" style={{ backgroundColor: "#1a3557" }}>
-        <div className="flex items-center gap-2">
+      <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+        {/* ── section header ── */}
+        <div className="flex items-center justify-between px-4 py-2.5" style={{ backgroundColor: "#1a3557" }}>
           <span className="font-bold text-white text-sm tracking-wide">{title}</span>
-          <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ backgroundColor: "rgba(255,255,255,0.12)", color: "#93c5fd" }}>
-            {rows.length} {rows.length === 1 ? "line" : "lines"}
-          </span>
+          <button
+            onClick={() => setShowPicker(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors"
+            style={{ backgroundColor: "rgba(255,255,255,0.15)", color: "#fff", border: "1px solid rgba(255,255,255,0.25)" }}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.25)")}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.15)")}
+          >
+            <Plus size={13} />
+            {addButtonLabel}
+          </button>
         </div>
-        <button
-          onClick={() => setShowAddRow(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors"
-          style={{ backgroundColor: "rgba(255,255,255,0.15)", color: "#fff", border: "1px solid rgba(255,255,255,0.25)" }}
-          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.25)")}
-          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.15)")}
-        >
-          <Plus size={13} />
-          Add {addLabel}
-        </button>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm" style={{ borderCollapse: "collapse", minWidth: 960 }}>
+            <thead>
+              <tr style={{ borderBottom: "1px solid #e2e8f0" }}>
+                <th className="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide bg-slate-50" style={{ minWidth: 150 }}>
+                  {columnHeader}
+                </th>
+                <th className="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide" style={{ backgroundColor: amberBg, color: "#92400e", borderLeft: amberBorder, width: 115 }}>
+                  Total Planned
+                </th>
+                <th className="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide" style={{ backgroundColor: amberBg, color: "#92400e", borderLeft: amberBorder, width: 115 }}>
+                  Total Requested
+                </th>
+                <th className={blueHd} style={{ backgroundColor: blueHdBg, borderLeft: blueBorder, width: 125 }}>Total Commitments</th>
+                <th className={blueHd} style={{ backgroundColor: blueHdBg, borderLeft: blueBorder, width: 125 }}>Open Commitments</th>
+                <th className={blueHd} style={{ backgroundColor: blueHdBg, borderLeft: blueBorder, width: 105 }}>Obligated</th>
+                <th className="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide bg-slate-50" style={{ borderLeft: "1px solid #e2e8f0", minWidth: 200 }}>
+                  Description
+                </th>
+                <th className="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide" style={{ backgroundColor: amberBg, color: "#92400e", borderLeft: amberBorder, minWidth: 100 }}>
+                  Notes
+                </th>
+                <th className="px-3 py-2.5 text-center text-xs font-semibold text-slate-400 uppercase tracking-wide bg-slate-50" style={{ borderLeft: "1px solid #e2e8f0", width: 52 }}>
+                </th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {rows.map((row) => {
+                const hasObligations = row.obligated > 0;
+                return (
+                  <tr key={row.id} style={{ borderBottom: "1px solid #fef9c3" }}>
+                    <td className="px-3 py-2.5 text-slate-700 font-medium bg-slate-50">{row.label}</td>
+                    <td className="px-3 py-2.5" style={{ backgroundColor: amberBg, borderLeft: amberBorder }}>
+                      <EditableAmount value={row.planned}   onChange={(v) => onUpdateAmount(row.id, "planned", v)} />
+                    </td>
+                    <td className="px-3 py-2.5" style={{ backgroundColor: amberBg, borderLeft: amberBorder }}>
+                      <EditableAmount value={row.requested} onChange={(v) => onUpdateAmount(row.id, "requested", v)} />
+                    </td>
+                    <td className={blueTd} style={{ backgroundColor: blueCellBg, borderLeft: blueBorder }}>{fmt(row.totalCommitments)}</td>
+                    <td className={blueTd} style={{ backgroundColor: blueCellBg, borderLeft: blueBorder }}>{fmt(row.openCommitments)}</td>
+                    <td className={blueTd} style={{ backgroundColor: blueCellBg, borderLeft: blueBorder }}>{fmt(row.obligated)}</td>
+                    <td className="px-3 py-2.5 text-xs text-slate-400 font-mono bg-white truncate max-w-[210px]" style={{ borderLeft: "1px solid #e2e8f0" }} title={row.description}>
+                      {row.description}
+                    </td>
+                    <td className="px-3 py-2.5" style={{ backgroundColor: amberBg, borderLeft: amberBorder }}>
+                      <input
+                        type="text" value={row.notes}
+                        onChange={(e) => onUpdateNote(row.id, e.target.value)}
+                        placeholder="notes"
+                        className="w-full text-sm text-slate-700 border-none focus:outline-none"
+                        style={{ backgroundColor: "transparent" }}
+                      />
+                    </td>
+                    <td className="px-2 py-2.5 text-center bg-slate-50" style={{ borderLeft: "1px solid #e2e8f0" }}>
+                      {hasObligations ? (
+                        <button
+                          onClick={() => onZeroOut(row.id)}
+                          title="Zero out planned amounts (has obligations — cannot be deleted)"
+                          className="p-1.5 rounded transition-colors text-amber-600 hover:bg-amber-100"
+                        >
+                          <MinusCircle size={15} />
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => onDelete(row.id)}
+                          title="Delete row"
+                          className="p-1.5 rounded transition-colors text-red-500 hover:bg-red-100"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+
+            <tfoot>
+              <tr style={{ borderTop: "2px solid #94a3b8" }}>
+                <td className="px-3 py-2.5 text-xs text-slate-500 uppercase tracking-wide font-bold bg-slate-100">Total</td>
+                <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-bold" style={{ backgroundColor: amberTotalBg, borderLeft: amberBorder }}>{fmt(totalPlanned)}</td>
+                <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-bold" style={{ backgroundColor: amberTotalBg, borderLeft: amberBorder }}>{fmt(totalRequested)}</td>
+                <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-bold bg-blue-100" style={{ borderLeft: blueBorder }}>{fmt(totalCommitments)}</td>
+                <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-bold bg-blue-100" style={{ borderLeft: blueBorder }}>{fmt(totalOpen)}</td>
+                <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-bold bg-blue-100" style={{ borderLeft: blueBorder }}>{fmt(totalObligated)}</td>
+                <td className="bg-white" style={{ borderLeft: "1px solid #e2e8f0" }} />
+                <td style={{ backgroundColor: amberTotalBg, borderLeft: amberBorder }} />
+                <td className="bg-slate-100" style={{ borderLeft: "1px solid #e2e8f0" }} />
+              </tr>
+            </tfoot>
+          </table>
+        </div>
       </div>
-
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm" style={{ borderCollapse: "collapse", minWidth: 960 }}>
-          <thead>
-            <tr style={{ borderBottom: "1px solid #e2e8f0" }}>
-              <th className="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide bg-slate-50" style={{ minWidth: 150 }}>
-                {columnHeader}
-              </th>
-              <th className="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide" style={{ backgroundColor: amberBg, color: "#92400e", borderLeft: amberBorder, width: 115 }}>
-                Total Planned
-              </th>
-              <th className="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide" style={{ backgroundColor: amberBg, color: "#92400e", borderLeft: amberBorder, width: 115 }}>
-                Total Requested
-              </th>
-              <th className={blueHd} style={{ backgroundColor: blueHdBg, borderLeft: blueBorder, width: 125 }}>Total Commitments</th>
-              <th className={blueHd} style={{ backgroundColor: blueHdBg, borderLeft: blueBorder, width: 125 }}>Open Commitments</th>
-              <th className={blueHd} style={{ backgroundColor: blueHdBg, borderLeft: blueBorder, width: 105 }}>Obligated</th>
-              <th className="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide bg-slate-50" style={{ borderLeft: "1px solid #e2e8f0", minWidth: 200 }}>
-                Description
-              </th>
-              <th className="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide" style={{ backgroundColor: amberBg, color: "#92400e", borderLeft: amberBorder, minWidth: 100 }}>
-                Notes
-              </th>
-              <th className="px-3 py-2.5 text-center text-xs font-semibold text-slate-400 uppercase tracking-wide bg-slate-50" style={{ borderLeft: "1px solid #e2e8f0", width: 72 }}>
-                Actions
-              </th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {rows.map((row) => {
-              const hasObligations = row.obligated > 0;
-              return (
-                <tr key={row.id} style={{ borderBottom: "1px solid #fef9c3" }}>
-                  <td className="px-3 py-2.5 text-slate-700 font-medium bg-slate-50">{row.label}</td>
-                  <td className="px-3 py-2.5" style={{ backgroundColor: amberBg, borderLeft: amberBorder }}>
-                    <EditableAmount value={row.planned}   onChange={(v) => onUpdateAmount(row.id, "planned", v)} />
-                  </td>
-                  <td className="px-3 py-2.5" style={{ backgroundColor: amberBg, borderLeft: amberBorder }}>
-                    <EditableAmount value={row.requested} onChange={(v) => onUpdateAmount(row.id, "requested", v)} />
-                  </td>
-                  <td className={blueTd} style={{ backgroundColor: blueCellBg, borderLeft: blueBorder }}>{fmt(row.totalCommitments)}</td>
-                  <td className={blueTd} style={{ backgroundColor: blueCellBg, borderLeft: blueBorder }}>{fmt(row.openCommitments)}</td>
-                  <td className={blueTd} style={{ backgroundColor: blueCellBg, borderLeft: blueBorder }}>{fmt(row.obligated)}</td>
-                  <td className="px-3 py-2.5 text-xs text-slate-400 font-mono bg-white truncate max-w-[210px]" style={{ borderLeft: "1px solid #e2e8f0" }} title={row.description}>
-                    {row.description}
-                  </td>
-                  <td className="px-3 py-2.5" style={{ backgroundColor: amberBg, borderLeft: amberBorder }}>
-                    <input
-                      type="text" value={row.notes}
-                      onChange={(e) => onUpdateNote(row.id, e.target.value)}
-                      placeholder="notes"
-                      className="w-full text-sm text-slate-700 border-none focus:outline-none"
-                      style={{ backgroundColor: "transparent" }}
-                    />
-                  </td>
-
-                  {/* actions column */}
-                  <td className="px-2 py-2.5 text-center bg-slate-50" style={{ borderLeft: "1px solid #e2e8f0" }}>
-                    {hasObligations ? (
-                      <button
-                        onClick={() => onZeroOut(row.id)}
-                        title="Zero out planned amounts (row has obligations and cannot be deleted)"
-                        className="p-1.5 rounded transition-colors text-amber-600 hover:bg-amber-100"
-                      >
-                        <MinusCircle size={15} />
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => onDelete(row.id)}
-                        title="Delete row"
-                        className="p-1.5 rounded transition-colors text-red-500 hover:bg-red-100"
-                      >
-                        <Trash2 size={15} />
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              );
-            })}
-
-            {showAddRow && (
-              <AddRowForm
-                placeholder={`New ${addLabel}...`}
-                descPlaceholder={descTemplate}
-                colSpan={9}
-                onAdd={handleAdd}
-                onCancel={() => setShowAddRow(false)}
-              />
-            )}
-          </tbody>
-
-          <tfoot>
-            <tr style={{ borderTop: "2px solid #94a3b8" }}>
-              <td className="px-3 py-2.5 text-xs text-slate-500 uppercase tracking-wide font-bold bg-slate-100">Total</td>
-              <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-bold" style={{ backgroundColor: amberTotalBg, borderLeft: amberBorder }}>{fmt(totalPlanned)}</td>
-              <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-bold" style={{ backgroundColor: amberTotalBg, borderLeft: amberBorder }}>{fmt(totalRequested)}</td>
-              <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-bold bg-blue-100" style={{ borderLeft: blueBorder }}>{fmt(totalCommitments)}</td>
-              <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-bold bg-blue-100" style={{ borderLeft: blueBorder }}>{fmt(totalOpen)}</td>
-              <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-bold bg-blue-100" style={{ borderLeft: blueBorder }}>{fmt(totalObligated)}</td>
-              <td className="bg-white" style={{ borderLeft: "1px solid #e2e8f0" }} />
-              <td style={{ backgroundColor: amberTotalBg, borderLeft: amberBorder }} />
-              <td className="bg-slate-100" style={{ borderLeft: "1px solid #e2e8f0" }} />
-            </tr>
-          </tfoot>
-        </table>
-      </div>
-    </div>
+    </>
   );
 }
 
 /* ─── main funding view ────────────────────────────────────────── */
 function FundingView({ budget, projectNumber }: { budget: number; projectNumber: string }) {
-  const b = budget;
-  const fy = projectNumber.slice(0, 2);
+  const b   = budget;
+  const fy  = projectNumber.slice(0, 2);
   const num = projectNumber;
 
-  const labor  = useFundingRows([
-    { id: 1, label: "Nugent, Joseph Pat", planned: Math.round(b * 0.09),  requested: Math.round(b * 0.09 * 0.05),
+  const labor = useFundingRows([
+    { id: 1, label: "Nugent, Joseph Pat", planned: Math.round(b * 0.09), requested: Math.round(b * 0.09 * 0.05),
       totalCommitments: Math.round(b * 0.09 * 0.05), openCommitments: Math.round(b * 0.09 * 0.03), obligated: Math.round(b * 0.09 * 0.02),
       description: `FY${fy}/SANDC LABOR FUNDS FOR ${num}/CEFMS/`, notes: "notes" },
     { id: 2, label: "U435310", planned: Math.round(b * 0.05), requested: Math.round(b * 0.05 * 0.95),
@@ -345,7 +388,7 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
       description: `FY${fy}/SANDC TRAVEL FOR ${num}/Equip Transport/`, notes: "" },
   ]);
 
-  const mats   = useFundingRows([
+  const mats = useFundingRows([
     { id: 20, label: "Concrete (500 units)", planned: Math.round(b * 0.031), requested: Math.round(b * 0.031),
       totalCommitments: Math.round(b * 0.031), openCommitments: Math.round(b * 0.031 * 0.53), obligated: Math.round(b * 0.031 * 0.47),
       description: `FY${fy}/SANDC MATL FOR ${num}/Concrete/500 units`, notes: "" },
@@ -394,22 +437,28 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
 
       {/* tables */}
       <FundingSection
-        title="Labor" columnHeader="Employee / Org Code" addLabel="Person" descTemplate={`FY${fy}/SANDC LABOR FUNDS FOR ${num}//`}
+        title="Labor" columnHeader="Employee / Org Code"
+        addButtonLabel="Add Person" pickerTitle="Select Employee or Org Code" pickerOptions={LABOR_OPTIONS}
+        descTemplate={`FY${fy}/SANDC LABOR FUNDS FOR ${num}//`}
         rows={labor.rows}
         onUpdateAmount={labor.updateAmount} onUpdateNote={labor.updateNote}
-        onDelete={labor.deleteRow}  onZeroOut={labor.zeroOutRow} onAdd={labor.addRow}
+        onDelete={labor.deleteRow} onZeroOut={labor.zeroOutRow} onAdd={labor.addRow}
       />
       <FundingSection
-        title="Travel" columnHeader="Travel Line" addLabel="Travel Line" descTemplate={`FY${fy}/SANDC TRAVEL FOR ${num}//`}
+        title="Travel" columnHeader="Travel Line"
+        addButtonLabel="Add Travel Line" pickerTitle="Select Travel Line" pickerOptions={TRAVEL_OPTIONS}
+        descTemplate={`FY${fy}/SANDC TRAVEL FOR ${num}//`}
         rows={travel.rows}
         onUpdateAmount={travel.updateAmount} onUpdateNote={travel.updateNote}
         onDelete={travel.deleteRow} onZeroOut={travel.zeroOutRow} onAdd={travel.addRow}
       />
       <FundingSection
-        title="Materials & Other" columnHeader="Item" addLabel="Item" descTemplate={`FY${fy}/SANDC MATL FOR ${num}//`}
+        title="Materials & Other" columnHeader="Item"
+        addButtonLabel="Add Item" pickerTitle="Select Item or Service" pickerOptions={MATERIAL_OPTIONS}
+        descTemplate={`FY${fy}/SANDC MATL FOR ${num}//`}
         rows={mats.rows}
         onUpdateAmount={mats.updateAmount} onUpdateNote={mats.updateNote}
-        onDelete={mats.deleteRow}   onZeroOut={mats.zeroOutRow} onAdd={mats.addRow}
+        onDelete={mats.deleteRow} onZeroOut={mats.zeroOutRow} onAdd={mats.addRow}
       />
 
       {/* submit */}
@@ -423,12 +472,10 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
               : { backgroundColor: "#e2e8f0", color: "#94a3b8" }
           }
           onMouseEnter={(e) => {
-            if (leftToPlan >= 0 && leftToPlan <= 50)
-              e.currentTarget.style.backgroundColor = "#16304d";
+            if (leftToPlan >= 0 && leftToPlan <= 50) e.currentTarget.style.backgroundColor = "#16304d";
           }}
           onMouseLeave={(e) => {
-            if (leftToPlan >= 0 && leftToPlan <= 50)
-              e.currentTarget.style.backgroundColor = "#1a3557";
+            if (leftToPlan >= 0 && leftToPlan <= 50) e.currentTarget.style.backgroundColor = "#1a3557";
           }}
         >
           Submit Plan
@@ -447,9 +494,9 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
 
 /* ─── page ─────────────────────────────────────────────────────── */
 export default function ProjectPlanning() {
-  const params = useParams();
+  const params    = useParams();
   const projectId = params.id;
-  const project = MOCK_PROJECTS.find((p) => p.id === projectId);
+  const project   = MOCK_PROJECTS.find((p) => p.id === projectId);
 
   if (!project) {
     return (
