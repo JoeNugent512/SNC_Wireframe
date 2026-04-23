@@ -118,19 +118,23 @@ export const PENDING_SETUP_PROJECTS: SetupProject[] = [
   },
 ];
 
+export interface CRLineItem {
+  direction: "Increase" | "Decrease";
+  type: "Labor" | "Travel" | "Materials";
+  description: string;
+  amount: number;
+}
+
 export interface ChangeRequest {
   id: string;
-  proposedNumber: string;
-  proposedName: string;
-  proposedDescription: string;
-  category: "Labor" | "Travel";
-  target: string;
-  direction: "Increase" | "Decrease";
-  amount: number;
+  projectNumber: string;
+  projectName: string;
+  projectDescription: string;
   submittedBy: string;
   date: string;
   justification: string;
   status: "Pending" | "Approved" | "Under Review" | "Rejected";
+  lineItems: CRLineItem[];
 }
 
 export const MOCK_PROJECTS: Project[] = [
@@ -271,72 +275,74 @@ export const MOCK_PROJECTS: Project[] = [
 export const MOCK_CHANGE_REQUESTS: ChangeRequest[] = [
   {
     id: "101",
-    proposedNumber: "26A01",
-    proposedName: "Veterans Memorial Restoration",
-    proposedDescription: "Structural restoration and landscaping of the downtown veterans memorial park.",
-    category: "Labor",
-    target: "Nugent, Joseph Pat",
-    direction: "Increase",
-    amount: 1480000,
+    projectNumber: "25A01",
+    projectName: "Highway 45 Expansion",
+    projectDescription: "Adding 2 lanes to the northbound and southbound sections of Highway 45.",
     submittedBy: "John Smith",
     date: "2024-02-10",
-    justification: "Initial labor estimate for design and survey work in FY26. Nugent, Joseph Pat assigned as primary engineer for site assessment phase.",
-    status: "Pending"
+    justification: "Labor reallocation needed after geotechnical scope expanded. Nugent picked up additional survey tasks; offsetting by reducing planned site visits that can be combined into fewer trips.",
+    status: "Pending",
+    lineItems: [
+      { direction: "Increase", type: "Labor",  description: "Nugent, Joseph Pat",   amount: 22000 },
+      { direction: "Decrease", type: "Travel", description: "Site Visits",           amount: 8000  },
+    ],
   },
   {
     id: "102",
-    proposedNumber: "26T02",
-    proposedName: "Regional Highway Expansion",
-    proposedDescription: "Widening of Route 9 from 2 to 4 lanes across a 12-mile corridor.",
-    category: "Labor",
-    target: "U435310",
-    direction: "Increase",
-    amount: 2850000,
+    projectNumber: "25T02",
+    projectName: "Bridge Rehabilitation",
+    projectDescription: "Structural reinforcement and resurfacing of the downtown suspension bridge.",
     submittedBy: "Sarah Jenkins",
     date: "2024-01-25",
-    justification: "Org code U435310 to provide geotechnical survey and environmental compliance review in support of project initiation.",
-    status: "Pending"
+    justification: "Additional org-code labor is required for the extended environmental compliance phase. Equipment transport trips have been consolidated, freeing up travel funds.",
+    status: "Pending",
+    lineItems: [
+      { direction: "Increase", type: "Labor",  description: "U435310",              amount: 45000 },
+      { direction: "Increase", type: "Labor",  description: "Chen, David",           amount: 15000 },
+      { direction: "Decrease", type: "Travel", description: "Equipment Transport",   amount: 12000 },
+    ],
   },
   {
     id: "103",
-    proposedNumber: "25T08",
-    proposedName: "Airport Runway Safety Study",
-    proposedDescription: "Feasibility and safety study for a third runway at the regional airport.",
-    category: "Travel",
-    target: "Site Visits",
-    direction: "Increase",
-    amount: 620000,
+    projectNumber: "24A03",
+    projectName: "Downtown Water Main",
+    projectDescription: "Replacement of 100-year-old water main infrastructure in the central business district.",
     submittedBy: "Elena Rodriguez",
     date: "2024-02-05",
-    justification: "Three planned site visits to regional airport for runway alignment assessment. Covers airfare, ground transport, and per diem for two team members.",
-    status: "Pending"
+    justification: "Shifting budget from contractor labor to materials to cover higher-than-anticipated cost of 6-inch HDPE pipe fittings. Net budget impact is zero.",
+    status: "Pending",
+    lineItems: [
+      { direction: "Decrease", type: "Labor",     description: "Contractor Pool",       amount: 30000 },
+      { direction: "Increase", type: "Materials", description: "Pipe Fittings (HDPE)",  amount: 30000 },
+    ],
   },
   {
     id: "104",
-    proposedNumber: "26A04",
-    proposedName: "Urban Transit Modernization",
-    proposedDescription: "Upgrade of transit control systems and passenger information displays across 14 stations.",
-    category: "Labor",
-    target: "Nugent, Joseph Pat",
-    direction: "Increase",
-    amount: 1950000,
+    projectNumber: "24T04",
+    projectName: "Airport Terminal Upgrade",
+    projectDescription: "Modernization of Terminal B including new security checkpoints and concession areas.",
     submittedBy: "Marcus Thorne",
     date: "2024-01-18",
-    justification: "Labor request for systems integration scoping. Estimate covers initial phase of transit control upgrades across 14 stations; Nugent, Joseph Pat assigned as lead engineer.",
-    status: "Pending"
+    justification: "Additional senior labor required for systems integration across all checkpoints. Minor materials reduction reflects value-engineered panel selection.",
+    status: "Pending",
+    lineItems: [
+      { direction: "Increase", type: "Labor",     description: "Rodriguez, Elena",      amount: 75000 },
+      { direction: "Increase", type: "Labor",     description: "Thorne, Marcus",         amount: 25000 },
+      { direction: "Decrease", type: "Materials", description: "Steel & Glass Panels",   amount: 15000 },
+    ],
   },
   {
     id: "105",
-    proposedNumber: "25A09",
-    proposedName: "Water Treatment Upgrade",
-    proposedDescription: "Modernization of filtration and chemical treatment systems at the North District water plant.",
-    category: "Travel",
-    target: "Equipment Transport",
-    direction: "Increase",
-    amount: 740000,
-    submittedBy: "John Smith",
+    projectNumber: "25A05",
+    projectName: "Metro Rail Extension",
+    projectDescription: "Feasibility study and initial planning for the Westside light rail extension.",
+    submittedBy: "David Chen",
     date: "2024-02-12",
-    justification: "Equipment transport for specialized filtration unit inspection tools from the regional depot. Required before site mobilization can begin.",
-    status: "Pending"
-  }
+    justification: "Scope reduction on field inspections due to remote survey availability. Remaining travel savings redirected to survey equipment procurement.",
+    status: "Pending",
+    lineItems: [
+      { direction: "Decrease", type: "Travel",    description: "Site Inspections",      amount: 20000 },
+      { direction: "Increase", type: "Materials", description: "Survey Equipment",       amount: 5000  },
+    ],
+  },
 ];
