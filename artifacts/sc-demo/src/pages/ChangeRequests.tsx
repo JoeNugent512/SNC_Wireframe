@@ -18,6 +18,7 @@ export default function ChangeRequests() {
   const [filterStatus, setFilterStatus] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCR, setSelectedCR] = useState<ChangeRequest | null>(null);
+  const [actionReason, setActionReason] = useState("");
 
   const enrichedCRs = MOCK_CHANGE_REQUESTS.map(cr => ({
     ...cr,
@@ -60,13 +61,25 @@ export default function ChangeRequests() {
   const fmt = (n: number) =>
     new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
 
+  const handleOpen = (cr: ChangeRequest) => {
+    setSelectedCR(cr);
+    setActionReason("");
+  };
+
+  const handleClose = () => {
+    setSelectedCR(null);
+    setActionReason("");
+  };
+
   const handleAction = (action: "Approve" | "Reject") => {
     toast({
       title: `Request ${action}d`,
-      description: `${typeLabel(selectedCR!)} has been ${action.toLowerCase()}d.`,
+      description: actionReason.trim()
+        ? `Reason: ${actionReason.trim()}`
+        : `${typeLabel(selectedCR!)} has been ${action.toLowerCase()}d.`,
       variant: action === "Approve" ? "default" : "destructive",
     });
-    setSelectedCR(null);
+    handleClose();
   };
 
   const selectedEnriched = selectedCR
@@ -144,7 +157,7 @@ export default function ChangeRequests() {
                     <tr
                       key={cr.id}
                       className="hover:bg-slate-50 transition-colors cursor-pointer"
-                      onClick={() => setSelectedCR(cr)}
+                      onClick={() => handleOpen(cr)}
                       data-testid={`row-cr-${cr.id}`}
                     >
                       <td className="px-6 py-4">
@@ -168,7 +181,7 @@ export default function ChangeRequests() {
       </div>
 
       {/* ── Detail Modal ── */}
-      <Dialog open={!!selectedCR} onOpenChange={(open) => !open && setSelectedCR(null)}>
+      <Dialog open={!!selectedCR} onOpenChange={(open) => !open && handleClose()}>
         <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden gap-0">
           {selectedCR && selectedEnriched && (
             <>
@@ -212,9 +225,26 @@ export default function ChangeRequests() {
                 </div>
               </div>
 
+              {/* Reason field — only for actionable statuses */}
+              {selectedCR.status !== "Approved" && selectedCR.status !== "Rejected" && (
+                <div className="px-6 pb-2">
+                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1.5">
+                    Reason
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={actionReason}
+                    onChange={(e) => setActionReason(e.target.value)}
+                    placeholder="Provide a reason for your decision…"
+                    className="w-full text-sm text-slate-700 border border-slate-200 rounded-lg px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-primary/40 bg-white"
+                    data-testid="textarea-action-reason"
+                  />
+                </div>
+              )}
+
               <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-3">
                 <button
-                  onClick={() => setSelectedCR(null)}
+                  onClick={handleClose}
                   className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-200 rounded-md transition-colors"
                 >
                   Close
