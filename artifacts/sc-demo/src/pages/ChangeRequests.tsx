@@ -121,8 +121,8 @@ export default function ChangeRequests() {
                   <th className="px-6 py-4 font-semibold">Project</th>
                   <th className="px-6 py-4 font-semibold">Changes</th>
                   <th className="px-6 py-4 font-semibold text-right">Net Change</th>
-                  <th className="px-6 py-4 font-semibold hidden md:table-cell">Proponent</th>
-                  <th className="px-6 py-4 font-semibold hidden sm:table-cell">Date</th>
+                  <th className="px-6 py-4 font-semibold hidden md:table-cell">Submitted By</th>
+                  <th className="px-6 py-4 font-semibold hidden sm:table-cell">Requested</th>
                   <th className="px-6 py-4 font-semibold">Status</th>
                 </tr>
               </thead>
