@@ -1,0 +1,66 @@
+You did a strong job creating a believable enterprise PM/product planning interface. The screens feel coherent and the workflow is understandable. Keep the overall structure, but improve the design in the following ways:
+
+1. Strengthen prioritization
+   The UI currently shows data clearly, but it does not always make the most important action obvious. Add stronger visual prioritization for urgent items, blockers, and actions that require user attention. For example:
+
+* distinguish blocking missing fields from optional missing fields
+* surface “needs action” more clearly on dashboard and queue screens
+* make the next recommended action obvious
+
+2. Improve section-level completion guidance
+   In the setup/detail forms, the user can see required fields, but the form still feels visually flat. Add section-level status indicators such as:
+
+* complete
+* incomplete
+* missing required data
+  This will make long forms easier to scan and reduce cognitive load.
+
+3. Differentiate interactive states more clearly
+   Make sure clickable cards, tabs, filters, and rows have clearer hover, selected, and active states. Right now the layouts are clean, but some controls need stronger affordance.
+
+4. Refine spacing and density in data-heavy views
+   The tables and project detail layouts are good, but some screens could benefit from slightly tighter grouping of related metadata and slightly stronger separation between sections. Focus on improving scanability without making the layout feel crowded.
+
+5. Make status language more actionable
+   Replace passive labels where possible with language that helps the user decide what to do next. Example:
+
+* instead of only showing “Pending,” consider adding context such as “Awaiting approval”
+* instead of only “7 fields missing,” consider “7 required fields missing before setup is complete”
+
+6. Add overall health signals
+   The current design has progress, funding, and schedule, but it would benefit from an overall health/status summary such as:
+
+* on track
+* at risk
+* blocked
+  This would help leaders and project managers interpret the project quickly.
+
+7. Improve consistency of emphasis
+   Some screens use very strong visual emphasis for certain numbers or controls, while others are more muted. Normalize the design system for:
+
+* primary buttons
+* badges
+* progress indicators
+* key numeric summaries
+  The goal is a more consistent “design grammar” across all screens.
+
+8. Consider dashboard intelligence
+   The dashboard is strong, but it could be more useful if it included a small insight area such as:
+
+* projects needing setup
+* pending approvals
+* items at risk
+* budget anomalies
+  This would make the dashboard feel more like a decision surface and less like a navigation page.
+
+9. Preserve realism
+   Keep the enterprise tone. The work already feels credible and grounded. Do not over-modernize it with flashy visuals, oversized cards, or excessive decoration. This product should feel stable, trustworthy, and operational.
+
+10. Focus next iteration on UX clarity, not visual reinvention
+    Do not redesign the whole interface. The next pass should improve:
+
+* hierarchy
+* urgency
+* scanability
+* actionability
+  while keeping the current IA and general layout structure.

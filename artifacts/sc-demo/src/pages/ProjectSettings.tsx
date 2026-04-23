@@ -49,65 +49,115 @@ function YesNoBadge({ value }: { value: boolean }) {
   );
 }
 
-function FundingTable({ budget }: { budget: number }) {
-  const split  = [0.1, 0.2, 0.35, 0.25, 0.1];
-  const years  = ["FY23", "FY24", "FY25", "FY26", "FY27"];
-  const rows = [
-    { label: "Labor",              pct: 0.55 },
-    { label: "Travel",             pct: 0.15 },
-    { label: "Outsourced / Other", pct: 0.30 },
-  ];
-  const f = (n: number) =>
-    n === 0 ? "—" : new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
+type FundingRow = { id: number; label: string; planned: number; requested: number };
 
+function EditableAmount({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+  const [editing, setEditing] = useState(false);
+  const [raw, setRaw] = useState("");
+  const display = value === 0 ? "—" : fmt(value);
+
+  if (editing) {
+    return (
+      <input
+        autoFocus
+        type="text"
+        value={raw}
+        onChange={(e) => setRaw(e.target.value.replace(/[^0-9]/g, ""))}
+        onBlur={() => { onChange(parseInt(raw) || 0); setEditing(false); }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") { onChange(parseInt(raw) || 0); setEditing(false); }
+          if (e.key === "Escape") setEditing(false);
+        }}
+        className="w-full text-right text-sm border border-blue-400 rounded px-2 py-0.5 focus:outline-none focus:ring-1 focus:ring-blue-400 tabular-nums bg-white"
+      />
+    );
+  }
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-xs border-collapse min-w-[500px]">
+    <button
+      onClick={() => { setRaw(String(value)); setEditing(true); }}
+      className="w-full text-right text-sm text-slate-700 tabular-nums hover:text-blue-700 hover:underline decoration-dotted focus:outline-none group"
+      title="Click to edit"
+    >
+      {display}
+    </button>
+  );
+}
+
+function useFundingRows(initial: FundingRow[]) {
+  const [rows, setRows] = useState(initial);
+  const update = (id: number, field: "planned" | "requested", value: number) =>
+    setRows((r) => r.map((row) => (row.id === id ? { ...row, [field]: value } : row)));
+  return [rows, update] as const;
+}
+
+function FundingSection({
+  title, columnHeader, rows, onUpdate,
+}: {
+  title: string; columnHeader: string;
+  rows: FundingRow[];
+  onUpdate: (id: number, field: "planned" | "requested", value: number) => void;
+}) {
+  const totalPlanned   = rows.reduce((s, r) => s + r.planned, 0);
+  const totalRequested = rows.reduce((s, r) => s + r.requested, 0);
+  return (
+    <div className="border border-slate-200 rounded-lg overflow-hidden">
+      <div className="bg-[#1a3557] px-4 py-2.5">
+        <span className="font-semibold text-white text-sm">{title}</span>
+      </div>
+      <table className="w-full text-sm">
         <thead>
-          <tr>
-            <th className="border border-slate-300 bg-[#1a3557] text-white font-semibold px-3 py-2 text-left w-[140px]">
-              Project Overview
-            </th>
-            {years.map((fy) => (
-              <th key={fy} className="border border-slate-300 bg-[#2a6496] text-white font-semibold px-2 py-2 text-center">
-                {fy}
-              </th>
-            ))}
-            <th className="border border-slate-300 bg-[#1a3557] text-white font-semibold px-2 py-2 text-center">
-              Total
-            </th>
+          <tr className="border-b border-slate-200 bg-slate-50">
+            <th className="px-4 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{columnHeader}</th>
+            <th className="px-4 py-2.5 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider w-36">Total Planned</th>
+            <th className="px-4 py-2.5 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider w-36">Total Requested</th>
           </tr>
         </thead>
-        <tbody>
-          {rows.map((row, ri) => {
-            const rowBudget = budget * row.pct;
-            return (
-              <tr key={row.label} className={ri % 2 === 0 ? "bg-slate-50" : "bg-white"}>
-                <td className="border border-slate-200 px-3 py-2 font-medium text-slate-700">{row.label}</td>
-                {split.map((s, i) => (
-                  <td key={i} className="border border-slate-200 px-2 py-2 text-right text-slate-600">
-                    {f(rowBudget * s)}
-                  </td>
-                ))}
-                <td className="border border-slate-200 px-2 py-2 text-right font-semibold text-slate-800">
-                  {f(rowBudget)}
-                </td>
-              </tr>
-            );
-          })}
-          <tr className="bg-[#1a3557]/10 font-semibold">
-            <td className="border border-slate-300 px-3 py-2 text-slate-800">Total</td>
-            {split.map((s, i) => (
-              <td key={i} className="border border-slate-300 px-2 py-2 text-right text-slate-800">
-                {f(budget * s)}
+        <tbody className="divide-y divide-slate-100">
+          {rows.map((row) => (
+            <tr key={row.id} className="hover:bg-slate-50/60">
+              <td className="px-4 py-3 text-slate-700">{row.label}</td>
+              <td className="px-4 py-3">
+                <EditableAmount value={row.planned}   onChange={(v) => onUpdate(row.id, "planned",   v)} />
               </td>
-            ))}
-            <td className="border border-slate-300 px-2 py-2 text-right text-slate-900 font-bold">
-              {f(budget)}
-            </td>
-          </tr>
+              <td className="px-4 py-3">
+                <EditableAmount value={row.requested} onChange={(v) => onUpdate(row.id, "requested", v)} />
+              </td>
+            </tr>
+          ))}
         </tbody>
+        <tfoot>
+          <tr className="border-t-2 border-slate-200 bg-slate-50 font-semibold">
+            <td className="px-4 py-2.5 text-xs text-slate-500 uppercase tracking-wider">Total</td>
+            <td className="px-4 py-2.5 text-right text-sm text-slate-800 tabular-nums">{fmt(totalPlanned)}</td>
+            <td className="px-4 py-2.5 text-right text-sm text-slate-800 tabular-nums">{fmt(totalRequested)}</td>
+          </tr>
+        </tfoot>
       </table>
+    </div>
+  );
+}
+
+function FundingTable({ budget }: { budget: number }) {
+  const b = budget;
+  const [laborRows, updateLabor] = useFundingRows([
+    { id: 1, label: "Nugent, Joseph Pat",  planned: Math.round(b * 0.090), requested: Math.round(b * 0.090) },
+    { id: 2, label: "U435310",             planned: Math.round(b * 0.050), requested: Math.round(b * 0.048) },
+    { id: 3, label: "Chen, David",         planned: Math.round(b * 0.035), requested: Math.round(b * 0.035) },
+  ]);
+  const [travelRows, updateTravel] = useFundingRows([
+    { id: 1, label: "Site Visits",          planned: Math.round(b * 0.020), requested: Math.round(b * 0.020) },
+    { id: 2, label: "Equipment Transport",  planned: Math.round(b * 0.013), requested: Math.round(b * 0.013) },
+  ]);
+  const [materialsRows, updateMaterials] = useFundingRows([
+    { id: 1, label: "Concrete (500 units)", planned: Math.round(b * 0.031), requested: Math.round(b * 0.031) },
+    { id: 2, label: "Steel Rebar (2000 ft)",planned: Math.round(b * 0.021), requested: Math.round(b * 0.020) },
+  ]);
+
+  return (
+    <div className="space-y-4">
+      <FundingSection title="Labor"            columnHeader="Employee / Org Code" rows={laborRows}     onUpdate={updateLabor}     />
+      <FundingSection title="Travel"           columnHeader="Travel Line"         rows={travelRows}    onUpdate={updateTravel}    />
+      <FundingSection title="Materials & Other" columnHeader="Item"               rows={materialsRows} onUpdate={updateMaterials} />
     </div>
   );
 }
