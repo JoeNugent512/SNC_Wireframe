@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "wouter";
 import {
   ChevronRight, Filter, FileText, CheckCircle, XCircle,
-  Search, TrendingUp, TrendingDown, FolderOpen, User, ArrowRight
+  Search, TrendingUp, TrendingDown, FolderOpen, User, ArrowRight, Copy, Check
 } from "lucide-react";
 import Layout from "@/components/Layout";
 import { MOCK_CHANGE_REQUESTS, MOCK_PROJECTS, ChangeRequest, CRLineItem } from "@/lib/mockData";
@@ -27,6 +27,33 @@ function getProponent(projectNumber: string) {
   return MOCK_PROJECTS.find(p => p.number === projectNumber)?.hqProponent ?? "—";
 }
 
+function buildDescription(cr: ChangeRequest, proponent: string): string {
+  const net = cr.lineItems.reduce((s, li) =>
+    li.direction === "Increase" ? s + li.amount : s - li.amount, 0);
+  const pad = (s: string, w: number) => s.padEnd(w, " ");
+  const lines = cr.lineItems.map(li => {
+    const delta = li.direction === "Increase" ? li.amount : -li.amount;
+    const sign  = delta >= 0 ? "+" : "";
+    return `  ${li.direction === "Increase" ? "[+]" : "[-]"} ${pad(li.type + ": " + li.description, 38)} ${pad(fmt(li.from), 12)} -> ${pad(fmt(li.to), 12)} (${sign}${fmt(delta)})`;
+  });
+  const netLabel = net === 0 ? "$0" : (net > 0 ? "+" : "") + fmt(net);
+  return [
+    "Budget Change Request",
+    `Project:       ${cr.projectNumber} — ${cr.projectName}`,
+    `Proponent:     ${proponent}`,
+    `Requested by:  ${cr.submittedBy}  |  Date: ${cr.date}`,
+    `Status:        ${cr.status}`,
+    "",
+    "Budget Changes:",
+    ...lines,
+    `${"".padEnd(62, "-")}`,
+    `  Net Change: ${netLabel}`,
+    "",
+    "Justification:",
+    `  ${cr.justification}`,
+  ].join("\n");
+}
+
 function typeChipClass(type: CRLineItem["type"]) {
   if (type === "Labor")     return "bg-blue-50 text-blue-700 border-blue-200";
   if (type === "Travel")    return "bg-violet-50 text-violet-700 border-violet-200";
@@ -39,6 +66,9 @@ export default function ChangeRequests() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCR, setSelectedCR] = useState<ChangeRequest | null>(null);
   const [actionReason, setActionReason] = useState("");
+  const [noteText, setNoteText] = useState("");
+  const [copiedDesc, setCopiedDesc] = useState(false);
+  const [copiedNotes, setCopiedNotes] = useState(false);
 
   const filteredCRs = MOCK_CHANGE_REQUESTS.filter(cr => {
     const matchesStatus = filterStatus === "All" || cr.status === filterStatus;
@@ -60,8 +90,27 @@ export default function ChangeRequests() {
     }
   };
 
-  const handleOpen = (cr: ChangeRequest) => { setSelectedCR(cr); setActionReason(""); };
-  const handleClose = () => { setSelectedCR(null); setActionReason(""); };
+  const handleOpen = (cr: ChangeRequest) => {
+    setSelectedCR(cr);
+    setActionReason("");
+    setNoteText("");
+    setCopiedDesc(false);
+    setCopiedNotes(false);
+  };
+  const handleClose = () => {
+    setSelectedCR(null);
+    setActionReason("");
+    setNoteText("");
+    setCopiedDesc(false);
+    setCopiedNotes(false);
+  };
+
+  const copyToClipboard = (text: string, which: "desc" | "notes") => {
+    navigator.clipboard.writeText(text).then(() => {
+      if (which === "desc") { setCopiedDesc(true); setTimeout(() => setCopiedDesc(false), 2000); }
+      else                  { setCopiedNotes(true); setTimeout(() => setCopiedNotes(false), 2000); }
+    });
+  };
 
   const handleAction = (action: "Approve" | "Reject") => {
     const verb = action === "Approve" ? "approved" : "rejected";
@@ -274,6 +323,48 @@ export default function ChangeRequests() {
                       <p className="text-sm text-slate-700 leading-relaxed bg-slate-50 p-4 rounded-lg border border-slate-100">
                         {selectedCR.justification}
                       </p>
+                    </div>
+
+                    {/* Auto-generated Description */}
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Description</div>
+                        <button
+                          onClick={() => copyToClipboard(buildDescription(selectedCR, getProponent(selectedCR.projectNumber)), "desc")}
+                          className="flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-slate-800 hover:bg-slate-100 px-2 py-1 rounded transition-colors"
+                        >
+                          {copiedDesc ? <Check size={13} className="text-emerald-600" /> : <Copy size={13} />}
+                          {copiedDesc ? "Copied!" : "Copy"}
+                        </button>
+                      </div>
+                      <textarea
+                        readOnly
+                        rows={10}
+                        value={buildDescription(selectedCR, getProponent(selectedCR.projectNumber))}
+                        className="w-full text-xs text-slate-700 font-mono bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 resize-none focus:outline-none focus:ring-2 focus:ring-primary/30 leading-relaxed"
+                      />
+                    </div>
+
+                    {/* Notes */}
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Notes</div>
+                        <button
+                          onClick={() => copyToClipboard(noteText, "notes")}
+                          disabled={!noteText.trim()}
+                          className="flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-slate-800 hover:bg-slate-100 px-2 py-1 rounded transition-colors disabled:opacity-40 disabled:pointer-events-none"
+                        >
+                          {copiedNotes ? <Check size={13} className="text-emerald-600" /> : <Copy size={13} />}
+                          {copiedNotes ? "Copied!" : "Copy"}
+                        </button>
+                      </div>
+                      <textarea
+                        rows={4}
+                        value={noteText}
+                        onChange={(e) => setNoteText(e.target.value)}
+                        placeholder="Add any additional notes here…"
+                        className="w-full text-sm text-slate-700 border border-slate-200 rounded-lg px-3 py-2.5 resize-none focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white"
+                      />
                     </div>
                   </div>
 
