@@ -80,23 +80,24 @@ function PickerModal({
       style={{ backgroundColor: "rgba(15,23,42,0.45)" }}
       onClick={onClose}
     >
-      {/* card */}
+      {/* card — compact */}
       <div
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden"
+        className="bg-white rounded-xl shadow-2xl overflow-hidden"
+        style={{ width: 300 }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* header */}
-        <div className="flex items-center justify-between px-5 py-4" style={{ backgroundColor: "#1a3557" }}>
-          <span className="text-white font-semibold text-sm">{title}</span>
+        <div className="flex items-center justify-between px-4 py-2.5" style={{ backgroundColor: "#1a3557" }}>
+          <span className="text-white font-semibold text-xs tracking-wide uppercase">{title}</span>
           <button onClick={onClose} className="text-white/60 hover:text-white transition-colors">
-            <X size={18} />
+            <X size={15} />
           </button>
         </div>
 
         {/* search */}
-        <div className="px-4 pt-4 pb-2">
-          <div className="flex items-center gap-2 border border-slate-300 rounded-lg px-3 py-2 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-100">
-            <Search size={15} className="text-slate-400 flex-shrink-0" />
+        <div className="px-3 pt-3 pb-1.5">
+          <div className="flex items-center gap-1.5 border border-slate-300 rounded-lg px-2.5 py-1.5 focus-within:border-blue-400 focus-within:ring-1 focus-within:ring-blue-100">
+            <Search size={13} className="text-slate-400 flex-shrink-0" />
             <input
               autoFocus
               value={query}
@@ -108,18 +109,18 @@ function PickerModal({
         </div>
 
         {/* list */}
-        <ul className="overflow-y-auto" style={{ maxHeight: 320 }}>
+        <ul className="overflow-y-auto" style={{ maxHeight: 240 }}>
           {filtered.length === 0 && (
-            <li className="px-5 py-6 text-center text-sm text-slate-400">No matches</li>
+            <li className="px-4 py-4 text-center text-xs text-slate-400">No matches</li>
           )}
           {filtered.map((opt) => (
             <li key={opt.label}>
               <button
                 onClick={() => { onPick(opt.label); onClose(); }}
-                className="w-full text-left px-5 py-3 hover:bg-slate-50 transition-colors border-b border-slate-100 last:border-none"
+                className="w-full text-left px-4 py-2 hover:bg-slate-50 transition-colors border-b border-slate-100 last:border-none"
               >
-                <p className="text-sm font-medium text-slate-800">{opt.label}</p>
-                <p className="text-xs text-slate-400 mt-0.5">{opt.sub}</p>
+                <p className="text-sm font-medium text-slate-800 leading-tight">{opt.label}</p>
+                <p className="text-xs text-slate-400">{opt.sub}</p>
               </button>
             </li>
           ))}
@@ -266,27 +267,26 @@ function FundingSection({
         <div className="overflow-x-auto">
           <table className="w-full text-sm" style={{ borderCollapse: "collapse", minWidth: 960 }}>
             <thead>
-              <tr style={{ borderBottom: "1px solid #e2e8f0" }}>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide bg-slate-50" style={{ minWidth: 150 }}>
+              <tr style={{ borderBottom: "2px solid #cbd5e1", borderTop: "1px solid #e2e8f0" }}>
+                <th className="px-3 py-2 text-left text-xs font-bold text-slate-600 uppercase tracking-wider whitespace-nowrap" style={{ backgroundColor: "#f1f5f9", minWidth: 160 }}>
                   {columnHeader}
                 </th>
-                <th className="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide" style={{ backgroundColor: amberBg, color: "#92400e", borderLeft: amberBorder, width: 115 }}>
+                <th className="px-3 py-2 text-right text-xs font-bold uppercase tracking-wider whitespace-nowrap" style={{ backgroundColor: "#fef3c7", color: "#78350f", borderLeft: amberBorder, width: 115 }}>
                   Total Planned
                 </th>
-                <th className="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide" style={{ backgroundColor: amberBg, color: "#92400e", borderLeft: amberBorder, width: 115 }}>
+                <th className="px-3 py-2 text-right text-xs font-bold uppercase tracking-wider whitespace-nowrap" style={{ backgroundColor: "#fef3c7", color: "#78350f", borderLeft: amberBorder, width: 115 }}>
                   Total Requested
                 </th>
                 <th className={blueHd} style={{ backgroundColor: blueHdBg, borderLeft: blueBorder, width: 125 }}>Total Commitments</th>
                 <th className={blueHd} style={{ backgroundColor: blueHdBg, borderLeft: blueBorder, width: 125 }}>Open Commitments</th>
                 <th className={blueHd} style={{ backgroundColor: blueHdBg, borderLeft: blueBorder, width: 105 }}>Obligated</th>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide bg-slate-50" style={{ borderLeft: "1px solid #e2e8f0", minWidth: 200 }}>
+                <th className="px-3 py-2 text-left text-xs font-bold text-slate-600 uppercase tracking-wider whitespace-nowrap" style={{ backgroundColor: "#f1f5f9", borderLeft: "1px solid #e2e8f0", minWidth: 200 }}>
                   Description
                 </th>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide" style={{ backgroundColor: amberBg, color: "#92400e", borderLeft: amberBorder, minWidth: 100 }}>
+                <th className="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider whitespace-nowrap" style={{ backgroundColor: "#fef3c7", color: "#78350f", borderLeft: amberBorder, minWidth: 100 }}>
                   Notes
                 </th>
-                <th className="px-3 py-2.5 text-center text-xs font-semibold text-slate-400 uppercase tracking-wide bg-slate-50" style={{ borderLeft: "1px solid #e2e8f0", width: 52 }}>
-                </th>
+                <th className="px-3 py-2 bg-slate-100" style={{ borderLeft: "1px solid #e2e8f0", width: 52 }} />
               </tr>
             </thead>
 
