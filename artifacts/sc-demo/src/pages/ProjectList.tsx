@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import {
   ChevronRight, Briefcase, Search, Activity,
-  PauseCircle, CheckCircle2, Clock, FileSpreadsheet, Loader2
+  PauseCircle, CheckCircle2, Clock, FileSpreadsheet
 } from "lucide-react";
 import Layout from "@/components/Layout";
 import { MOCK_PROJECTS, Project } from "@/lib/mockData";
@@ -95,6 +95,7 @@ function FundingTable({ budget }: { budget: number }) {
 export default function ProjectList() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [detailReady, setDetailReady] = useState(false);
+  const [progress, setProgress] = useState(0);
   const [activeTab, setActiveTab] = useState<Tab>("charter");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -102,14 +103,27 @@ export default function ProjectList() {
     if (id === selectedId) return;
     setSelectedId(id);
     setDetailReady(false);
+    setProgress(0);
     setActiveTab("charter");
   };
 
-  // Simple 2-second timer — no animation, just flip ready
+  // Animate progress bar inside the button, flip ready at 100%
   useEffect(() => {
     if (!selectedId || detailReady) return;
-    const t = setTimeout(() => setDetailReady(true), DETAIL_LOAD_MS);
-    return () => clearTimeout(t);
+    setProgress(0);
+    const start = performance.now();
+    let raf: number;
+    const tick = (now: number) => {
+      const pct = Math.min(((now - start) / DETAIL_LOAD_MS) * 100, 100);
+      setProgress(pct);
+      if (pct < 100) {
+        raf = requestAnimationFrame(tick);
+      } else {
+        setDetailReady(true);
+      }
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
   }, [selectedId]);
 
   const selectedProject = selectedId
@@ -352,17 +366,24 @@ export default function ProjectList() {
                   >
                     <button
                       disabled={!detailReady}
-                      className={`w-full font-medium py-2.5 px-4 rounded-lg text-sm flex items-center justify-center gap-2 transition-colors ${
+                      className={`relative w-full overflow-hidden font-medium py-2.5 px-4 rounded-lg text-sm flex items-center justify-center gap-2 transition-colors ${
                         detailReady
                           ? "bg-primary hover:bg-primary/90 text-white shadow-sm"
-                          : "bg-slate-200 text-slate-400 cursor-wait"
+                          : "bg-slate-100 text-slate-500 border border-slate-200 cursor-wait"
                       }`}
                       data-testid="button-edit-plan"
                     >
-                      {detailReady
-                        ? <><FileSpreadsheet size={15} /> Edit Project</>
-                        : <><Loader2 size={15} className="animate-spin" /> Loading…</>
-                      }
+                      {/* Progress bar fills inside button while loading */}
+                      {!detailReady && (
+                        <span
+                          className="absolute inset-y-0 left-0 bg-primary/20 transition-none rounded-lg"
+                          style={{ width: `${progress}%` }}
+                        />
+                      )}
+                      <span className="relative flex items-center gap-2">
+                        <FileSpreadsheet size={15} />
+                        {detailReady ? "Edit Project" : "Loading plans & actuals…"}
+                      </span>
                     </button>
                   </Link>
                   <Link href={`/projects/${selectedProject.id}/settings`} className="flex-1">
