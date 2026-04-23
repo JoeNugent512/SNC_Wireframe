@@ -265,7 +265,7 @@ function FundingSection({
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-sm" style={{ borderCollapse: "collapse", minWidth: 960 }}>
+          <table className="w-full text-sm" style={{ borderCollapse: "collapse", minWidth: 1150 }}>
             <thead>
               <tr style={{ borderBottom: "2px solid #cbd5e1", borderTop: "1px solid #e2e8f0" }}>
                 <th className="px-3 py-2 text-left text-xs font-bold text-slate-600 uppercase tracking-wider whitespace-nowrap" style={{ backgroundColor: "#f1f5f9", minWidth: 160 }}>
@@ -280,7 +280,7 @@ function FundingSection({
                 <th className={blueHd} style={{ backgroundColor: blueHdBg, borderLeft: blueBorder, width: 125 }}>Total Commitments</th>
                 <th className={blueHd} style={{ backgroundColor: blueHdBg, borderLeft: blueBorder, width: 125 }}>Open Commitments</th>
                 <th className={blueHd} style={{ backgroundColor: blueHdBg, borderLeft: blueBorder, width: 105 }}>Obligated</th>
-                <th className="px-3 py-2 text-left text-xs font-bold text-slate-600 uppercase tracking-wider whitespace-nowrap" style={{ backgroundColor: "#f1f5f9", borderLeft: "1px solid #e2e8f0", minWidth: 200 }}>
+                <th className="px-3 py-2 text-left text-xs font-bold text-slate-600 uppercase tracking-wider whitespace-nowrap" style={{ backgroundColor: "#f1f5f9", borderLeft: "1px solid #e2e8f0", minWidth: 320 }}>
                   Description
                 </th>
                 <th className="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider whitespace-nowrap" style={{ backgroundColor: "#fef3c7", color: "#78350f", borderLeft: amberBorder, minWidth: 100 }}>
@@ -305,7 +305,7 @@ function FundingSection({
                     <td className={blueTd} style={{ backgroundColor: blueCellBg, borderLeft: blueBorder }}>{fmt(row.totalCommitments)}</td>
                     <td className={blueTd} style={{ backgroundColor: blueCellBg, borderLeft: blueBorder }}>{fmt(row.openCommitments)}</td>
                     <td className={blueTd} style={{ backgroundColor: blueCellBg, borderLeft: blueBorder }}>{fmt(row.obligated)}</td>
-                    <td className="px-3 py-2.5 text-xs text-slate-400 font-mono bg-white truncate max-w-[210px]" style={{ borderLeft: "1px solid #e2e8f0" }} title={row.description}>
+                    <td className="px-3 py-2.5 text-xs text-slate-500 font-mono bg-white" style={{ borderLeft: "1px solid #e2e8f0", minWidth: 320 }}>
                       {row.description}
                     </td>
                     <td className="px-3 py-2.5" style={{ backgroundColor: amberBg, borderLeft: amberBorder }}>
