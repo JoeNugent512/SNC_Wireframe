@@ -141,7 +141,7 @@ function MultiPickerModal({
   options: { label: string; sub: string }[];
   existingLabels: Set<string>;
   placeholder: string;
-  onAdd: (labels: string[]) => void;
+  onAdd: (items: { label: string; sub: string }[]) => void;
   onClose: () => void;
 }) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -151,7 +151,7 @@ function MultiPickerModal({
     setSelected((prev) => { const next = new Set(prev); next.has(label) ? next.delete(label) : next.add(label); return next; });
 
   const handleAdd = () => {
-    if (selected.size > 0) onAdd([...selected]);
+    if (selected.size > 0) onAdd(avail.filter((o) => selected.has(o.label)));
     onClose();
   };
 
@@ -203,6 +203,7 @@ function MultiPickerModal({
 type FundingRow = {
   id: number;
   label: string;
+  sub?: string;
   planned: number;
   requested: number;
   totalCommitments: number;
@@ -263,11 +264,11 @@ function useFundingRows(initial: FundingRow[]) {
       description, notes: "",
     }]);
 
-  const addMany = (labels: string[], descTemplate: string) =>
+  const addMany = (items: { label: string; sub?: string }[], descTemplate: string) =>
     setRows((r) => [
       ...r,
-      ...labels.map((label) => ({
-        id: uid(), label, planned: 0, requested: 0,
+      ...items.map(({ label, sub }) => ({
+        id: uid(), label, sub, planned: 0, requested: 0,
         totalCommitments: 0, openCommitments: 0, obligated: 0,
         description: descTemplate, notes: "",
       })),
@@ -292,7 +293,7 @@ function FundingSection({
   onUpdateNote: (id: number, value: string) => void;
   onDelete: (id: number) => void;
   onZeroOut: (id: number) => void;
-  onAddMany: (labels: string[]) => void;
+  onAddMany: (items: { label: string; sub?: string }[]) => void;
   pickerMode: "multi";
   existingLabels: Set<string>;
   pickerTitle?: string;
@@ -326,7 +327,7 @@ function FundingSection({
           options={pickerOptions}
           existingLabels={existingLabels}
           placeholder={pickerPlaceholder ?? "Search…"}
-          onAdd={(labels) => onAddMany(labels)}
+          onAdd={(items) => onAddMany(items)}
           onClose={() => setShowPicker(false)}
         />
       )}
@@ -350,7 +351,7 @@ function FundingSection({
         {/* table — no overflow wrapper; fixed layout fills width */}
         <table className="w-full" style={{ borderCollapse: "collapse", tableLayout: "fixed", fontSize: 13 }}>
           <colgroup>
-            <col style={{ width: 155 }} />
+            <col style={{ width: 180 }} />
             <col style={{ width: 108 }} />
             <col style={{ width: 108 }} />
             <col style={{ width: 108 }} />
@@ -389,7 +390,10 @@ function FundingSection({
               const hasObligations = row.obligated > 0;
               return (
                 <tr key={row.id} style={{ borderBottom: "1px solid #fef9c3" }}>
-                  <td className="px-3 py-2.5 text-slate-700 font-medium bg-slate-50 truncate" title={row.label}>{row.label}</td>
+                  <td className="px-3 py-2 bg-slate-50">
+                    <p className="text-sm font-semibold text-slate-800 leading-snug truncate" title={row.label}>{row.label}</p>
+                    {row.sub && <p className="text-xs text-slate-400 leading-snug truncate mt-0.5" title={row.sub}>{row.sub}</p>}
+                  </td>
                   <td className="px-3 py-2.5" style={{ backgroundColor: amberBg, borderLeft: amberBorder }}>
                     <EditableAmount value={row.planned}   onChange={(v) => onUpdateAmount(row.id, "planned", v)} />
                   </td>
@@ -461,24 +465,29 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
   const num = projectNumber;
 
   const labor = useFundingRows([
-    { id: 1, label: "Nugent, Joseph Pat", planned: Math.round(b * 0.09), requested: Math.round(b * 0.09 * 0.05),
+    { id: 1, label: "Nugent, Joseph Pat", sub: "U435310 · GS-12 Transportation",
+      planned: Math.round(b * 0.09), requested: Math.round(b * 0.09 * 0.05),
       totalCommitments: Math.round(b * 0.09 * 0.05), openCommitments: Math.round(b * 0.09 * 0.03), obligated: Math.round(b * 0.09 * 0.02),
       description: `FY${fy}/SANDC LABOR FUNDS FOR ${num}/CEFMS/`, notes: "notes" },
-    { id: 2, label: "U435310", planned: Math.round(b * 0.05), requested: Math.round(b * 0.05 * 0.95),
+    { id: 2, label: "U435310", sub: "Logistics · Org Code",
+      planned: Math.round(b * 0.05), requested: Math.round(b * 0.05 * 0.95),
       totalCommitments: Math.round(b * 0.05 * 0.95), openCommitments: Math.round(b * 0.05 * 0.50), obligated: Math.round(b * 0.05 * 0.45),
       description: `FY${fy}/SANDC LABOR FUNDS FOR ${num}/U435310/`, notes: "notes" },
-    { id: 3, label: "Chen, David", planned: Math.round(b * 0.035), requested: Math.round(b * 0.035),
+    { id: 3, label: "Chen, David", sub: "U719203 · GS-13 Engineering",
+      planned: Math.round(b * 0.035), requested: Math.round(b * 0.035),
       totalCommitments: Math.round(b * 0.035 * 0.60), openCommitments: Math.round(b * 0.035 * 0.30), obligated: Math.round(b * 0.035 * 0.30),
       description: `FY${fy}/SANDC LABOR FUNDS FOR ${num}/Chen D/`, notes: "" },
   ]);
 
   const travel = useFundingRows([
-    { id: 10, label: "Site Visits", planned: Math.round(b * 0.02), requested: Math.round(b * 0.02),
+    { id: 10, label: "CERL", sub: "U435310",
+      planned: Math.round(b * 0.02), requested: Math.round(b * 0.02),
       totalCommitments: Math.round(b * 0.02), openCommitments: Math.round(b * 0.02 * 0.59), obligated: Math.round(b * 0.02 * 0.41),
-      description: `FY${fy}/SANDC TRAVEL FOR ${num}/Site Visits/`, notes: "" },
-    { id: 11, label: "Equipment Transport", planned: Math.round(b * 0.013), requested: Math.round(b * 0.013),
+      description: `FY${fy}/SANDC TRAVEL FOR ${num}/CERL/`, notes: "" },
+    { id: 11, label: "Vicksburg District", sub: "U834512",
+      planned: Math.round(b * 0.013), requested: Math.round(b * 0.013),
       totalCommitments: Math.round(b * 0.013), openCommitments: Math.round(b * 0.013 * 0.50), obligated: 0,
-      description: `FY${fy}/SANDC TRAVEL FOR ${num}/Equip Transport/`, notes: "" },
+      description: `FY${fy}/SANDC TRAVEL FOR ${num}/Vicksburg District/`, notes: "" },
   ]);
 
   const mats = useFundingRows([
@@ -544,7 +553,7 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
         rows={labor.rows}
         onUpdateAmount={labor.updateAmount} onUpdateNote={labor.updateNote}
         onDelete={labor.deleteRow} onZeroOut={labor.zeroOutRow}
-        onAddMany={(labels) => labor.addMany(labels, laborDescTemplate)}
+        onAddMany={(items) => labor.addMany(items, laborDescTemplate)}
         pickerMode="multi"
         existingLabels={laborExisting}
         pickerTitle="Add Labor"
@@ -558,7 +567,7 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
         rows={travel.rows}
         onUpdateAmount={travel.updateAmount} onUpdateNote={travel.updateNote}
         onDelete={travel.deleteRow} onZeroOut={travel.zeroOutRow}
-        onAddMany={(labels) => travel.addMany(labels, travelDescTemplate)}
+        onAddMany={(items) => travel.addMany(items, travelDescTemplate)}
         pickerMode="multi"
         existingLabels={travelExisting}
         pickerTitle="Add Travel"
@@ -572,7 +581,7 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
         rows={mats.rows}
         onUpdateAmount={mats.updateAmount} onUpdateNote={mats.updateNote}
         onDelete={mats.deleteRow} onZeroOut={mats.zeroOutRow}
-        onAddMany={(labels) => mats.addMany(labels, matlDescTemplate)}
+        onAddMany={(items) => mats.addMany(items, matlDescTemplate)}
         pickerMode="multi"
         existingLabels={matsExisting}
         pickerTitle="Add Items"
