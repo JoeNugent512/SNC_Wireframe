@@ -49,47 +49,42 @@ function YesNoBadge({ value }: { value: boolean }) {
   );
 }
 
-type FundingRow = { id: number; label: string; planned: number; requested: number; notes: string };
+type FundingRow = {
+  id: number;
+  label: string;
+  planned: number;
+  requested: number;
+  totalCommitments: number;
+  openCommitments: number;
+  obligated: number;
+  description: string;
+  notes: string;
+};
 
 function EditableAmount({ value, onChange }: { value: number; onChange: (v: number) => void }) {
   const [editing, setEditing] = useState(false);
   const [raw, setRaw] = useState("");
-
   if (editing) {
     return (
       <input
-        autoFocus
-        type="text"
-        value={raw}
+        autoFocus type="text" value={raw}
         onChange={(e) => setRaw(e.target.value.replace(/[^0-9]/g, ""))}
         onBlur={() => { onChange(parseInt(raw) || 0); setEditing(false); }}
         onKeyDown={(e) => {
           if (e.key === "Enter") { onChange(parseInt(raw) || 0); setEditing(false); }
           if (e.key === "Escape") setEditing(false);
         }}
-        className="w-full text-right text-sm border border-blue-500 rounded px-2 py-0.5 focus:outline-none focus:ring-2 focus:ring-blue-400 tabular-nums bg-white"
+        className="w-full text-right text-sm border border-blue-400 rounded px-1 py-0.5 focus:outline-none focus:ring-2 focus:ring-blue-400 tabular-nums bg-white"
       />
     );
   }
   return (
     <button
       onClick={() => { setRaw(String(value)); setEditing(true); }}
-      className="w-full text-right text-sm text-slate-800 tabular-nums focus:outline-none"
+      className="w-full text-right text-sm text-slate-800 tabular-nums hover:underline decoration-dotted underline-offset-2 focus:outline-none"
     >
       {value === 0 ? "—" : fmt(value)}
     </button>
-  );
-}
-
-function EditableNote({ value, onChange }: { value: string; onChange: (v: string) => void }) {
-  return (
-    <input
-      type="text"
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      placeholder="Add note…"
-      className="w-full text-sm text-slate-600 bg-transparent border-none focus:outline-none focus:ring-0 placeholder:text-slate-300"
-    />
   );
 }
 
@@ -102,6 +97,11 @@ function useFundingRows(initial: FundingRow[]) {
   return [rows, updateAmount, updateNote] as const;
 }
 
+/* Column groups for visual reference:
+   WHITE bg  → Label | Total Planned | Total Requested
+   BLUE bg   → Total Commitments | Open Commitments | Obligated  (read-only system data)
+   WHITE bg  → Description | Notes
+*/
 function FundingSection({
   title, columnHeader, rows, onUpdateAmount, onUpdateNote,
 }: {
@@ -111,72 +111,172 @@ function FundingSection({
   onUpdateAmount: (id: number, field: "planned" | "requested", value: number) => void;
   onUpdateNote: (id: number, value: string) => void;
 }) {
-  const totalPlanned   = rows.reduce((s, r) => s + r.planned, 0);
-  const totalRequested = rows.reduce((s, r) => s + r.requested, 0);
+  const totalPlanned       = rows.reduce((s, r) => s + r.planned, 0);
+  const totalRequested     = rows.reduce((s, r) => s + r.requested, 0);
+  const totalCommitments   = rows.reduce((s, r) => s + r.totalCommitments, 0);
+  const totalOpen          = rows.reduce((s, r) => s + r.openCommitments, 0);
+  const totalObligated     = rows.reduce((s, r) => s + r.obligated, 0);
+
+  const blueHd = "px-3 py-2.5 text-center text-xs font-semibold text-white uppercase tracking-wide bg-[#1a6ea8]";
+  const blueTd = "px-3 py-2.5 text-right text-sm tabular-nums bg-blue-50 text-slate-800";
+
   return (
     <div className="border border-slate-200 rounded-lg overflow-hidden">
       <div className="bg-[#1a3557] px-4 py-2.5">
         <span className="font-semibold text-white text-sm">{title}</span>
       </div>
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b border-slate-200">
-            <th className="px-4 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider bg-slate-50">{columnHeader}</th>
-            <th className="px-4 py-2.5 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider w-36 bg-blue-50 border-l border-blue-100">Total Planned</th>
-            <th className="px-4 py-2.5 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider w-36 bg-blue-50 border-l border-blue-100">Total Requested</th>
-            <th className="px-4 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider bg-slate-50 border-l border-slate-200">Notes</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-slate-100">
-          {rows.map((row) => (
-            <tr key={row.id}>
-              <td className="px-4 py-3 text-slate-700 bg-white">{row.label}</td>
-              <td className="px-4 py-2.5 bg-blue-50 border-l border-blue-100">
-                <EditableAmount value={row.planned}   onChange={(v) => onUpdateAmount(row.id, "planned",   v)} />
-              </td>
-              <td className="px-4 py-2.5 bg-blue-50 border-l border-blue-100">
-                <EditableAmount value={row.requested} onChange={(v) => onUpdateAmount(row.id, "requested", v)} />
-              </td>
-              <td className="px-4 py-2.5 bg-white border-l border-slate-200">
-                <EditableNote value={row.notes} onChange={(v) => onUpdateNote(row.id, v)} />
-              </td>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm whitespace-nowrap">
+          <thead>
+            <tr className="border-b border-slate-200">
+              <th className="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide bg-slate-50 min-w-[130px]">{columnHeader}</th>
+              <th className="px-3 py-2.5 text-right text-xs font-semibold text-slate-500 uppercase tracking-wide bg-white border-l border-slate-200 w-28">Total Planned</th>
+              <th className="px-3 py-2.5 text-right text-xs font-semibold text-slate-500 uppercase tracking-wide bg-white border-l border-slate-200 w-28">Total Requested</th>
+              <th className={`${blueHd} border-l border-blue-300 w-28`}>Total Commitments</th>
+              <th className={`${blueHd} border-l border-blue-300 w-28`}>Open Commitments</th>
+              <th className={`${blueHd} border-l border-blue-300 w-24`}>Obligated</th>
+              <th className="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide bg-slate-50 border-l border-slate-200 min-w-[200px]">Description</th>
+              <th className="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide bg-slate-50 border-l border-slate-200 min-w-[100px]">Notes</th>
             </tr>
-          ))}
-        </tbody>
-        <tfoot>
-          <tr className="border-t-2 border-slate-200 font-semibold">
-            <td className="px-4 py-2.5 text-xs text-slate-500 uppercase tracking-wider bg-slate-50">Total</td>
-            <td className="px-4 py-2.5 text-right text-sm text-slate-800 tabular-nums bg-blue-50 border-l border-blue-100">{fmt(totalPlanned)}</td>
-            <td className="px-4 py-2.5 text-right text-sm text-slate-800 tabular-nums bg-blue-50 border-l border-blue-100">{fmt(totalRequested)}</td>
-            <td className="bg-white border-l border-slate-200" />
-          </tr>
-        </tfoot>
-      </table>
+          </thead>
+          <tbody className="divide-y divide-slate-100">
+            {rows.map((row) => (
+              <tr key={row.id} className="hover:bg-slate-50/40">
+                <td className="px-3 py-2.5 text-slate-700 bg-slate-50 font-medium">{row.label}</td>
+                <td className="px-3 py-2.5 bg-white border-l border-slate-200">
+                  <EditableAmount value={row.planned}   onChange={(v) => onUpdateAmount(row.id, "planned",   v)} />
+                </td>
+                <td className="px-3 py-2.5 bg-white border-l border-slate-200">
+                  <EditableAmount value={row.requested} onChange={(v) => onUpdateAmount(row.id, "requested", v)} />
+                </td>
+                <td className={`${blueTd} border-l border-blue-200`}>{fmt(row.totalCommitments)}</td>
+                <td className={`${blueTd} border-l border-blue-200`}>{fmt(row.openCommitments)}</td>
+                <td className={`${blueTd} border-l border-blue-200`}>{fmt(row.obligated)}</td>
+                <td className="px-3 py-2.5 text-xs text-slate-500 font-mono border-l border-slate-200 bg-white max-w-[220px] truncate" title={row.description}>
+                  {row.description}
+                </td>
+                <td className="px-3 py-2.5 border-l border-slate-200 bg-white">
+                  <input
+                    type="text"
+                    value={row.notes}
+                    onChange={(e) => onUpdateNote(row.id, e.target.value)}
+                    placeholder="notes"
+                    className="w-full text-sm text-slate-600 bg-transparent border-none focus:outline-none placeholder:text-slate-300"
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+          <tfoot>
+            <tr className="border-t-2 border-slate-300 font-semibold bg-slate-50">
+              <td className="px-3 py-2.5 text-xs text-slate-500 uppercase tracking-wide">Total</td>
+              <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums border-l border-slate-200">{fmt(totalPlanned)}</td>
+              <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums border-l border-slate-200">{fmt(totalRequested)}</td>
+              <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums bg-blue-100 border-l border-blue-200">{fmt(totalCommitments)}</td>
+              <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums bg-blue-100 border-l border-blue-200">{fmt(totalOpen)}</td>
+              <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums bg-blue-100 border-l border-blue-200">{fmt(totalObligated)}</td>
+              <td className="border-l border-slate-200" />
+              <td className="border-l border-slate-200" />
+            </tr>
+          </tfoot>
+        </table>
+      </div>
     </div>
   );
 }
 
-function FundingTable({ budget }: { budget: number }) {
+function FundingTable({ budget, projectNumber }: { budget: number; projectNumber: string }) {
   const b = budget;
+  const fy = projectNumber.slice(0, 2);
+  const num = projectNumber;
+
   const [laborRows, updateLaborAmount, updateLaborNote] = useFundingRows([
-    { id: 1, label: "Nugent, Joseph Pat",  planned: Math.round(b * 0.090), requested: Math.round(b * 0.090), notes: "" },
-    { id: 2, label: "U435310",             planned: Math.round(b * 0.050), requested: Math.round(b * 0.048), notes: "" },
-    { id: 3, label: "Chen, David",         planned: Math.round(b * 0.035), requested: Math.round(b * 0.035), notes: "" },
-  ]);
-  const [travelRows, updateTravelAmount, updateTravelNote] = useFundingRows([
-    { id: 1, label: "Site Visits",         planned: Math.round(b * 0.020), requested: Math.round(b * 0.020), notes: "" },
-    { id: 2, label: "Equipment Transport", planned: Math.round(b * 0.013), requested: Math.round(b * 0.013), notes: "" },
-  ]);
-  const [materialsRows, updateMaterialsAmount, updateMaterialsNote] = useFundingRows([
-    { id: 1, label: "Concrete (500 units)",  planned: Math.round(b * 0.031), requested: Math.round(b * 0.031), notes: "" },
-    { id: 2, label: "Steel Rebar (2000 ft)", planned: Math.round(b * 0.021), requested: Math.round(b * 0.020), notes: "" },
+    {
+      id: 1, label: "Nugent, Joseph Pat",
+      planned: Math.round(b * 0.090), requested: Math.round(b * 0.090 * 0.05),
+      totalCommitments: Math.round(b * 0.090 * 0.05), openCommitments: Math.round(b * 0.090 * 0.03), obligated: Math.round(b * 0.090 * 0.02),
+      description: `FY${fy}/SANDC LABOR FUNDS FOR ${num}/CEFMS/`, notes: "notes",
+    },
+    {
+      id: 2, label: "U435310",
+      planned: Math.round(b * 0.050), requested: Math.round(b * 0.050 * 0.95),
+      totalCommitments: Math.round(b * 0.050 * 0.95), openCommitments: Math.round(b * 0.050 * 0.50), obligated: Math.round(b * 0.050 * 0.45),
+      description: `FY${fy}/SANDC LABOR FUNDS FOR ${num}/org code/`, notes: "notes",
+    },
+    {
+      id: 3, label: "Chen, David",
+      planned: Math.round(b * 0.035), requested: Math.round(b * 0.035),
+      totalCommitments: Math.round(b * 0.035 * 0.60), openCommitments: Math.round(b * 0.035 * 0.30), obligated: Math.round(b * 0.035 * 0.30),
+      description: `FY${fy}/SANDC LABOR FUNDS FOR ${num}/Chen D/`, notes: "",
+    },
   ]);
 
+  const [travelRows, updateTravelAmount, updateTravelNote] = useFundingRows([
+    {
+      id: 1, label: "Site Visits",
+      planned: Math.round(b * 0.020), requested: Math.round(b * 0.020),
+      totalCommitments: Math.round(b * 0.020), openCommitments: Math.round(b * 0.020 * 0.59), obligated: Math.round(b * 0.020 * 0.41),
+      description: `FY${fy}/SANDC TRAVEL FOR ${num}/Site Visits/`, notes: "",
+    },
+    {
+      id: 2, label: "Equipment Transport",
+      planned: Math.round(b * 0.013), requested: Math.round(b * 0.013),
+      totalCommitments: Math.round(b * 0.013), openCommitments: Math.round(b * 0.013 * 0.50), obligated: Math.round(b * 0.013 * 0.50),
+      description: `FY${fy}/SANDC TRAVEL FOR ${num}/Equip Transport/`, notes: "",
+    },
+  ]);
+
+  const [materialsRows, updateMaterialsAmount, updateMaterialsNote] = useFundingRows([
+    {
+      id: 1, label: "Concrete (500 units)",
+      planned: Math.round(b * 0.031), requested: Math.round(b * 0.031),
+      totalCommitments: Math.round(b * 0.031), openCommitments: Math.round(b * 0.031 * 0.53), obligated: Math.round(b * 0.031 * 0.47),
+      description: `FY${fy}/SANDC MATL FOR ${num}/Concrete/500 units`, notes: "",
+    },
+    {
+      id: 2, label: "Steel Rebar (2000 ft)",
+      planned: Math.round(b * 0.021), requested: Math.round(b * 0.021 * 0.98),
+      totalCommitments: Math.round(b * 0.021 * 0.98), openCommitments: Math.round(b * 0.021 * 0.49), obligated: Math.round(b * 0.021 * 0.49),
+      description: `FY${fy}/SANDC MATL FOR ${num}/Rebar/2000 units`, notes: "",
+    },
+  ]);
+
+  const allRows = [...laborRows, ...travelRows, ...materialsRows];
+  const totalPlanned = allRows.reduce((s, r) => s + r.planned, 0);
+  const leftToPlan = budget - totalPlanned;
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
+      {/* Summary cards */}
+      <div className="grid grid-cols-3 gap-4">
+        <div className="rounded-xl bg-[#1a3557] px-5 py-4 text-white">
+          <p className="text-xs font-semibold uppercase tracking-widest text-blue-300 mb-1">TOA</p>
+          <p className="text-2xl font-bold tabular-nums">{fmt(budget)}</p>
+          <p className="text-xs text-blue-300 mt-1">Total Obligating Authority</p>
+        </div>
+        <div className="rounded-xl bg-white border border-slate-200 px-5 py-4">
+          <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-1">Planned</p>
+          <p className="text-2xl font-bold tabular-nums text-slate-800">{fmt(totalPlanned)}</p>
+          <p className="text-xs text-slate-400 mt-1">Amount currently planned</p>
+        </div>
+        <div className={`rounded-xl border px-5 py-4 ${leftToPlan >= 0 ? "bg-emerald-50 border-emerald-200" : "bg-red-50 border-red-200"}`}>
+          <p className={`text-xs font-semibold uppercase tracking-widest mb-1 ${leftToPlan >= 0 ? "text-emerald-600" : "text-red-500"}`}>Left to Plan</p>
+          <p className={`text-2xl font-bold tabular-nums ${leftToPlan >= 0 ? "text-emerald-700" : "text-red-600"}`}>{fmt(leftToPlan)}</p>
+          <p className={`text-xs mt-1 ${leftToPlan >= 0 ? "text-emerald-500" : "text-red-400"}`}>Remaining to allocate</p>
+        </div>
+      </div>
+
+      {/* Tables */}
       <FundingSection title="Labor"             columnHeader="Employee / Org Code" rows={laborRows}     onUpdateAmount={updateLaborAmount}     onUpdateNote={updateLaborNote}     />
       <FundingSection title="Travel"            columnHeader="Travel Line"         rows={travelRows}    onUpdateAmount={updateTravelAmount}    onUpdateNote={updateTravelNote}    />
       <FundingSection title="Materials & Other" columnHeader="Item"                rows={materialsRows} onUpdateAmount={updateMaterialsAmount} onUpdateNote={updateMaterialsNote} />
+
+      {/* Submit */}
+      <div className="flex justify-center pt-2">
+        <button className="px-10 py-2.5 bg-[#1a3557] hover:bg-[#16304d] text-white text-sm font-semibold rounded-lg shadow-sm transition-colors">
+          Submit
+        </button>
+      </div>
     </div>
   );
 }
@@ -414,7 +514,7 @@ export default function ProjectSettings() {
           {/* ── FUNDING TAB ── */}
           {activeTab === "funding" && (
             <div className="p-6 animate-in fade-in duration-200">
-              <FundingTable budget={project.budget} />
+              <FundingTable budget={project.budget} projectNumber={project.number} />
             </div>
           )}
 
