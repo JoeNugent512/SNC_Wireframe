@@ -174,15 +174,15 @@ export default function ChangeRequests() {
             <>
               <div className="px-6 py-4 border-b border-slate-100 bg-slate-50">
                 <DialogHeader>
-                  <div className="flex justify-between items-start mb-1">
-                    <DialogTitle className="text-lg font-bold text-slate-900">
-                      {selectedCR.category} — {selectedCR.target}
-                    </DialogTitle>
+                  <DialogTitle className="text-lg font-bold text-slate-900 pr-8">
+                    {selectedCR.category} — {selectedCR.target}
+                  </DialogTitle>
+                  <div className="flex items-center gap-3 mt-1">
                     {getStatusBadge(selectedCR.status)}
+                    <DialogDescription className="text-sm text-slate-500 m-0">
+                      Submitted on {selectedCR.date} by {selectedCR.submittedBy}
+                    </DialogDescription>
                   </div>
-                  <DialogDescription className="text-sm text-slate-500">
-                    Submitted on {selectedCR.date} by {selectedCR.submittedBy}
-                  </DialogDescription>
                 </DialogHeader>
               </div>
 
