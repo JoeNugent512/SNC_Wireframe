@@ -75,13 +75,12 @@ export default function ChangeRequests() {
     status !== "Approved" && status !== "Rejected";
 
   return (
-    <Layout title="Change Requests" roleBadge="BA View">
+    <Layout roleBadge="BA View" breadcrumb={<>
+      <Link href="/" className="text-slate-400 hover:text-slate-700 transition-colors">Home</Link>
+      <ChevronRight size={14} className="text-slate-300" />
+      <span className="font-semibold text-slate-800">Change Requests</span>
+    </>}>
       <div className="flex flex-col h-full space-y-6">
-        <nav className="text-sm font-medium text-slate-500 flex items-center">
-          <Link href="/" className="hover:text-slate-900 transition-colors">Home</Link>
-          <ChevronRight size={16} className="mx-1 text-slate-400" />
-          <span className="text-slate-900">Change Requests</span>
-        </nav>
 
         <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden flex flex-col h-[calc(100vh-12rem)]">
           {/* ── Toolbar ── */}

@@ -166,13 +166,12 @@ export default function ProjectList() {
   ];
 
   return (
-    <Layout>
+    <Layout breadcrumb={<>
+      <Link href="/" className="text-slate-400 hover:text-slate-700 transition-colors">Home</Link>
+      <ChevronRight size={14} className="text-slate-300" />
+      <span className="font-semibold text-slate-800">Project List</span>
+    </>}>
       <div className="flex flex-col h-[calc(100vh-10rem)]">
-        <nav className="text-sm font-medium text-slate-500 mb-6 flex items-center">
-          <Link href="/" className="hover:text-slate-900 transition-colors">Home</Link>
-          <ChevronRight size={16} className="mx-1 text-slate-400" />
-          <span className="text-slate-900">Project List</span>
-        </nav>
 
         <div className="flex flex-col lg:flex-row gap-6 h-full min-h-0">
           {/* ── LEFT PANEL ── */}

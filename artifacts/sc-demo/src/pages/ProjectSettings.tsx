@@ -83,22 +83,21 @@ export default function ProjectSettings() {
     );
   }
 
-  return (
-    <Layout title={`Settings: ${project.number}`}>
-      <div className="max-w-3xl mx-auto space-y-5">
+  const breadcrumb = (
+    <>
+      <Link href="/" className="text-slate-400 hover:text-slate-700 transition-colors">Home</Link>
+      <ChevronRight size={14} className="text-slate-300 flex-shrink-0" />
+      <Link href="/projects" className="text-slate-400 hover:text-slate-700 transition-colors">Project List</Link>
+      <ChevronRight size={14} className="text-slate-300 flex-shrink-0" />
+      <Link href={`/projects/${project.id}/planning`} className="text-slate-400 hover:text-slate-700 transition-colors font-mono text-xs">{project.number}</Link>
+      <ChevronRight size={14} className="text-slate-300 flex-shrink-0" />
+      <span className="font-semibold text-slate-800">Settings</span>
+    </>
+  );
 
-        {/* Breadcrumb */}
-        <nav className="text-sm font-medium text-slate-500 flex items-center flex-wrap gap-1">
-          <Link href="/" className="hover:text-slate-900 transition-colors">Home</Link>
-          <ChevronRight size={16} className="text-slate-400" />
-          <Link href="/projects" className="hover:text-slate-900 transition-colors">Project List</Link>
-          <ChevronRight size={16} className="text-slate-400" />
-          <Link href={`/projects/${project.id}/planning`} className="hover:text-slate-900 transition-colors">
-            <span className="bg-slate-200 px-1.5 py-0.5 rounded text-xs font-mono">{project.number}</span>
-          </Link>
-          <ChevronRight size={16} className="text-slate-400" />
-          <span className="text-slate-900">Settings</span>
-        </nav>
+  return (
+    <Layout breadcrumb={breadcrumb}>
+      <div className="max-w-3xl mx-auto space-y-5">
 
         {/* Card */}
         <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">

@@ -21,35 +21,14 @@ interface LaborRow {
 const makeInitialLabor = (scNumber: string): LaborRow[] => {
   const fy = scNumber.slice(0, 2);
   return [
-    {
-      id: 1,
-      employeeOrg: "Nugent, Joseph Pat",
-      totalPlanned: 10000,
-      totalRequested: 500,
-      totalCommitments: 500,
-      openCommitments: 300,
-      obligated: 200,
-      description: `FY${fy}/SANDC LABOR FUNDS FOR ${scNumber}/CEFMS name/`,
-      notes: "notes",
-    },
-    {
-      id: 2,
-      employeeOrg: "U435310",
-      totalPlanned: 20000,
-      totalRequested: 19000,
-      totalCommitments: 19000,
-      openCommitments: 10000,
-      obligated: 9000,
-      description: `FY${fy}/SANDC LABOR FUNDS FOR ${scNumber}/org code/`,
-      notes: "notes",
-    },
+    { id: 1, employeeOrg: "Nugent, Joseph Pat", totalPlanned: 10000, totalRequested: 500, totalCommitments: 500, openCommitments: 300, obligated: 200, description: `FY${fy}/SANDC LABOR FUNDS FOR ${scNumber}/CEFMS name/`, notes: "notes" },
+    { id: 2, employeeOrg: "U435310", totalPlanned: 20000, totalRequested: 19000, totalCommitments: 19000, openCommitments: 10000, obligated: 9000, description: `FY${fy}/SANDC LABOR FUNDS FOR ${scNumber}/org code/`, notes: "notes" },
   ];
 };
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
 
-/* Shared colgroup + header row used by all three tables */
 const TableCols = () => (
   <colgroup>
     <col className="w-[160px]" />
@@ -91,44 +70,54 @@ export default function ProjectPlanning() {
     );
   }
 
+  const breadcrumb = (
+    <>
+      <Link href="/" className="text-slate-400 hover:text-slate-700 transition-colors">Home</Link>
+      <ChevronRight size={14} className="text-slate-300 flex-shrink-0" />
+      <Link href="/projects" className="text-slate-400 hover:text-slate-700 transition-colors">Project List</Link>
+      <ChevronRight size={14} className="text-slate-300 flex-shrink-0" />
+      <span className="font-semibold text-slate-800">{project.number}</span>
+    </>
+  );
+
+  const headerActions = (
+    <Link href={`/projects/${project.id}/settings`} data-testid="nav-settings-header">
+      <button className="p-2 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors border border-transparent hover:border-slate-200">
+        <Settings size={17} />
+      </button>
+    </Link>
+  );
+
   return (
-    <Layout title={`${project.number} — Planning`}>
-      <div className="space-y-4">
+    <Layout breadcrumb={breadcrumb} headerActions={headerActions}>
+      <div className="space-y-5">
 
-        {/* ── Breadcrumb ── */}
-        <nav className="text-sm font-medium text-slate-500 flex items-center">
-          <Link href="/" className="hover:text-slate-900 transition-colors">Home</Link>
-          <ChevronRight size={16} className="mx-1 text-slate-400" />
-          <Link href="/projects" className="hover:text-slate-900 transition-colors">Project List</Link>
-          <ChevronRight size={16} className="mx-1 text-slate-400" />
-          <span className="text-slate-900 font-semibold">{project.number}</span>
-        </nav>
-
-        {/* ── Planning summary bar ── */}
-        <div className="bg-[#1a3557] rounded-xl px-5 py-3 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3 flex-wrap">
-            <div className="flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5">
-              <span className="text-white/60 font-medium uppercase tracking-wide text-xs">TOA</span>
-              <span className="font-bold text-white text-sm">{fmt(toa)}</span>
-            </div>
-            <div className="text-white/30">/</div>
-            <div className="flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5">
-              <span className="text-white/60 font-medium uppercase tracking-wide text-xs">Planned</span>
-              <span className="font-bold text-white text-sm">{fmt(planned)}</span>
-            </div>
-            <div className="text-white/30">/</div>
-            <div className="flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5">
-              <span className="text-white/60 font-medium uppercase tracking-wide text-xs">Left to Plan</span>
-              <span className={`font-bold text-sm ${leftToPlan < 0 ? "text-red-300" : "text-emerald-300"}`}>
-                {fmt(leftToPlan)}
-              </span>
-            </div>
+        {/* ── Big modern stat bubbles ── */}
+        <div className="grid grid-cols-3 gap-4">
+          {/* TOA */}
+          <div className="bg-[#1a3557] rounded-2xl px-6 py-5 flex flex-col gap-1.5 shadow-md">
+            <span className="text-xs font-semibold uppercase tracking-widest text-white/50">TOA</span>
+            <span className="text-3xl font-bold text-white leading-none">{fmt(toa)}</span>
+            <span className="text-xs text-white/40">Total Obligating Authority</span>
           </div>
-          <Link href={`/projects/${project.id}/settings`} data-testid="nav-settings-header">
-            <button className="bg-white/10 hover:bg-white/20 border border-white/20 text-white p-2 rounded-lg transition-colors">
-              <Settings size={16} />
-            </button>
-          </Link>
+          {/* Planned */}
+          <div className="bg-white border border-slate-200 rounded-2xl px-6 py-5 flex flex-col gap-1.5 shadow-sm">
+            <span className="text-xs font-semibold uppercase tracking-widest text-slate-400">Planned</span>
+            <span className="text-3xl font-bold text-slate-900 leading-none">{fmt(planned)}</span>
+            <span className="text-xs text-slate-400">Amount currently planned</span>
+          </div>
+          {/* Left to Plan */}
+          <div className={`rounded-2xl px-6 py-5 flex flex-col gap-1.5 shadow-sm border ${
+            leftToPlan < 0
+              ? "bg-red-50 border-red-200"
+              : "bg-emerald-50 border-emerald-200"
+          }`}>
+            <span className={`text-xs font-semibold uppercase tracking-widest ${leftToPlan < 0 ? "text-red-400" : "text-emerald-600"}`}>Left to Plan</span>
+            <span className={`text-3xl font-bold leading-none ${leftToPlan < 0 ? "text-red-600" : "text-emerald-700"}`}>{fmt(leftToPlan)}</span>
+            <span className={`text-xs ${leftToPlan < 0 ? "text-red-400" : "text-emerald-500"}`}>
+              {leftToPlan < 0 ? "Over budget" : "Remaining to allocate"}
+            </span>
+          </div>
         </div>
 
         {/* ── LABOR TABLE ── */}
@@ -191,8 +180,8 @@ export default function ProjectPlanning() {
               </thead>
               <tbody>
                 {[
-                  { id: 1, label: "Site Visits",         planned: 3400,  requested: 3400,  commits: 3400,  open: 2000, obligated: 1400, description: "FY25/SANDC TRAVEL FOR 25A01/Site Visits/",       notes: "" },
-                  { id: 2, label: "Equipment Transport", planned: 2400,  requested: 2400,  commits: 2400,  open: 1200, obligated: 1200, description: "FY25/SANDC TRAVEL FOR 25A01/Equip Transport/",   notes: "" },
+                  { id: 1, label: "Site Visits",         planned: 3400,  requested: 3400,  commits: 3400,  open: 2000, obligated: 1400, description: "FY25/SANDC TRAVEL FOR 25A01/Site Visits/",     notes: "" },
+                  { id: 2, label: "Equipment Transport", planned: 2400,  requested: 2400,  commits: 2400,  open: 1200, obligated: 1200, description: "FY25/SANDC TRAVEL FOR 25A01/Equip Transport/", notes: "" },
                 ].map((row, idx) => (
                   <tr key={row.id} className={idx % 2 === 0 ? "bg-slate-50" : "bg-white"}>
                     <td className="border border-slate-200 px-3 py-2 font-medium text-slate-800 truncate">{row.label}</td>
@@ -232,8 +221,8 @@ export default function ProjectPlanning() {
               </thead>
               <tbody>
                 {[
-                  { id: 1, label: "Concrete (500 units)",    planned: 75000, requested: 75000, commits: 75000, open: 40000, obligated: 35000, description: "FY25/SANDC MATL FOR 25A01/Concrete/500 units",  notes: "" },
-                  { id: 2, label: "Steel Rebar (2000 units)", planned: 50000, requested: 50000, commits: 50000, open: 25000, obligated: 25000, description: "FY25/SANDC MATL FOR 25A01/Rebar/2000 units",     notes: "" },
+                  { id: 1, label: "Concrete (500 units)",     planned: 75000, requested: 75000, commits: 75000, open: 40000, obligated: 35000, description: "FY25/SANDC MATL FOR 25A01/Concrete/500 units", notes: "" },
+                  { id: 2, label: "Steel Rebar (2000 units)", planned: 50000, requested: 50000, commits: 50000, open: 25000, obligated: 25000, description: "FY25/SANDC MATL FOR 25A01/Rebar/2000 units",   notes: "" },
                 ].map((row, idx) => (
                   <tr key={row.id} className={idx % 2 === 0 ? "bg-slate-50" : "bg-white"}>
                     <td className="border border-slate-200 px-3 py-2 font-medium text-slate-800 truncate">{row.label}</td>
