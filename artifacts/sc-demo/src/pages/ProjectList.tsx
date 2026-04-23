@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import {
   ChevronRight, Briefcase, Search, Activity,
-  PauseCircle, CheckCircle2, Clock, FileSpreadsheet
+  PauseCircle, CheckCircle2, Clock, FileSpreadsheet, Loader2
 } from "lucide-react";
 import Layout from "@/components/Layout";
 import { MOCK_PROJECTS, Project } from "@/lib/mockData";
