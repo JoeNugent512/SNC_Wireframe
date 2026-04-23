@@ -144,29 +144,39 @@ export default function ProjectPlanning() {
             <h2 className="text-base font-bold text-slate-800">Labor</h2>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full text-sm border-collapse min-w-[1050px]">
+            <table className="w-full table-fixed text-sm border-collapse min-w-[860px]">
+              <colgroup>
+                <col />
+                <col className="w-[105px]" />
+                <col className="w-[105px]" />
+                <col className="w-[120px]" />
+                <col className="w-[120px]" />
+                <col className="w-[100px]" />
+                <col className="w-[200px]" />
+              </colgroup>
               <thead>
                 <tr>
-                  <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-left text-xs w-[170px]">Employee/org code</th>
-                  <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-right text-xs w-[105px]">Total Planned</th>
-                  <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-right text-xs w-[105px]">Total Requested</th>
-                  <th className="border border-slate-300 bg-[#1a6ea8] text-white font-semibold px-3 py-2 text-right text-xs w-[120px]">Total Commitments</th>
-                  <th className="border border-slate-300 bg-[#1a6ea8] text-white font-semibold px-3 py-2 text-right text-xs w-[120px]">Open Commitments</th>
-                  <th className="border border-slate-300 bg-[#1a6ea8] text-white font-semibold px-3 py-2 text-right text-xs w-[100px]">Obligated</th>
-                  <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-left text-xs w-[260px]">Description</th>
+                  <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-left text-xs">Employee / Org Code</th>
+                  <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-right text-xs">Total Planned</th>
+                  <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-right text-xs">Total Requested</th>
+                  <th className="border border-slate-300 bg-[#1a6ea8] text-white font-semibold px-3 py-2 text-right text-xs">Total Commitments</th>
+                  <th className="border border-slate-300 bg-[#1a6ea8] text-white font-semibold px-3 py-2 text-right text-xs">Open Commitments</th>
+                  <th className="border border-slate-300 bg-[#1a6ea8] text-white font-semibold px-3 py-2 text-right text-xs">Obligated</th>
                   <th className="border border-slate-300 bg-slate-100 text-slate-700 font-semibold px-3 py-2 text-left text-xs">Notes</th>
                 </tr>
               </thead>
               <tbody>
                 {labor.map((row, idx) => (
                   <tr key={row.id} className={idx % 2 === 0 ? "bg-slate-50" : "bg-white"} data-testid={`row-labor-${row.id}`}>
-                    <td className="border border-slate-200 px-3 py-2 font-medium text-slate-800">{row.employeeOrg}</td>
+                    <td className="border border-slate-200 px-3 py-2">
+                      <div className="font-medium text-slate-800 truncate">{row.employeeOrg}</div>
+                      {row.description && <div className="text-xs text-slate-400 truncate mt-0.5">{row.description}</div>}
+                    </td>
                     <td className="border border-slate-200 px-3 py-2 text-right text-slate-700">{fmt(row.totalPlanned)}</td>
                     <td className="border border-slate-200 px-3 py-2 text-right text-slate-700">{fmt(row.totalRequested)}</td>
                     <td className="border border-slate-200 px-3 py-2 text-right font-medium text-slate-900 bg-[#5ab4e8]/25">{fmt(row.totalCommitments)}</td>
                     <td className="border border-slate-200 px-3 py-2 text-right font-medium text-slate-900 bg-[#5ab4e8]/25">{fmt(row.openCommitments)}</td>
                     <td className="border border-slate-200 px-3 py-2 text-right font-medium text-slate-900 bg-[#5ab4e8]/25">{fmt(row.obligated)}</td>
-                    <td className="border border-slate-200 px-3 py-2 text-slate-600 text-xs">{row.description}</td>
                     <td className="border border-slate-200 px-3 py-2 text-slate-600 text-sm">{row.notes}</td>
                   </tr>
                 ))}
@@ -182,15 +192,24 @@ export default function ProjectPlanning() {
                 <h2 className="text-base font-bold text-slate-800">Travel</h2>
               </div>
               <div className="overflow-x-auto">
-                <table className="w-full text-sm border-collapse min-w-[880px]">
+                <table className="w-full table-fixed text-sm border-collapse min-w-[860px]">
+                  <colgroup>
+                    <col />
+                    <col className="w-[105px]" />
+                    <col className="w-[105px]" />
+                    <col className="w-[120px]" />
+                    <col className="w-[120px]" />
+                    <col className="w-[100px]" />
+                    <col className="w-[200px]" />
+                  </colgroup>
                   <thead>
                     <tr>
-                      <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-left text-xs w-[200px]">Description</th>
-                      <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-right text-xs w-[105px]">Total Planned</th>
-                      <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-right text-xs w-[105px]">Total Requested</th>
-                      <th className="border border-slate-300 bg-[#1a6ea8] text-white font-semibold px-3 py-2 text-right text-xs w-[120px]">Total Commitments</th>
-                      <th className="border border-slate-300 bg-[#1a6ea8] text-white font-semibold px-3 py-2 text-right text-xs w-[120px]">Open Commitments</th>
-                      <th className="border border-slate-300 bg-[#1a6ea8] text-white font-semibold px-3 py-2 text-right text-xs w-[100px]">Obligated</th>
+                      <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-left text-xs">Description</th>
+                      <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-right text-xs">Total Planned</th>
+                      <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-right text-xs">Total Requested</th>
+                      <th className="border border-slate-300 bg-[#1a6ea8] text-white font-semibold px-3 py-2 text-right text-xs">Total Commitments</th>
+                      <th className="border border-slate-300 bg-[#1a6ea8] text-white font-semibold px-3 py-2 text-right text-xs">Open Commitments</th>
+                      <th className="border border-slate-300 bg-[#1a6ea8] text-white font-semibold px-3 py-2 text-right text-xs">Obligated</th>
                       <th className="border border-slate-300 bg-slate-100 text-slate-700 font-semibold px-3 py-2 text-left text-xs">Notes</th>
                     </tr>
                   </thead>
@@ -200,7 +219,7 @@ export default function ProjectPlanning() {
                       { id: 2, desc: "Equipment Transport", planned: 2400, requested: 2400, commits: 2400, open: 1200, obligated: 1200, notes: "" },
                     ].map((row, idx) => (
                       <tr key={row.id} className={idx % 2 === 0 ? "bg-slate-50" : "bg-white"}>
-                        <td className="border border-slate-200 px-3 py-2 text-slate-800">{row.desc}</td>
+                        <td className="border border-slate-200 px-3 py-2 font-medium text-slate-800 truncate">{row.desc}</td>
                         <td className="border border-slate-200 px-3 py-2 text-right text-slate-700">{fmt(row.planned)}</td>
                         <td className="border border-slate-200 px-3 py-2 text-right text-slate-700">{fmt(row.requested)}</td>
                         <td className="border border-slate-200 px-3 py-2 text-right bg-[#5ab4e8]/25">{fmt(row.commits)}</td>
@@ -220,15 +239,24 @@ export default function ProjectPlanning() {
                 <h2 className="text-base font-bold text-slate-800">Materials &amp; Other</h2>
               </div>
               <div className="overflow-x-auto">
-                <table className="w-full text-sm border-collapse min-w-[880px]">
+                <table className="w-full table-fixed text-sm border-collapse min-w-[860px]">
+                  <colgroup>
+                    <col />
+                    <col className="w-[105px]" />
+                    <col className="w-[105px]" />
+                    <col className="w-[120px]" />
+                    <col className="w-[120px]" />
+                    <col className="w-[100px]" />
+                    <col className="w-[200px]" />
+                  </colgroup>
                   <thead>
                     <tr>
-                      <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-left text-xs w-[200px]">Description</th>
-                      <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-right text-xs w-[105px]">Total Planned</th>
-                      <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-right text-xs w-[105px]">Total Requested</th>
-                      <th className="border border-slate-300 bg-[#1a6ea8] text-white font-semibold px-3 py-2 text-right text-xs w-[120px]">Total Commitments</th>
-                      <th className="border border-slate-300 bg-[#1a6ea8] text-white font-semibold px-3 py-2 text-right text-xs w-[120px]">Open Commitments</th>
-                      <th className="border border-slate-300 bg-[#1a6ea8] text-white font-semibold px-3 py-2 text-right text-xs w-[100px]">Obligated</th>
+                      <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-left text-xs">Description</th>
+                      <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-right text-xs">Total Planned</th>
+                      <th className="border border-slate-300 bg-slate-200 text-slate-700 font-semibold px-3 py-2 text-right text-xs">Total Requested</th>
+                      <th className="border border-slate-300 bg-[#1a6ea8] text-white font-semibold px-3 py-2 text-right text-xs">Total Commitments</th>
+                      <th className="border border-slate-300 bg-[#1a6ea8] text-white font-semibold px-3 py-2 text-right text-xs">Open Commitments</th>
+                      <th className="border border-slate-300 bg-[#1a6ea8] text-white font-semibold px-3 py-2 text-right text-xs">Obligated</th>
                       <th className="border border-slate-300 bg-slate-100 text-slate-700 font-semibold px-3 py-2 text-left text-xs">Notes</th>
                     </tr>
                   </thead>
@@ -238,7 +266,7 @@ export default function ProjectPlanning() {
                       { id: 2, desc: "Steel Rebar (2000 units)", planned: 50000, requested: 50000, commits: 50000, open: 25000, obligated: 25000, notes: "" },
                     ].map((row, idx) => (
                       <tr key={row.id} className={idx % 2 === 0 ? "bg-slate-50" : "bg-white"}>
-                        <td className="border border-slate-200 px-3 py-2 text-slate-800">{row.desc}</td>
+                        <td className="border border-slate-200 px-3 py-2 font-medium text-slate-800 truncate">{row.desc}</td>
                         <td className="border border-slate-200 px-3 py-2 text-right text-slate-700">{fmt(row.planned)}</td>
                         <td className="border border-slate-200 px-3 py-2 text-right text-slate-700">{fmt(row.requested)}</td>
                         <td className="border border-slate-200 px-3 py-2 text-right bg-[#5ab4e8]/25">{fmt(row.commits)}</td>
