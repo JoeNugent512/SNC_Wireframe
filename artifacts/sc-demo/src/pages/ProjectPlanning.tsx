@@ -646,7 +646,7 @@ function FundingSection({
                                       <button
                                         onClick={() => onSpreadFiscalYear(row.id, yr.fy, 0, 0, 0, 0)}
                                         className="p-1 rounded transition-colors"
-                                        style={{ color: "#cbd5e1", fontSize: 10, fontWeight: 700, fontFamily: "inherit", background: "none", border: "none", cursor: "pointer", lineHeight: 1 }}
+                                        style={{ color: "#cbd5e1", fontSize: 14, fontWeight: 600, fontFamily: "inherit", background: "none", border: "none", cursor: "pointer", lineHeight: 1 }}
                                         title={`Zero out ${yr.fy}`}
                                         onMouseEnter={(e) => { e.currentTarget.style.color = "#64748b"; e.currentTarget.style.background = "#e2e8f0"; }}
                                         onMouseLeave={(e) => { e.currentTarget.style.color = "#cbd5e1"; e.currentTarget.style.background = "transparent"; }}
