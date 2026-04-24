@@ -223,7 +223,6 @@ function renderTopNav(opts){
     <div style="width:32px;height:32px;border-radius:6px;background:#1a3557;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:13px;cursor:pointer" onclick="nav('/')">S&amp;C</div>`;
   if(opts&&opts.crumbs){
     left+=`<div style="display:flex;align-items:center;gap:4px">
-      <button onclick="history.back()" style="padding:4px;background:none;border:none;color:#94a3b8;cursor:pointer;display:flex;align-items:center;border-radius:4px">${I.back}</button>
       <div style="display:flex;align-items:center;gap:5px;font-size:14px;font-weight:500;color:#64748b">`;
     opts.crumbs.forEach((c,i)=>{
       const href=opts.hrefs[i];
@@ -233,6 +232,7 @@ function renderTopNav(opts){
     });
     left+=`</div>`;
     if(opts.role)left+=`<span style="background:#dbeafe;color:#1e40af;border:1px solid #bfdbfe;font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px">${opts.role}</span>`;
+    left+=`<button onclick="history.back()" style="padding:4px;background:none;border:none;color:#94a3b8;cursor:pointer;display:flex;align-items:center;border-radius:4px">${I.back}</button>`;
     left+=`</div>`;
   } else {
     left+=`<h1 style="font-size:18px;font-weight:700;color:#1e293b;margin:0">Dashboard</h1>`;
@@ -247,13 +247,13 @@ function renderTopNavProject(id,page){
   n.innerHTML=navWrap(`<div style="display:flex;align-items:center;gap:10px;min-width:0">
     <div style="width:32px;height:32px;border-radius:6px;background:#1a3557;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:13px;cursor:pointer" onclick="nav('/')">S&amp;C</div>
     <div style="display:flex;align-items:center;gap:4px">
-      <button onclick="history.back()" style="padding:4px;background:none;border:none;color:#94a3b8;cursor:pointer;display:flex;align-items:center;border-radius:4px">${I.back}</button>
       <div style="display:flex;align-items:center;gap:5px;font-size:14px;font-weight:500;color:#64748b">
         <span style="cursor:pointer" onclick="nav('/')">Home</span><span style="color:#cbd5e1">${I.chev}</span>
         <span style="cursor:pointer" onclick="nav('/projects')">Project List</span><span style="color:#cbd5e1">${I.chev}</span>
         <span style="cursor:pointer;font-family:monospace;font-size:12px" onclick="nav('/projects/${id}/planning')">${esc(num)}</span><span style="color:#cbd5e1">${I.chev}</span>
         <span style="font-weight:700;color:#1e293b">${page}</span>
       </div>
+      <button onclick="history.back()" style="padding:4px;background:none;border:none;color:#94a3b8;cursor:pointer;display:flex;align-items:center;border-radius:4px">${I.back}</button>
     </div>
   </div>`);
 }

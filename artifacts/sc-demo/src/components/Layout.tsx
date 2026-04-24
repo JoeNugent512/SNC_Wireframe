@@ -33,6 +33,9 @@ export default function Layout({ children, title, roleBadge, breadcrumb, headerA
             </div>
             {breadcrumb ? (
               <div className="flex items-center gap-2 min-w-0">
+                <div className="flex items-center gap-1.5 flex-wrap text-sm font-medium leading-tight">
+                  {breadcrumb}
+                </div>
                 <button
                   onClick={() => window.history.back()}
                   className="flex-shrink-0 p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
@@ -40,9 +43,6 @@ export default function Layout({ children, title, roleBadge, breadcrumb, headerA
                 >
                   <ArrowLeft size={16} />
                 </button>
-                <div className="flex items-center gap-1.5 flex-wrap text-sm font-medium leading-tight">
-                  {breadcrumb}
-                </div>
               </div>
             ) : (
               <h1 className="text-lg font-semibold text-slate-800 truncate">
