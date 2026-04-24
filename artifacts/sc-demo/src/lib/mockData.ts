@@ -313,11 +313,13 @@ export const MOCK_CHANGE_REQUESTS: ChangeRequest[] = [
     projectDescription: "Replacement of 100-year-old water main infrastructure in the central business district.",
     submittedBy: "Elena Rodriguez",
     date: "2024-02-05",
-    justification: "Shifting budget from contractor labor to materials to cover higher-than-anticipated cost of 6-inch HDPE pipe fittings. Net budget impact is zero.",
+    justification: "Adding Park, Jennifer to support excavation coordination. Funded by trimming Contractor Pool and Okafor hours. Small Cold Regions Research Lab site visit added by pulling remaining labor from Contractor Pool.",
     status: "First Request",
     lineItems: [
-      { direction: "Decrease", type: "Labor",     orgCode: "U601847", resource: "Contractor Pool",      amount: 30000, from: 412000, to: 382000 },
-      { direction: "Increase", type: "Materials", orgCode: "U601847", resource: "Pipe Fittings (HDPE)", amount: 30000, from: 285000, to: 315000 },
+      { direction: "Increase", type: "Labor",  orgCode: "U601847", resource: "Park, Jennifer",            amount:  9000, from:  145000, to:  154000 },
+      { direction: "Decrease", type: "Labor",  orgCode: "U601847", resource: "Okafor, Chioma",             amount:  7000, from:   98000, to:   91000 },
+      { direction: "Increase", type: "Travel", orgCode: "U601847", resource: "Cold Regions Research Lab",  amount:  2000, from:   12000, to:   14000 },
+      { direction: "Decrease", type: "Labor",  orgCode: "U601847", resource: "Contractor Pool",            amount:  4000, from:  412000, to:  408000 },
     ],
   },
   {
@@ -342,11 +344,12 @@ export const MOCK_CHANGE_REQUESTS: ChangeRequest[] = [
     projectDescription: "Feasibility study and initial planning for the Westside light rail extension.",
     submittedBy: "David Chen",
     date: "2024-02-12",
-    justification: "Remote survey technology reduces required field trips. Resulting travel savings are redirected to survey equipment procurement to support the same scope.",
+    justification: "Chen, David absorbing additional feasibility tasks as Torres' scope is reduced. Pacific Ocean Division trip consolidated with ERDC visit, freeing those funds back into labor.",
     status: "First Request",
     lineItems: [
-      { direction: "Decrease", type: "Travel",    orgCode: "U334567", resource: "Pacific Ocean Division", amount: 20000, from: 62000, to: 42000 },
-      { direction: "Increase", type: "Materials", orgCode: "U334567", resource: "Survey Equipment", amount: 20000, from: 28000, to: 48000 },
+      { direction: "Increase", type: "Labor",  orgCode: "U334567", resource: "Chen, David",             amount: 4500, from:  84000, to:  88500 },
+      { direction: "Decrease", type: "Labor",  orgCode: "U334567", resource: "Torres, Miguel A.",        amount: 3000, from:  62000, to:  59000 },
+      { direction: "Decrease", type: "Travel", orgCode: "U334567", resource: "Pacific Ocean Division",   amount: 1500, from:  18000, to:  16500 },
     ],
   },
 ];
