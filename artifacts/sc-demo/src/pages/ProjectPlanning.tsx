@@ -288,6 +288,39 @@ function SpreadFillTotal({
   );
 }
 
+/* ─── spread-fill quarter-column total ────────────────────────── */
+function SpreadFillQuarterTotal({
+  total, onSpread,
+}: {
+  total: number;
+  onSpread: (v: number) => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [raw, setRaw] = useState("");
+  const commit = () => { onSpread(parseInt(raw) || 0); setEditing(false); };
+  if (editing) {
+    return (
+      <input
+        autoFocus type="text" value={raw}
+        onChange={(e) => setRaw(e.target.value.replace(/[^0-9]/g, ""))}
+        onBlur={commit}
+        onKeyDown={(e) => { if (e.key === "Enter") commit(); if (e.key === "Escape") setEditing(false); }}
+        className="w-full text-right text-sm border border-blue-400 rounded px-1 py-0.5 focus:outline-none focus:ring-1 focus:ring-blue-200 tabular-nums bg-white"
+      />
+    );
+  }
+  return (
+    <button
+      onClick={() => { setRaw(String(total)); setEditing(true); }}
+      title="Enter a total to spread evenly across all fiscal years for this quarter"
+      className="w-full text-right text-sm font-bold tabular-nums hover:underline decoration-dotted underline-offset-2 focus:outline-none"
+      style={{ color: total === 0 ? "#94a3b8" : "#1a3557" }}
+    >
+      {total === 0 ? "—" : fmt(total)}
+    </button>
+  );
+}
+
 /* ─── row state hook ───────────────────────────────────────────── */
 function makeFiveYears(baseFYNum: number): YearQuarters[] {
   return Array.from({ length: 5 }, (_, i) => ({
@@ -389,7 +422,18 @@ function useFundingRows(initial: FundingRow[], defaultFYNum: number) {
       return { ...row, quarters, planned: total };
     }));
 
-  return { rows, updateAmount, updateNote, deleteRow, zeroOutRow, addRow, addMany, updateQuarter, spreadFiscalYear, zeroFiscalYear, spreadAllYears, addFiscalYear, removeFiscalYear };
+  const spreadQuarter = (id: number, qKey: keyof Omit<YearQuarters, "fy">, total: number) =>
+    setRows((r) => r.map((row) => {
+      if (row.id !== id || row.quarters.length === 0) return row;
+      const n = row.quarters.length;
+      const base = Math.floor(total / n);
+      const rem = total - base * n;
+      const quarters = row.quarters.map((q, i) => ({ ...q, [qKey]: base + (i === 0 ? rem : 0) }));
+      const planned = quarters.reduce((s, q) => s + q.q1 + q.q2 + q.q3 + q.q4, 0);
+      return { ...row, quarters, planned };
+    }));
+
+  return { rows, updateAmount, updateNote, deleteRow, zeroOutRow, addRow, addMany, updateQuarter, spreadFiscalYear, zeroFiscalYear, spreadAllYears, addFiscalYear, removeFiscalYear, spreadQuarter };
 }
 
 /* ─── single funding section table ─────────────────────────────── */
@@ -421,6 +465,7 @@ function FundingSection({
   onUpdateQuarter: (id: number, fy: string, qKey: keyof Omit<YearQuarters, "fy">, value: number) => void;
   onSpreadFiscalYear: (id: number, fy: string, q1: number, q2: number, q3: number, q4: number) => void;
   onSpreadAllYears: (id: number, total: number) => void;
+  onSpreadQuarter: (id: number, qKey: keyof Omit<YearQuarters, "fy">, total: number) => void;
   onAddFiscalYear: (id: number, fy: string) => void;
   onRemoveFiscalYear: (id: number, fy: string) => void;
 }) {
@@ -616,7 +661,7 @@ function FundingSection({
                           <div style={{ background: "#1a3557", padding: "6px 16px", display: "flex", alignItems: "center", gap: 8 }}>
                             <span style={{ fontSize: 10, fontWeight: 700, color: "#93c5fd", textTransform: "uppercase", letterSpacing: "0.08em" }}>Quarterly Breakdown</span>
                             <span style={{ flex: 1 }} />
-                            <span style={{ fontSize: 10, color: "#93c5fd", opacity: 0.7 }}>Click any amount to edit &nbsp;·&nbsp; Click FY Total to spread evenly</span>
+                            <span style={{ fontSize: 10, color: "#93c5fd", opacity: 0.7 }}>Click any amount to edit &nbsp;·&nbsp; Click FY Total to spread evenly &nbsp;·&nbsp; Click Q Total to spread across all FYs</span>
                           </div>
 
                           <div style={{ padding: "10px 16px 0 16px" }}>
@@ -671,6 +716,30 @@ function FundingSection({
                                   </td>
                                 </tr>
                               )}
+                              {row.quarters.length > 0 && (() => {
+                                const qTotals = row.quarters.reduce(
+                                  (acc, q) => ({ q1: acc.q1 + q.q1, q2: acc.q2 + q.q2, q3: acc.q3 + q.q3, q4: acc.q4 + q.q4 }),
+                                  { q1: 0, q2: 0, q3: 0, q4: 0 }
+                                );
+                                const grandTotal = qTotals.q1 + qTotals.q2 + qTotals.q3 + qTotals.q4;
+                                return (
+                                  <tr style={{ borderTop: "2px solid #94a3b8", background: "#eef2f7" }}>
+                                    <td style={{ paddingTop: 5, paddingBottom: 5, paddingRight: 12, fontWeight: 700, color: "#475569", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.04em" }}>Total</td>
+                                    {(["q1", "q2", "q3", "q4"] as const).map((qk) => (
+                                      <td key={qk} style={{ paddingTop: 3, paddingBottom: 3, paddingRight: 8 }}>
+                                        <SpreadFillQuarterTotal
+                                          total={qTotals[qk]}
+                                          onSpread={(v) => onSpreadQuarter(row.id, qk, v)}
+                                        />
+                                      </td>
+                                    ))}
+                                    <td style={{ paddingTop: 3, paddingBottom: 3, paddingRight: 8, borderLeft: "1px solid #cbd5e1", paddingLeft: 8, textAlign: "right", fontWeight: 700, fontSize: 12, color: grandTotal === 0 ? "#94a3b8" : "#1a3557" }} className="tabular-nums">
+                                      {grandTotal === 0 ? "—" : fmt(grandTotal)}
+                                    </td>
+                                    <td />
+                                  </tr>
+                                );
+                              })()}
                             </tbody>
                           </table>
                           </div>
@@ -856,6 +925,7 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
         onUpdateQuarter={labor.updateQuarter}
         onSpreadFiscalYear={labor.spreadFiscalYear}
         onSpreadAllYears={labor.spreadAllYears}
+        onSpreadQuarter={labor.spreadQuarter}
         onAddFiscalYear={labor.addFiscalYear}
         onRemoveFiscalYear={labor.removeFiscalYear}
       />
@@ -877,6 +947,7 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
         onUpdateQuarter={travel.updateQuarter}
         onSpreadFiscalYear={travel.spreadFiscalYear}
         onSpreadAllYears={travel.spreadAllYears}
+        onSpreadQuarter={travel.spreadQuarter}
         onAddFiscalYear={travel.addFiscalYear}
         onRemoveFiscalYear={travel.removeFiscalYear}
       />
@@ -898,6 +969,7 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
         onUpdateQuarter={mats.updateQuarter}
         onSpreadFiscalYear={mats.spreadFiscalYear}
         onSpreadAllYears={mats.spreadAllYears}
+        onSpreadQuarter={mats.spreadQuarter}
         onAddFiscalYear={mats.addFiscalYear}
         onRemoveFiscalYear={mats.removeFiscalYear}
       />
