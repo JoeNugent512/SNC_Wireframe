@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useRef, useEffect } from "react";
 import { Link, useParams } from "wouter";
 import { ChevronRight, ChevronDown, Settings, Plus, Trash2, MinusCircle, X, Search, Check } from "lucide-react";
 import { MOCK_PROJECTS } from "@/lib/mockData";
@@ -296,22 +296,40 @@ function SpreadFillQuarterTotal({
   onSpread: (v: number) => void;
 }) {
   const [editing, setEditing] = useState(false);
-  const [raw, setRaw] = useState("");
-  const commit = () => { onSpread(parseInt(raw) || 0); setEditing(false); };
+  const inputRef = useRef<HTMLInputElement>(null);
+  const onSpreadRef = useRef(onSpread);
+  useEffect(() => { onSpreadRef.current = onSpread; }, [onSpread]);
+
+  const commit = () => {
+    const v = parseInt(inputRef.current?.value ?? "", 10) || 0;
+    onSpreadRef.current(v);
+    setEditing(false);
+  };
+
+  useEffect(() => {
+    if (editing && inputRef.current) {
+      inputRef.current.value = String(total);
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, [editing]); // eslint-disable-line react-hooks/exhaustive-deps
+
   if (editing) {
     return (
       <input
-        autoFocus type="text" value={raw}
-        onChange={(e) => setRaw(e.target.value.replace(/[^0-9]/g, ""))}
+        ref={inputRef}
+        type="text"
+        defaultValue={String(total)}
+        onInput={(e) => { (e.target as HTMLInputElement).value = (e.target as HTMLInputElement).value.replace(/[^0-9]/g, ""); }}
         onBlur={commit}
-        onKeyDown={(e) => { if (e.key === "Enter") commit(); if (e.key === "Escape") setEditing(false); }}
+        onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); commit(); } if (e.key === "Escape") setEditing(false); }}
         className="w-full text-right text-sm border border-blue-400 rounded px-1 py-0.5 focus:outline-none focus:ring-1 focus:ring-blue-200 tabular-nums bg-white"
       />
     );
   }
   return (
     <button
-      onClick={() => { setRaw(String(total)); setEditing(true); }}
+      onClick={() => setEditing(true)}
       title="Enter a total to spread evenly across all fiscal years for this quarter"
       className="w-full text-right text-sm font-bold tabular-nums hover:underline decoration-dotted underline-offset-2 focus:outline-none"
       style={{ color: total === 0 ? "#94a3b8" : "#1a3557" }}
