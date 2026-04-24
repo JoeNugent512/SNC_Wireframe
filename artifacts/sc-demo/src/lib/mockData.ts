@@ -286,8 +286,8 @@ export const MOCK_CHANGE_REQUESTS: ChangeRequest[] = [
     justification: "Labor reallocation needed after geotechnical scope expanded. Nugent picked up additional survey tasks; offsetting by reducing planned site visits that can be combined into fewer trips.",
     status: "Pending",
     lineItems: [
-      { direction: "Increase", type: "Labor",  orgCode: "U435310", resource: "Nugent, Joseph Pat", amount: 22000, from: 215000, to: 237000 },
-      { direction: "Decrease", type: "Travel", orgCode: "U435310", resource: "Site Visits",         amount: 22000, from: 48000,  to: 26000  },
+      { direction: "Increase", type: "Labor",  orgCode: "U435310", resource: "Nugent, Joseph Pat",  amount: 22000, from: 215000, to: 237000 },
+      { direction: "Decrease", type: "Travel", orgCode: "U435310", resource: "CERL",                amount: 22000, from: 48000,  to: 26000  },
     ],
   },
   {
@@ -300,8 +300,8 @@ export const MOCK_CHANGE_REQUESTS: ChangeRequest[] = [
     justification: "Additional org-code labor is required for the extended environmental compliance phase. Equipment transport trips have been consolidated and steel fasteners sourced locally, freeing those funds.",
     status: "Pending",
     lineItems: [
-      { direction: "Increase", type: "Labor",     orgCode: "U435310", resource: "U435310",            amount: 45000, from: 280000, to: 325000 },
-      { direction: "Decrease", type: "Travel",    orgCode: "U435310", resource: "Equipment Transport", amount: 47000, from: 155000, to: 108000 },
+      { direction: "Increase", type: "Labor",     orgCode: "U435310", resource: "U435310",              amount: 45000, from: 280000, to: 325000 },
+      { direction: "Decrease", type: "Travel",    orgCode: "U435310", resource: "USACE Chicago District", amount: 47000, from: 155000, to: 108000 },
       { direction: "Increase", type: "Labor",     orgCode: "U719203", resource: "Chen, David",         amount: 15000, from: 195000, to: 210000 },
       { direction: "Decrease", type: "Materials", orgCode: "U719203", resource: "Steel Fasteners",     amount: 13000, from: 45000,  to: 32000  },
     ],
@@ -345,7 +345,7 @@ export const MOCK_CHANGE_REQUESTS: ChangeRequest[] = [
     justification: "Remote survey technology reduces required field trips. Resulting travel savings are redirected to survey equipment procurement to support the same scope.",
     status: "Pending",
     lineItems: [
-      { direction: "Decrease", type: "Travel",    orgCode: "U334567", resource: "Site Inspections", amount: 20000, from: 62000, to: 42000 },
+      { direction: "Decrease", type: "Travel",    orgCode: "U334567", resource: "Pacific Ocean Division", amount: 20000, from: 62000, to: 42000 },
       { direction: "Increase", type: "Materials", orgCode: "U334567", resource: "Survey Equipment", amount: 20000, from: 28000, to: 48000 },
     ],
   },
