@@ -468,10 +468,9 @@ function FundingSection({
       <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
         {/* section header */}
         <div className="flex items-center" style={{ backgroundColor: "#1a3557" }}>
-          <span className="flex-1 font-bold text-white text-sm tracking-wide px-4 py-2.5">
-            {title}
-            <span className="font-normal text-xs ml-3" style={{ color: "rgba(255,255,255,0.6)" }}>{addButtonLabel}</span>
-          </span>
+          <span className="font-bold text-white text-sm tracking-wide px-4 py-2.5">{title}</span>
+          <span style={{ flex: 1 }} />
+          <span className="text-xs pr-3" style={{ color: "rgba(255,255,255,0.65)", fontWeight: 500 }}>{addButtonLabel}</span>
           {/* 44 px — matches action column <col width={44}> */}
           <div style={{ width: 44, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
             <button
