@@ -207,6 +207,8 @@ function doRender(){
   else if(/^\/projects\/\w+\/planning$/.test(h)){const id=h.split('/')[2];renderTopNavProject(id,'Planning');renderPlanning(root,id);}
   else if(/^\/projects\/\w+\/settings$/.test(h)){const id=h.split('/')[2];renderTopNavProject(id,'Settings');renderSettings(root,id);}
   else if(h==='/change-requests'){renderTopNav({crumbs:['Home','Change Requests'],hrefs:['/',null],role:'BA View'});renderCRs(root);}
+  else if(/^\/change-requests\/\w+$/.test(h)){const id=h.split('/')[2];renderTopNav({crumbs:['Home','Change Requests',id],hrefs:['/','#/change-requests',null],role:'BA View'});renderCRDetail(root,id);}
+
   else if(h==='/setup'){renderTopNav({crumbs:['Home','Project Setup Queue'],hrefs:['/',null]});renderSetupQueue(root);}
   else if(/^\/setup\/[\w-]+$/.test(h)){const id=h.split('/')[2];renderTopNav({crumbs:['Home','Setup Queue','Setup'],hrefs:['/','setup/',null]});renderSetupForm(root,id);}
   else{root.innerHTML='<div style="padding:48px;text-align:center;color:#94a3b8">Page not found.</div>';}
@@ -912,6 +914,7 @@ function renderCRs(root){
             <th style="padding:14px 24px;font-weight:600">Submitted By</th>
             <th style="padding:14px 24px;font-weight:600">Requested</th>
             <th style="padding:14px 24px;font-weight:600">Status</th>
+            <th style="padding:14px 24px;font-weight:600"></th>
           </tr>
         </thead>
         <tbody>
@@ -921,7 +924,7 @@ function renderCRs(root){
               No change requests found.
             </div>
           </td></tr>`:filtered.map(cr=>`
-          <tr onclick="openCR('${cr.id}')" style="border-bottom:1px solid #f1f5f9;cursor:pointer" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background=''">
+          <tr onclick="nav('/change-requests/${cr.id}')" style="border-bottom:1px solid #f1f5f9;cursor:pointer" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background=''">
             <td style="padding:14px 24px">
               <div style="font-family:monospace;font-size:11px;font-weight:700;color:#64748b">${esc(cr.projectNumber)}</div>
               <div style="font-weight:600;color:#0f172a;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;max-width:200px">${esc(cr.projectName)}</div>
@@ -930,6 +933,7 @@ function renderCRs(root){
             <td style="padding:14px 24px;color:#475569">${esc(cr.submittedBy)}</td>
             <td style="padding:14px 24px;color:#64748b">${esc(cr.date)}</td>
             <td style="padding:14px 24px">${crBadge(cr.status)}</td>
+            <td style="padding:14px 24px;font-size:12px;font-weight:600;color:#1a6ea8">Review &rarr;</td>
           </tr>`).join('')}
         </tbody>
       </table>
@@ -1047,6 +1051,116 @@ window.crCopyRow=function(tid){
     const lbl=document.getElementById(tid+'-lbl');
     if(lbl){lbl.textContent='Copied';setTimeout(()=>{lbl.textContent='Copy';},2000);}
   });
+};
+
+/* ================================================================
+   CR DETAIL PAGE
+   ================================================================ */
+function renderCRDetail(root,id){
+  const cr=CRS.find(x=>x.id===id);
+  if(!cr){root.innerHTML='<div style="padding:48px;text-align:center;color:#94a3b8">Change request not found.</div>';return;}
+
+  const net=cr.lineItems.reduce((s,li)=>li.direction==='Increase'?s+li.amount:s-li.amount,0);
+  const isActionable=cr.status!=='Approved'&&cr.status!=='Rejected';
+  const proponent=PROJECTS.find(p=>p.number===cr.projectNumber)?.hqProponent||'—';
+  const typeChip=t=>t==='Labor'?'background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe':t==='Travel'?'background:#f5f3ff;color:#6d28d9;border:1px solid #ddd6fe':'background:#f8fafc;color:#475569;border:1px solid #e2e8f0';
+  const lineDesc=li=>`FY${cr.projectNumber.slice(0,2)}/SANDC ${li.type.toUpperCase()} FUNDS FOR ${cr.projectNumber}/${li.resource.toUpperCase()}/`;
+
+  /* group by orgCode */
+  const groups=[];const seen=new Map();
+  cr.lineItems.forEach(li=>{
+    if(!seen.has(li.orgCode)){seen.set(li.orgCode,groups.length);groups.push({orgCode:li.orgCode,items:[]});}
+    groups[seen.get(li.orgCode)].items.push(li);
+  });
+
+  let liIdx=0;
+  const groupRows=groups.map((g,gi)=>{
+    const border=gi>0?'border-top:2px solid #e2e8f0;':'';
+    const rows=g.items.map(li=>{
+      const delta=li.direction==='Increase'?li.amount:-li.amount;
+      const desc=lineDesc(li);
+      const tid=`crp-dn-${id}-${liIdx++}`;
+      return `<div style="display:grid;grid-template-columns:88px 1fr 92px 92px 80px 1fr;align-items:start;padding:12px 16px;gap:12px;border-top:1px solid #f1f5f9">
+        <div style="padding-top:2px"><span style="display:inline-flex;font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px;border-width:1px;border-style:solid;${typeChip(li.type)}">${li.type}</span></div>
+        <span style="font-size:13px;font-weight:500;color:#334155;padding-top:3px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis" title="${esc(li.resource)}">${esc(li.resource)}</span>
+        <span style="font-size:13px;color:#64748b;text-align:right;padding-top:3px;font-variant-numeric:tabular-nums">${fmt(li.from)}</span>
+        <span style="font-size:13px;font-weight:500;color:#1e293b;text-align:right;padding-top:3px;font-variant-numeric:tabular-nums">${fmt(li.to)}</span>
+        <span style="font-size:13px;font-weight:600;text-align:right;padding-top:3px;font-variant-numeric:tabular-nums;color:${delta>0?'#059669':'#dc2626'}">${delta>0?'+':''}${fmt(delta)}</span>
+        <div style="padding-left:6px;display:flex;flex-direction:column;gap:4px">
+          <textarea id="${tid}" rows="2" style="width:100%;font-size:11px;font-family:monospace;color:#334155;background:#f8fafc;border:1px solid #e2e8f0;border-radius:5px;padding:5px 8px;resize:none;outline:none;line-height:1.55"${!isActionable?' disabled':''}>${esc(desc)}</textarea>
+          <button onclick="crCopyRow('${tid}')" style="align-self:flex-start;display:flex;align-items:center;gap:4px;font-size:11px;font-weight:500;color:#94a3b8;background:none;border:none;cursor:pointer;padding:0" onmouseover="this.style.color='#334155'" onmouseout="this.style.color='#94a3b8'">${I.copy} <span id="${tid}-lbl">Copy</span></button>
+        </div>
+      </div>`;
+    }).join('');
+    return `<div style="${border}">
+      <div style="padding:6px 16px;background:#f1f5f9">
+        <span style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.08em;font-family:monospace">${esc(g.orgCode)}</span>
+      </div>${rows}
+    </div>`;
+  }).join('');
+
+  root.innerHTML=`<div style="max-width:960px;margin:0 auto;padding-bottom:48px">
+    <!-- back -->
+    <button onclick="nav('/change-requests')" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:#64748b;background:none;border:none;cursor:pointer;padding:4px 0;margin-bottom:16px" onmouseover="this.style.color='#1e293b'" onmouseout="this.style.color='#64748b'">${I.back} Back to Change Requests</button>
+
+    <!-- header card -->
+    <div style="background:white;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.05);padding:24px;margin-bottom:20px">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">${I.folder}<span style="font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em">Budget Change Request</span></div>
+      <h1 style="font-size:22px;font-weight:700;color:#0f172a;margin:0 0 10px;line-height:1.3">
+        <span style="font-family:monospace;font-size:14px;color:#94a3b8;margin-right:8px">${esc(cr.projectNumber)}</span>${esc(cr.projectName)}
+      </h1>
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+        ${crBadge(cr.status)}
+        <span style="font-size:13px;color:#64748b;display:flex;align-items:center;gap:5px">${I.user}<strong style="color:#334155">${esc(cr.submittedBy)}</strong><span style="color:#cbd5e1">·</span>${esc(cr.date)}</span>
+        <span style="font-size:13px;color:#64748b">Proponent: <strong style="color:#334155">${esc(proponent)}</strong></span>
+      </div>
+    </div>
+
+    <!-- project overview -->
+    <div style="background:white;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.05);padding:24px;margin-bottom:20px">
+      <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin-bottom:10px">Project Overview</div>
+      <p style="font-size:14px;color:#475569;line-height:1.6;margin:0">${esc(cr.projectDescription)}</p>
+    </div>
+
+    <!-- budget changes -->
+    <div style="background:white;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.05);padding:24px;margin-bottom:20px">
+      <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin-bottom:14px">Budget Changes</div>
+      <div style="border:1px solid #e2e8f0;border-radius:8px;overflow:hidden">
+        <div style="display:grid;grid-template-columns:88px 1fr 92px 92px 80px 1fr;font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:9px 16px;gap:12px">
+          <span>Type</span><span>Resource</span><span style="text-align:right">Current</span><span style="text-align:right">Proposed</span><span style="text-align:right">Change</span><span style="padding-left:6px">Description / Notes</span>
+        </div>
+        ${groupRows}
+        <div style="display:grid;grid-template-columns:88px 1fr 92px 92px 80px 1fr;align-items:center;padding:10px 16px;gap:12px;background:#f8fafc;border-top:2px solid #e2e8f0">
+          <span style="grid-column:1/5;font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;text-align:right">Net Change</span>
+          <span style="font-size:14px;font-weight:700;text-align:right;font-variant-numeric:tabular-nums;color:${net>0?'#059669':net<0?'#dc2626':'#64748b'}">${net===0?'$0':fmtD(net)}</span>
+          <span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- justification -->
+    <div style="background:white;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.05);padding:24px;margin-bottom:20px">
+      <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin-bottom:10px">Justification</div>
+      <p style="font-size:14px;color:#334155;line-height:1.6;margin:0">${esc(cr.justification)}</p>
+    </div>
+
+    <!-- decision -->
+    ${isActionable?`<div style="background:white;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.05);padding:24px">
+      <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin-bottom:14px">Decision</div>
+      <label style="font-size:14px;font-weight:500;color:#475569;display:block;margin-bottom:6px">Reason <span style="font-weight:400;color:#94a3b8">(optional)</span></label>
+      <textarea id="crp-reason-${id}" rows="3" placeholder="Provide a reason for your decision…" style="width:100%;font-size:14px;color:#334155;background:white;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px;resize:none;outline:none;box-sizing:border-box;margin-bottom:16px"></textarea>
+      <div style="display:flex;justify-content:flex-end;gap:12px">
+        <button onclick="crpAction('${id}','Reject')" style="padding:9px 20px;font-size:14px;font-weight:500;color:#dc2626;background:#fee2e2;border:1px solid #fecaca;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:6px" onmouseover="this.style.background='#fecaca'" onmouseout="this.style.background='#fee2e2'">${I.xCirc} Reject</button>
+        <button onclick="crpAction('${id}','Approve')" style="padding:9px 20px;font-size:14px;font-weight:600;color:white;background:#059669;border:none;border-radius:8px;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.1);display:flex;align-items:center;gap:6px" onmouseover="this.style.background='#047857'" onmouseout="this.style.background='#059669'">${I.checkCirc} Approve Changes</button>
+      </div>
+    </div>`:''}
+  </div>`;
+}
+
+window.crpAction=function(id,action){
+  const cr=CRS.find(x=>x.id===id);if(!cr)return;
+  cr.status=action==='Approve'?'Approved':'Rejected';
+  nav('/change-requests');
 };
 
 /* ================================================================
