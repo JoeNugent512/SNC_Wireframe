@@ -1,6 +1,6 @@
-import { useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { Link, useParams } from "wouter";
-import { ChevronRight, Settings, Plus, Trash2, MinusCircle, X, Search, Check } from "lucide-react";
+import { ChevronRight, ChevronDown, Settings, Plus, Trash2, MinusCircle, X, Search, Check } from "lucide-react";
 import { MOCK_PROJECTS } from "@/lib/mockData";
 import { Toaster } from "@/components/ui/toaster";
 import Layout from "@/components/Layout";
@@ -200,6 +200,8 @@ function MultiPickerModal({
 }
 
 /* ─── types ────────────────────────────────────────────────────── */
+type YearQuarters = { fy: string; q1: number; q2: number; q3: number; q4: number };
+
 type FundingRow = {
   id: number;
   label: string;
@@ -211,6 +213,7 @@ type FundingRow = {
   obligated: number;
   description: string;
   notes: string;
+  quarters: YearQuarters[];
 };
 
 /* ─── editable amount cell ─────────────────────────────────────── */
@@ -246,7 +249,11 @@ function useFundingRows(initial: FundingRow[]) {
   const [rows, setRows] = useState(initial);
 
   const updateAmount = (id: number, field: "planned" | "requested", value: number) =>
-    setRows((r) => r.map((row) => row.id === id ? { ...row, [field]: value } : row));
+    setRows((r) => r.map((row) => {
+      if (row.id !== id) return row;
+      if (field === "planned" && row.quarters.length > 0) return row; // quarters own planned
+      return { ...row, [field]: value };
+    }));
 
   const updateNote = (id: number, value: string) =>
     setRows((r) => r.map((row) => row.id === id ? { ...row, notes: value } : row));
@@ -255,13 +262,13 @@ function useFundingRows(initial: FundingRow[]) {
     setRows((r) => r.filter((row) => row.id !== id));
 
   const zeroOutRow = (id: number) =>
-    setRows((r) => r.map((row) => row.id === id ? { ...row, planned: 0, requested: 0 } : row));
+    setRows((r) => r.map((row) => row.id === id ? { ...row, planned: 0, requested: 0, quarters: [] } : row));
 
   const addRow = (label: string, description: string) =>
     setRows((r) => [...r, {
       id: uid(), label, planned: 0, requested: 0,
       totalCommitments: 0, openCommitments: 0, obligated: 0,
-      description, notes: "",
+      description, notes: "", quarters: [],
     }]);
 
   const addMany = (items: { label: string; sub?: string }[], descTemplate: string) =>
@@ -270,11 +277,35 @@ function useFundingRows(initial: FundingRow[]) {
       ...items.map(({ label, sub }) => ({
         id: uid(), label, sub, planned: 0, requested: 0,
         totalCommitments: 0, openCommitments: 0, obligated: 0,
-        description: descTemplate, notes: "",
+        description: descTemplate, notes: "", quarters: [],
       })),
     ]);
 
-  return { rows, updateAmount, updateNote, deleteRow, zeroOutRow, addRow, addMany };
+  const updateQuarter = (id: number, fy: string, qKey: keyof Omit<YearQuarters, "fy">, value: number) =>
+    setRows((r) => r.map((row) => {
+      if (row.id !== id) return row;
+      const quarters = row.quarters.map((q) => q.fy === fy ? { ...q, [qKey]: value } : q);
+      const planned = quarters.reduce((s, q) => s + q.q1 + q.q2 + q.q3 + q.q4, 0);
+      return { ...row, quarters, planned };
+    }));
+
+  const addFiscalYear = (id: number, fy: string) =>
+    setRows((r) => r.map((row) => {
+      if (row.id !== id || row.quarters.some((q) => q.fy === fy)) return row;
+      return { ...row, quarters: [...row.quarters, { fy, q1: 0, q2: 0, q3: 0, q4: 0 }] };
+    }));
+
+  const removeFiscalYear = (id: number, fy: string) =>
+    setRows((r) => r.map((row) => {
+      if (row.id !== id) return row;
+      const quarters = row.quarters.filter((q) => q.fy !== fy);
+      const planned = quarters.length > 0
+        ? quarters.reduce((s, q) => s + q.q1 + q.q2 + q.q3 + q.q4, 0)
+        : row.planned;
+      return { ...row, quarters, planned };
+    }));
+
+  return { rows, updateAmount, updateNote, deleteRow, zeroOutRow, addRow, addMany, updateQuarter, addFiscalYear, removeFiscalYear };
 }
 
 /* ─── single funding section table ─────────────────────────────── */
@@ -283,7 +314,8 @@ function FundingSection({
   onUpdateAmount, onUpdateNote, onDelete, onZeroOut, onAddMany,
   pickerMode, existingLabels,
   pickerTitle, pickerOptions, pickerPlaceholder,
-  showDetails,
+  showDetails, defaultFY,
+  onUpdateQuarter, onAddFiscalYear, onRemoveFiscalYear,
 }: {
   title: string;
   columnHeader: string;
@@ -301,8 +333,21 @@ function FundingSection({
   pickerOptions?: { label: string; sub: string }[];
   pickerPlaceholder?: string;
   showDetails: boolean;
+  defaultFY: string;
+  onUpdateQuarter: (id: number, fy: string, qKey: keyof Omit<YearQuarters, "fy">, value: number) => void;
+  onAddFiscalYear: (id: number, fy: string) => void;
+  onRemoveFiscalYear: (id: number, fy: string) => void;
 }) {
   const [showPicker, setShowPicker] = useState(false);
+  const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
+  const toggleExpand = (id: number) =>
+    setExpandedRows((prev) => { const next = new Set(prev); next.has(id) ? next.delete(id) : next.add(id); return next; });
+  const getNextFY = (quarters: YearQuarters[]): string => {
+    if (quarters.length === 0) return defaultFY;
+    const nums = quarters.map((q) => parseInt(q.fy.replace("FY", "")));
+    return `FY${Math.max(...nums) + 1}`;
+  };
+  const numCols = showDetails ? 9 : 7;
 
   const totalPlanned     = rows.reduce((s, r) => s + r.planned, 0);
   const totalRequested   = rows.reduce((s, r) => s + r.requested, 0);
@@ -395,57 +440,145 @@ function FundingSection({
           <tbody>
             {rows.map((row) => {
               const hasObligations = row.obligated > 0;
+              const isExpanded = expandedRows.has(row.id);
+              const hasQuarters = row.quarters.length > 0;
               return (
-                <tr key={row.id} style={{ borderBottom: "1px solid #fef9c3" }}>
-                  <td className="px-3 py-2 bg-slate-50">
-                    <p className="text-sm font-semibold text-slate-800 leading-snug truncate" title={row.label}>{row.label}</p>
-                    {row.sub && <p className="text-xs text-slate-400 leading-snug truncate mt-0.5" title={row.sub}>{row.sub}</p>}
-                  </td>
-                  <td className="px-3 py-2.5" style={{ backgroundColor: amberBg, borderLeft: amberBorder }}>
-                    <EditableAmount value={row.planned}   onChange={(v) => onUpdateAmount(row.id, "planned", v)} />
-                  </td>
-                  <td className="px-3 py-2.5" style={{ backgroundColor: amberBg, borderLeft: amberInner }}>
-                    <EditableAmount value={row.requested} onChange={(v) => onUpdateAmount(row.id, "requested", v)} />
-                  </td>
-                  <td className={blueTd} style={{ backgroundColor: blueCellBg, borderLeft: "2px solid #64748b" }}>{fmt(row.totalCommitments)}</td>
-                  <td className={blueTd} style={{ backgroundColor: blueCellBg, borderLeft: blueBorder }}>{fmt(row.openCommitments)}</td>
-                  <td className={blueTd} style={{ backgroundColor: blueCellBg, borderLeft: blueBorder }}>{fmt(row.obligated)}</td>
-                  {showDetails && (
-                    <td className="px-3 py-2.5 text-xs text-slate-500 font-mono bg-white truncate" style={{ borderLeft: "1px solid #e2e8f0" }} title={row.description}>
-                      {row.description}
+                <React.Fragment key={row.id}>
+                  <tr style={{ borderBottom: isExpanded ? "none" : "1px solid #fef9c3" }}>
+                    <td className="px-3 py-2 bg-slate-50">
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          onClick={() => toggleExpand(row.id)}
+                          className="flex-shrink-0 p-0.5 rounded text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-colors"
+                          title={isExpanded ? "Collapse year/quarter plan" : "Expand year/quarter plan"}
+                        >
+                          {isExpanded ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
+                        </button>
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold text-slate-800 leading-snug truncate" title={row.label}>{row.label}</p>
+                          {row.sub && <p className="text-xs text-slate-400 leading-snug truncate mt-0.5" title={row.sub}>{row.sub}</p>}
+                        </div>
+                      </div>
                     </td>
-                  )}
-                  {showDetails && (
                     <td className="px-3 py-2.5" style={{ backgroundColor: amberBg, borderLeft: amberBorder }}>
-                      <input
-                        type="text" value={row.notes}
-                        onChange={(e) => onUpdateNote(row.id, e.target.value)}
-                        placeholder="notes"
-                        className="w-full text-sm text-slate-700 border-none focus:outline-none"
-                        style={{ backgroundColor: "transparent" }}
-                      />
+                      {hasQuarters ? (
+                        <span className="w-full block text-right text-sm text-slate-800 tabular-nums">{row.planned === 0 ? "—" : fmt(row.planned)}</span>
+                      ) : (
+                        <EditableAmount value={row.planned} onChange={(v) => onUpdateAmount(row.id, "planned", v)} />
+                      )}
                     </td>
-                  )}
-                  <td className="px-2 py-2.5 text-center bg-slate-50" style={{ borderLeft: "1px solid #e2e8f0" }}>
-                    {hasObligations ? (
-                      <button
-                        onClick={() => onZeroOut(row.id)}
-                        title="Zero out planned amounts (has obligations — cannot be deleted)"
-                        className="p-1.5 rounded transition-colors text-amber-600 hover:bg-amber-100"
-                      >
-                        <MinusCircle size={15} />
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => onDelete(row.id)}
-                        title="Delete row"
-                        className="p-1.5 rounded transition-colors text-red-500 hover:bg-red-100"
-                      >
-                        <Trash2 size={15} />
-                      </button>
+                    <td className="px-3 py-2.5" style={{ backgroundColor: amberBg, borderLeft: amberInner }}>
+                      <EditableAmount value={row.requested} onChange={(v) => onUpdateAmount(row.id, "requested", v)} />
+                    </td>
+                    <td className={blueTd} style={{ backgroundColor: blueCellBg, borderLeft: "2px solid #64748b" }}>{fmt(row.totalCommitments)}</td>
+                    <td className={blueTd} style={{ backgroundColor: blueCellBg, borderLeft: blueBorder }}>{fmt(row.openCommitments)}</td>
+                    <td className={blueTd} style={{ backgroundColor: blueCellBg, borderLeft: blueBorder }}>{fmt(row.obligated)}</td>
+                    {showDetails && (
+                      <td className="px-3 py-2.5 text-xs text-slate-500 font-mono bg-white truncate" style={{ borderLeft: "1px solid #e2e8f0" }} title={row.description}>
+                        {row.description}
+                      </td>
                     )}
-                  </td>
-                </tr>
+                    {showDetails && (
+                      <td className="px-3 py-2.5" style={{ backgroundColor: amberBg, borderLeft: amberBorder }}>
+                        <input
+                          type="text" value={row.notes}
+                          onChange={(e) => onUpdateNote(row.id, e.target.value)}
+                          placeholder="notes"
+                          className="w-full text-sm text-slate-700 border-none focus:outline-none"
+                          style={{ backgroundColor: "transparent" }}
+                        />
+                      </td>
+                    )}
+                    <td className="px-2 py-2.5 text-center bg-slate-50" style={{ borderLeft: "1px solid #e2e8f0" }}>
+                      {hasObligations ? (
+                        <button
+                          onClick={() => onZeroOut(row.id)}
+                          title="Zero out planned amounts (has obligations — cannot be deleted)"
+                          className="p-1.5 rounded transition-colors text-amber-600 hover:bg-amber-100"
+                        >
+                          <MinusCircle size={15} />
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => onDelete(row.id)}
+                          title="Delete row"
+                          className="p-1.5 rounded transition-colors text-red-500 hover:bg-red-100"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+
+                  {/* ── expanded quarterly breakdown ── */}
+                  {isExpanded && (
+                    <tr key={`${row.id}-qtr`} style={{ borderBottom: "1px solid #fef9c3" }}>
+                      <td colSpan={numCols} style={{ padding: 0 }}>
+                        <div style={{ backgroundColor: "#f8fafc", borderTop: "1px dashed #cbd5e1", borderBottom: "1px solid #e2e8f0", padding: "12px 16px 14px 40px" }}>
+                          {/* quarter table */}
+                          <table style={{ borderCollapse: "collapse", fontSize: 12 }}>
+                            <thead>
+                              <tr>
+                                <th style={{ width: 64, textAlign: "left", color: "#64748b", fontWeight: 700, paddingBottom: 6, paddingRight: 12, textTransform: "uppercase", letterSpacing: "0.05em" }}>Year</th>
+                                {(["Q1 Oct–Dec", "Q2 Jan–Mar", "Q3 Apr–Jun", "Q4 Jul–Sep"] as const).map((label) => (
+                                  <th key={label} style={{ width: 110, textAlign: "right", color: "#78350f", fontWeight: 700, paddingBottom: 6, paddingRight: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>{label}</th>
+                                ))}
+                                <th style={{ width: 100, textAlign: "right", color: "#64748b", fontWeight: 700, paddingBottom: 6, paddingRight: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>FY Total</th>
+                                <th style={{ width: 24 }} />
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {row.quarters.map((yr) => {
+                                const fyTotal = yr.q1 + yr.q2 + yr.q3 + yr.q4;
+                                return (
+                                  <tr key={yr.fy} style={{ borderTop: "1px solid #e2e8f0" }}>
+                                    <td style={{ paddingTop: 6, paddingBottom: 6, paddingRight: 12, fontWeight: 600, color: "#1a3557" }}>{yr.fy}</td>
+                                    {(["q1", "q2", "q3", "q4"] as const).map((qk) => (
+                                      <td key={qk} style={{ paddingTop: 4, paddingBottom: 4, paddingRight: 8 }}>
+                                        <EditableAmount value={yr[qk]} onChange={(v) => onUpdateQuarter(row.id, yr.fy, qk, v)} />
+                                      </td>
+                                    ))}
+                                    <td style={{ paddingTop: 6, paddingBottom: 6, paddingRight: 8, textAlign: "right", fontWeight: 600, color: "#1e293b", fontVariantNumeric: "tabular-nums" }}>
+                                      {fyTotal === 0 ? "—" : fmt(fyTotal)}
+                                    </td>
+                                    <td>
+                                      <button
+                                        onClick={() => onRemoveFiscalYear(row.id, yr.fy)}
+                                        className="p-1 rounded text-slate-300 hover:text-red-400 hover:bg-red-50 transition-colors"
+                                        title={`Remove ${yr.fy}`}
+                                      >
+                                        <X size={11} />
+                                      </button>
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                              {row.quarters.length === 0 && (
+                                <tr>
+                                  <td colSpan={7} style={{ paddingTop: 8, paddingBottom: 4, color: "#94a3b8", fontStyle: "italic" }}>
+                                    No fiscal years added yet. Use the button below to start planning by quarter.
+                                  </td>
+                                </tr>
+                              )}
+                            </tbody>
+                          </table>
+
+                          {/* add fiscal year */}
+                          <button
+                            onClick={() => onAddFiscalYear(row.id, getNextFY(row.quarters))}
+                            className="mt-2 flex items-center gap-1 text-xs font-semibold transition-colors"
+                            style={{ color: "#1a6ea8" }}
+                            onMouseEnter={(e) => (e.currentTarget.style.color = "#1a3557")}
+                            onMouseLeave={(e) => (e.currentTarget.style.color = "#1a6ea8")}
+                          >
+                            <Plus size={12} />
+                            Add {getNextFY(row.quarters)}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
               );
             })}
           </tbody>
@@ -481,35 +614,42 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
     { id: 1, label: "Nugent, Joseph Pat", sub: "U435310",
       planned: Math.round(b * 0.09), requested: Math.round(b * 0.09 * 0.05),
       totalCommitments: Math.round(b * 0.09 * 0.05), openCommitments: Math.round(b * 0.09 * 0.03), obligated: Math.round(b * 0.09 * 0.02),
-      description: `FY${fy}/SANDC LABOR FUNDS FOR ${num}/CEFMS/`, notes: "notes" },
+      description: `FY${fy}/SANDC LABOR FUNDS FOR ${num}/CEFMS/`, notes: "notes",
+      quarters: [
+        { fy: `FY${fy}`,     q1: Math.round(b * 0.09 * 0.26), q2: Math.round(b * 0.09 * 0.27), q3: Math.round(b * 0.09 * 0.25), q4: Math.round(b * 0.09 * 0.22) },
+        { fy: `FY${String(parseInt(fy)+1).padStart(2,"0")}`, q1: 0, q2: 0, q3: 0, q4: 0 },
+      ] },
     { id: 2, label: "USACE Chicago District", sub: "U435310",
       planned: Math.round(b * 0.05), requested: Math.round(b * 0.05 * 0.95),
       totalCommitments: Math.round(b * 0.05 * 0.95), openCommitments: Math.round(b * 0.05 * 0.50), obligated: Math.round(b * 0.05 * 0.45),
-      description: `FY${fy}/SANDC LABOR FUNDS FOR ${num}/U435310/`, notes: "notes" },
+      description: `FY${fy}/SANDC LABOR FUNDS FOR ${num}/U435310/`, notes: "notes", quarters: [] },
     { id: 3, label: "Chen, David", sub: "U719203",
       planned: Math.round(b * 0.035), requested: Math.round(b * 0.035),
       totalCommitments: Math.round(b * 0.035 * 0.60), openCommitments: Math.round(b * 0.035 * 0.30), obligated: Math.round(b * 0.035 * 0.30),
-      description: `FY${fy}/SANDC LABOR FUNDS FOR ${num}/Chen D/`, notes: "" },
+      description: `FY${fy}/SANDC LABOR FUNDS FOR ${num}/Chen D/`, notes: "", quarters: [] },
   ]);
 
   const travel = useFundingRows([
     { id: 10, label: "CERL", sub: "U435310",
       planned: Math.round(b * 0.02), requested: Math.round(b * 0.02),
       totalCommitments: Math.round(b * 0.02), openCommitments: Math.round(b * 0.02 * 0.59), obligated: Math.round(b * 0.02 * 0.41),
-      description: `FY${fy}/SANDC TRAVEL FOR ${num}/CERL/`, notes: "" },
+      description: `FY${fy}/SANDC TRAVEL FOR ${num}/CERL/`, notes: "",
+      quarters: [
+        { fy: `FY${fy}`, q1: Math.round(b * 0.02 * 0.30), q2: Math.round(b * 0.02 * 0.30), q3: Math.round(b * 0.02 * 0.25), q4: Math.round(b * 0.02 * 0.15) },
+      ] },
     { id: 11, label: "Vicksburg District", sub: "U834512",
       planned: Math.round(b * 0.013), requested: Math.round(b * 0.013),
       totalCommitments: Math.round(b * 0.013), openCommitments: Math.round(b * 0.013 * 0.50), obligated: 0,
-      description: `FY${fy}/SANDC TRAVEL FOR ${num}/Vicksburg District/`, notes: "" },
+      description: `FY${fy}/SANDC TRAVEL FOR ${num}/Vicksburg District/`, notes: "", quarters: [] },
   ]);
 
   const mats = useFundingRows([
     { id: 20, label: "Concrete (500 units)", planned: Math.round(b * 0.031), requested: Math.round(b * 0.031),
       totalCommitments: Math.round(b * 0.031), openCommitments: Math.round(b * 0.031 * 0.53), obligated: Math.round(b * 0.031 * 0.47),
-      description: `FY${fy}/SANDC MATL FOR ${num}/Concrete/500 units`, notes: "" },
+      description: `FY${fy}/SANDC MATL FOR ${num}/Concrete/500 units`, notes: "", quarters: [] },
     { id: 21, label: "Steel Rebar (2000 ft)", planned: Math.round(b * 0.021), requested: Math.round(b * 0.021 * 0.98),
       totalCommitments: Math.round(b * 0.021 * 0.98), openCommitments: Math.round(b * 0.021 * 0.49), obligated: 0,
-      description: `FY${fy}/SANDC MATL FOR ${num}/Rebar/2000 units`, notes: "" },
+      description: `FY${fy}/SANDC MATL FOR ${num}/Rebar/2000 units`, notes: "", quarters: [] },
   ]);
 
   const laborDescTemplate  = `FY${fy}/SANDC LABOR FUNDS FOR ${num}//`;
@@ -606,6 +746,10 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
         pickerOptions={LABOR_OPTIONS}
         pickerPlaceholder="Search by name, org code, or department…"
         showDetails={showDetails}
+        defaultFY={`FY${fy}`}
+        onUpdateQuarter={labor.updateQuarter}
+        onAddFiscalYear={labor.addFiscalYear}
+        onRemoveFiscalYear={labor.removeFiscalYear}
       />
       <FundingSection
         title="Travel" columnHeader="Organization"
@@ -621,6 +765,10 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
         pickerOptions={TRAVEL_OPTIONS}
         pickerPlaceholder="Search by name or org code…"
         showDetails={showDetails}
+        defaultFY={`FY${fy}`}
+        onUpdateQuarter={travel.updateQuarter}
+        onAddFiscalYear={travel.addFiscalYear}
+        onRemoveFiscalYear={travel.removeFiscalYear}
       />
       <FundingSection
         title="Materials & Other" columnHeader="Item"
@@ -636,6 +784,10 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
         pickerOptions={MATERIAL_OPTIONS}
         pickerPlaceholder="Search items…"
         showDetails={showDetails}
+        defaultFY={`FY${fy}`}
+        onUpdateQuarter={mats.updateQuarter}
+        onAddFiscalYear={mats.addFiscalYear}
+        onRemoveFiscalYear={mats.removeFiscalYear}
       />
 
       {/* submit */}
