@@ -366,6 +366,14 @@ function useFundingRows(initial: FundingRow[], defaultFYNum: number) {
       return { ...row, quarters, planned };
     }));
 
+  const zeroFiscalYear = (id: number, fy: string) =>
+    setRows((r) => r.map((row) => {
+      if (row.id !== id) return row;
+      const quarters = row.quarters.map((q) => q.fy === fy ? { ...q, q1: 0, q2: 0, q3: 0, q4: 0 } : q);
+      const planned = quarters.reduce((s, q) => s + q.q1 + q.q2 + q.q3 + q.q4, 0);
+      return { ...row, quarters, planned };
+    }));
+
   const spreadAllYears = (id: number, total: number) =>
     setRows((r) => r.map((row) => {
       if (row.id !== id || row.quarters.length === 0) return row;
@@ -381,7 +389,7 @@ function useFundingRows(initial: FundingRow[], defaultFYNum: number) {
       return { ...row, quarters, planned: total };
     }));
 
-  return { rows, updateAmount, updateNote, deleteRow, zeroOutRow, addRow, addMany, updateQuarter, spreadFiscalYear, spreadAllYears, addFiscalYear, removeFiscalYear };
+  return { rows, updateAmount, updateNote, deleteRow, zeroOutRow, addRow, addMany, updateQuarter, spreadFiscalYear, zeroFiscalYear, spreadAllYears, addFiscalYear, removeFiscalYear };
 }
 
 /* ─── single funding section table ─────────────────────────────── */
@@ -636,14 +644,14 @@ function FundingSection({
                                     </td>
                                     <td style={{ paddingLeft: 4 }}>
                                       <button
-                                        onClick={() => onRemoveFiscalYear(row.id, yr.fy)}
+                                        onClick={() => onSpreadFiscalYear(row.id, yr.fy, 0, 0, 0, 0)}
                                         className="p-1 rounded transition-colors"
-                                        style={{ color: "#cbd5e1" }}
-                                        title={`Remove ${yr.fy}`}
+                                        style={{ color: "#cbd5e1", fontSize: 10, fontWeight: 700, fontFamily: "inherit", background: "none", border: "none", cursor: "pointer", lineHeight: 1 }}
+                                        title={`Zero out ${yr.fy}`}
                                         onMouseEnter={(e) => { e.currentTarget.style.color = "#64748b"; e.currentTarget.style.background = "#e2e8f0"; }}
                                         onMouseLeave={(e) => { e.currentTarget.style.color = "#cbd5e1"; e.currentTarget.style.background = "transparent"; }}
                                       >
-                                        <X size={11} />
+                                        0
                                       </button>
                                     </td>
                                   </tr>
