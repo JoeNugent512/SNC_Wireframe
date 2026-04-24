@@ -283,6 +283,7 @@ function FundingSection({
   onUpdateAmount, onUpdateNote, onDelete, onZeroOut, onAddMany,
   pickerMode, existingLabels,
   pickerTitle, pickerOptions, pickerPlaceholder,
+  showDetails,
 }: {
   title: string;
   columnHeader: string;
@@ -299,6 +300,7 @@ function FundingSection({
   pickerTitle?: string;
   pickerOptions?: { label: string; sub: string }[];
   pickerPlaceholder?: string;
+  showDetails: boolean;
 }) {
   const [showPicker, setShowPicker] = useState(false);
 
@@ -350,7 +352,7 @@ function FundingSection({
 
         {/* table with horizontal scroll for narrow viewports */}
         <div style={{ overflowX: "auto" }}>
-        <table className="w-full" style={{ borderCollapse: "collapse", tableLayout: "fixed", minWidth: 860, fontSize: 13 }}>
+        <table className="w-full" style={{ borderCollapse: "collapse", tableLayout: "fixed", minWidth: showDetails ? 860 : 660, fontSize: 13 }}>
           <colgroup>
             <col style={{ width: 180 }} />
             <col style={{ width: 108 }} />
@@ -358,8 +360,8 @@ function FundingSection({
             <col style={{ width: 108 }} />
             <col style={{ width: 108 }} />
             <col style={{ width: 98 }} />
-            <col />
-            <col style={{ width: 95 }} />
+            {showDetails && <col />}
+            {showDetails && <col style={{ width: 95 }} />}
             <col style={{ width: 44 }} />
           </colgroup>
           <thead>
@@ -376,12 +378,16 @@ function FundingSection({
               <th className={blueHd + " align-bottom"} style={{ backgroundColor: blueHdBg, borderLeft: "2px solid #475569" }}>Total<br />Commitments</th>
               <th className={blueHd + " align-bottom"} style={{ backgroundColor: blueHdBg, borderLeft: blueBorder }}>Open<br />Commitments</th>
               <th className={blueHd + " align-bottom"} style={{ backgroundColor: blueHdBg, borderLeft: blueBorder }}>Obligated</th>
-              <th className="px-3 py-3 text-left text-xs font-bold text-slate-600 uppercase tracking-wider align-bottom" style={{ backgroundColor: "#f1f5f9", borderLeft: "1px solid #e2e8f0" }}>
-                Description
-              </th>
-              <th className="px-3 py-3 text-left text-xs font-bold uppercase tracking-wider whitespace-nowrap align-bottom" style={{ backgroundColor: "#fef3c7", color: "#78350f", borderLeft: amberBorder }}>
-                Notes
-              </th>
+              {showDetails && (
+                <th className="px-3 py-3 text-left text-xs font-bold text-slate-600 uppercase tracking-wider align-bottom" style={{ backgroundColor: "#f1f5f9", borderLeft: "1px solid #e2e8f0" }}>
+                  Description
+                </th>
+              )}
+              {showDetails && (
+                <th className="px-3 py-3 text-left text-xs font-bold uppercase tracking-wider whitespace-nowrap align-bottom" style={{ backgroundColor: "#fef3c7", color: "#78350f", borderLeft: amberBorder }}>
+                  Notes
+                </th>
+              )}
               <th className="py-3 bg-slate-100" style={{ borderLeft: "1px solid #e2e8f0" }} />
             </tr>
           </thead>
@@ -404,18 +410,22 @@ function FundingSection({
                   <td className={blueTd} style={{ backgroundColor: blueCellBg, borderLeft: "2px solid #64748b" }}>{fmt(row.totalCommitments)}</td>
                   <td className={blueTd} style={{ backgroundColor: blueCellBg, borderLeft: blueBorder }}>{fmt(row.openCommitments)}</td>
                   <td className={blueTd} style={{ backgroundColor: blueCellBg, borderLeft: blueBorder }}>{fmt(row.obligated)}</td>
-                  <td className="px-3 py-2.5 text-xs text-slate-500 font-mono bg-white truncate" style={{ borderLeft: "1px solid #e2e8f0" }} title={row.description}>
-                    {row.description}
-                  </td>
-                  <td className="px-3 py-2.5" style={{ backgroundColor: amberBg, borderLeft: amberBorder }}>
-                    <input
-                      type="text" value={row.notes}
-                      onChange={(e) => onUpdateNote(row.id, e.target.value)}
-                      placeholder="notes"
-                      className="w-full text-sm text-slate-700 border-none focus:outline-none"
-                      style={{ backgroundColor: "transparent" }}
-                    />
-                  </td>
+                  {showDetails && (
+                    <td className="px-3 py-2.5 text-xs text-slate-500 font-mono bg-white truncate" style={{ borderLeft: "1px solid #e2e8f0" }} title={row.description}>
+                      {row.description}
+                    </td>
+                  )}
+                  {showDetails && (
+                    <td className="px-3 py-2.5" style={{ backgroundColor: amberBg, borderLeft: amberBorder }}>
+                      <input
+                        type="text" value={row.notes}
+                        onChange={(e) => onUpdateNote(row.id, e.target.value)}
+                        placeholder="notes"
+                        className="w-full text-sm text-slate-700 border-none focus:outline-none"
+                        style={{ backgroundColor: "transparent" }}
+                      />
+                    </td>
+                  )}
                   <td className="px-2 py-2.5 text-center bg-slate-50" style={{ borderLeft: "1px solid #e2e8f0" }}>
                     {hasObligations ? (
                       <button
@@ -448,8 +458,8 @@ function FundingSection({
               <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-bold bg-blue-100" style={{ borderLeft: "2px solid #64748b" }}>{fmt(totalCommitments)}</td>
               <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-bold bg-blue-100" style={{ borderLeft: blueBorder }}>{fmt(totalOpen)}</td>
               <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-bold bg-blue-100" style={{ borderLeft: blueBorder }}>{fmt(totalObligated)}</td>
-              <td className="bg-white" style={{ borderLeft: "1px solid #e2e8f0" }} />
-              <td style={{ backgroundColor: amberTotalBg, borderLeft: amberBorder }} />
+              {showDetails && <td className="bg-white" style={{ borderLeft: "1px solid #e2e8f0" }} />}
+              {showDetails && <td style={{ backgroundColor: amberTotalBg, borderLeft: amberBorder }} />}
               <td className="bg-slate-100" style={{ borderLeft: "1px solid #e2e8f0" }} />
             </tr>
           </tfoot>
@@ -465,6 +475,7 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
   const b   = budget;
   const fy  = projectNumber.slice(0, 2);
   const num = projectNumber;
+  const [showDetails, setShowDetails] = useState(false);
 
   const labor = useFundingRows([
     { id: 1, label: "Nugent, Joseph Pat", sub: "U435310",
@@ -547,6 +558,39 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
         </div>
       </div>
 
+      {/* table toolbar */}
+      <div className="flex items-center justify-end">
+        <button
+          onClick={() => setShowDetails((v) => !v)}
+          className="flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-medium transition-colors"
+          style={
+            showDetails
+              ? { backgroundColor: "#1a3557", color: "#fff", borderColor: "#1a3557" }
+              : { backgroundColor: "#fff", color: "#475569", borderColor: "#cbd5e1" }
+          }
+        >
+          <span
+            className="inline-flex items-center justify-center rounded-full transition-colors"
+            style={{
+              width: 28, height: 16, flexShrink: 0,
+              backgroundColor: showDetails ? "rgba(255,255,255,0.25)" : "#e2e8f0",
+              position: "relative",
+            }}
+          >
+            <span
+              style={{
+                width: 12, height: 12, borderRadius: "50%", backgroundColor: "#fff",
+                position: "absolute",
+                left: showDetails ? "calc(100% - 14px)" : 2,
+                transition: "left 0.15s",
+                boxShadow: "0 1px 2px rgba(0,0,0,0.2)",
+              }}
+            />
+          </span>
+          Description &amp; Notes
+        </button>
+      </div>
+
       {/* tables */}
       <FundingSection
         title="Labor" columnHeader="Employee / Org Code"
@@ -561,6 +605,7 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
         pickerTitle="Add Labor"
         pickerOptions={LABOR_OPTIONS}
         pickerPlaceholder="Search by name, org code, or department…"
+        showDetails={showDetails}
       />
       <FundingSection
         title="Travel" columnHeader="Organization"
@@ -575,6 +620,7 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
         pickerTitle="Add Travel"
         pickerOptions={TRAVEL_OPTIONS}
         pickerPlaceholder="Search by name or org code…"
+        showDetails={showDetails}
       />
       <FundingSection
         title="Materials & Other" columnHeader="Item"
@@ -589,6 +635,7 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
         pickerTitle="Add Items"
         pickerOptions={MATERIAL_OPTIONS}
         pickerPlaceholder="Search items…"
+        showDetails={showDetails}
       />
 
       {/* submit */}
