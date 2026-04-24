@@ -472,11 +472,11 @@ function FundingSection({
           <span style={{ flex: 1 }} />
           <span className="text-xs pr-3" style={{ color: "rgba(255,255,255,0.65)", fontWeight: 500 }}>{addButtonLabel}</span>
           {/* 44 px — matches action column <col width={44}> */}
-          <div style={{ width: 44, flexShrink: 0, alignSelf: "stretch", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ width: 44, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
             <button
               onClick={() => setShowPicker(true)}
               className="flex items-center justify-center rounded transition-colors"
-              style={{ width: 34, height: 34, backgroundColor: "rgba(255,255,255,0.18)", color: "#fff", border: "1px solid rgba(255,255,255,0.35)" }}
+              style={{ width: 30, height: 30, backgroundColor: "rgba(255,255,255,0.18)", color: "#fff", border: "1px solid rgba(255,255,255,0.35)" }}
               onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.32)")}
               onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.18)")}
               title={addButtonLabel}
@@ -590,16 +590,16 @@ function FundingSection({
                           onClick={() => onZeroOut(row.id)}
                           title="Zero out planned amounts (has obligations — cannot be deleted)"
                           className="rounded transition-colors text-amber-500 hover:bg-amber-50"
-                          style={{ width: 28, height: 28, display: "inline-flex", alignItems: "center", justifyContent: "center" }}
+                          style={{ width: 30, height: 30, display: "inline-flex", alignItems: "center", justifyContent: "center" }}
                         >
-                          <MinusCircle size={15} />
+                          <MinusCircle size={16} />
                         </button>
                       ) : (
                         <button
                           onClick={() => onDelete(row.id)}
                           title="Delete row"
                           className="rounded transition-colors text-slate-300 hover:text-red-400 hover:bg-red-50"
-                          style={{ width: 28, height: 28, display: "inline-flex", alignItems: "center", justifyContent: "center" }}
+                          style={{ width: 30, height: 30, display: "inline-flex", alignItems: "center", justifyContent: "center" }}
                         >
                           <Trash2 size={15} />
                         </button>
@@ -653,7 +653,7 @@ function FundingSection({
                                       <button
                                         onClick={() => onSpreadFiscalYear(row.id, yr.fy, 0, 0, 0, 0)}
                                         className="rounded transition-colors"
-                                        style={{ color: "#cbd5e1", fontSize: 14, fontWeight: 600, fontFamily: "inherit", background: "none", border: "none", cursor: "pointer", lineHeight: 1, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 28, height: 28 }}
+                                        style={{ color: "#cbd5e1", fontSize: 14, fontWeight: 600, fontFamily: "inherit", background: "none", border: "none", cursor: "pointer", lineHeight: 1, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 30, height: 30 }}
                                         title={`Zero out ${yr.fy}`}
                                         onMouseEnter={(e) => { e.currentTarget.style.color = "#64748b"; e.currentTarget.style.background = "#e2e8f0"; }}
                                         onMouseLeave={(e) => { e.currentTarget.style.color = "#cbd5e1"; e.currentTarget.style.background = "transparent"; }}
