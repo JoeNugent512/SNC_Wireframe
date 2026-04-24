@@ -136,7 +136,7 @@ export interface ChangeRequest {
   submittedBy: string;
   date: string;
   justification: string;
-  status: "Pending" | "Approved" | "Under Review" | "Rejected";
+  status: "First Request" | "Pending" | "Approved" | "Under Review" | "Rejected";
   lineItems: CRLineItem[];
 }
 
@@ -314,7 +314,7 @@ export const MOCK_CHANGE_REQUESTS: ChangeRequest[] = [
     submittedBy: "Elena Rodriguez",
     date: "2024-02-05",
     justification: "Shifting budget from contractor labor to materials to cover higher-than-anticipated cost of 6-inch HDPE pipe fittings. Net budget impact is zero.",
-    status: "Pending",
+    status: "First Request",
     lineItems: [
       { direction: "Decrease", type: "Labor",     orgCode: "U601847", resource: "Contractor Pool",      amount: 30000, from: 412000, to: 382000 },
       { direction: "Increase", type: "Materials", orgCode: "U601847", resource: "Pipe Fittings (HDPE)", amount: 30000, from: 285000, to: 315000 },
@@ -343,7 +343,7 @@ export const MOCK_CHANGE_REQUESTS: ChangeRequest[] = [
     submittedBy: "David Chen",
     date: "2024-02-12",
     justification: "Remote survey technology reduces required field trips. Resulting travel savings are redirected to survey equipment procurement to support the same scope.",
-    status: "Pending",
+    status: "First Request",
     lineItems: [
       { direction: "Decrease", type: "Travel",    orgCode: "U334567", resource: "Pacific Ocean Division", amount: 20000, from: 62000, to: 42000 },
       { direction: "Increase", type: "Materials", orgCode: "U334567", resource: "Survey Equipment", amount: 20000, from: 28000, to: 48000 },
