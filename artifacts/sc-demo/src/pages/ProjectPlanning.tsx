@@ -443,7 +443,7 @@ function FundingSection({
   pickerMode, existingLabels,
   pickerTitle, pickerOptions, pickerPlaceholder,
   showDetails, defaultFY,
-  onUpdateQuarter, onSpreadFiscalYear, onSpreadAllYears, onAddFiscalYear, onRemoveFiscalYear,
+  onUpdateQuarter, onSpreadFiscalYear, onSpreadAllYears, onSpreadQuarter, onAddFiscalYear, onRemoveFiscalYear,
 }: {
   title: string;
   columnHeader: string;
