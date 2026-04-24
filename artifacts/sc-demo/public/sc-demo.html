@@ -504,7 +504,7 @@ function renderPlanning(root,id){
       <p style="font-size:11px;color:#f59e0b;margin:4px 0 0">Unallocated funds remaining</p></div>`;
   }
 
-  const canSubmit=left>=0&&left<=50;
+  const canSubmit=left>=0;
   const btnStyle=canSubmit?'background:#1a3557;color:#fff;cursor:pointer':'background:#e2e8f0;color:#94a3b8;cursor:not-allowed';
 
   root.innerHTML=`<div style="display:flex;flex-direction:column;gap:20px">
@@ -615,7 +615,7 @@ window.submitPlan=function(pid){
   const p=PROJECTS.find(x=>x.id===pid);if(!p)return;
   const d=planningData[pid];const tot=[...d.labor,...d.travel,...d.mats].reduce((s,r)=>s+r.planned,0);
   const left=p.budget-tot;
-  if(left>=0&&left<=50)alert('Plan submitted successfully!');
+  if(left>=0)alert('Plan submitted successfully!');
 };
 function refreshPlan(pid){renderPlanning(document.getElementById('page-root'),pid);}
 

@@ -348,8 +348,9 @@ function FundingSection({
           </button>
         </div>
 
-        {/* table — no overflow wrapper; fixed layout fills width */}
-        <table className="w-full" style={{ borderCollapse: "collapse", tableLayout: "fixed", fontSize: 13 }}>
+        {/* table with horizontal scroll for narrow viewports */}
+        <div style={{ overflowX: "auto" }}>
+        <table className="w-full" style={{ borderCollapse: "collapse", tableLayout: "fixed", minWidth: 860, fontSize: 13 }}>
           <colgroup>
             <col style={{ width: 180 }} />
             <col style={{ width: 108 }} />
@@ -453,6 +454,7 @@ function FundingSection({
             </tr>
           </tfoot>
         </table>
+        </div>
       </div>
     </>
   );
@@ -592,28 +594,25 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
       {/* submit */}
       <div className="flex flex-col items-center gap-1.5 pt-2 pb-4">
         <button
-          disabled={leftToPlan < 0 || leftToPlan > 50}
+          disabled={leftToPlan < 0}
           className="px-12 py-2.5 text-sm font-semibold rounded-lg shadow-sm transition-colors disabled:cursor-not-allowed"
           style={
-            leftToPlan >= 0 && leftToPlan <= 50
+            leftToPlan >= 0
               ? { backgroundColor: "#1a3557", color: "#fff" }
               : { backgroundColor: "#e2e8f0", color: "#94a3b8" }
           }
           onMouseEnter={(e) => {
-            if (leftToPlan >= 0 && leftToPlan <= 50) e.currentTarget.style.backgroundColor = "#16304d";
+            if (leftToPlan >= 0) e.currentTarget.style.backgroundColor = "#16304d";
           }}
           onMouseLeave={(e) => {
-            if (leftToPlan >= 0 && leftToPlan <= 50) e.currentTarget.style.backgroundColor = "#1a3557";
+            if (leftToPlan >= 0) e.currentTarget.style.backgroundColor = "#1a3557";
           }}
+          onClick={() => { if (leftToPlan >= 0) alert("Plan submitted successfully!"); }}
         >
           Submit Plan
         </button>
-        {(leftToPlan < 0 || leftToPlan > 50) && (
-          <p className="text-xs text-slate-400">
-            {leftToPlan < 0
-              ? "Plan exceeds budget — reduce planned amounts before submitting"
-              : "Allocate remaining funds before submitting"}
-          </p>
+        {leftToPlan < 0 && (
+          <p className="text-xs text-slate-400">Plan exceeds budget — reduce planned amounts before submitting</p>
         )}
       </div>
     </div>

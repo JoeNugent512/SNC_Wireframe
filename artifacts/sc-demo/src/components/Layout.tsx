@@ -56,15 +56,15 @@ export default function Layout({ children, title, roleBadge, breadcrumb, headerA
             )}
           </div>
 
-          {/* Right: optional actions + user badge */}
+          {/* Right: user badge + optional actions (far right) */}
           <div className="flex items-center gap-2 flex-shrink-0">
-            {headerActions}
             <div className="flex items-center gap-2 text-sm font-medium text-slate-600 bg-slate-100 px-3 py-1.5 rounded-full">
               <User size={15} className="text-slate-400" />
               <span>John Smith</span>
               <span className="text-slate-300">|</span>
               <span className="text-slate-500 font-normal">Project Manager</span>
             </div>
+            {headerActions}
           </div>
         </div>
       </header>
