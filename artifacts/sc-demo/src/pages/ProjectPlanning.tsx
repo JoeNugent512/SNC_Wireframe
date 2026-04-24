@@ -584,12 +584,13 @@ function FundingSection({
                         />
                       </td>
                     )}
-                    <td className="px-2 py-2.5 text-center bg-slate-50" style={{ borderLeft: "1px solid #e2e8f0" }}>
+                    <td style={{ padding: 0, textAlign: "center", verticalAlign: "middle", borderLeft: "1px solid #e2e8f0", backgroundColor: "#f8fafc" }}>
                       {hasObligations ? (
                         <button
                           onClick={() => onZeroOut(row.id)}
                           title="Zero out planned amounts (has obligations — cannot be deleted)"
-                          className="p-1.5 rounded transition-colors text-amber-600 hover:bg-amber-100"
+                          className="rounded transition-colors text-amber-500 hover:bg-amber-50"
+                          style={{ width: 28, height: 28, display: "inline-flex", alignItems: "center", justifyContent: "center" }}
                         >
                           <MinusCircle size={15} />
                         </button>
@@ -597,7 +598,8 @@ function FundingSection({
                         <button
                           onClick={() => onDelete(row.id)}
                           title="Delete row"
-                          className="p-1.5 rounded transition-colors text-red-500 hover:bg-red-100"
+                          className="rounded transition-colors text-slate-300 hover:text-red-400 hover:bg-red-50"
+                          style={{ width: 28, height: 28, display: "inline-flex", alignItems: "center", justifyContent: "center" }}
                         >
                           <Trash2 size={15} />
                         </button>
@@ -619,12 +621,12 @@ function FundingSection({
 
                           <div style={{ padding: "10px 16px 0 16px" }}>
                           {/* quarter table */}
-                          <table style={{ borderCollapse: "collapse", fontSize: 12, width: "100%" }}>
+                          <table style={{ borderCollapse: "collapse", fontSize: 12, width: "100%", tableLayout: "fixed" }}>
                             <thead>
                               <tr>
-                                <th style={{ width: 56, textAlign: "left", color: "#475569", fontWeight: 700, paddingBottom: 6, paddingRight: 12, textTransform: "uppercase", letterSpacing: "0.05em", fontSize: 10 }}>Year</th>
+                                <th style={{ textAlign: "left", color: "#475569", fontWeight: 700, paddingBottom: 6, paddingRight: 12, textTransform: "uppercase", letterSpacing: "0.05em", fontSize: 10 }}>Year</th>
                                 {(["Q1 Oct–Dec", "Q2 Jan–Mar", "Q3 Apr–Jun", "Q4 Jul–Sep"] as const).map((label) => (
-                                  <th key={label} style={{ width: 114, textAlign: "right", color: "#1a3557", fontWeight: 700, paddingBottom: 6, paddingRight: 8, textTransform: "uppercase", letterSpacing: "0.05em", fontSize: 10 }}>{label}</th>
+                                  <th key={label} style={{ textAlign: "right", color: "#1a3557", fontWeight: 700, paddingBottom: 6, paddingRight: 8, textTransform: "uppercase", letterSpacing: "0.05em", fontSize: 10 }}>{label}</th>
                                 ))}
                                 <th style={{ width: 104, textAlign: "right", color: "#1a6ea8", fontWeight: 700, paddingBottom: 6, paddingRight: 8, textTransform: "uppercase", letterSpacing: "0.05em", fontSize: 10, borderLeft: "1px solid #cbd5e1", paddingLeft: 8 }}>FY Total</th>
                                 <th style={{ width: 44 }} />
@@ -647,10 +649,10 @@ function FundingSection({
                                         onSpread={(q1, q2, q3, q4) => onSpreadFiscalYear(row.id, yr.fy, q1, q2, q3, q4)}
                                       />
                                     </td>
-                                    <td style={{ textAlign: "center", verticalAlign: "middle" }}>
+                                    <td style={{ padding: 0, textAlign: "center", verticalAlign: "middle" }}>
                                       <button
                                         onClick={() => onSpreadFiscalYear(row.id, yr.fy, 0, 0, 0, 0)}
-                                        className="p-1 rounded transition-colors"
+                                        className="rounded transition-colors"
                                         style={{ color: "#cbd5e1", fontSize: 14, fontWeight: 600, fontFamily: "inherit", background: "none", border: "none", cursor: "pointer", lineHeight: 1, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 28, height: 28 }}
                                         title={`Zero out ${yr.fy}`}
                                         onMouseEnter={(e) => { e.currentTarget.style.color = "#64748b"; e.currentTarget.style.background = "#e2e8f0"; }}
