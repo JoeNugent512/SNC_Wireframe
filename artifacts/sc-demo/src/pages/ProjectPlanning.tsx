@@ -468,9 +468,12 @@ function FundingSection({
       <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
         {/* section header */}
         <div className="flex items-center" style={{ backgroundColor: "#1a3557" }}>
-          <span className="flex-1 font-bold text-white text-sm tracking-wide px-4 py-2.5">{title}</span>
-          <div className="flex items-center gap-2 px-2 py-2">
-            <span className="text-xs font-semibold" style={{ color: "rgba(255,255,255,0.75)" }}>{addButtonLabel}</span>
+          <span className="flex-1 font-bold text-white text-sm tracking-wide px-4 py-2.5">
+            {title}
+            <span className="font-normal text-xs ml-3" style={{ color: "rgba(255,255,255,0.6)" }}>{addButtonLabel}</span>
+          </span>
+          {/* 44 px — matches action column <col width={44}> */}
+          <div style={{ width: 44, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
             <button
               onClick={() => setShowPicker(true)}
               className="flex items-center justify-center rounded transition-colors"
@@ -625,7 +628,7 @@ function FundingSection({
                                   <th key={label} style={{ width: 114, textAlign: "right", color: "#1a3557", fontWeight: 700, paddingBottom: 6, paddingRight: 8, textTransform: "uppercase", letterSpacing: "0.05em", fontSize: 10 }}>{label}</th>
                                 ))}
                                 <th style={{ width: 104, textAlign: "right", color: "#1a6ea8", fontWeight: 700, paddingBottom: 6, paddingRight: 8, textTransform: "uppercase", letterSpacing: "0.05em", fontSize: 10, borderLeft: "1px solid #cbd5e1", paddingLeft: 8 }}>FY Total</th>
-                                <th style={{ width: 28 }} />
+                                <th style={{ width: 44 }} />
                               </tr>
                             </thead>
                             <tbody>
@@ -645,7 +648,7 @@ function FundingSection({
                                         onSpread={(q1, q2, q3, q4) => onSpreadFiscalYear(row.id, yr.fy, q1, q2, q3, q4)}
                                       />
                                     </td>
-                                    <td style={{ paddingLeft: 4, textAlign: "center", verticalAlign: "middle" }}>
+                                    <td style={{ textAlign: "center", verticalAlign: "middle" }}>
                                       <button
                                         onClick={() => onSpreadFiscalYear(row.id, yr.fy, 0, 0, 0, 0)}
                                         className="p-1 rounded transition-colors"
