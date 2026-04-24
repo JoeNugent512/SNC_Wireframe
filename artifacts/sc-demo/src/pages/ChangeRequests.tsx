@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "wouter";
 import {
   ChevronRight, Filter, FileText, CheckCircle, XCircle,
-  Search, TrendingUp, TrendingDown, FolderOpen, User, ArrowRight, Copy, Check
+  Search, FolderOpen, User, Copy, Check,
 } from "lucide-react";
 import Layout from "@/components/Layout";
 import { MOCK_CHANGE_REQUESTS, MOCK_PROJECTS, ChangeRequest, CRLineItem } from "@/lib/mockData";
@@ -15,8 +15,7 @@ import { Toaster } from "@/components/ui/toaster";
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
 
-const fmtDelta = (n: number) =>
-  (n > 0 ? "+" : "") + fmt(n);
+const fmtDelta = (n: number) => (n > 0 ? "+" : "") + fmt(n);
 
 function netChange(cr: ChangeRequest) {
   return cr.lineItems.reduce((sum, li) =>
@@ -27,28 +26,163 @@ function getProponent(projectNumber: string) {
   return MOCK_PROJECTS.find(p => p.number === projectNumber)?.hqProponent ?? "—";
 }
 
-function buildDescription(cr: ChangeRequest): string {
+function buildLineDesc(cr: ChangeRequest, li: CRLineItem): string {
   const fy = cr.projectNumber.substring(0, 2);
-  return cr.lineItems
-    .map(li => `FY${fy}/SANDC ${li.type.toUpperCase()} FUNDS FOR ${cr.projectNumber}/${li.description.toUpperCase()}/`)
-    .join("\n");
+  return `FY${fy}/SANDC ${li.type.toUpperCase()} FUNDS FOR ${cr.projectNumber}/${li.resource.toUpperCase()}/`;
 }
 
-function typeChipClass(type: CRLineItem["type"]) {
-  if (type === "Labor")     return "bg-blue-50 text-blue-700 border-blue-200";
-  if (type === "Travel")    return "bg-violet-50 text-violet-700 border-violet-200";
-  return                           "bg-slate-50 text-slate-600 border-slate-200";
+function typeChipStyle(type: CRLineItem["type"]) {
+  if (type === "Labor")    return "bg-blue-50 text-blue-700 border-blue-200";
+  if (type === "Travel")   return "bg-violet-50 text-violet-700 border-violet-200";
+  return                          "bg-slate-50 text-slate-600 border-slate-200";
 }
 
+/* ── Per-row description+notes cell ─────────────────────────── */
+function DescNotesCell({
+  initialDesc,
+  disabled,
+}: {
+  initialDesc: string;
+  disabled: boolean;
+}) {
+  const [text, setText] = useState(initialDesc);
+  const [copied, setCopied] = useState(false);
+
+  const copy = () => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
+  return (
+    <div className="flex flex-col gap-1 min-w-0">
+      <textarea
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        disabled={disabled}
+        rows={2}
+        className="w-full text-xs font-mono text-slate-700 bg-slate-50 border border-slate-200 rounded px-2 py-1.5 resize-none focus:outline-none focus:ring-1 focus:ring-blue-200 leading-relaxed disabled:opacity-60 disabled:cursor-default"
+        style={{ minWidth: 200 }}
+      />
+      <button
+        onClick={copy}
+        className="self-start flex items-center gap-1 text-[11px] font-medium text-slate-400 hover:text-slate-700 transition-colors"
+      >
+        {copied
+          ? <><Check size={11} className="text-emerald-500" /> Copied</>
+          : <><Copy size={11} /> Copy</>}
+      </button>
+    </div>
+  );
+}
+
+/* ── Grouped budget changes table ────────────────────────────── */
+function BudgetChangesTable({ cr, disabled }: { cr: ChangeRequest; disabled: boolean }) {
+  // Group line items by orgCode, preserving order of first appearance
+  const groups: { orgCode: string; items: CRLineItem[] }[] = [];
+  const seen = new Map<string, number>();
+  for (const li of cr.lineItems) {
+    if (!seen.has(li.orgCode)) {
+      seen.set(li.orgCode, groups.length);
+      groups.push({ orgCode: li.orgCode, items: [] });
+    }
+    groups[seen.get(li.orgCode)!].items.push(li);
+  }
+
+  const net = netChange(cr);
+
+  return (
+    <div className="rounded-lg border border-slate-200 overflow-hidden">
+      {/* column headers */}
+      <div
+        className="grid text-[11px] font-semibold text-slate-400 uppercase tracking-wider bg-slate-50 border-b border-slate-200 px-4 py-2"
+        style={{ gridTemplateColumns: "90px 1fr 88px 88px 80px 1fr" }}
+      >
+        <span>Type</span>
+        <span>Resource</span>
+        <span className="text-right">Current</span>
+        <span className="text-right">Proposed</span>
+        <span className="text-right">Change</span>
+        <span className="pl-2">Description / Notes</span>
+      </div>
+
+      {groups.map((group, gi) => (
+        <div key={group.orgCode} className={gi > 0 ? "border-t-2 border-slate-200" : ""}>
+          {/* org code header */}
+          <div className="px-4 py-1.5 bg-slate-100 flex items-center gap-2">
+            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-widest font-mono">
+              {group.orgCode}
+            </span>
+          </div>
+
+          {/* line items */}
+          {group.items.map((li, i) => {
+            const delta = li.direction === "Increase" ? li.amount : -li.amount;
+            const initialDesc = buildLineDesc(cr, li);
+            return (
+              <div
+                key={i}
+                className="grid items-start px-4 py-2.5 gap-3 border-t border-slate-100"
+                style={{ gridTemplateColumns: "90px 1fr 88px 88px 80px 1fr" }}
+              >
+                {/* type chip */}
+                <div className="pt-0.5">
+                  <span className={`inline-flex items-center text-[10px] font-semibold px-1.5 py-0.5 rounded border ${typeChipStyle(li.type)}`}>
+                    {li.type}
+                  </span>
+                </div>
+
+                {/* resource */}
+                <span className="text-sm text-slate-700 font-medium leading-tight pt-0.5 truncate" title={li.resource}>
+                  {li.resource}
+                </span>
+
+                {/* current */}
+                <span className="text-sm tabular-nums text-slate-500 text-right pt-0.5">{fmt(li.from)}</span>
+
+                {/* proposed */}
+                <span className="text-sm tabular-nums font-medium text-slate-800 text-right pt-0.5">{fmt(li.to)}</span>
+
+                {/* change */}
+                <span className={`text-sm tabular-nums font-semibold text-right pt-0.5 ${delta > 0 ? "text-emerald-700" : "text-red-600"}`}>
+                  {delta > 0 ? "+" : ""}{fmt(delta)}
+                </span>
+
+                {/* description / notes */}
+                <div className="pl-2">
+                  <DescNotesCell initialDesc={initialDesc} disabled={disabled} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ))}
+
+      {/* net total */}
+      <div
+        className="grid items-center px-4 py-2.5 bg-slate-50 border-t-2 border-slate-200"
+        style={{ gridTemplateColumns: "90px 1fr 88px 88px 80px 1fr" }}
+      >
+        <span className="col-span-4 text-[11px] font-semibold text-slate-400 uppercase tracking-wider text-right">
+          Net Change
+        </span>
+        <span className={`text-sm font-bold tabular-nums text-right ${net > 0 ? "text-emerald-700" : net < 0 ? "text-red-600" : "text-slate-500"}`}>
+          {net === 0 ? "$0" : fmtDelta(net)}
+        </span>
+        <span />
+      </div>
+    </div>
+  );
+}
+
+/* ── Main page ───────────────────────────────────────────────── */
 export default function ChangeRequests() {
   const { toast } = useToast();
   const [filterStatus, setFilterStatus] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCR, setSelectedCR] = useState<ChangeRequest | null>(null);
   const [actionReason, setActionReason] = useState("");
-  const [noteText, setNoteText] = useState("");
-  const [copiedDesc, setCopiedDesc] = useState(false);
-  const [copiedNotes, setCopiedNotes] = useState(false);
 
   const filteredCRs = MOCK_CHANGE_REQUESTS.filter(cr => {
     const matchesStatus = filterStatus === "All" || cr.status === filterStatus;
@@ -57,7 +191,7 @@ export default function ChangeRequests() {
       cr.projectNumber.toLowerCase().includes(q) ||
       cr.projectName.toLowerCase().includes(q) ||
       cr.submittedBy.toLowerCase().includes(q) ||
-      cr.lineItems.some(li => li.description.toLowerCase().includes(q));
+      cr.lineItems.some(li => li.resource.toLowerCase().includes(q) || li.orgCode.toLowerCase().includes(q));
     return matchesStatus && matchesSearch;
   });
 
@@ -73,23 +207,10 @@ export default function ChangeRequests() {
   const handleOpen = (cr: ChangeRequest) => {
     setSelectedCR(cr);
     setActionReason("");
-    setNoteText("");
-    setCopiedDesc(false);
-    setCopiedNotes(false);
   };
   const handleClose = () => {
     setSelectedCR(null);
     setActionReason("");
-    setNoteText("");
-    setCopiedDesc(false);
-    setCopiedNotes(false);
-  };
-
-  const copyToClipboard = (text: string, which: "desc" | "notes") => {
-    navigator.clipboard.writeText(text).then(() => {
-      if (which === "desc") { setCopiedDesc(true); setTimeout(() => setCopiedDesc(false), 2000); }
-      else                  { setCopiedNotes(true); setTimeout(() => setCopiedNotes(false), 2000); }
-    });
   };
 
   const handleAction = (action: "Approve" | "Reject") => {
@@ -118,12 +239,12 @@ export default function ChangeRequests() {
       <div className="flex flex-col h-full space-y-6">
 
         <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden flex flex-col h-[calc(100vh-12rem)]">
-          {/* ── Toolbar ── */}
+          {/* Toolbar */}
           <div className="p-4 border-b border-slate-200 bg-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="relative w-full sm:w-72">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
               <Input
-                placeholder="Search requests..."
+                placeholder="Search by project, resource, org code…"
                 className="pl-9 h-9 text-sm bg-white"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -148,7 +269,7 @@ export default function ChangeRequests() {
             </div>
           </div>
 
-          {/* ── Table ── */}
+          {/* Table */}
           <div className="overflow-x-auto flex-1">
             <table className="w-full text-sm text-left">
               <thead className="text-xs text-slate-500 uppercase tracking-wider bg-slate-50/50 sticky top-0 border-b border-slate-200">
@@ -163,7 +284,7 @@ export default function ChangeRequests() {
               <tbody className="divide-y divide-slate-100">
                 {filteredCRs.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-6 py-12 text-center text-slate-500">
+                    <td colSpan={5} className="px-6 py-12 text-center text-slate-500">
                       <div className="flex flex-col items-center justify-center">
                         <FileText size={32} className="text-slate-300 mb-3" />
                         <p>No change requests found matching your criteria.</p>
@@ -171,24 +292,22 @@ export default function ChangeRequests() {
                     </td>
                   </tr>
                 ) : (
-                  filteredCRs.map((cr) => {
-                    return (
-                      <tr
-                        key={cr.id}
-                        className="hover:bg-slate-50 transition-colors cursor-pointer"
-                        onClick={() => handleOpen(cr)}
-                      >
-                        <td className="px-6 py-4">
-                          <div className="font-mono font-semibold text-xs text-slate-400">{cr.projectNumber}</div>
-                          <div className="font-medium text-slate-900 truncate max-w-[200px]">{cr.projectName}</div>
-                        </td>
-                        <td className="px-6 py-4 text-slate-600 hidden lg:table-cell">{getProponent(cr.projectNumber)}</td>
-                        <td className="px-6 py-4 text-slate-600 hidden md:table-cell">{cr.submittedBy}</td>
-                        <td className="px-6 py-4 text-slate-500 hidden sm:table-cell">{cr.date}</td>
-                        <td className="px-6 py-4">{getStatusBadge(cr.status)}</td>
-                      </tr>
-                    );
-                  })
+                  filteredCRs.map((cr) => (
+                    <tr
+                      key={cr.id}
+                      className="hover:bg-slate-50 transition-colors cursor-pointer"
+                      onClick={() => handleOpen(cr)}
+                    >
+                      <td className="px-6 py-4">
+                        <div className="font-mono font-semibold text-xs text-slate-400">{cr.projectNumber}</div>
+                        <div className="font-medium text-slate-900 truncate max-w-[200px]">{cr.projectName}</div>
+                      </td>
+                      <td className="px-6 py-4 text-slate-600 hidden lg:table-cell">{getProponent(cr.projectNumber)}</td>
+                      <td className="px-6 py-4 text-slate-600 hidden md:table-cell">{cr.submittedBy}</td>
+                      <td className="px-6 py-4 text-slate-500 hidden sm:table-cell">{cr.date}</td>
+                      <td className="px-6 py-4">{getStatusBadge(cr.status)}</td>
+                    </tr>
+                  ))
                 )}
               </tbody>
             </table>
@@ -196,11 +315,11 @@ export default function ChangeRequests() {
         </div>
       </div>
 
-      {/* ── Detail Modal ── */}
+      {/* Detail Modal */}
       <Dialog open={!!selectedCR} onOpenChange={(open) => !open && handleClose()}>
-        <DialogContent className="sm:max-w-[600px] p-0 overflow-hidden gap-0 max-h-[90vh] flex flex-col">
+        <DialogContent className="sm:max-w-[720px] p-0 overflow-hidden gap-0 max-h-[90vh] flex flex-col">
           {selectedCR && (() => {
-            const net = netChange(selectedCR);
+            const actionable = isActionable(selectedCR.status);
             return (
               <>
                 {/* Header */}
@@ -237,64 +356,10 @@ export default function ChangeRequests() {
                       </p>
                     </div>
 
-                    {/* Before / After table */}
+                    {/* Grouped budget changes */}
                     <div>
                       <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Budget Changes</div>
-                      <div className="rounded-lg border border-slate-200 overflow-hidden">
-                        {/* Column headers */}
-                        <div className="grid grid-cols-[1fr_auto_auto_auto_auto] text-[11px] font-semibold text-slate-400 uppercase tracking-wider bg-slate-50 border-b border-slate-200 px-4 py-2 gap-x-4">
-                          <span>Line Item</span>
-                          <span className="text-right w-24">Current</span>
-                          <span className="w-4" />
-                          <span className="text-right w-24">Proposed</span>
-                          <span className="text-right w-24">Change</span>
-                        </div>
-
-                        {/* Line item rows */}
-                        {selectedCR.lineItems.map((li, i) => {
-                          const delta = li.direction === "Increase" ? li.amount : -li.amount;
-                          return (
-                            <div
-                              key={i}
-                              className="grid grid-cols-[1fr_auto_auto_auto_auto] items-center px-4 py-3 gap-x-4 border-b border-slate-100 last:border-0"
-                            >
-                              {/* Description */}
-                              <div className="flex items-center gap-2 min-w-0">
-                                <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded border flex-shrink-0 ${typeChipClass(li.type)}`}>
-                                  {li.type}
-                                </span>
-                                <span className="text-sm text-slate-700 truncate">{li.description}</span>
-                              </div>
-
-                              {/* Current */}
-                              <span className="text-sm tabular-nums text-slate-500 text-right w-24">{fmt(li.from)}</span>
-
-                              {/* Arrow */}
-                              <ArrowRight size={13} className="text-slate-300 w-4" />
-
-                              {/* Proposed */}
-                              <span className="text-sm tabular-nums font-medium text-slate-800 text-right w-24">{fmt(li.to)}</span>
-
-                              {/* Delta */}
-                              <span className={`text-sm tabular-nums font-semibold text-right w-24 ${
-                                delta > 0 ? "text-emerald-700" : "text-red-600"
-                              }`}>
-                                {delta > 0 ? "+" : ""}{fmt(delta)}
-                              </span>
-                            </div>
-                          );
-                        })}
-
-                        {/* Net total row */}
-                        <div className="grid grid-cols-[1fr_auto_auto_auto_auto] items-center px-4 py-3 gap-x-4 bg-slate-50 border-t-2 border-slate-200">
-                          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider col-span-4 text-right">Net Change</span>
-                          <span className={`text-sm font-bold tabular-nums text-right w-24 ${
-                            net > 0 ? "text-emerald-700" : net < 0 ? "text-red-600" : "text-slate-500"
-                          }`}>
-                            {net === 0 ? "$0" : fmtDelta(net)}
-                          </span>
-                        </div>
-                      </div>
+                      <BudgetChangesTable cr={selectedCR} disabled={!actionable} />
                     </div>
 
                     {/* Justification */}
@@ -305,64 +370,22 @@ export default function ChangeRequests() {
                       </p>
                     </div>
 
-                    {/* Auto-generated Description */}
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Description</div>
-                        <button
-                          onClick={() => copyToClipboard(buildDescription(selectedCR), "desc")}
-                          className="flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-slate-800 hover:bg-slate-100 px-2 py-1 rounded transition-colors"
-                        >
-                          {copiedDesc ? <Check size={13} className="text-emerald-600" /> : <Copy size={13} />}
-                          {copiedDesc ? "Copied!" : "Copy"}
-                        </button>
+                    {/* Reason (only when actionable) */}
+                    {actionable && (
+                      <div>
+                        <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1.5">
+                          Decision Reason (optional)
+                        </label>
+                        <textarea
+                          rows={3}
+                          value={actionReason}
+                          onChange={(e) => setActionReason(e.target.value)}
+                          placeholder="Provide a reason for your decision…"
+                          className="w-full text-sm text-slate-700 border border-slate-200 rounded-lg px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-primary/40 bg-white"
+                        />
                       </div>
-                      <textarea
-                        readOnly
-                        rows={Math.max(3, selectedCR.lineItems.length + 1)}
-                        value={buildDescription(selectedCR)}
-                        className="w-full text-xs text-slate-700 font-mono bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 resize-none focus:outline-none focus:ring-2 focus:ring-primary/30 leading-relaxed"
-                      />
-                    </div>
-
-                    {/* Notes */}
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Notes</div>
-                        <button
-                          onClick={() => copyToClipboard(noteText, "notes")}
-                          disabled={!noteText.trim()}
-                          className="flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-slate-800 hover:bg-slate-100 px-2 py-1 rounded transition-colors disabled:opacity-40 disabled:pointer-events-none"
-                        >
-                          {copiedNotes ? <Check size={13} className="text-emerald-600" /> : <Copy size={13} />}
-                          {copiedNotes ? "Copied!" : "Copy"}
-                        </button>
-                      </div>
-                      <textarea
-                        rows={4}
-                        value={noteText}
-                        onChange={(e) => setNoteText(e.target.value)}
-                        placeholder="Add any additional notes here…"
-                        className="w-full text-sm text-slate-700 border border-slate-200 rounded-lg px-3 py-2.5 resize-none focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white"
-                      />
-                    </div>
+                    )}
                   </div>
-
-                  {/* Reason textarea — only when actionable */}
-                  {isActionable(selectedCR.status) && (
-                    <div className="px-6 pb-4">
-                      <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1.5">
-                        Reason (optional)
-                      </label>
-                      <textarea
-                        rows={3}
-                        value={actionReason}
-                        onChange={(e) => setActionReason(e.target.value)}
-                        placeholder="Provide a reason for your decision…"
-                        className="w-full text-sm text-slate-700 border border-slate-200 rounded-lg px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-primary/40 bg-white"
-                      />
-                    </div>
-                  )}
                 </div>
 
                 {/* Footer */}
@@ -373,7 +396,7 @@ export default function ChangeRequests() {
                   >
                     Close
                   </button>
-                  {isActionable(selectedCR.status) && (
+                  {actionable && (
                     <>
                       <button
                         onClick={() => handleAction("Reject")}

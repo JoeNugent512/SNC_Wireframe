@@ -121,7 +121,8 @@ export const PENDING_SETUP_PROJECTS: SetupProject[] = [
 export interface CRLineItem {
   direction: "Increase" | "Decrease";
   type: "Labor" | "Travel" | "Materials";
-  description: string;
+  orgCode: string;
+  resource: string;
   amount: number;
   from: number;
   to: number;
@@ -285,8 +286,8 @@ export const MOCK_CHANGE_REQUESTS: ChangeRequest[] = [
     justification: "Labor reallocation needed after geotechnical scope expanded. Nugent picked up additional survey tasks; offsetting by reducing planned site visits that can be combined into fewer trips.",
     status: "Pending",
     lineItems: [
-      { direction: "Increase", type: "Labor",  description: "Nugent, Joseph Pat", amount: 22000, from: 215000, to: 237000 },
-      { direction: "Decrease", type: "Travel", description: "Site Visits",         amount: 22000, from: 48000,  to: 26000  },
+      { direction: "Increase", type: "Labor",  orgCode: "U435310", resource: "Nugent, Joseph Pat", amount: 22000, from: 215000, to: 237000 },
+      { direction: "Decrease", type: "Travel", orgCode: "U435310", resource: "Site Visits",         amount: 22000, from: 48000,  to: 26000  },
     ],
   },
   {
@@ -299,10 +300,10 @@ export const MOCK_CHANGE_REQUESTS: ChangeRequest[] = [
     justification: "Additional org-code labor is required for the extended environmental compliance phase. Equipment transport trips have been consolidated and steel fasteners sourced locally, freeing those funds.",
     status: "Pending",
     lineItems: [
-      { direction: "Increase", type: "Labor",     description: "U435310",              amount: 45000, from: 280000, to: 325000 },
-      { direction: "Increase", type: "Labor",     description: "Chen, David",           amount: 15000, from: 195000, to: 210000 },
-      { direction: "Decrease", type: "Travel",    description: "Equipment Transport",   amount: 47000, from: 155000, to: 108000 },
-      { direction: "Decrease", type: "Materials", description: "Steel Fasteners",       amount: 13000, from: 45000,  to: 32000  },
+      { direction: "Increase", type: "Labor",     orgCode: "U435310", resource: "U435310",            amount: 45000, from: 280000, to: 325000 },
+      { direction: "Decrease", type: "Travel",    orgCode: "U435310", resource: "Equipment Transport", amount: 47000, from: 155000, to: 108000 },
+      { direction: "Increase", type: "Labor",     orgCode: "U719203", resource: "Chen, David",         amount: 15000, from: 195000, to: 210000 },
+      { direction: "Decrease", type: "Materials", orgCode: "U719203", resource: "Steel Fasteners",     amount: 13000, from: 45000,  to: 32000  },
     ],
   },
   {
@@ -315,8 +316,8 @@ export const MOCK_CHANGE_REQUESTS: ChangeRequest[] = [
     justification: "Shifting budget from contractor labor to materials to cover higher-than-anticipated cost of 6-inch HDPE pipe fittings. Net budget impact is zero.",
     status: "Pending",
     lineItems: [
-      { direction: "Decrease", type: "Labor",     description: "Contractor Pool",      amount: 30000, from: 412000, to: 382000 },
-      { direction: "Increase", type: "Materials", description: "Pipe Fittings (HDPE)", amount: 30000, from: 285000, to: 315000 },
+      { direction: "Decrease", type: "Labor",     orgCode: "U601847", resource: "Contractor Pool",      amount: 30000, from: 412000, to: 382000 },
+      { direction: "Increase", type: "Materials", orgCode: "U601847", resource: "Pipe Fittings (HDPE)", amount: 30000, from: 285000, to: 315000 },
     ],
   },
   {
@@ -329,9 +330,9 @@ export const MOCK_CHANGE_REQUESTS: ChangeRequest[] = [
     justification: "Additional senior labor required for systems integration across all checkpoints. Value-engineered panel selection reduces materials spend to offset the labor increase.",
     status: "Pending",
     lineItems: [
-      { direction: "Increase", type: "Labor",     description: "Rodriguez, Elena",    amount: 75000,  from: 1125000, to: 1200000 },
-      { direction: "Increase", type: "Labor",     description: "Thorne, Marcus",       amount: 25000,  from: 625000,  to: 650000  },
-      { direction: "Decrease", type: "Materials", description: "Steel & Glass Panels", amount: 100000, from: 2850000, to: 2750000 },
+      { direction: "Increase", type: "Labor",     orgCode: "U920183", resource: "Rodriguez, Elena",    amount: 75000,  from: 1125000, to: 1200000 },
+      { direction: "Increase", type: "Labor",     orgCode: "U582094", resource: "Thorne, Marcus",       amount: 25000,  from: 625000,  to: 650000  },
+      { direction: "Decrease", type: "Materials", orgCode: "U582094", resource: "Steel & Glass Panels", amount: 100000, from: 2850000, to: 2750000 },
     ],
   },
   {
@@ -344,8 +345,8 @@ export const MOCK_CHANGE_REQUESTS: ChangeRequest[] = [
     justification: "Remote survey technology reduces required field trips. Resulting travel savings are redirected to survey equipment procurement to support the same scope.",
     status: "Pending",
     lineItems: [
-      { direction: "Decrease", type: "Travel",    description: "Site Inspections", amount: 20000, from: 62000, to: 42000 },
-      { direction: "Increase", type: "Materials", description: "Survey Equipment", amount: 20000, from: 28000, to: 48000 },
+      { direction: "Decrease", type: "Travel",    orgCode: "U334567", resource: "Site Inspections", amount: 20000, from: 62000, to: 42000 },
+      { direction: "Increase", type: "Materials", orgCode: "U334567", resource: "Survey Equipment", amount: 20000, from: 28000, to: 48000 },
     ],
   },
 ];
