@@ -244,14 +244,60 @@ function EditableAmount({ value, onChange }: { value: number; onChange: (v: numb
   );
 }
 
+/* ─── spread-fill total cell ──────────────────────────────────── */
+function SpreadFillTotal({
+  total, onSpread,
+}: {
+  total: number;
+  onSpread: (q1: number, q2: number, q3: number, q4: number) => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [raw, setRaw] = useState("");
+  const commit = () => {
+    const v = parseInt(raw) || 0;
+    const base = Math.floor(v / 4);
+    const rem = v - base * 4;
+    onSpread(base + rem, base, base, base);
+    setEditing(false);
+  };
+  if (editing) {
+    return (
+      <input
+        autoFocus type="text" value={raw}
+        onChange={(e) => setRaw(e.target.value.replace(/[^0-9]/g, ""))}
+        onBlur={commit}
+        onKeyDown={(e) => { if (e.key === "Enter") commit(); if (e.key === "Escape") setEditing(false); }}
+        className="w-full text-right text-sm border border-blue-400 rounded px-1 py-0.5 focus:outline-none focus:ring-1 focus:ring-blue-200 tabular-nums bg-white"
+      />
+    );
+  }
+  return (
+    <button
+      onClick={() => { setRaw(String(total)); setEditing(true); }}
+      title="Enter a total to spread evenly across Q1–Q4"
+      className="w-full text-right text-sm font-semibold tabular-nums hover:underline decoration-dotted underline-offset-2 focus:outline-none"
+      style={{ color: total === 0 ? "#94a3b8" : "#1a3557" }}
+    >
+      {total === 0 ? "—" : fmt(total)}
+    </button>
+  );
+}
+
 /* ─── row state hook ───────────────────────────────────────────── */
-function useFundingRows(initial: FundingRow[]) {
+function makeFiveYears(baseFYNum: number): YearQuarters[] {
+  return Array.from({ length: 5 }, (_, i) => ({
+    fy: `FY${String(baseFYNum + i).padStart(2, "0")}`,
+    q1: 0, q2: 0, q3: 0, q4: 0,
+  }));
+}
+
+function useFundingRows(initial: FundingRow[], defaultFYNum: number) {
   const [rows, setRows] = useState(initial);
 
   const updateAmount = (id: number, field: "planned" | "requested", value: number) =>
     setRows((r) => r.map((row) => {
       if (row.id !== id) return row;
-      if (field === "planned" && row.quarters.length > 0) return row; // quarters own planned
+      if (field === "planned" && row.quarters.some((q) => q.q1 + q.q2 + q.q3 + q.q4 > 0)) return row;
       return { ...row, [field]: value };
     }));
 
@@ -262,13 +308,17 @@ function useFundingRows(initial: FundingRow[]) {
     setRows((r) => r.filter((row) => row.id !== id));
 
   const zeroOutRow = (id: number) =>
-    setRows((r) => r.map((row) => row.id === id ? { ...row, planned: 0, requested: 0, quarters: [] } : row));
+    setRows((r) => r.map((row) =>
+      row.id === id
+        ? { ...row, planned: 0, requested: 0, quarters: row.quarters.map((q) => ({ ...q, q1: 0, q2: 0, q3: 0, q4: 0 })) }
+        : row
+    ));
 
   const addRow = (label: string, description: string) =>
     setRows((r) => [...r, {
       id: uid(), label, planned: 0, requested: 0,
       totalCommitments: 0, openCommitments: 0, obligated: 0,
-      description, notes: "", quarters: [],
+      description, notes: "", quarters: makeFiveYears(defaultFYNum),
     }]);
 
   const addMany = (items: { label: string; sub?: string }[], descTemplate: string) =>
@@ -277,7 +327,7 @@ function useFundingRows(initial: FundingRow[]) {
       ...items.map(({ label, sub }) => ({
         id: uid(), label, sub, planned: 0, requested: 0,
         totalCommitments: 0, openCommitments: 0, obligated: 0,
-        description: descTemplate, notes: "", quarters: [],
+        description: descTemplate, notes: "", quarters: makeFiveYears(defaultFYNum),
       })),
     ]);
 
@@ -285,6 +335,14 @@ function useFundingRows(initial: FundingRow[]) {
     setRows((r) => r.map((row) => {
       if (row.id !== id) return row;
       const quarters = row.quarters.map((q) => q.fy === fy ? { ...q, [qKey]: value } : q);
+      const planned = quarters.reduce((s, q) => s + q.q1 + q.q2 + q.q3 + q.q4, 0);
+      return { ...row, quarters, planned };
+    }));
+
+  const spreadFiscalYear = (id: number, fy: string, q1: number, q2: number, q3: number, q4: number) =>
+    setRows((r) => r.map((row) => {
+      if (row.id !== id) return row;
+      const quarters = row.quarters.map((q) => q.fy === fy ? { ...q, q1, q2, q3, q4 } : q);
       const planned = quarters.reduce((s, q) => s + q.q1 + q.q2 + q.q3 + q.q4, 0);
       return { ...row, quarters, planned };
     }));
@@ -299,13 +357,11 @@ function useFundingRows(initial: FundingRow[]) {
     setRows((r) => r.map((row) => {
       if (row.id !== id) return row;
       const quarters = row.quarters.filter((q) => q.fy !== fy);
-      const planned = quarters.length > 0
-        ? quarters.reduce((s, q) => s + q.q1 + q.q2 + q.q3 + q.q4, 0)
-        : row.planned;
+      const planned = quarters.reduce((s, q) => s + q.q1 + q.q2 + q.q3 + q.q4, 0);
       return { ...row, quarters, planned };
     }));
 
-  return { rows, updateAmount, updateNote, deleteRow, zeroOutRow, addRow, addMany, updateQuarter, addFiscalYear, removeFiscalYear };
+  return { rows, updateAmount, updateNote, deleteRow, zeroOutRow, addRow, addMany, updateQuarter, spreadFiscalYear, addFiscalYear, removeFiscalYear };
 }
 
 /* ─── single funding section table ─────────────────────────────── */
@@ -315,7 +371,7 @@ function FundingSection({
   pickerMode, existingLabels,
   pickerTitle, pickerOptions, pickerPlaceholder,
   showDetails, defaultFY,
-  onUpdateQuarter, onAddFiscalYear, onRemoveFiscalYear,
+  onUpdateQuarter, onSpreadFiscalYear, onAddFiscalYear, onRemoveFiscalYear,
 }: {
   title: string;
   columnHeader: string;
@@ -335,6 +391,7 @@ function FundingSection({
   showDetails: boolean;
   defaultFY: string;
   onUpdateQuarter: (id: number, fy: string, qKey: keyof Omit<YearQuarters, "fy">, value: number) => void;
+  onSpreadFiscalYear: (id: number, fy: string, q1: number, q2: number, q3: number, q4: number) => void;
   onAddFiscalYear: (id: number, fy: string) => void;
   onRemoveFiscalYear: (id: number, fy: string) => void;
 }) {
@@ -538,8 +595,11 @@ function FundingSection({
                                         <EditableAmount value={yr[qk]} onChange={(v) => onUpdateQuarter(row.id, yr.fy, qk, v)} />
                                       </td>
                                     ))}
-                                    <td style={{ paddingTop: 6, paddingBottom: 6, paddingRight: 8, textAlign: "right", fontWeight: 600, color: "#1e293b", fontVariantNumeric: "tabular-nums" }}>
-                                      {fyTotal === 0 ? "—" : fmt(fyTotal)}
+                                    <td style={{ paddingTop: 4, paddingBottom: 4, paddingRight: 8 }}>
+                                      <SpreadFillTotal
+                                        total={fyTotal}
+                                        onSpread={(q1, q2, q3, q4) => onSpreadFiscalYear(row.id, yr.fy, q1, q2, q3, q4)}
+                                      />
                                     </td>
                                     <td>
                                       <button
@@ -605,9 +665,10 @@ function FundingSection({
 
 /* ─── main funding view ────────────────────────────────────────── */
 function FundingView({ budget, projectNumber }: { budget: number; projectNumber: string }) {
-  const b   = budget;
-  const fy  = projectNumber.slice(0, 2);
-  const num = projectNumber;
+  const b      = budget;
+  const fy     = projectNumber.slice(0, 2);
+  const fyNum  = parseInt(fy);
+  const num    = projectNumber;
   const [showDetails, setShowDetails] = useState(false);
 
   const labor = useFundingRows([
@@ -615,42 +676,46 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
       planned: Math.round(b * 0.09), requested: Math.round(b * 0.09 * 0.05),
       totalCommitments: Math.round(b * 0.09 * 0.05), openCommitments: Math.round(b * 0.09 * 0.03), obligated: Math.round(b * 0.09 * 0.02),
       description: `FY${fy}/SANDC LABOR FUNDS FOR ${num}/CEFMS/`, notes: "notes",
-      quarters: [
-        { fy: `FY${fy}`,     q1: Math.round(b * 0.09 * 0.26), q2: Math.round(b * 0.09 * 0.27), q3: Math.round(b * 0.09 * 0.25), q4: Math.round(b * 0.09 * 0.22) },
-        { fy: `FY${String(parseInt(fy)+1).padStart(2,"0")}`, q1: 0, q2: 0, q3: 0, q4: 0 },
-      ] },
+      quarters: makeFiveYears(fyNum).map((q, i) => i === 0
+        ? { ...q, q1: Math.round(b * 0.09 * 0.26), q2: Math.round(b * 0.09 * 0.27), q3: Math.round(b * 0.09 * 0.25), q4: Math.round(b * 0.09 * 0.22) }
+        : q) },
     { id: 2, label: "USACE Chicago District", sub: "U435310",
       planned: Math.round(b * 0.05), requested: Math.round(b * 0.05 * 0.95),
       totalCommitments: Math.round(b * 0.05 * 0.95), openCommitments: Math.round(b * 0.05 * 0.50), obligated: Math.round(b * 0.05 * 0.45),
-      description: `FY${fy}/SANDC LABOR FUNDS FOR ${num}/U435310/`, notes: "notes", quarters: [] },
+      description: `FY${fy}/SANDC LABOR FUNDS FOR ${num}/U435310/`, notes: "notes",
+      quarters: makeFiveYears(fyNum) },
     { id: 3, label: "Chen, David", sub: "U719203",
       planned: Math.round(b * 0.035), requested: Math.round(b * 0.035),
       totalCommitments: Math.round(b * 0.035 * 0.60), openCommitments: Math.round(b * 0.035 * 0.30), obligated: Math.round(b * 0.035 * 0.30),
-      description: `FY${fy}/SANDC LABOR FUNDS FOR ${num}/Chen D/`, notes: "", quarters: [] },
-  ]);
+      description: `FY${fy}/SANDC LABOR FUNDS FOR ${num}/Chen D/`, notes: "",
+      quarters: makeFiveYears(fyNum) },
+  ], fyNum);
 
   const travel = useFundingRows([
     { id: 10, label: "CERL", sub: "U435310",
       planned: Math.round(b * 0.02), requested: Math.round(b * 0.02),
       totalCommitments: Math.round(b * 0.02), openCommitments: Math.round(b * 0.02 * 0.59), obligated: Math.round(b * 0.02 * 0.41),
       description: `FY${fy}/SANDC TRAVEL FOR ${num}/CERL/`, notes: "",
-      quarters: [
-        { fy: `FY${fy}`, q1: Math.round(b * 0.02 * 0.30), q2: Math.round(b * 0.02 * 0.30), q3: Math.round(b * 0.02 * 0.25), q4: Math.round(b * 0.02 * 0.15) },
-      ] },
+      quarters: makeFiveYears(fyNum).map((q, i) => i === 0
+        ? { ...q, q1: Math.round(b * 0.02 * 0.30), q2: Math.round(b * 0.02 * 0.30), q3: Math.round(b * 0.02 * 0.25), q4: Math.round(b * 0.02 * 0.15) }
+        : q) },
     { id: 11, label: "Vicksburg District", sub: "U834512",
       planned: Math.round(b * 0.013), requested: Math.round(b * 0.013),
       totalCommitments: Math.round(b * 0.013), openCommitments: Math.round(b * 0.013 * 0.50), obligated: 0,
-      description: `FY${fy}/SANDC TRAVEL FOR ${num}/Vicksburg District/`, notes: "", quarters: [] },
-  ]);
+      description: `FY${fy}/SANDC TRAVEL FOR ${num}/Vicksburg District/`, notes: "",
+      quarters: makeFiveYears(fyNum) },
+  ], fyNum);
 
   const mats = useFundingRows([
     { id: 20, label: "Concrete (500 units)", planned: Math.round(b * 0.031), requested: Math.round(b * 0.031),
       totalCommitments: Math.round(b * 0.031), openCommitments: Math.round(b * 0.031 * 0.53), obligated: Math.round(b * 0.031 * 0.47),
-      description: `FY${fy}/SANDC MATL FOR ${num}/Concrete/500 units`, notes: "", quarters: [] },
+      description: `FY${fy}/SANDC MATL FOR ${num}/Concrete/500 units`, notes: "",
+      quarters: makeFiveYears(fyNum) },
     { id: 21, label: "Steel Rebar (2000 ft)", planned: Math.round(b * 0.021), requested: Math.round(b * 0.021 * 0.98),
       totalCommitments: Math.round(b * 0.021 * 0.98), openCommitments: Math.round(b * 0.021 * 0.49), obligated: 0,
-      description: `FY${fy}/SANDC MATL FOR ${num}/Rebar/2000 units`, notes: "", quarters: [] },
-  ]);
+      description: `FY${fy}/SANDC MATL FOR ${num}/Rebar/2000 units`, notes: "",
+      quarters: makeFiveYears(fyNum) },
+  ], fyNum);
 
   const laborDescTemplate  = `FY${fy}/SANDC LABOR FUNDS FOR ${num}//`;
   const travelDescTemplate = `FY${fy}/SANDC TRAVEL FOR ${num}//`;
@@ -748,6 +813,7 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
         showDetails={showDetails}
         defaultFY={`FY${fy}`}
         onUpdateQuarter={labor.updateQuarter}
+        onSpreadFiscalYear={labor.spreadFiscalYear}
         onAddFiscalYear={labor.addFiscalYear}
         onRemoveFiscalYear={labor.removeFiscalYear}
       />
@@ -767,6 +833,7 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
         showDetails={showDetails}
         defaultFY={`FY${fy}`}
         onUpdateQuarter={travel.updateQuarter}
+        onSpreadFiscalYear={travel.spreadFiscalYear}
         onAddFiscalYear={travel.addFiscalYear}
         onRemoveFiscalYear={travel.removeFiscalYear}
       />
@@ -786,6 +853,7 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
         showDetails={showDetails}
         defaultFY={`FY${fy}`}
         onUpdateQuarter={mats.updateQuarter}
+        onSpreadFiscalYear={mats.spreadFiscalYear}
         onAddFiscalYear={mats.addFiscalYear}
         onRemoveFiscalYear={mats.removeFiscalYear}
       />
