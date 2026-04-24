@@ -246,18 +246,23 @@ function EditableAmount({ value, onChange }: { value: number; onChange: (v: numb
 
 /* ─── spread-fill total cell ──────────────────────────────────── */
 function SpreadFillTotal({
-  total, onSpread,
+  total, onSpread, allYears,
 }: {
   total: number;
   onSpread: (q1: number, q2: number, q3: number, q4: number) => void;
+  allYears?: boolean;
 }) {
   const [editing, setEditing] = useState(false);
   const [raw, setRaw] = useState("");
   const commit = () => {
     const v = parseInt(raw) || 0;
-    const base = Math.floor(v / 4);
-    const rem = v - base * 4;
-    onSpread(base + rem, base, base, base);
+    if (allYears) {
+      onSpread(v, 0, 0, 0);
+    } else {
+      const base = Math.floor(v / 4);
+      const rem = v - base * 4;
+      onSpread(base + rem, base, base, base);
+    }
     setEditing(false);
   };
   if (editing) {
@@ -274,7 +279,7 @@ function SpreadFillTotal({
   return (
     <button
       onClick={() => { setRaw(String(total)); setEditing(true); }}
-      title="Enter a total to spread evenly across Q1–Q4"
+      title={allYears ? "Enter a total to spread evenly across all fiscal years" : "Enter a total to spread evenly across Q1–Q4"}
       className="w-full text-right text-sm font-semibold tabular-nums hover:underline decoration-dotted underline-offset-2 focus:outline-none"
       style={{ color: total === 0 ? "#94a3b8" : "#1a3557" }}
     >
@@ -361,7 +366,22 @@ function useFundingRows(initial: FundingRow[], defaultFYNum: number) {
       return { ...row, quarters, planned };
     }));
 
-  return { rows, updateAmount, updateNote, deleteRow, zeroOutRow, addRow, addMany, updateQuarter, spreadFiscalYear, addFiscalYear, removeFiscalYear };
+  const spreadAllYears = (id: number, total: number) =>
+    setRows((r) => r.map((row) => {
+      if (row.id !== id || row.quarters.length === 0) return row;
+      const n = row.quarters.length;
+      const perFY = Math.floor(total / n);
+      const fyRem = total - perFY * n;
+      const quarters = row.quarters.map((q, fi) => {
+        const fyTotal = perFY + (fi === 0 ? fyRem : 0);
+        const base = Math.floor(fyTotal / 4);
+        const rem = fyTotal - base * 4;
+        return { ...q, q1: base + rem, q2: base, q3: base, q4: base };
+      });
+      return { ...row, quarters, planned: total };
+    }));
+
+  return { rows, updateAmount, updateNote, deleteRow, zeroOutRow, addRow, addMany, updateQuarter, spreadFiscalYear, spreadAllYears, addFiscalYear, removeFiscalYear };
 }
 
 /* ─── single funding section table ─────────────────────────────── */
@@ -371,7 +391,7 @@ function FundingSection({
   pickerMode, existingLabels,
   pickerTitle, pickerOptions, pickerPlaceholder,
   showDetails, defaultFY,
-  onUpdateQuarter, onSpreadFiscalYear, onAddFiscalYear, onRemoveFiscalYear,
+  onUpdateQuarter, onSpreadFiscalYear, onSpreadAllYears, onAddFiscalYear, onRemoveFiscalYear,
 }: {
   title: string;
   columnHeader: string;
@@ -392,6 +412,7 @@ function FundingSection({
   defaultFY: string;
   onUpdateQuarter: (id: number, fy: string, qKey: keyof Omit<YearQuarters, "fy">, value: number) => void;
   onSpreadFiscalYear: (id: number, fy: string, q1: number, q2: number, q3: number, q4: number) => void;
+  onSpreadAllYears: (id: number, total: number) => void;
   onAddFiscalYear: (id: number, fy: string) => void;
   onRemoveFiscalYear: (id: number, fy: string) => void;
 }) {
@@ -519,7 +540,11 @@ function FundingSection({
                     </td>
                     <td className="px-3 py-2.5" style={{ backgroundColor: amberBg, borderLeft: amberBorder }}>
                       {hasQuarters ? (
-                        <span className="w-full block text-right text-sm text-slate-800 tabular-nums">{row.planned === 0 ? "—" : fmt(row.planned)}</span>
+                        <SpreadFillTotal
+                          total={row.planned}
+                          onSpread={(total) => onSpreadAllYears(row.id, total)}
+                          allYears
+                        />
                       ) : (
                         <EditableAmount value={row.planned} onChange={(v) => onUpdateAmount(row.id, "planned", v)} />
                       )}
@@ -571,41 +596,52 @@ function FundingSection({
                   {isExpanded && (
                     <tr key={`${row.id}-qtr`} style={{ borderBottom: "1px solid #fef9c3" }}>
                       <td colSpan={numCols} style={{ padding: 0 }}>
-                        <div style={{ backgroundColor: "#f8fafc", borderTop: "1px dashed #cbd5e1", borderBottom: "1px solid #e2e8f0", padding: "12px 16px 14px 40px" }}>
+                        <div style={{ background: "linear-gradient(to bottom, #f0f4f8, #f8fafc)", borderTop: "2px solid #1a6ea8", borderBottom: "1px solid #dde3ea", padding: "0 0 14px 0" }}>
+                          {/* inner header bar */}
+                          <div style={{ background: "#1a3557", padding: "6px 16px 6px 40px", display: "flex", alignItems: "center", gap: 8 }}>
+                            <span style={{ fontSize: 10, fontWeight: 700, color: "#93c5fd", textTransform: "uppercase", letterSpacing: "0.08em" }}>Quarterly Breakdown</span>
+                            <span style={{ flex: 1 }} />
+                            <span style={{ fontSize: 10, color: "#93c5fd", opacity: 0.7 }}>Click any amount to edit &nbsp;·&nbsp; Click FY Total to spread evenly</span>
+                          </div>
+
+                          <div style={{ padding: "10px 16px 0 40px" }}>
                           {/* quarter table */}
-                          <table style={{ borderCollapse: "collapse", fontSize: 12 }}>
+                          <table style={{ borderCollapse: "collapse", fontSize: 12, width: "auto" }}>
                             <thead>
                               <tr>
-                                <th style={{ width: 64, textAlign: "left", color: "#64748b", fontWeight: 700, paddingBottom: 6, paddingRight: 12, textTransform: "uppercase", letterSpacing: "0.05em" }}>Year</th>
+                                <th style={{ width: 56, textAlign: "left", color: "#475569", fontWeight: 700, paddingBottom: 6, paddingRight: 12, textTransform: "uppercase", letterSpacing: "0.05em", fontSize: 10 }}>Year</th>
                                 {(["Q1 Oct–Dec", "Q2 Jan–Mar", "Q3 Apr–Jun", "Q4 Jul–Sep"] as const).map((label) => (
-                                  <th key={label} style={{ width: 110, textAlign: "right", color: "#78350f", fontWeight: 700, paddingBottom: 6, paddingRight: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>{label}</th>
+                                  <th key={label} style={{ width: 114, textAlign: "right", color: "#1a3557", fontWeight: 700, paddingBottom: 6, paddingRight: 8, textTransform: "uppercase", letterSpacing: "0.05em", fontSize: 10 }}>{label}</th>
                                 ))}
-                                <th style={{ width: 100, textAlign: "right", color: "#64748b", fontWeight: 700, paddingBottom: 6, paddingRight: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>FY Total</th>
-                                <th style={{ width: 24 }} />
+                                <th style={{ width: 104, textAlign: "right", color: "#1a6ea8", fontWeight: 700, paddingBottom: 6, paddingRight: 8, textTransform: "uppercase", letterSpacing: "0.05em", fontSize: 10, borderLeft: "1px solid #cbd5e1", paddingLeft: 8 }}>FY Total</th>
+                                <th style={{ width: 28 }} />
                               </tr>
                             </thead>
                             <tbody>
-                              {row.quarters.map((yr) => {
+                              {row.quarters.map((yr, idx) => {
                                 const fyTotal = yr.q1 + yr.q2 + yr.q3 + yr.q4;
                                 return (
-                                  <tr key={yr.fy} style={{ borderTop: "1px solid #e2e8f0" }}>
-                                    <td style={{ paddingTop: 6, paddingBottom: 6, paddingRight: 12, fontWeight: 600, color: "#1a3557" }}>{yr.fy}</td>
+                                  <tr key={yr.fy} style={{ borderTop: "1px solid #e2e8f0", background: idx % 2 === 0 ? "transparent" : "rgba(255,255,255,0.55)" }}>
+                                    <td style={{ paddingTop: 5, paddingBottom: 5, paddingRight: 12, fontWeight: 700, color: "#1a3557", fontSize: 12 }}>{yr.fy}</td>
                                     {(["q1", "q2", "q3", "q4"] as const).map((qk) => (
-                                      <td key={qk} style={{ paddingTop: 4, paddingBottom: 4, paddingRight: 8 }}>
+                                      <td key={qk} style={{ paddingTop: 3, paddingBottom: 3, paddingRight: 8 }}>
                                         <EditableAmount value={yr[qk]} onChange={(v) => onUpdateQuarter(row.id, yr.fy, qk, v)} />
                                       </td>
                                     ))}
-                                    <td style={{ paddingTop: 4, paddingBottom: 4, paddingRight: 8 }}>
+                                    <td style={{ paddingTop: 3, paddingBottom: 3, paddingRight: 8, borderLeft: "1px solid #cbd5e1", paddingLeft: 8 }}>
                                       <SpreadFillTotal
                                         total={fyTotal}
                                         onSpread={(q1, q2, q3, q4) => onSpreadFiscalYear(row.id, yr.fy, q1, q2, q3, q4)}
                                       />
                                     </td>
-                                    <td>
+                                    <td style={{ paddingLeft: 4 }}>
                                       <button
                                         onClick={() => onRemoveFiscalYear(row.id, yr.fy)}
-                                        className="p-1 rounded text-slate-300 hover:text-red-400 hover:bg-red-50 transition-colors"
+                                        className="p-1 rounded transition-colors"
+                                        style={{ color: "#cbd5e1" }}
                                         title={`Remove ${yr.fy}`}
+                                        onMouseEnter={(e) => { e.currentTarget.style.color = "#64748b"; e.currentTarget.style.background = "#e2e8f0"; }}
+                                        onMouseLeave={(e) => { e.currentTarget.style.color = "#cbd5e1"; e.currentTarget.style.background = "transparent"; }}
                                       >
                                         <X size={11} />
                                       </button>
@@ -615,25 +651,33 @@ function FundingSection({
                               })}
                               {row.quarters.length === 0 && (
                                 <tr>
-                                  <td colSpan={7} style={{ paddingTop: 8, paddingBottom: 4, color: "#94a3b8", fontStyle: "italic" }}>
-                                    No fiscal years added yet. Use the button below to start planning by quarter.
+                                  <td colSpan={7} style={{ paddingTop: 10, paddingBottom: 6, color: "#94a3b8", fontStyle: "italic" }}>
+                                    No fiscal years added yet.
                                   </td>
                                 </tr>
                               )}
                             </tbody>
                           </table>
+                          </div>
 
-                          {/* add fiscal year */}
-                          <button
-                            onClick={() => onAddFiscalYear(row.id, getNextFY(row.quarters))}
-                            className="mt-2 flex items-center gap-1 text-xs font-semibold transition-colors"
-                            style={{ color: "#1a6ea8" }}
-                            onMouseEnter={(e) => (e.currentTarget.style.color = "#1a3557")}
-                            onMouseLeave={(e) => (e.currentTarget.style.color = "#1a6ea8")}
-                          >
-                            <Plus size={12} />
-                            Add {getNextFY(row.quarters)}
-                          </button>
+                          {/* add fiscal year button */}
+                          <div style={{ paddingLeft: 40, paddingTop: 10 }}>
+                            <button
+                              onClick={() => onAddFiscalYear(row.id, getNextFY(row.quarters))}
+                              style={{
+                                display: "inline-flex", alignItems: "center", gap: 5,
+                                fontSize: 12, fontWeight: 600, color: "#1a6ea8",
+                                border: "1px solid #93c5fd", borderRadius: 6,
+                                padding: "4px 10px", background: "white",
+                                cursor: "pointer", transition: "all 0.15s",
+                              }}
+                              onMouseEnter={(e) => { e.currentTarget.style.background = "#eff6ff"; e.currentTarget.style.borderColor = "#1a6ea8"; }}
+                              onMouseLeave={(e) => { e.currentTarget.style.background = "white"; e.currentTarget.style.borderColor = "#93c5fd"; }}
+                            >
+                              <Plus size={12} />
+                              Add {getNextFY(row.quarters)}
+                            </button>
+                          </div>
                         </div>
                       </td>
                     </tr>
@@ -814,6 +858,7 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
         defaultFY={`FY${fy}`}
         onUpdateQuarter={labor.updateQuarter}
         onSpreadFiscalYear={labor.spreadFiscalYear}
+        onSpreadAllYears={labor.spreadAllYears}
         onAddFiscalYear={labor.addFiscalYear}
         onRemoveFiscalYear={labor.removeFiscalYear}
       />
@@ -834,6 +879,7 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
         defaultFY={`FY${fy}`}
         onUpdateQuarter={travel.updateQuarter}
         onSpreadFiscalYear={travel.spreadFiscalYear}
+        onSpreadAllYears={travel.spreadAllYears}
         onAddFiscalYear={travel.addFiscalYear}
         onRemoveFiscalYear={travel.removeFiscalYear}
       />
@@ -854,6 +900,7 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
         defaultFY={`FY${fy}`}
         onUpdateQuarter={mats.updateQuarter}
         onSpreadFiscalYear={mats.spreadFiscalYear}
+        onSpreadAllYears={mats.spreadAllYears}
         onAddFiscalYear={mats.addFiscalYear}
         onRemoveFiscalYear={mats.removeFiscalYear}
       />
