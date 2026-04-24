@@ -467,18 +467,21 @@ function FundingSection({
 
       <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
         {/* section header */}
-        <div className="flex items-center justify-between px-4 py-2.5" style={{ backgroundColor: "#1a3557" }}>
-          <span className="font-bold text-white text-sm tracking-wide">{title}</span>
-          <button
-            onClick={() => setShowPicker(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors"
-            style={{ backgroundColor: "rgba(255,255,255,0.15)", color: "#fff", border: "1px solid rgba(255,255,255,0.25)" }}
-            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.25)")}
-            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.15)")}
-          >
-            <Plus size={13} />
-            {addButtonLabel}
-          </button>
+        <div className="flex items-center" style={{ backgroundColor: "#1a3557" }}>
+          <span className="flex-1 font-bold text-white text-sm tracking-wide px-4 py-2.5">{title}</span>
+          <div className="flex items-center gap-2 px-2 py-2">
+            <span className="text-xs font-semibold" style={{ color: "rgba(255,255,255,0.75)" }}>{addButtonLabel}</span>
+            <button
+              onClick={() => setShowPicker(true)}
+              className="flex items-center justify-center rounded transition-colors"
+              style={{ width: 28, height: 28, backgroundColor: "rgba(255,255,255,0.15)", color: "#fff", border: "1px solid rgba(255,255,255,0.3)" }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.28)")}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.15)")}
+              title={addButtonLabel}
+            >
+              <Plus size={13} />
+            </button>
+          </div>
         </div>
 
         {/* table with horizontal scroll for narrow viewports */}
@@ -642,11 +645,11 @@ function FundingSection({
                                         onSpread={(q1, q2, q3, q4) => onSpreadFiscalYear(row.id, yr.fy, q1, q2, q3, q4)}
                                       />
                                     </td>
-                                    <td style={{ paddingLeft: 4 }}>
+                                    <td style={{ paddingLeft: 4, textAlign: "center", verticalAlign: "middle" }}>
                                       <button
                                         onClick={() => onSpreadFiscalYear(row.id, yr.fy, 0, 0, 0, 0)}
                                         className="p-1 rounded transition-colors"
-                                        style={{ color: "#cbd5e1", fontSize: 14, fontWeight: 600, fontFamily: "inherit", background: "none", border: "none", cursor: "pointer", lineHeight: 1 }}
+                                        style={{ color: "#cbd5e1", fontSize: 14, fontWeight: 600, fontFamily: "inherit", background: "none", border: "none", cursor: "pointer", lineHeight: 1, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 28, height: 28 }}
                                         title={`Zero out ${yr.fy}`}
                                         onMouseEnter={(e) => { e.currentTarget.style.color = "#64748b"; e.currentTarget.style.background = "#e2e8f0"; }}
                                         onMouseLeave={(e) => { e.currentTarget.style.color = "#cbd5e1"; e.currentTarget.style.background = "transparent"; }}
