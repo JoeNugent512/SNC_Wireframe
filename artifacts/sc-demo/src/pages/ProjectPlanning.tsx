@@ -598,15 +598,15 @@ function FundingSection({
                       <td colSpan={numCols} style={{ padding: 0 }}>
                         <div style={{ background: "linear-gradient(to bottom, #f0f4f8, #f8fafc)", borderTop: "2px solid #1a6ea8", borderBottom: "1px solid #dde3ea", padding: "0 0 14px 0" }}>
                           {/* inner header bar */}
-                          <div style={{ background: "#1a3557", padding: "6px 16px 6px 40px", display: "flex", alignItems: "center", gap: 8 }}>
+                          <div style={{ background: "#1a3557", padding: "6px 16px", display: "flex", alignItems: "center", gap: 8 }}>
                             <span style={{ fontSize: 10, fontWeight: 700, color: "#93c5fd", textTransform: "uppercase", letterSpacing: "0.08em" }}>Quarterly Breakdown</span>
                             <span style={{ flex: 1 }} />
                             <span style={{ fontSize: 10, color: "#93c5fd", opacity: 0.7 }}>Click any amount to edit &nbsp;·&nbsp; Click FY Total to spread evenly</span>
                           </div>
 
-                          <div style={{ padding: "10px 16px 0 40px" }}>
+                          <div style={{ padding: "10px 16px 0 16px" }}>
                           {/* quarter table */}
-                          <table style={{ borderCollapse: "collapse", fontSize: 12, width: "auto" }}>
+                          <table style={{ borderCollapse: "collapse", fontSize: 12, width: "100%" }}>
                             <thead>
                               <tr>
                                 <th style={{ width: 56, textAlign: "left", color: "#475569", fontWeight: 700, paddingBottom: 6, paddingRight: 12, textTransform: "uppercase", letterSpacing: "0.05em", fontSize: 10 }}>Year</th>
@@ -660,24 +660,6 @@ function FundingSection({
                           </table>
                           </div>
 
-                          {/* add fiscal year button */}
-                          <div style={{ paddingLeft: 40, paddingTop: 10 }}>
-                            <button
-                              onClick={() => onAddFiscalYear(row.id, getNextFY(row.quarters))}
-                              style={{
-                                display: "inline-flex", alignItems: "center", gap: 5,
-                                fontSize: 12, fontWeight: 600, color: "#1a6ea8",
-                                border: "1px solid #93c5fd", borderRadius: 6,
-                                padding: "4px 10px", background: "white",
-                                cursor: "pointer", transition: "all 0.15s",
-                              }}
-                              onMouseEnter={(e) => { e.currentTarget.style.background = "#eff6ff"; e.currentTarget.style.borderColor = "#1a6ea8"; }}
-                              onMouseLeave={(e) => { e.currentTarget.style.background = "white"; e.currentTarget.style.borderColor = "#93c5fd"; }}
-                            >
-                              <Plus size={12} />
-                              Add {getNextFY(row.quarters)}
-                            </button>
-                          </div>
                         </div>
                       </td>
                     </tr>
