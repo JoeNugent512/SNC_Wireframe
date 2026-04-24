@@ -182,7 +182,11 @@ export default function ChangeRequestDetail({ params }: { params?: { id?: string
   }
 
   const isActionable = cr.status !== "Approved" && cr.status !== "Rejected";
-  const proponent = MOCK_PROJECTS.find(p => p.number === cr.projectNumber)?.hqProponent ?? "—";
+  const project = MOCK_PROJECTS.find(p => p.number === cr.projectNumber);
+  const proponent = project?.hqProponent ?? "—";
+  const toa = project?.budget ?? 0;
+  const planned = project?.actualObligation ?? 0;
+  const freeBalance = toa - planned;
 
   const handleAction = (action: "Approve" | "Reject") => {
     const verb = action === "Approve" ? "approved" : "rejected";
@@ -218,8 +222,9 @@ export default function ChangeRequestDetail({ params }: { params?: { id?: string
           </Link>
 
           <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-6">
-            <div className="flex items-start justify-between gap-4 flex-wrap">
-              <div>
+            <div className="flex items-start justify-between gap-6 flex-wrap">
+              {/* Left: identity */}
+              <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <FolderOpen size={14} className="text-primary/70" />
                   <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Budget Change Request</span>
@@ -240,6 +245,20 @@ export default function ChangeRequestDetail({ params }: { params?: { id?: string
                     Proponent: <strong className="text-slate-700 font-medium">{proponent}</strong>
                   </span>
                 </div>
+              </div>
+
+              {/* Right: funding summary */}
+              <div className="flex items-stretch gap-px bg-slate-200 rounded-lg overflow-hidden border border-slate-200 self-start">
+                {([
+                  { label: "TOA",          value: toa,         color: "text-slate-800" },
+                  { label: "Planned",      value: planned,     color: "text-slate-800" },
+                  { label: "Free Balance", value: freeBalance, color: freeBalance >= 0 ? "text-emerald-700" : "text-red-600" },
+                ] as const).map(({ label, value, color }) => (
+                  <div key={label} className="flex flex-col items-end px-4 py-3 bg-white gap-0.5 min-w-[120px]">
+                    <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider whitespace-nowrap">{label}</span>
+                    <span className={`text-base font-bold tabular-nums ${color}`}>{fmt(value)}</span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
