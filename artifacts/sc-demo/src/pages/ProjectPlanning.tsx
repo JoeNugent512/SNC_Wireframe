@@ -472,16 +472,16 @@ function FundingSection({
           <span style={{ flex: 1 }} />
           <span className="text-xs pr-3" style={{ color: "rgba(255,255,255,0.65)", fontWeight: 500 }}>{addButtonLabel}</span>
           {/* 44 px — matches action column <col width={44}> */}
-          <div style={{ width: 44, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ width: 44, flexShrink: 0, alignSelf: "stretch", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <button
               onClick={() => setShowPicker(true)}
               className="flex items-center justify-center rounded transition-colors"
-              style={{ width: 28, height: 28, backgroundColor: "rgba(255,255,255,0.15)", color: "#fff", border: "1px solid rgba(255,255,255,0.3)" }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.28)")}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.15)")}
+              style={{ width: 34, height: 34, backgroundColor: "rgba(255,255,255,0.18)", color: "#fff", border: "1px solid rgba(255,255,255,0.35)" }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.32)")}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.18)")}
               title={addButtonLabel}
             >
-              <Plus size={13} />
+              <Plus size={16} />
             </button>
           </div>
         </div>
