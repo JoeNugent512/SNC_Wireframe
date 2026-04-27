@@ -343,7 +343,6 @@ Screens:
                                         Properties:
                                           FontColor: =RGBA(100, 116, 139, 1)
                                           Height: =18
-                                          Overflow: =Overflow.Hidden
                                           Size: =11
                                           Text: =ThisItem.description
                                           Width: =540

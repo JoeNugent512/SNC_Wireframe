@@ -812,7 +812,6 @@ Screens:
                                                 Height: =22
                                                 LayoutMaxHeight: =
                                                 LayoutMaxWidth: =
-                                                Overflow: =Overflow.Hidden
                                                 Size: =12
                                                 Text: =If(IsBlank(varCurrentProject.primaryCmsLink), "—", varCurrentProject.primaryCmsLink)
                               - SFundingContent:

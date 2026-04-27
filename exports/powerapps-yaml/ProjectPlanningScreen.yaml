@@ -599,7 +599,6 @@ Screens:
                                     Font: =Font.Arial
                                     FontColor: =RGBA(15, 23, 42, 1)
                                     Height: =Parent.TemplateHeight
-                                    Overflow: =Overflow.Hidden
                                     Size: =13
                                     Text: =ThisItem.label
                                     VerticalAlign: =VerticalAlign.Middle
@@ -613,7 +612,6 @@ Screens:
                                     Font: =Font.Courier
                                     FontColor: =RGBA(148, 163, 184, 1)
                                     Height: =18
-                                    Overflow: =Overflow.Hidden
                                     Size: =10
                                     Text: =ThisItem.sub
                                     Width: =200
