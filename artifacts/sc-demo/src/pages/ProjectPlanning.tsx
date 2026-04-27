@@ -37,12 +37,12 @@ interface FiscalWindowConfig {
   daysUntilQtrEnd:  number; // days until current quarter closes
 }
 
-// Demo snapshot: April 27 is FY25 Q3, request window runs through FY26 Q3
+// Demo snapshot: FY26 Q3 is current; past = FY25 Q1–Q4 + FY26 Q1–Q2 (6 quarters)
 const FISCAL_CONFIG: FiscalWindowConfig = {
-  currentFY:       25,
+  currentFY:       26,
   currentQ:        3,
-  requestMaxFY:    26,
-  requestMaxQ:     3,
+  requestMaxFY:    27,
+  requestMaxQ:     2,
   planHorizonFY:   29,
   nearQtrEndDays:  30,
   daysUntilQtrEnd: 64,
@@ -868,6 +868,7 @@ function SectionWrapper({ title, dotColor, children }: { title: string; dotColor
 }
 
 /* ─── initial data (FY25–FY29 full planning horizon) ───────────── */
+// requested = sum of REQUEST_WINDOW_KEYS (FY26 Q3 + Q4 + FY27 Q1 + Q2)
 const INITIAL_LABOR: PlanRow[] = [
   { id: 1, label: "Nugent, Joseph Pat", sub: "U435000/CERL",
     fy25q1: 10000, fy25q2: 12000, fy25q3: 13000, fy25q4: 10000,
@@ -875,21 +876,21 @@ const INITIAL_LABOR: PlanRow[] = [
     fy27q1: 11000, fy27q2: 11000, fy27q3: 11000, fy27q4: 11000,
     fy28q1: 10000, fy28q2: 10000, fy28q3: 10000, fy28q4: 10000,
     fy29q1:  8000, fy29q2:  8000, fy29q3:  8000, fy29q4:  8000,
-    openCommitment: 3500, requested: 58000 },
+    openCommitment: 4200, requested: 43000 },
   { id: 2, label: "Chen, David", sub: "U435000/CERL",
     fy25q1: 8000, fy25q2: 8000, fy25q3: 8000, fy25q4: 8000,
     fy26q1: 9000, fy26q2: 9000, fy26q3: 9000, fy26q4: 8000,
     fy27q1: 9000, fy27q2: 9000, fy27q3: 9000, fy27q4: 9000,
     fy28q1: 8000, fy28q2: 8000, fy28q3: 8000, fy28q4: 8000,
     fy29q1: 7000, fy29q2: 7000, fy29q3: 7000, fy29q4: 7000,
-    openCommitment: 2000, requested: 43000 },
+    openCommitment: 3100, requested: 35000 },
   { id: 3, label: "Williams, Sandra K.", sub: "U438000/GSL",
     fy25q1: 6000, fy25q2: 7000, fy25q3: 7500, fy25q4: 6500,
     fy26q1: 7000, fy26q2: 7000, fy26q3: 6000, fy26q4: 6000,
     fy27q1: 6000, fy27q2: 6000, fy27q3: 6000, fy27q4: 6000,
     fy28q1: 5000, fy28q2: 5000, fy28q3: 5000, fy28q4: 5000,
     fy29q1: 4000, fy29q2: 4000, fy29q3: 4000, fy29q4: 4000,
-    openCommitment: 2500, requested: 34000 },
+    openCommitment: 2200, requested: 24000 },
 ];
 
 const INITIAL_TRAVEL: PlanRow[] = [
@@ -899,14 +900,14 @@ const INITIAL_TRAVEL: PlanRow[] = [
     fy27q1: 3000, fy27q2: 3000, fy27q3: 3000, fy27q4: 3000,
     fy28q1: 2500, fy28q2: 2500, fy28q3: 2500, fy28q4: 2500,
     fy29q1: 2000, fy29q2: 2000, fy29q3: 2000, fy29q4: 2000,
-    openCommitment: 800, requested: 18000 },
+    openCommitment: 900, requested: 12000 },
   { id: 5, label: "CHL", sub: "U430000",
     fy25q1: 1500, fy25q2: 1500, fy25q3: 2000, fy25q4: 1500,
     fy26q1: 2000, fy26q2: 2000, fy26q3: 1500, fy26q4: 1500,
     fy27q1: 1500, fy27q2: 1500, fy27q3: 1500, fy27q4: 1500,
     fy28q1: 1000, fy28q2: 1000, fy28q3: 1000, fy28q4: 1000,
     fy29q1: 1000, fy29q2: 1000, fy29q3: 1000, fy29q4: 1000,
-    openCommitment: 400, requested: 9000 },
+    openCommitment: 450, requested: 6000 },
 ];
 
 const INITIAL_CONTRACT: ContractRow[] = [
@@ -917,7 +918,7 @@ const INITIAL_CONTRACT: ContractRow[] = [
     fy27q1: 16000, fy27q2: 16000, fy27q3: 16000, fy27q4: 16000,
     fy28q1: 15000, fy28q2: 15000, fy28q3: 15000, fy28q4: 15000,
     fy29q1: 12000, fy29q2: 12000, fy29q3: 12000, fy29q4: 12000,
-    openCommitment: 3000, requested: 93000 },
+    openCommitment: 8500, requested: 66000 },
   { id: 7, org: "CERL", orgCode: "U435000",
     contractCode: "OTHCONSVC", contractName: "Private Sector contracts not otherwise classified",
     fy25q1: 25000, fy25q2: 25000, fy25q3: 25000, fy25q4: 25000,
@@ -925,7 +926,7 @@ const INITIAL_CONTRACT: ContractRow[] = [
     fy27q1: 18000, fy27q2: 18000, fy27q3: 18000, fy27q4: 18000,
     fy28q1: 15000, fy28q2: 15000, fy28q3: 15000, fy28q4: 15000,
     fy29q1: 12000, fy29q2: 12000, fy29q3: 12000, fy29q4: 12000,
-    openCommitment: 5000, requested: 110000 },
+    openCommitment: 11000, requested: 76000 },
 ];
 
 const INITIAL_OUTSOURCING: OutsourcingRow[] = [
@@ -936,7 +937,7 @@ const INITIAL_OUTSOURCING: OutsourcingRow[] = [
     fy27q1: 7000, fy27q2: 7000, fy27q3: 7000, fy27q4: 7000,
     fy28q1: 6000, fy28q2: 6000, fy28q3: 6000, fy28q4: 6000,
     fy29q1: 5000, fy29q2: 5000, fy29q3: 5000, fy29q4: 5000,
-    openCommitment: 1500, requested: 44000 },
+    openCommitment: 3200, requested: 30000 },
   { id: 9, org: "CERL", orgCode: "U435000",
     resourceCode: "SHOP/FACIL", resourceName: "OrderTrak",
     fy25q1: 5000, fy25q2: 5000, fy25q3: 5000, fy25q4: 5000,
@@ -944,7 +945,7 @@ const INITIAL_OUTSOURCING: OutsourcingRow[] = [
     fy27q1: 3500, fy27q2: 3500, fy27q3: 3500, fy27q4: 3500,
     fy28q1: 3000, fy28q2: 3000, fy28q3: 3000, fy28q4: 3000,
     fy29q1: 2500, fy29q2: 2500, fy29q3: 2500, fy29q4: 2500,
-    openCommitment: 800, requested: 22000 },
+    openCommitment: 1400, requested: 15000 },
 ];
 
 /* ─── main page ─────────────────────────────────────────────────── */
@@ -972,6 +973,10 @@ export default function ProjectPlanning() {
     next.has(id) ? next.delete(id) : next.add(id);
     return next;
   };
+
+  // Live totals for the summary bubbles
+  const totalPlanned = [...laborRows, ...travelRows, ...contractRows, ...outsourcingRows]
+    .reduce((sum, r) => sum + sumAll(r), 0);
 
   /* generic Q updater for PlanRow */
   function updatePlanQ(setRows: React.Dispatch<React.SetStateAction<PlanRow[]>>, id: number, field: keyof QData, val: number) {
@@ -1075,7 +1080,7 @@ export default function ProjectPlanning() {
           </Link>
         </div>
 
-        {/* project info bar */}
+        {/* project info bar — no TOA here; TOA lives in the summary bubbles below */}
         <div className="px-6 py-3 flex items-center gap-4" style={{ backgroundColor: "#1a3557" }}>
           <div className="flex-1 min-w-0">
             <p className="text-xs font-mono" style={{ color: "rgba(255,255,255,0.5)" }}>{project.number}</p>
@@ -1083,15 +1088,32 @@ export default function ProjectPlanning() {
           </div>
           <div className="flex items-center gap-6 flex-shrink-0">
             <div className="text-right">
-              <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "rgba(255,255,255,0.5)" }}>Total TOA</p>
-              <p className="font-bold text-base" style={{ color: "#fbbf24" }}>{fmt(project.budget)}</p>
-            </div>
-            <div className="text-right">
               <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "rgba(255,255,255,0.5)" }}>Plan Window</p>
               <p className="font-semibold text-sm text-white">{PLAN_WINDOW_LABEL}</p>
             </div>
             <div className="text-right px-2 py-1 rounded text-xs font-semibold" style={{ backgroundColor: "rgba(167,243,208,0.2)", color: "#6ee7b7", border: "1px solid rgba(167,243,208,0.3)" }}>
               {PLAN_STATUS_LABEL}
+            </div>
+          </div>
+        </div>
+
+        {/* summary bubbles — TOA / PLANNED / LEFT TO PLAN */}
+        <div className="px-6 py-4 bg-white border-b border-slate-200">
+          <div className="flex gap-4">
+            <div className="flex-1 rounded-xl px-5 py-4" style={{ backgroundColor: "#1a3557" }}>
+              <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "rgba(255,255,255,0.5)" }}>TOA</p>
+              <p className="text-2xl font-bold text-white mt-0.5">{fmt(project.budget)}</p>
+              <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>Total Obligating Authority</p>
+            </div>
+            <div className="flex-1 rounded-xl px-5 py-4 border border-slate-200">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Planned</p>
+              <p className="text-2xl font-bold text-slate-800 mt-0.5">{fmt(totalPlanned)}</p>
+              <p className="text-xs text-slate-400 mt-1">Amount currently planned</p>
+            </div>
+            <div className="flex-1 rounded-xl px-5 py-4" style={{ backgroundColor: "#fffbeb", border: "1px solid #fcd34d" }}>
+              <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "#92400e" }}>Left to Plan</p>
+              <p className="text-2xl font-bold mt-0.5" style={{ color: "#b45309" }}>{fmt(Math.max(0, project.budget - totalPlanned))}</p>
+              <p className="text-xs mt-1" style={{ color: "#a16207" }}>Unallocated funds remaining</p>
             </div>
           </div>
         </div>
