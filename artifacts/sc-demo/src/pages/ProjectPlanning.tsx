@@ -374,7 +374,10 @@ function QuarterlyPanel({
                 );
               })}
               <th style={{ width: 90, textAlign: "right", paddingBottom: 6, borderLeft: "1px solid #cbd5e1", paddingLeft: 8, paddingRight: 6 }}>
-                <span style={{ fontSize: 10, fontWeight: 700, color: "#1a6ea8", textTransform: "uppercase" }}>FY Total</span>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 1 }}>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: "#1a6ea8", textTransform: "uppercase" }}>FY Total</span>
+                  <span style={{ fontSize: 9, color: "#78350f", fontStyle: "italic" }}>click to set</span>
+                </div>
               </th>
             </tr>
           </thead>
@@ -382,6 +385,7 @@ function QuarterlyPanel({
             {FY_LABELS.map((fy, fyIdx) => {
               const fyKeys = FY_GROUPS[fy];
               const fyTotal = fyKeys.reduce((s, k) => s + row[k], 0);
+              const hasEditable = fyKeys.some((k) => qStatus(k) === "editable");
               return (
                 <tr key={fy} style={{ borderTop: "1px solid #e2e8f0", background: fyIdx % 2 === 1 ? "rgba(255,255,255,0.55)" : undefined }}>
                   <td style={{ paddingTop: 4, paddingBottom: 4, fontWeight: 700, color: "#1a3557", fontSize: 12 }}>{fy}</td>
@@ -401,27 +405,62 @@ function QuarterlyPanel({
                       </td>
                     );
                   })}
-                  <td style={{ paddingTop: 2, paddingBottom: 2, borderLeft: "1px solid #cbd5e1", paddingLeft: 6, paddingRight: 6, backgroundColor: AMBER_BG }}>
-                    <AmtInput
-                      value={fyTotal}
-                      gold
-                      onChange={(newTotal) => {
-                        const editableInFY = fyKeys.filter((k) => qStatus(k) === "editable");
-                        if (editableInFY.length === 0) return;
-                        const obligatedInFY = fyKeys
-                          .filter((k) => qStatus(k) === "past")
-                          .reduce((s, k) => s + row[k], 0);
-                        const remaining = Math.max(0, newTotal - obligatedInFY);
-                        const perQ = Math.floor(remaining / editableInFY.length);
-                        const rem  = remaining - perQ * editableInFY.length;
-                        editableInFY.forEach((k, i) => onUpdateQ(row.id, k, perQ + (i === 0 ? rem : 0)));
-                      }}
-                    />
+                  {/* FY Total — editable if year has any editable quarters; spread-fills across them */}
+                  <td style={{ paddingTop: 2, paddingBottom: 2, borderLeft: "1px solid #cbd5e1", paddingLeft: 6, paddingRight: 6, backgroundColor: hasEditable ? AMBER_TOTAL : BLUE_TOTAL }}>
+                    {hasEditable ? (
+                      <AmtInput
+                        value={fyTotal}
+                        gold
+                        onChange={(newTotal) => {
+                          const editableInFY = fyKeys.filter((k) => qStatus(k) === "editable");
+                          const obligatedInFY = fyKeys
+                            .filter((k) => qStatus(k) === "past")
+                            .reduce((s, k) => s + row[k], 0);
+                          const remaining = Math.max(0, newTotal - obligatedInFY);
+                          const perQ = Math.floor(remaining / editableInFY.length);
+                          const rem  = remaining - perQ * editableInFY.length;
+                          editableInFY.forEach((k, i) => onUpdateQ(row.id, k, perQ + (i === 0 ? rem : 0)));
+                        }}
+                      />
+                    ) : (
+                      <AmtDisplay value={fyTotal} bold />
+                    )}
                   </td>
                 </tr>
               );
             })}
           </tbody>
+          {/* TOTAL row — per-quarter column sums + editable grand total with full spread-fill */}
+          <tfoot>
+            <tr style={{ borderTop: "2px solid #94a3b8" }}>
+              <td style={{ paddingTop: 4, paddingBottom: 4, fontWeight: 700, color: "#475569", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.05em" }}>Total</td>
+              {QUARTER_NUMS.map((qn) => {
+                const qSum = FY_LABELS.reduce((s, fy) => {
+                  const key = `${fy.toLowerCase()}q${qn}` as QKey;
+                  return s + row[key];
+                }, 0);
+                return (
+                  <td key={qn} style={{ paddingTop: 3, paddingBottom: 3, paddingRight: 6, textAlign: "right", fontWeight: 700, fontSize: 12, color: "#1a3557" }} className="tabular-nums">
+                    {fmt(qSum)}
+                  </td>
+                );
+              })}
+              {/* Grand total — editable; spread-fills (newTotal - obligated) across EDITABLE_QKEYS */}
+              <td style={{ paddingTop: 2, paddingBottom: 2, borderLeft: "1px solid #94a3b8", paddingLeft: 6, paddingRight: 6, backgroundColor: AMBER_TOTAL }}>
+                <AmtInput
+                  value={sumAll(row)}
+                  gold
+                  onChange={(newTotal) => {
+                    const obligatedTotal = PAST_QKEYS.reduce((s, k) => s + row[k], 0);
+                    const remaining = Math.max(0, newTotal - obligatedTotal);
+                    const perQ = Math.floor(remaining / EDITABLE_QKEYS.length);
+                    const rem  = remaining - perQ * EDITABLE_QKEYS.length;
+                    EDITABLE_QKEYS.forEach((k, i) => onUpdateQ(row.id, k, perQ + (i === 0 ? rem : 0)));
+                  }}
+                />
+              </td>
+            </tr>
+          </tfoot>
         </table>
       </div>
     </div>
