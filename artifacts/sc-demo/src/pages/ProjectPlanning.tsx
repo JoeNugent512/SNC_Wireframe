@@ -11,83 +11,87 @@ const fmt = (n: number) =>
 let _uid = 100;
 const uid = () => ++_uid;
 
-/* ─── fiscal window config (mirrors varCurrentFY / varCurrentQ / varMaxFY / varMaxQ) ──
- *  Production builds would source these from backend settings or named formulas.
- *  All QKey arrays are DERIVED from this config — not hardcoded — including the
- *  near-quarter-end auto-open rule (within NEAR_QTR_END_DAYS the next quarter opens).
- * ────────────────────────────────────────────────────────────────── */
+/* ─── fiscal window config ──────────────────────────────────────────
+ *  planHorizonFY  = full planning span (all FYs shown in quarterly grid)
+ *  requestMaxFY/Q = the open FUNDING REQUEST window (request math only)
+ *  Editability in the quarterly grid spans the FULL plan horizon.
+ *  Request Max is limited to the open request window only.
+ * ─────────────────────────────────────────────────────────────────── */
 type QKey = keyof QData;
 
 const ALL_QKEYS: QKey[] = [
   "fy25q1","fy25q2","fy25q3","fy25q4",
   "fy26q1","fy26q2","fy26q3","fy26q4",
-  // fy26q4 is normally closed but can auto-open when near FY26 Q3 quarter-end
+  "fy27q1","fy27q2","fy27q3","fy27q4",
+  "fy28q1","fy28q2","fy28q3","fy28q4",
+  "fy29q1","fy29q2","fy29q3","fy29q4",
 ];
 
 interface FiscalWindowConfig {
-  currentFY:          number;   // 2-digit FY, e.g. 25 = FY25
-  currentQ:           number;   // 1-4
-  maxFY:              number;   // last requestable FY
-  maxQ:               number;   // last requestable quarter within maxFY
-  nearQtrEndDays:     number;   // days threshold to auto-open next quarter
-  daysUntilQtrEnd:    number;   // how many days until current quarter closes
+  currentFY:        number; // 2-digit FY, e.g. 25 = FY25
+  currentQ:         number; // 1-4
+  requestMaxFY:     number; // last FY in the open FUNDING REQUEST window
+  requestMaxQ:      number; // last quarter in the open request window
+  planHorizonFY:    number; // last FY in the planning grid (full project span)
+  nearQtrEndDays:   number; // threshold to auto-open next request quarter
+  daysUntilQtrEnd:  number; // days until current quarter closes
 }
 
-// Demo snapshot: April 27 is FY25 Q3 (ends Jun 30), 64 days remain → NOT near-end
+// Demo snapshot: April 27 is FY25 Q3, request window runs through FY26 Q3
 const FISCAL_CONFIG: FiscalWindowConfig = {
   currentFY:       25,
   currentQ:        3,
-  maxFY:           26,
-  maxQ:            3,
+  requestMaxFY:    26,
+  requestMaxQ:     3,
+  planHorizonFY:   29,
   nearQtrEndDays:  30,
   daysUntilQtrEnd: 64,
 };
 
-function buildQWindow(cfg: FiscalWindowConfig): { past: QKey[]; open: QKey[] } {
+function buildQWindow(cfg: FiscalWindowConfig): { past: QKey[]; requestWindow: QKey[] } {
   const autoOpenNext = cfg.daysUntilQtrEnd <= cfg.nearQtrEndDays;
   const past: QKey[] = [];
-  const open: QKey[] = [];
+  const requestWindow: QKey[] = [];
 
   for (const k of ALL_QKEYS) {
-    // Parse "fy25q3" → fyNum=25, qNum=3
     const fyNum = parseInt(k.slice(2, 4), 10);
     const qNum  = parseInt(k.slice(5),    10);
 
-    const isPast   = fyNum < cfg.currentFY || (fyNum === cfg.currentFY && qNum < cfg.currentQ);
-    const maxQAdj  = cfg.maxQ + (autoOpenNext ? 1 : 0); // widen window by 1 near quarter-end
-    const isOpen   = !isPast && (fyNum < cfg.maxFY || (fyNum === cfg.maxFY && qNum <= maxQAdj));
+    const isPast = fyNum < cfg.currentFY || (fyNum === cfg.currentFY && qNum < cfg.currentQ);
+    const maxQAdj = cfg.requestMaxQ + (autoOpenNext ? 1 : 0);
+    const inRequest = !isPast && (
+      fyNum < cfg.requestMaxFY || (fyNum === cfg.requestMaxFY && qNum <= maxQAdj)
+    );
 
     if (isPast) past.push(k);
-    else if (isOpen) open.push(k);
-    // quarters beyond the open window are silently skipped (not editable, shown as "closed")
+    else if (inRequest) requestWindow.push(k);
   }
-  return { past, open };
+  return { past, requestWindow };
 }
 
-const { past: PAST_QKEYS, open: OPEN_QKEYS } = buildQWindow(FISCAL_CONFIG);
+const { past: PAST_QKEYS, requestWindow: REQUEST_WINDOW_KEYS } = buildQWindow(FISCAL_CONFIG);
 
-// Derived banner labels — kept in sync with FISCAL_CONFIG automatically
-const { currentFY: CFY, currentQ: CQ, maxFY: MFY, maxQ: MQ } = FISCAL_CONFIG;
-// Plan window label: e.g. "FY25 + FY26 Q1-Q3"
-const PLAN_WINDOW_LABEL = CFY === MFY
-  ? `FY${CFY} Q1-Q${MQ}`
-  : `FY${CFY} + FY${MFY} Q1-Q${MQ}`;
-// Current quarter status: e.g. "FY25 Q3 — Plan Open"
+// All non-past quarters are editable for planning (full project horizon)
+const EDITABLE_QKEYS: QKey[] = ALL_QKEYS.filter((k) => !PAST_QKEYS.includes(k));
+
+// Derived banner labels
+const { currentFY: CFY, currentQ: CQ, requestMaxFY: RFY, requestMaxQ: RQ, planHorizonFY: PHY } = FISCAL_CONFIG;
+const PLAN_WINDOW_LABEL = `FY${CFY}–FY${PHY}`;
 const PLAN_STATUS_LABEL = `FY${CFY} Q${CQ} — Plan Open`;
 
 /* ─── resource code tables ─────────────────────────────────────── */
+// ERDC Labs — sourced from labRates reference table
 const ORG_OPTIONS = [
-  { label: "CERL",                              code: "U435310" },
-  { label: "ERDC Headquarters",                 code: "U582094" },
-  { label: "Cold Regions Research Lab",         code: "U601847" },
-  { label: "Waterways Experiment Station",      code: "U719203" },
-  { label: "Vicksburg District",                code: "U834512" },
-  { label: "Nashville District",                code: "U920183" },
-  { label: "USACE Chicago District",            code: "U435310" },
-  { label: "USACE Omaha District",              code: "U582094" },
-  { label: "USACE Kansas City District",        code: "U601847" },
-  { label: "USACE Tulsa District",              code: "U719203" },
-  { label: "Huntsville Center",                 code: "U223456" },
+  { label: "GRL",         code: "U439000" }, // Geospatial Research Laboratory
+  { label: "CHL",         code: "U430000" }, // Coastal & Hydraulics Lab
+  { label: "EL",          code: "U433000" }, // Environmental Laboratory
+  { label: "CERL",        code: "U435000" }, // Construction Eng Research Lab
+  { label: "GSL",         code: "U438000" }, // Geotechnical & Structures Lab
+  { label: "ITL",         code: "U43400"  }, // Information Technology Lab
+  { label: "CTS",         code: "U4P0000" }, // Contracting Office
+  { label: "CRRL",        code: "U437000" }, // Cold Regions Research Eng Lab
+  { label: "OTHER ERDC",  code: "U400000" }, // USA Engineer Research Dev Ctr
+  { label: "HPC",         code: "U440000" }, // High Processing Computer
 ];
 
 const CONTRACT_CODES = [
@@ -132,33 +136,36 @@ const OUTSOURCING_CODES = [
 ];
 
 const LABOR_OPTIONS = [
-  { label: "Nugent, Joseph Pat",         sub: "U435310/CERL" },
-  { label: "Chen, David",                sub: "U719203/CERL" },
-  { label: "Williams, Sandra K.",        sub: "U920183/CERL" },
-  { label: "Torres, Miguel A.",          sub: "U582094/ERDC" },
-  { label: "Park, Jennifer",             sub: "U601847/CERL" },
-  { label: "Harrison, Mark T.",          sub: "U719203/CERL" },
-  { label: "Okafor, Chioma",             sub: "U601847/CERL" },
-  { label: "Reyes, Carlos",              sub: "U834512/CERL" },
-  { label: "Placeholder — TBD",          sub: "— name/org code pending" },
+  { label: "Nugent, Joseph Pat",   sub: "U435000/CERL" },
+  { label: "Chen, David",          sub: "U435000/CERL" },
+  { label: "Williams, Sandra K.",  sub: "U438000/GSL"  },
+  { label: "Torres, Miguel A.",    sub: "U430000/CHL"  },
+  { label: "Park, Jennifer",       sub: "U433000/EL"   },
+  { label: "Harrison, Mark T.",    sub: "U439000/GRL"  },
+  { label: "Okafor, Chioma",       sub: "U437000/CRRL" },
+  { label: "Reyes, Carlos",        sub: "U43400/ITL"   },
+  { label: "Placeholder — TBD",    sub: "— name/org code pending" },
 ];
 
 const TRAVEL_OPTIONS = [
-  { label: "CERL",                              sub: "U435310" },
-  { label: "ERDC Headquarters",                 sub: "U582094" },
-  { label: "Cold Regions Research Lab",         sub: "U601847" },
-  { label: "Waterways Experiment Station",      sub: "U719203" },
-  { label: "Vicksburg District",                sub: "U834512" },
-  { label: "Nashville District",                sub: "U920183" },
-  { label: "USACE Chicago District",            sub: "U435310" },
-  { label: "USACE Omaha District",              sub: "U582094" },
-  { label: "Huntsville Center",                 sub: "U223456" },
+  { label: "CERL",        sub: "U435000" },
+  { label: "CHL",         sub: "U430000" },
+  { label: "EL",          sub: "U433000" },
+  { label: "GSL",         sub: "U438000" },
+  { label: "GRL",         sub: "U439000" },
+  { label: "ITL",         sub: "U43400"  },
+  { label: "CRRL",        sub: "U437000" },
+  { label: "OTHER ERDC",  sub: "U400000" },
+  { label: "HPC",         sub: "U440000" },
 ];
 
 /* ─── types ────────────────────────────────────────────────────── */
 type QData = {
   fy25q1: number; fy25q2: number; fy25q3: number; fy25q4: number;
   fy26q1: number; fy26q2: number; fy26q3: number; fy26q4: number;
+  fy27q1: number; fy27q2: number; fy27q3: number; fy27q4: number;
+  fy28q1: number; fy28q2: number; fy28q3: number; fy28q4: number;
+  fy29q1: number; fy29q2: number; fy29q3: number; fy29q4: number;
 };
 
 type PlanRow = QData & {
@@ -190,19 +197,18 @@ type OutsourcingRow = QData & {
 };
 
 /* ─── derived field helpers ─────────────────────────────────────── */
-// Total Planned = sum of ALL quarters in the request window (past + open)
-const sumAll = (r: QData) =>
-  PAST_QKEYS.reduce((s, k) => s + r[k], 0) + OPEN_QKEYS.reduce((s, k) => s + r[k], 0);
+// Total Planned = sum of ALL quarters across full 5-FY planning horizon
+const sumAll = (r: QData) => ALL_QKEYS.reduce((s, k) => s + r[k], 0);
 
 // Obligated = sum of PAST quarters only (already paid, locked)
 const obligatedQ = (r: QData) => PAST_QKEYS.reduce((s, k) => s + r[k], 0);
 
-// Planned Remaining = Total Planned - Obligated = sum of OPEN quarters
-const plannedRem = (r: QData) => OPEN_QKEYS.reduce((s, k) => s + r[k], 0);
+// Planned Remaining = sum of all EDITABLE (non-past) quarters = full project remainder
+const plannedRem = (r: QData) => EDITABLE_QKEYS.reduce((s, k) => s + r[k], 0);
 
-// Open Window Max = max amount that can be requested = sum of OPEN quarters only
-// (past/obligated quarters are excluded from the request ceiling)
-const openWindowMax = plannedRem;
+// Request Window Max = sum of REQUEST_WINDOW_KEYS only (funding request ceiling)
+// Planning can span the full horizon; this only gates the Request field max.
+const openWindowMax = (r: QData) => REQUEST_WINDOW_KEYS.reduce((s, k) => s + r[k], 0);
 
 // Clamp requested to [obligated, openWindowMax].
 // Lower bound = obligated: cannot request less than already-paid quarters.
@@ -213,7 +219,13 @@ function clampRequested(requested: number, obligated: number, max: number): numb
 }
 
 /* ─── empty row factories ───────────────────────────────────────── */
-const emptyQ = (): QData => ({ fy25q1: 0, fy25q2: 0, fy25q3: 0, fy25q4: 0, fy26q1: 0, fy26q2: 0, fy26q3: 0, fy26q4: 0 });
+const emptyQ = (): QData => ({
+  fy25q1: 0, fy25q2: 0, fy25q3: 0, fy25q4: 0,
+  fy26q1: 0, fy26q2: 0, fy26q3: 0, fy26q4: 0,
+  fy27q1: 0, fy27q2: 0, fy27q3: 0, fy27q4: 0,
+  fy28q1: 0, fy28q2: 0, fy28q3: 0, fy28q4: 0,
+  fy29q1: 0, fy29q2: 0, fy29q3: 0, fy29q4: 0,
+});
 
 /* ─── color tokens ──────────────────────────────────────────────── */
 const AMBER_BG     = "#fffbeb";
@@ -280,7 +292,6 @@ function AmtDisplay({ value, bold }: { value: number; bold?: boolean }) {
 }
 
 /* ─── quarterly panel meta + window-driven rendering ────────────── */
-// Each QKey maps to FY label and quarter number for rendering
 const Q_META: Record<QKey, { fy: string; q: number; range: string }> = {
   fy25q1: { fy: "FY25", q: 1, range: "Oct–Dec" },
   fy25q2: { fy: "FY25", q: 2, range: "Jan–Mar" },
@@ -290,24 +301,33 @@ const Q_META: Record<QKey, { fy: string; q: number; range: string }> = {
   fy26q2: { fy: "FY26", q: 2, range: "Jan–Mar" },
   fy26q3: { fy: "FY26", q: 3, range: "Apr–Jun" },
   fy26q4: { fy: "FY26", q: 4, range: "Jul–Sep" },
+  fy27q1: { fy: "FY27", q: 1, range: "Oct–Dec" },
+  fy27q2: { fy: "FY27", q: 2, range: "Jan–Mar" },
+  fy27q3: { fy: "FY27", q: 3, range: "Apr–Jun" },
+  fy27q4: { fy: "FY27", q: 4, range: "Jul–Sep" },
+  fy28q1: { fy: "FY28", q: 1, range: "Oct–Dec" },
+  fy28q2: { fy: "FY28", q: 2, range: "Jan–Mar" },
+  fy28q3: { fy: "FY28", q: 3, range: "Apr–Jun" },
+  fy28q4: { fy: "FY28", q: 4, range: "Jul–Sep" },
+  fy29q1: { fy: "FY29", q: 1, range: "Oct–Dec" },
+  fy29q2: { fy: "FY29", q: 2, range: "Jan–Mar" },
+  fy29q3: { fy: "FY29", q: 3, range: "Apr–Jun" },
+  fy29q4: { fy: "FY29", q: 4, range: "Jul–Sep" },
 };
 
-// Group ALL_QKEYS by FY for table rendering (order preserved)
 const FY_GROUPS = ALL_QKEYS.reduce<Record<string, QKey[]>>((acc, k) => {
   const fy = Q_META[k].fy;
   if (!acc[fy]) acc[fy] = [];
   acc[fy].push(k);
   return acc;
 }, {});
-const FY_LABELS = Object.keys(FY_GROUPS); // ["FY25", "FY26"]
+const FY_LABELS = Object.keys(FY_GROUPS);
 const QUARTER_NUMS = [1, 2, 3, 4];
 const Q_RANGES = ["Oct–Dec", "Jan–Mar", "Apr–Jun", "Jul–Sep"];
 
-// Stable lookups derived from PAST/OPEN arrays (re-computed once at module level)
+// "past" = obligated/locked (blue); "editable" = plannable (gold)
 const PAST_SET = new Set<string>(PAST_QKEYS);
-const OPEN_SET = new Set<string>(OPEN_QKEYS);
-const qStatus = (k: string): "past" | "open" | "closed" =>
-  PAST_SET.has(k) ? "past" : OPEN_SET.has(k) ? "open" : "closed";
+const qStatus = (k: string): "past" | "editable" => PAST_SET.has(k) ? "past" : "editable";
 
 function QuarterlyPanel({
   row, onUpdateQ,
@@ -316,16 +336,8 @@ function QuarterlyPanel({
   onUpdateQ: (id: number, field: keyof QData, val: number) => void;
 }) {
   const pastStyle: React.CSSProperties = { backgroundColor: BLUE_BG, color: "#1e40af", fontWeight: 500 };
-  const openStyle: React.CSSProperties = { backgroundColor: AMBER_BG };
-  const closedStyle: React.CSSProperties = {
-    backgroundColor: "#f8fafc", color: "#cbd5e1", cursor: "not-allowed",
-    textAlign: "right", fontSize: 12, paddingTop: 3, paddingBottom: 3, paddingRight: 6, borderRadius: 3,
-  };
-
-  // Describe the open window in the subtitle
-  const openDesc = OPEN_QKEYS.length > 0
-    ? `Open: ${Q_META[OPEN_QKEYS[0]].fy} Q${Q_META[OPEN_QKEYS[0]].q}–${Q_META[OPEN_QKEYS[OPEN_QKEYS.length - 1]].fy} Q${Q_META[OPEN_QKEYS[OPEN_QKEYS.length - 1]].q}`
-    : "No open quarters";
+  const editStyle: React.CSSProperties = { backgroundColor: AMBER_BG };
+  const cellPad: React.CSSProperties   = { paddingTop: 3, paddingBottom: 3, paddingRight: 6, borderRadius: 3 };
 
   return (
     <div style={{ borderTop: "2px solid #1a6ea8", background: "linear-gradient(to bottom, #f0f4f8, #f8fafc)", padding: "0 0 12px 0" }}>
@@ -335,31 +347,24 @@ function QuarterlyPanel({
         </span>
         <span style={{ flex: 1 }} />
         <span style={{ fontSize: 10, color: "#93c5fd", opacity: 0.7 }}>
-          {PAST_QKEYS.length} past quarter{PAST_QKEYS.length !== 1 ? "s" : ""} obligated &amp; locked
-          &nbsp;·&nbsp; {openDesc}
+          {PAST_QKEYS.length} quarters obligated · Request window FY{CFY} Q{CQ}–FY{RFY} Q{RQ}
         </span>
       </div>
-      <div style={{ padding: "10px 16px 0" }}>
-        <table style={{ borderCollapse: "collapse", fontSize: 12, width: "100%", tableLayout: "fixed" }}>
+      <div style={{ padding: "10px 16px 0", overflowX: "auto" }}>
+        <table style={{ borderCollapse: "collapse", fontSize: 12, width: "100%", tableLayout: "fixed", minWidth: 520 }}>
           <thead>
             <tr>
               <th style={{ width: 60, textAlign: "left", color: "#475569", fontWeight: 700, paddingBottom: 6, textTransform: "uppercase", fontSize: 10, letterSpacing: "0.05em" }}>
                 Year
               </th>
               {QUARTER_NUMS.map((qn) => {
-                // Use FY25 representative key to determine column-level status label
                 const repKey = `fy25q${qn}` as QKey;
                 const st = qStatus(repKey);
-                const labelColor = st === "past" ? "#1e40af" : st === "open" ? "#78350f" : "#94a3b8";
-                const subColor   = st === "past" ? "#64748b" : st === "open" ? "#92400e" : "#94a3b8";
+                const labelColor = st === "past" ? "#1e40af" : "#78350f";
                 return (
                   <th key={qn} style={{ textAlign: "right", paddingBottom: 6, paddingRight: 6 }}>
                     <span style={{ fontSize: 10, fontWeight: 700, color: labelColor, textTransform: "uppercase" }}>
                       Q{qn} {Q_RANGES[qn - 1]}
-                    </span>
-                    <br />
-                    <span style={{ fontSize: 9, color: subColor, fontWeight: 400 }}>
-                      {st}
                     </span>
                   </th>
                 );
@@ -379,7 +384,6 @@ function QuarterlyPanel({
                   {QUARTER_NUMS.map((qn) => {
                     const key = `${fy.toLowerCase()}q${qn}` as QKey;
                     const st  = qStatus(key);
-                    const cellPad = { paddingTop: 3, paddingBottom: 3, paddingRight: 6, borderRadius: 3 };
                     if (st === "past") {
                       return (
                         <td key={qn} style={{ ...pastStyle, ...cellPad }}>
@@ -387,16 +391,9 @@ function QuarterlyPanel({
                         </td>
                       );
                     }
-                    if (st === "open") {
-                      return (
-                        <td key={qn} style={{ ...openStyle, ...cellPad }}>
-                          <AmtInput value={row[key]} onChange={(v) => onUpdateQ(row.id, key, v)} gold />
-                        </td>
-                      );
-                    }
                     return (
-                      <td key={qn} style={closedStyle}>
-                        — <span style={{ fontSize: 9 }}>closed</span>
+                      <td key={qn} style={{ ...editStyle, ...cellPad }}>
+                        <AmtInput value={row[key]} onChange={(v) => onUpdateQ(row.id, key, v)} gold />
                       </td>
                     );
                   })}
@@ -478,16 +475,16 @@ function PlanDataRow({
             </div>
           </div>
         </td>
-        {/* Total Planned — gold, spread-fill editable (distributes delta across OPEN_QKEYS) */}
+        {/* Total Planned — gold, spread-fill editable (distributes delta across EDITABLE_QKEYS) */}
         <td className="px-3 py-2" style={{ backgroundColor: AMBER_BG, borderLeft: AMBER_BORDER }}>
           <AmtInput
             value={planned}
             gold
             onChange={(newTotal) => {
               const delta = newTotal - obligated;
-              const perQ = delta > 0 ? Math.floor(delta / OPEN_QKEYS.length) : 0;
-              const rem  = delta > 0 ? delta - perQ * OPEN_QKEYS.length : 0;
-              OPEN_QKEYS.forEach((q, i) => onUpdateQ(row.id, q, perQ + (i === 0 ? rem : 0)));
+              const perQ = delta > 0 ? Math.floor(delta / EDITABLE_QKEYS.length) : 0;
+              const rem  = delta > 0 ? delta - perQ * EDITABLE_QKEYS.length : 0;
+              EDITABLE_QKEYS.forEach((q, i) => onUpdateQ(row.id, q, perQ + (i === 0 ? rem : 0)));
             }}
           />
         </td>
@@ -495,7 +492,7 @@ function PlanDataRow({
         <td className={td} style={{ backgroundColor: BLUE_BG, borderLeft: "2px solid #475569" }}>
           <AmtDisplay value={obligated} />
         </td>
-        {/* Planned Remaining — blue, read-only (OPEN quarters sum) */}
+        {/* Planned Remaining — blue, read-only (all EDITABLE quarters sum) */}
         <td className={td} style={{ backgroundColor: BLUE_BG, borderLeft: BLUE_BORDER }}>
           <AmtDisplay value={remaining} />
         </td>
@@ -505,7 +502,7 @@ function PlanDataRow({
         </td>
         {/* Request / Max — gold, editable; clamped to [obligated, openWindowMax] */}
         <td className="px-2 py-2" style={{ backgroundColor: AMBER_BG, borderLeft: AMBER_BORDER }}>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1" style={{ justifyContent: "flex-end" }}>
             <div style={{ flex: "0 0 100px" }}>
               <AmtInput
                 value={row.requested}
@@ -628,16 +625,16 @@ function ResourceDataRow<T extends QData & { id: number; org: string; orgCode: s
             </div>
           </div>
         </td>
-        {/* Total Planned — gold, spread-fill editable (distributes delta across OPEN_QKEYS) */}
+        {/* Total Planned — gold, spread-fill editable (distributes delta across EDITABLE_QKEYS) */}
         <td className="px-3 py-2" style={{ backgroundColor: AMBER_BG, borderLeft: AMBER_BORDER }}>
           <AmtInput
             value={planned}
             gold
             onChange={(newTotal) => {
               const delta = newTotal - obligated;
-              const perQ = delta > 0 ? Math.floor(delta / OPEN_QKEYS.length) : 0;
-              const rem  = delta > 0 ? delta - perQ * OPEN_QKEYS.length : 0;
-              OPEN_QKEYS.forEach((q, i) => onUpdateQ(row.id, q, perQ + (i === 0 ? rem : 0)));
+              const perQ = delta > 0 ? Math.floor(delta / EDITABLE_QKEYS.length) : 0;
+              const rem  = delta > 0 ? delta - perQ * EDITABLE_QKEYS.length : 0;
+              EDITABLE_QKEYS.forEach((q, i) => onUpdateQ(row.id, q, perQ + (i === 0 ? rem : 0)));
             }}
           />
         </td>
@@ -650,9 +647,9 @@ function ResourceDataRow<T extends QData & { id: number; org: string; orgCode: s
         <td className={td} style={{ backgroundColor: BLUE_BG, borderLeft: BLUE_BORDER }}>
           <AmtDisplay value={row.openCommitment} />
         </td>
-        {/* Request / Max — clamped to [0, openWindowMax (OPEN quarters only)] */}
+        {/* Request / Max — clamped to [obligated, openWindowMax (request window)] */}
         <td className="px-2 py-2" style={{ backgroundColor: AMBER_BG, borderLeft: AMBER_BORDER }}>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1" style={{ justifyContent: "flex-end" }}>
             <div style={{ flex: "0 0 100px" }}>
               <AmtInput
                 value={row.requested}
@@ -870,57 +867,83 @@ function SectionWrapper({ title, dotColor, children }: { title: string; dotColor
   );
 }
 
-/* ─── initial data ──────────────────────────────────────────────── */
-// requested = sum of OPEN quarters only (FY25 Q3+Q4 + FY26 Q1-Q3)
+/* ─── initial data (FY25–FY29 full planning horizon) ───────────── */
 const INITIAL_LABOR: PlanRow[] = [
-  { id: 1, label: "Nugent, Joseph Pat", sub: "U435310/CERL",
+  { id: 1, label: "Nugent, Joseph Pat", sub: "U435000/CERL",
     fy25q1: 10000, fy25q2: 12000, fy25q3: 13000, fy25q4: 10000,
-    fy26q1: 12000, fy26q2: 12000, fy26q3: 11000, fy26q4: 0,
+    fy26q1: 12000, fy26q2: 12000, fy26q3: 11000, fy26q4: 10000,
+    fy27q1: 11000, fy27q2: 11000, fy27q3: 11000, fy27q4: 11000,
+    fy28q1: 10000, fy28q2: 10000, fy28q3: 10000, fy28q4: 10000,
+    fy29q1:  8000, fy29q2:  8000, fy29q3:  8000, fy29q4:  8000,
     openCommitment: 3500, requested: 58000 },
-  { id: 2, label: "Chen, David", sub: "U719203/CERL",
+  { id: 2, label: "Chen, David", sub: "U435000/CERL",
     fy25q1: 8000, fy25q2: 8000, fy25q3: 8000, fy25q4: 8000,
-    fy26q1: 9000, fy26q2: 9000, fy26q3: 9000, fy26q4: 0,
+    fy26q1: 9000, fy26q2: 9000, fy26q3: 9000, fy26q4: 8000,
+    fy27q1: 9000, fy27q2: 9000, fy27q3: 9000, fy27q4: 9000,
+    fy28q1: 8000, fy28q2: 8000, fy28q3: 8000, fy28q4: 8000,
+    fy29q1: 7000, fy29q2: 7000, fy29q3: 7000, fy29q4: 7000,
     openCommitment: 2000, requested: 43000 },
-  { id: 3, label: "Williams, Sandra K.", sub: "U920183/CERL",
+  { id: 3, label: "Williams, Sandra K.", sub: "U438000/GSL",
     fy25q1: 6000, fy25q2: 7000, fy25q3: 7500, fy25q4: 6500,
-    fy26q1: 7000, fy26q2: 7000, fy26q3: 6000, fy26q4: 0,
+    fy26q1: 7000, fy26q2: 7000, fy26q3: 6000, fy26q4: 6000,
+    fy27q1: 6000, fy27q2: 6000, fy27q3: 6000, fy27q4: 6000,
+    fy28q1: 5000, fy28q2: 5000, fy28q3: 5000, fy28q4: 5000,
+    fy29q1: 4000, fy29q2: 4000, fy29q3: 4000, fy29q4: 4000,
     openCommitment: 2500, requested: 34000 },
 ];
 
 const INITIAL_TRAVEL: PlanRow[] = [
-  { id: 4, label: "CERL", sub: "U435310",
+  { id: 4, label: "CERL", sub: "U435000",
     fy25q1: 3000, fy25q2: 3000, fy25q3: 4000, fy25q4: 3000,
-    fy26q1: 4000, fy26q2: 4000, fy26q3: 3000, fy26q4: 0,
+    fy26q1: 4000, fy26q2: 4000, fy26q3: 3000, fy26q4: 3000,
+    fy27q1: 3000, fy27q2: 3000, fy27q3: 3000, fy27q4: 3000,
+    fy28q1: 2500, fy28q2: 2500, fy28q3: 2500, fy28q4: 2500,
+    fy29q1: 2000, fy29q2: 2000, fy29q3: 2000, fy29q4: 2000,
     openCommitment: 800, requested: 18000 },
-  { id: 5, label: "ERDC Headquarters", sub: "U582094",
+  { id: 5, label: "CHL", sub: "U430000",
     fy25q1: 1500, fy25q2: 1500, fy25q3: 2000, fy25q4: 1500,
-    fy26q1: 2000, fy26q2: 2000, fy26q3: 1500, fy26q4: 0,
+    fy26q1: 2000, fy26q2: 2000, fy26q3: 1500, fy26q4: 1500,
+    fy27q1: 1500, fy27q2: 1500, fy27q3: 1500, fy27q4: 1500,
+    fy28q1: 1000, fy28q2: 1000, fy28q3: 1000, fy28q4: 1000,
+    fy29q1: 1000, fy29q2: 1000, fy29q3: 1000, fy29q4: 1000,
     openCommitment: 400, requested: 9000 },
 ];
 
 const INITIAL_CONTRACT: ContractRow[] = [
-  { id: 6, org: "ERDC", orgCode: "U582094",
+  { id: 6, org: "OTHER ERDC", orgCode: "U400000",
     contractCode: "ITSFTMAINT", contractName: "Software maintenance or support",
     fy25q1: 0, fy25q2: 15000, fy25q3: 20000, fy25q4: 20000,
-    fy26q1: 18000, fy26q2: 18000, fy26q3: 17000, fy26q4: 0,
+    fy26q1: 18000, fy26q2: 18000, fy26q3: 17000, fy26q4: 17000,
+    fy27q1: 16000, fy27q2: 16000, fy27q3: 16000, fy27q4: 16000,
+    fy28q1: 15000, fy28q2: 15000, fy28q3: 15000, fy28q4: 15000,
+    fy29q1: 12000, fy29q2: 12000, fy29q3: 12000, fy29q4: 12000,
     openCommitment: 3000, requested: 93000 },
-  { id: 7, org: "CERL", orgCode: "U435310",
+  { id: 7, org: "CERL", orgCode: "U435000",
     contractCode: "OTHCONSVC", contractName: "Private Sector contracts not otherwise classified",
     fy25q1: 25000, fy25q2: 25000, fy25q3: 25000, fy25q4: 25000,
-    fy26q1: 20000, fy26q2: 20000, fy26q3: 20000, fy26q4: 0,
+    fy26q1: 20000, fy26q2: 20000, fy26q3: 20000, fy26q4: 20000,
+    fy27q1: 18000, fy27q2: 18000, fy27q3: 18000, fy27q4: 18000,
+    fy28q1: 15000, fy28q2: 15000, fy28q3: 15000, fy28q4: 15000,
+    fy29q1: 12000, fy29q2: 12000, fy29q3: 12000, fy29q4: 12000,
     openCommitment: 5000, requested: 110000 },
 ];
 
 const INITIAL_OUTSOURCING: OutsourcingRow[] = [
-  { id: 8, org: "ERDC", orgCode: "U582094",
+  { id: 8, org: "OTHER ERDC", orgCode: "U400000",
     resourceCode: "WKBOTHCOE", resourceName: "Corps District (MIPR)",
     fy25q1: 10000, fy25q2: 10000, fy25q3: 10000, fy25q4: 10000,
-    fy26q1: 8000, fy26q2: 8000, fy26q3: 8000, fy26q4: 0,
+    fy26q1: 8000, fy26q2: 8000, fy26q3: 8000, fy26q4: 8000,
+    fy27q1: 7000, fy27q2: 7000, fy27q3: 7000, fy27q4: 7000,
+    fy28q1: 6000, fy28q2: 6000, fy28q3: 6000, fy28q4: 6000,
+    fy29q1: 5000, fy29q2: 5000, fy29q3: 5000, fy29q4: 5000,
     openCommitment: 1500, requested: 44000 },
-  { id: 9, org: "CERL", orgCode: "U435310",
+  { id: 9, org: "CERL", orgCode: "U435000",
     resourceCode: "SHOP/FACIL", resourceName: "OrderTrak",
     fy25q1: 5000, fy25q2: 5000, fy25q3: 5000, fy25q4: 5000,
-    fy26q1: 4000, fy26q2: 4000, fy26q3: 4000, fy26q4: 0,
+    fy26q1: 4000, fy26q2: 4000, fy26q3: 4000, fy26q4: 4000,
+    fy27q1: 3500, fy27q2: 3500, fy27q3: 3500, fy27q4: 3500,
+    fy28q1: 3000, fy28q2: 3000, fy28q3: 3000, fy28q4: 3000,
+    fy29q1: 2500, fy29q2: 2500, fy29q3: 2500, fy29q4: 2500,
     openCommitment: 800, requested: 22000 },
 ];
 
@@ -1103,7 +1126,7 @@ export default function ProjectPlanning() {
             />
           )}
           <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-            {addSectionHeader("LABOR", "#60a5fa", () => setShowLaborPicker(true), "+ Add Labor")}
+            {addSectionHeader("LABOR", "#60a5fa", () => setShowLaborPicker(true), "Add Labor")}
             {tableWrap(
               <>
                 <thead>
@@ -1142,7 +1165,7 @@ export default function ProjectPlanning() {
             />
           )}
           <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-            {addSectionHeader("TRAVEL", "#a78bfa", () => setShowTravelPicker(true), "+ Add Travel")}
+            {addSectionHeader("TRAVEL", "#a78bfa", () => setShowTravelPicker(true), "Add Travel")}
             {tableWrap(
               <>
                 <thead><ColHeaders nameHeader="Organization" /></thead>
@@ -1181,7 +1204,7 @@ export default function ProjectPlanning() {
             />
           )}
           <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-            {addSectionHeader("CONTRACTING", "#34d399", () => setShowContractPicker(true), "+ Add Contract")}
+            {addSectionHeader("CONTRACTING", "#34d399", () => setShowContractPicker(true), "Add Contract")}
             {tableWrap(
               <>
                 <thead><ColHeaders nameHeader="Org / Contract Code" /></thead>
@@ -1226,7 +1249,7 @@ export default function ProjectPlanning() {
             />
           )}
           <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-            {addSectionHeader("OUTSOURCING & OTHER", "#f59e0b", () => setShowOutsourcingPicker(true), "+ Add Resource")}
+            {addSectionHeader("OUTSOURCING & OTHER", "#f59e0b", () => setShowOutsourcingPicker(true), "Add Resource")}
             {tableWrap(
               <>
                 <thead><ColHeaders nameHeader="Org / Resource Code" /></thead>
