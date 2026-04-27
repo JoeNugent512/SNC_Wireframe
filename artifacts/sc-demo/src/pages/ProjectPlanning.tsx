@@ -207,9 +207,12 @@ const obligatedQ = (r: QData) => PAST_QKEYS.reduce((s, k) => s + r[k], 0);
 // Planned Remaining = sum of all EDITABLE (non-past) quarters = full project remainder
 const plannedRem = (r: QData) => EDITABLE_QKEYS.reduce((s, k) => s + r[k], 0);
 
-// Request Window Max = sum of REQUEST_WINDOW_KEYS only (funding request ceiling)
-// Planning can span the full horizon; this only gates the Request field max.
-const openWindowMax = (r: QData) => REQUEST_WINDOW_KEYS.reduce((s, k) => s + r[k], 0);
+// Current quarter key — the single open quarter driving the request ceiling
+const CURRENT_Q_KEY: QKey = `fy${CFY}q${CQ}` as QKey;
+
+// Request Max = obligated (past quarters) + current quarter planned amount
+// e.g. Nugent: $69k obligated + $11k FY26 Q3 = $80k max
+const openWindowMax = (r: QData) => obligatedQ(r) + r[CURRENT_Q_KEY];
 
 // Clamp requested to [obligated, openWindowMax].
 // Lower bound = obligated: cannot request less than already-paid quarters.
