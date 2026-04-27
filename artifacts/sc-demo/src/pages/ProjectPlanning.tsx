@@ -66,6 +66,15 @@ function buildQWindow(cfg: FiscalWindowConfig): { past: QKey[]; open: QKey[] } {
 
 const { past: PAST_QKEYS, open: OPEN_QKEYS } = buildQWindow(FISCAL_CONFIG);
 
+// Derived banner labels — kept in sync with FISCAL_CONFIG automatically
+const { currentFY: CFY, currentQ: CQ, maxFY: MFY, maxQ: MQ } = FISCAL_CONFIG;
+// Plan window label: e.g. "FY25 + FY26 Q1-Q3"
+const PLAN_WINDOW_LABEL = CFY === MFY
+  ? `FY${CFY} Q1-Q${MQ}`
+  : `FY${CFY} + FY${MFY} Q1-Q${MQ}`;
+// Current quarter status: e.g. "FY25 Q3 — Plan Open"
+const PLAN_STATUS_LABEL = `FY${CFY} Q${CQ} — Plan Open`;
+
 /* ─── resource code tables ─────────────────────────────────────── */
 const ORG_OPTIONS = [
   { label: "CERL",                              code: "U435310" },
@@ -585,15 +594,15 @@ function ResourceDataRow<T extends QData & { id: number; org: string; orgCode: s
             <div className="min-w-0 flex-1">
               {orgOptions ? (
                 <select
-                  value={row.orgCode}
+                  value={`${row.org}|${row.orgCode}`}
                   style={selStyle}
                   onChange={(e) => {
-                    const opt = orgOptions.find((o) => o.code === e.target.value);
-                    if (opt) onUpdateOrg?.(row.id, opt.label, opt.code);
+                    const [label, code] = e.target.value.split("|");
+                    onUpdateOrg?.(row.id, label, code);
                   }}
                 >
                   {orgOptions.map((o) => (
-                    <option key={`${o.label}|${o.code}`} value={o.code}>{o.label} ({o.code})</option>
+                    <option key={`${o.label}|${o.code}`} value={`${o.label}|${o.code}`}>{o.label} ({o.code})</option>
                   ))}
                 </select>
               ) : (
@@ -1056,10 +1065,10 @@ export default function ProjectPlanning() {
             </div>
             <div className="text-right">
               <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "rgba(255,255,255,0.5)" }}>Plan Window</p>
-              <p className="font-semibold text-sm text-white">FY25 + FY26 Q1-Q3</p>
+              <p className="font-semibold text-sm text-white">{PLAN_WINDOW_LABEL}</p>
             </div>
             <div className="text-right px-2 py-1 rounded text-xs font-semibold" style={{ backgroundColor: "rgba(167,243,208,0.2)", color: "#6ee7b7", border: "1px solid rgba(167,243,208,0.3)" }}>
-              FY25 Q3 — Plan Open
+              {PLAN_STATUS_LABEL}
             </div>
           </div>
         </div>
