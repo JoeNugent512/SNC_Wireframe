@@ -1,0 +1,1988 @@
+Screens:
+  Home:
+    Properties:
+      Fill: =RGBA(232, 232, 232, 1)
+      LoadingSpinnerColor: =RGBA(0, 51, 102, 1)
+      OnVisible: =SetFocus(TextInputCanvas5)
+    Children:
+      - TextCanvas50:
+          Control: Text@0.0.51
+          Group: Group1
+          Properties:
+            Align: ='TextCanvas.Align'.Center
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =768
+            Size: =20
+            Text: |-
+              ="PEPR is offline due 
+              to the Mircrosft degredation. 👷🚧
+              It will be back up when the 
+              degredation has ceased.
+              Please check back later"
+            VerticalAlign: =VerticalAlign.Middle
+            Visible: |-
+              =//If(Upper(User().Email) in  [ Upper("Joseph.P.Nugent@usace.army.mil"), Upper("Zachary.L.Sickler@usace.army.mil"), Upper("Richard.A.Mcclure@usace.army.mil")], false, true)
+              false
+            Width: =1366
+      - Image10:
+          Control: Image@2.2.3
+          Group: Group1
+          Properties:
+            BorderColor: =RGBA(0, 89, 178, 1)
+            Height: =693
+            Image: ='image-615e627e'
+            Visible: |-
+              =//If(Upper(User().Email) in  [ Upper("Joseph.P.Nugent@usace.army.mil"), Upper("Zachary.L.Sickler@usace.army.mil"), Upper("Richard.A.Mcclure@usace.army.mil")], false, true)
+              false
+            Width: =432
+            X: =39
+            Y: =37
+      - Rectangle38:
+          Control: Rectangle@2.3.0
+          Group: Group1
+          Properties:
+            BorderColor: =RGBA(0, 89, 178, 1)
+            Fill: =RGBA(255, 255, 255, 0.9)
+            Height: =708
+            Visible: |-
+              =//If(Upper(User().Email) in  [ Upper("Joseph.P.Nugent@usace.army.mil"), Upper("Zachary.L.Sickler@usace.army.mil"), Upper("Richard.A.Mcclure@usace.army.mil")], false, true)
+              false
+            Width: =460
+            X: =52
+            Y: =37
+      - Image10_1:
+          Control: Image@2.2.3
+          Group: Group1
+          Properties:
+            BorderColor: =RGBA(0, 89, 178, 1)
+            Height: =693
+            Image: ='image-615e627e'
+            Visible: |-
+              =//If(Upper(User().Email) in  [ Upper("Joseph.P.Nugent@usace.army.mil"), Upper("Zachary.L.Sickler@usace.army.mil"), Upper("Richard.A.Mcclure@usace.army.mil")], false, true)
+              false
+            Width: =432
+            X: =925
+            Y: =37
+      - Rectangle38_1:
+          Control: Rectangle@2.3.0
+          Group: Group1
+          Properties:
+            BorderColor: =RGBA(0, 89, 178, 1)
+            Fill: =RGBA(255, 255, 255, 0.9)
+            Height: =708
+            Visible: |-
+              =//If(Upper(User().Email) in  [ Upper("Joseph.P.Nugent@usace.army.mil"), Upper("Zachary.L.Sickler@usace.army.mil"), Upper("Richard.A.Mcclure@usace.army.mil")], false, true)
+              false
+            Width: =460
+            X: =906
+            Y: =22
+      - Container1:
+          Control: GroupContainer@1.5.0
+          Variant: AutoLayout
+          Properties:
+            Height: =768
+            LayoutDirection: =LayoutDirection.Vertical
+            Width: =1366
+          Children:
+            - Container2:
+                Control: GroupContainer@1.5.0
+                Variant: AutoLayout
+                Properties:
+                  BorderThickness: =4
+                  DropShadow: =DropShadow.Bold
+                  Fill: =RGBA(0, 0, 0, 1)
+                  FillPortions: =0
+                  Height: =75
+                  LayoutDirection: =LayoutDirection.Horizontal
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  LayoutMinHeight: =75
+                  RadiusBottomLeft: =10
+                  RadiusBottomRight: =10
+                  RadiusTopLeft: =10
+                  RadiusTopRight: =10
+                Children:
+                  - Container3:
+                      Control: GroupContainer@1.5.0
+                      Variant: AutoLayout
+                      Properties:
+                        FillPortions: =0
+                        LayoutDirection: =LayoutDirection.Horizontal
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        LayoutMinHeight: =75
+                        Width: =600
+                      Children:
+                        - Image1:
+                            Control: Image@2.2.3
+                            Properties:
+                              BorderColor: =RGBA(0, 89, 178, 1)
+                              Height: =75
+                              Image: =pepr
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              Width: =75
+                        - TextCanvas1:
+                            Control: Text@0.0.51
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Stretch
+                              FillPortions: =1
+                              Font: =Font.'Lato Light'
+                              FontColor: =RGBA(255, 255, 255, 1)
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              PaddingTop: =15
+                              Size: =25
+                              Text: ="Platform for Efficient Project Resourcing"
+                              VerticalAlign: =VerticalAlign.Middle
+                  - Container4:
+                      Control: GroupContainer@1.5.0
+                      Variant: AutoLayout
+                      Properties:
+                        LayoutDirection: =LayoutDirection.Horizontal
+                        LayoutJustifyContent: =LayoutJustifyContent.End
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        LayoutMinHeight: =75
+                      Children:
+                        - TextCanvas2:
+                            Control: Text@0.0.51
+                            Properties:
+                              Align: ='TextCanvas.Align'.End
+                              AlignInContainer: =AlignInContainer.Stretch
+                              FillPortions: =1
+                              FontColor: =RGBA(255, 255, 255, 1)
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              Size: =30
+                              Text: '=User().FullName & " " '
+                              VerticalAlign: =VerticalAlign.Middle
+                              Weight: ='TextCanvas.Weight'.Semibold
+                        - Image2:
+                            Control: Image@2.2.3
+                            Properties:
+                              BorderColor: =RGBA(0, 89, 178, 1)
+                              Height: =75
+                              Image: =User().Image
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              Width: =75
+            - Rectangle1:
+                Control: Rectangle@2.3.0
+                Properties:
+                  AlignInContainer: =AlignInContainer.Stretch
+                  BorderColor: =RGBA(0, 89, 178, 1)
+                  Fill: =RGBA(255, 193, 7, 1)
+                  Height: =5
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+            - Container5:
+                Control: GroupContainer@1.5.0
+                Variant: ManualLayout
+                Properties:
+                  DropShadow: =DropShadow.None
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                Children:
+                  - pepper:
+                      Control: Image@2.2.3
+                      Properties:
+                        BorderColor: =RGBA(0, 89, 178, 1)
+                        Height: =588
+                        Image: ='image-e811fb6a'
+                        Visible: =false
+                        Width: =1366
+                        Y: =25
+                  - Rectangle2:
+                      Control: Rectangle@2.3.0
+                      Properties:
+                        BorderColor: =RGBA(0, 89, 178, 1)
+                        Fill: =RGBA(232, 232, 232, 1)
+                        Height: =88
+                        Visible: =load
+                        Width: =318
+                        X: =515
+                        Y: =525
+                  - Container7:
+                      Control: GroupContainer@1.5.0
+                      Variant: ManualLayout
+                      Properties:
+                        DropShadow: =DropShadow.Regular
+                        Fill: =RGBA(255, 255, 255, 1)
+                        Height: =75
+                        RadiusBottomLeft: =20
+                        RadiusBottomRight: =20
+                        RadiusTopLeft: =20
+                        RadiusTopRight: =20
+                        Visible: =!load
+                        Width: =508
+                        X: =425
+                        Y: =25
+                      Children:
+                        - TextCanvas3:
+                            Control: Text@0.0.51
+                            Properties:
+                              Align: ='TextCanvas.Align'.Center
+                              Font: =Font.Arial
+                              Height: =73
+                              Size: =20
+                              Text: |+
+                                ="Welcome to PEPR
+                                " & User().FullName 
+
+                              VerticalAlign: =VerticalAlign.Middle
+                              Visible: =!load
+                              Width: =Parent.Width
+                  - Container64_1:
+                      Control: GroupContainer@1.5.0
+                      Variant: AutoLayout
+                      Properties:
+                        DropShadow: =DropShadow.Bold
+                        Fill: =RGBA(237, 234, 222, 1)
+                        Height: =458
+                        LayoutAlignItems: =LayoutAlignItems.Center
+                        LayoutDirection: =LayoutDirection.Vertical
+                        LayoutOverflowX: =LayoutOverflow.Scroll
+                        RadiusBottomLeft: =20
+                        RadiusBottomRight: =20
+                        RadiusTopLeft: =20
+                        RadiusTopRight: =20
+                        Visible: =!load && !(ComboboxCanvas14.Selected.Value = "PI")
+                        Width: =1166
+                        X: =100
+                        Y: =133
+                      Children:
+                        - Container85:
+                            Control: GroupContainer@1.5.0
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              LayoutDirection: =LayoutDirection.Horizontal
+                              LayoutJustifyContent: =LayoutJustifyContent.Center
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              LayoutMinHeight: =0
+                            Children:
+                              - Rectangle33_10:
+                                  Control: Rectangle@2.3.0
+                                  Properties:
+                                    BorderColor: =RGBA(0, 0, 0, 0)
+                                    Fill: =RGBA(0, 0, 0, 0)
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                                    Width: =50
+                              - Container74_9:
+                                  Control: GroupContainer@1.5.0
+                                  Variant: ManualLayout
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Center
+                                    BorderColor: =RGBA(255, 193, 7, 1)
+                                    BorderThickness: =5
+                                    DropShadow: =DropShadow.Bold
+                                    Fill: =RGBA(106, 122, 127, 1)
+                                    FillPortions: =0
+                                    Height: =175
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                                    RadiusBottomLeft: =20
+                                    RadiusBottomRight: =20
+                                    RadiusTopLeft: =20
+                                    RadiusTopRight: =20
+                                    Visible: =LookUp(Access, Type = "Spreadsheet").Access
+                                    Width: =175
+                                  Children:
+                                    - Container75_9:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: AutoLayout
+                                        Properties:
+                                          Height: =Parent.Height
+                                          LayoutDirection: =LayoutDirection.Vertical
+                                          Width: =Parent.Width
+                                        Children:
+                                          - Image9_9:
+                                              Control: Image@2.2.3
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                BorderColor: =RGBA(0, 89, 178, 1)
+                                                FillPortions: =5
+                                                Height: =250
+                                                Image: ='edit spreadsheet.jpg'
+                                                ImagePosition: =ImagePosition.Stretch
+                                                LayoutMaxHeight: =
+                                                LayoutMaxWidth: =
+                                          - TextCanvas33_31:
+                                              Control: Text@0.0.51
+                                              Properties:
+                                                Align: ='TextCanvas.Align'.Center
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                FillPortions: =1
+                                                Font: =Font.Arial
+                                                FontColor: =RGBA(237, 234, 222, 1)
+                                                LayoutMaxHeight: =
+                                                LayoutMaxWidth: =
+                                                Size: =20
+                                                Text: ="Spreadsheet"
+                                                VerticalAlign: =VerticalAlign.Middle
+                                                Weight: ='TextCanvas.Weight'.Bold
+                                    - ButtonCanvas11_9:
+                                        Control: Button@0.0.45
+                                        Properties:
+                                          Appearance: ='ButtonCanvas.Appearance'.Transparent
+                                          Height: =Parent.Height
+                                          OnSelect: |
+                                            =//ClearCollect(summatedContracts, AddColumns(ContractingDataV1 As A, B, LookUp(ContractingData2, Contract_ID = A.Contract_ID)));
+                                            //ClearCollect(ContractsSummary, AddColumns(summatedContracts, Title, B.Title, WIC, B.WIC, OfficeSymbol, B.OfficeSymbol, POC, B.POC, AdditionalPOC, B.AdditionalPOC, Decription, B.Description, TypeOfAction, B.TypeOfAction, Status, "STATUS", Amount, B.Amount, Lab, B.Lab, ActionStatus, B.ActionStatus, Options, B.Options, AwardDate, B.AwardDate, LaborCode, B.LaborCode, CD2_ID, B.ID, COREGOR, B.CorGor)); 
+                                            //ClearCollect(ContractsSummary, AddColumns(ContractsSummary, OrderType, LookUp('PEPR Project Overview', Title = WIC).ORDER_TYPE_CODE));
+                                            //Navigate(contractingspreadsheet);
+                                          Text: =
+                                          Width: =Parent.Width
+                              - Rectangle33_11:
+                                  Control: Rectangle@2.3.0
+                                  Properties:
+                                    BorderColor: =RGBA(0, 0, 0, 0)
+                                    Fill: =RGBA(0, 0, 0, 0)
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                                    Visible: =LookUp(Access, Type = "Spreadsheet").Access
+                                    Width: =100
+                              - Container74_10:
+                                  Control: GroupContainer@1.5.0
+                                  Variant: ManualLayout
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Center
+                                    BorderColor: =RGBA(255, 193, 7, 1)
+                                    BorderThickness: =5
+                                    DropShadow: =DropShadow.Bold
+                                    FillPortions: =0
+                                    Height: =175
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                                    RadiusBottomLeft: =20
+                                    RadiusBottomRight: =20
+                                    RadiusTopLeft: =20
+                                    RadiusTopRight: =20
+                                    Visible: =LookUp(Access, Type = "NewContractingActions").Access
+                                    Width: =175
+                                  Children:
+                                    - Container75_10:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: AutoLayout
+                                        Properties:
+                                          Fill: =RGBA(106, 122, 127, 1)
+                                          Height: =Parent.Height
+                                          LayoutDirection: =LayoutDirection.Vertical
+                                          Width: =Parent.Width
+                                        Children:
+                                          - Image9_10:
+                                              Control: Image@2.2.3
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                BorderColor: =RGBA(0, 89, 178, 1)
+                                                FillPortions: =5
+                                                Height: =250
+                                                Image: ='contractRequests.jpg'
+                                                LayoutMaxHeight: =
+                                                LayoutMaxWidth: =
+                                          - TextCanvas33_32:
+                                              Control: Text@0.0.51
+                                              Properties:
+                                                Align: ='TextCanvas.Align'.Center
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                FillPortions: =1
+                                                Font: =Font.Arial
+                                                FontColor: =RGBA(237, 234, 222, 1)
+                                                LayoutMaxHeight: =
+                                                LayoutMaxWidth: =
+                                                LayoutMinHeight: =60
+                                                Size: =20
+                                                Text: ="New Contracting Actions"
+                                                VerticalAlign: =VerticalAlign.Middle
+                                                Weight: ='TextCanvas.Weight'.Bold
+                                    - ButtonCanvas11_10:
+                                        Control: Button@0.0.45
+                                        Properties:
+                                          Appearance: ='ButtonCanvas.Appearance'.Transparent
+                                          Height: =Parent.Height
+                                          Text: =
+                                          Width: =Parent.Width
+                              - Rectangle33_12:
+                                  Control: Rectangle@2.3.0
+                                  Properties:
+                                    BorderColor: =RGBA(0, 0, 0, 0)
+                                    Fill: =RGBA(0, 0, 0, 0)
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                                    Visible: =LookUp(Access, Type = "NewContractingActions").Access
+                                    Width: =100
+                              - Container74_11:
+                                  Control: GroupContainer@1.5.0
+                                  Variant: ManualLayout
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Center
+                                    BorderColor: =RGBA(255, 193, 7, 1)
+                                    BorderThickness: =5
+                                    DropShadow: =DropShadow.Bold
+                                    FillPortions: =0
+                                    Height: =175
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                                    RadiusBottomLeft: =20
+                                    RadiusBottomRight: =20
+                                    RadiusTopLeft: =20
+                                    RadiusTopRight: =20
+                                    Visible: =LookUp(Access, Type = "SetUpFundedWic").Access
+                                    Width: =175
+                                  Children:
+                                    - Container75_11:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: AutoLayout
+                                        Properties:
+                                          Fill: =RGBA(106, 122, 127, 1)
+                                          Height: =Parent.Height
+                                          LayoutDirection: =LayoutDirection.Vertical
+                                          Width: =Parent.Width
+                                        Children:
+                                          - Image9_11:
+                                              Control: Image@2.2.3
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                BorderColor: =RGBA(0, 89, 178, 1)
+                                                FillPortions: =5
+                                                Height: =250
+                                                Image: ='Setup Funded WIC.jpg'
+                                                ImagePosition: =ImagePosition.Stretch
+                                                LayoutMaxHeight: =
+                                                LayoutMaxWidth: =
+                                          - TextCanvas33_33:
+                                              Control: Text@0.0.51
+                                              Properties:
+                                                Align: ='TextCanvas.Align'.Center
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                FillPortions: =1
+                                                Font: =Font.Arial
+                                                FontColor: =RGBA(237, 234, 222, 1)
+                                                LayoutMaxHeight: =
+                                                LayoutMaxWidth: =
+                                                LayoutMinHeight: =60
+                                                Size: =20
+                                                Text: ="Set Up Funded WIC"
+                                                VerticalAlign: =VerticalAlign.Middle
+                                                Weight: ='TextCanvas.Weight'.Bold
+                                    - ButtonCanvas11_11:
+                                        Control: Button@0.0.45
+                                        Properties:
+                                          Appearance: ='ButtonCanvas.Appearance'.Transparent
+                                          Height: =Parent.Height
+                                          OnSelect: |-
+                                            =Navigate('BA Screen_1', Transition.None, {PassedOrgCode: ComboboxCanvas2_1.Selected.Value})
+                                          Text: =
+                                          Width: =Parent.Width
+                                    - Container86:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: ManualLayout
+                                        Properties:
+                                          DropShadow: =DropShadow.None
+                                          Height: =50
+                                          Width: =50
+                                          X: =125
+                                        Children:
+                                          - Circle1_2:
+                                              Control: Circle@2.3.0
+                                              Properties:
+                                                BorderColor: =RGBA(0, 89, 178, 1)
+                                                Fill: =RGBA(255, 0, 0, 1)
+                                                Height: =50
+                                                Visible: =CountRows(BA) > 0
+                                                Width: =50
+                                          - TextCanvas4_2:
+                                              Control: Text@0.0.51
+                                              Properties:
+                                                Align: ='TextCanvas.Align'.Center
+                                                FontColor: =RGBA(255, 255, 255, 1)
+                                                Height: =50
+                                                Size: =20
+                                                Text: |-
+                                                  =//CountRows(Filter(BA, !(WIC in Distinct('PEPR Project Overview', Title))))
+                                                  CountRows(Filter(BA, !(WIC in Distinct('PEPR Project Overview', Title)) && !IsMatch(Mid(Wic_Name, 7, 5), "\d{2}[TA]\d{2}")))
+                                                VerticalAlign: =VerticalAlign.Middle
+                                                Visible: =CountRows(BA) > 0
+                                                Weight: ='TextCanvas.Weight'.Bold
+                                                Width: =50
+                              - Rectangle33_13:
+                                  Control: Rectangle@2.3.0
+                                  Properties:
+                                    BorderColor: =RGBA(0, 0, 0, 0)
+                                    Fill: =RGBA(0, 0, 0, 0)
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                                    Visible: =LookUp(Access, Type = "SetUpFundedWic").Access
+                                    Width: =100
+                              - Container74_12:
+                                  Control: GroupContainer@1.5.0
+                                  Variant: ManualLayout
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Center
+                                    BorderColor: =RGBA(255, 193, 7, 1)
+                                    BorderThickness: =5
+                                    DropShadow: =DropShadow.Bold
+                                    FillPortions: =0
+                                    Height: =175
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                                    RadiusBottomLeft: =20
+                                    RadiusBottomRight: =20
+                                    RadiusTopLeft: =20
+                                    RadiusTopRight: =20
+                                    Visible: =LookUp(Access, Type = "ChangeRequest").Access
+                                    Width: =175
+                                  Children:
+                                    - Container75_12:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: AutoLayout
+                                        Properties:
+                                          Fill: =RGBA(106, 122, 127, 1)
+                                          Height: =Parent.Height
+                                          LayoutDirection: =LayoutDirection.Vertical
+                                          Width: =Parent.Width
+                                        Children:
+                                          - Image9_12:
+                                              Control: Image@2.2.3
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                BorderColor: =RGBA(0, 89, 178, 1)
+                                                FillPortions: =5
+                                                Height: =250
+                                                Image: ='Plan Chnage requests.jpg'
+                                                ImagePosition: =ImagePosition.Stretch
+                                                LayoutMaxHeight: =
+                                                LayoutMaxWidth: =
+                                          - TextCanvas33_34:
+                                              Control: Text@0.0.51
+                                              Properties:
+                                                Align: ='TextCanvas.Align'.Center
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                FillPortions: =1
+                                                Font: =Font.Arial
+                                                FontColor: =RGBA(237, 234, 222, 1)
+                                                LayoutMaxHeight: =
+                                                LayoutMaxWidth: =
+                                                LayoutMinHeight: =60
+                                                PaddingLeft: =5
+                                                PaddingRight: =5
+                                                Size: =20
+                                                Text: ="Change Requests"
+                                                VerticalAlign: =VerticalAlign.Middle
+                                                Weight: ='TextCanvas.Weight'.Bold
+                                    - ButtonCanvas11_12:
+                                        Control: Button@0.0.45
+                                        Properties:
+                                          Appearance: ='ButtonCanvas.Appearance'.Transparent
+                                          Height: =Parent.Height
+                                          OnSelect: |-
+                                            =Navigate('BA Screen_3', ScreenTransition.UnCover, {BUDGETANALYST: LookUp(Roles, Email = LookUp('Org code permissions', ComboboxCanvas2_1.Selected.Value = org_code).Title).Name, passedOrgCode: ComboboxCanvas2_1.Selected.Value});
+                                          Text: =
+                                          Width: =Parent.Width
+                                    - Container87:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: ManualLayout
+                                        Properties:
+                                          DropShadow: =DropShadow.None
+                                          Height: =50
+                                          Width: =50
+                                          X: =125
+                                        Children:
+                                          - Circle1_3:
+                                              Control: Circle@2.3.0
+                                              Properties:
+                                                BorderColor: =RGBA(0, 89, 178, 1)
+                                                Fill: =RGBA(255, 0, 0, 1)
+                                                Height: =50
+                                                Visible: =CountRows(BA) > 0
+                                                Width: =50
+                                          - TextCanvas4_3:
+                                              Control: Text@0.0.51
+                                              Properties:
+                                                Align: ='TextCanvas.Align'.Center
+                                                FontColor: =RGBA(255, 255, 255, 1)
+                                                Height: =50
+                                                Size: =20
+                                                Text: |-
+                                                  =//CountRows(Distinct(Filter(BAChangeRequestLog, 'Budget Analyst' = LookUp(Roles, Email = LookUp('Org code permissions', ComboboxCanvas2_1.Selected.Value = org_code).Title).Name), Title))
+                                                  CountRows(Filter('PEPR Project Overview', RE_ORG_CODE = ComboboxCanvas2_1.Selected.Value && requestPending))
+                                                VerticalAlign: =VerticalAlign.Middle
+                                                Visible: =CountRows(BA) > 0
+                                                Weight: ='TextCanvas.Weight'.Bold
+                                                Width: =50
+                              - Rectangle33_20:
+                                  Control: Rectangle@2.3.0
+                                  Properties:
+                                    BorderColor: =RGBA(0, 0, 0, 0)
+                                    Fill: =RGBA(0, 0, 0, 0)
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                                    Visible: |+
+                                      =!LookUp(Access, Type = "NewContractingActions").Access
+                                    Width: =100
+                        - Container64_3:
+                            Control: GroupContainer@1.5.0
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              Fill: =RGBA(237, 234, 222, 1)
+                              Height: =378
+                              LayoutAlignItems: =LayoutAlignItems.Center
+                              LayoutDirection: =LayoutDirection.Horizontal
+                              LayoutJustifyContent: =LayoutJustifyContent.Center
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              LayoutOverflowX: =LayoutOverflow.Scroll
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                              Width: =1166
+                              X: =100
+                              Y: =133
+                            Children:
+                              - Rectangle33_21:
+                                  Control: Rectangle@2.3.0
+                                  Properties:
+                                    BorderColor: =RGBA(0, 0, 0, 0)
+                                    Fill: =RGBA(0, 0, 0, 0)
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                                    Width: =100
+                              - Container74_20:
+                                  Control: GroupContainer@1.5.0
+                                  Variant: ManualLayout
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Center
+                                    BorderColor: =RGBA(255, 193, 7, 1)
+                                    BorderThickness: =5
+                                    DropShadow: =DropShadow.Bold
+                                    FillPortions: =0
+                                    Height: =175
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                                    RadiusBottomLeft: =20
+                                    RadiusBottomRight: =20
+                                    RadiusTopLeft: =20
+                                    RadiusTopRight: =20
+                                    Visible: =LookUp(Access, Type = "CreateUnfunded").Access
+                                    Width: =175
+                                  Children:
+                                    - Container75_20:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: AutoLayout
+                                        Properties:
+                                          Fill: =RGBA(106, 122, 127, 1)
+                                          Height: =Parent.Height
+                                          LayoutDirection: =LayoutDirection.Vertical
+                                          Width: =Parent.Width
+                                        Children:
+                                          - Image9_20:
+                                              Control: Image@2.2.3
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                BorderColor: =RGBA(0, 89, 178, 1)
+                                                FillPortions: =5
+                                                Height: =250
+                                                Image: =UnfundedWIC
+                                                ImagePosition: =ImagePosition.Stretch
+                                                LayoutMaxHeight: =
+                                                LayoutMaxWidth: =
+                                                LayoutMinHeight: =0
+                                          - TextCanvas33_42:
+                                              Control: Text@0.0.51
+                                              Properties:
+                                                Align: ='TextCanvas.Align'.Center
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                FillPortions: =1
+                                                Font: =Font.Arial
+                                                FontColor: =RGBA(237, 234, 222, 1)
+                                                LayoutMaxHeight: =
+                                                LayoutMaxWidth: =
+                                                LayoutMinHeight: =60
+                                                Size: =20
+                                                Text: |-
+                                                  ="Create an 
+                                                  Unfunded WIC"
+                                                VerticalAlign: =VerticalAlign.Middle
+                                                Weight: ='TextCanvas.Weight'.Bold
+                                    - ButtonCanvas11_20:
+                                        Control: Button@0.0.45
+                                        Properties:
+                                          Appearance: ='ButtonCanvas.Appearance'.Transparent
+                                          Height: =Parent.Height
+                                          OnSelect: |-
+                                            =ClearCollect(
+                                                Base36Map,
+                                                ForAll(
+                                                    Sequence(36),
+                                                    {
+                                                        Index: ThisRecord.Value - 1,
+                                                        Char: Mid(
+                                                            "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+                                                            ThisRecord.Value,
+                                                            1
+                                                        )
+                                                    }
+                                                )
+                                            );
+                                            Navigate(CreateTBDWIC);
+                                            Concurrent(
+                                                Reset(TextInputCanvas18),
+                                                Reset(TextInputCanvas18_1),
+                                                Reset(ComboboxCanvas12_1),
+                                                Reset(DatePickerCanvas2),
+                                                Reset(DatePickerCanvas3),
+                                                Reset(TextInputCanvas21),
+                                                Reset(ComboboxCanvas17),
+                                                Reset(ComboboxCanvas19),
+                                                Reset(ComboboxCanvas20),
+                                                Reset(ComboboxCanvas21),
+                                                UpdateContext({CreateTBD: false, Popup: false})
+                                            );
+                                          Text: =
+                                          Width: =Parent.Width
+                              - Rectangle33_22:
+                                  Control: Rectangle@2.3.0
+                                  Properties:
+                                    BorderColor: =RGBA(0, 0, 0, 0)
+                                    Fill: =RGBA(0, 0, 0, 0)
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                                    Visible: =LookUp(Access, Type = "EditPlan").Access
+                                    Width: =100
+                              - Container74_19:
+                                  Control: GroupContainer@1.5.0
+                                  Variant: ManualLayout
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Center
+                                    BorderColor: =RGBA(255, 193, 7, 1)
+                                    BorderThickness: =5
+                                    DropShadow: =DropShadow.Bold
+                                    FillPortions: =0
+                                    Height: =175
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                                    RadiusBottomLeft: =20
+                                    RadiusBottomRight: =20
+                                    RadiusTopLeft: =20
+                                    RadiusTopRight: =20
+                                    Visible: =LookUp(Access, Type = "EditPlan").Access
+                                    Width: =175
+                                  Children:
+                                    - Container75_19:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: AutoLayout
+                                        Properties:
+                                          Fill: =RGBA(106, 122, 127, 1)
+                                          Height: =Parent.Height
+                                          LayoutDirection: =LayoutDirection.Vertical
+                                          Width: =Parent.Width
+                                        Children:
+                                          - Image9_19:
+                                              Control: Image@2.2.3
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                BorderColor: =RGBA(0, 89, 178, 1)
+                                                FillPortions: =5
+                                                Height: =250
+                                                Image: =editPlan
+                                                ImagePosition: =ImagePosition.Stretch
+                                                LayoutMaxHeight: =
+                                                LayoutMaxWidth: =
+                                          - TextCanvas33_41:
+                                              Control: Text@0.0.51
+                                              Properties:
+                                                Align: ='TextCanvas.Align'.Center
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                FillPortions: =1
+                                                Font: =Font.Arial
+                                                FontColor: =RGBA(237, 234, 222, 1)
+                                                LayoutMaxHeight: =
+                                                LayoutMaxWidth: =
+                                                Size: =20
+                                                Text: ="Edit Plan"
+                                                VerticalAlign: =VerticalAlign.Middle
+                                                Weight: ='TextCanvas.Weight'.Bold
+                                    - ButtonCanvas11_19:
+                                        Control: Button@0.0.45
+                                        Properties:
+                                          Appearance: ='ButtonCanvas.Appearance'.Transparent
+                                          Height: =Parent.Height
+                                          OnSelect: |
+                                            =Navigate(Projects);
+                                            ClearCollect(
+                                                planningControls,
+                                                Table(
+                                                    {
+                                                        Type: "LABOR",
+                                                        Value: false
+                                                    },
+                                                    {
+                                                        Type: "CONTRACTUAL",
+                                                        Value: false
+                                                    },
+                                                    {
+                                                        Type: "TRAVEL",
+                                                        Value: false
+                                                    },
+                                                    {
+                                                        Type: "CREDIT CARD",
+                                                        Value: false
+                                                    },
+                                                    {
+                                                        Type: "OTHER",
+                                                        Value: false
+                                                    },
+                                                    {
+                                                        Type: "OVERHEAD & FEES",
+                                                        Value: false
+                                                    },
+                                                    {
+                                                        Type: "GOVERNMENT ORDER",
+                                                        Value: false
+                                                    }
+                                                )
+                                            );
+                                          Text: =
+                                          Width: =Parent.Width
+                              - Rectangle33_23:
+                                  Control: Rectangle@2.3.0
+                                  Properties:
+                                    BorderColor: =RGBA(0, 0, 0, 0)
+                                    Fill: =RGBA(0, 0, 0, 0)
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                                    Visible: =LookUp(Access, Type = "CreateUnfunded").Access
+                                    Width: =100
+                              - Container74_21:
+                                  Control: GroupContainer@1.5.0
+                                  Variant: ManualLayout
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Center
+                                    BorderColor: =RGBA(255, 193, 7, 1)
+                                    BorderThickness: =5
+                                    DropShadow: =DropShadow.Bold
+                                    FillPortions: =0
+                                    Height: =175
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                                    RadiusBottomLeft: =20
+                                    RadiusBottomRight: =20
+                                    RadiusTopLeft: =20
+                                    RadiusTopRight: =20
+                                    Visible: =LookUp(Access, Type = "CrossChargeLabor").Access
+                                    Width: =175
+                                  Children:
+                                    - Container75_21:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: AutoLayout
+                                        Properties:
+                                          Fill: =RGBA(106, 122, 127, 1)
+                                          Height: =Parent.Height
+                                          LayoutDirection: =LayoutDirection.Vertical
+                                          Width: =Parent.Width
+                                        Children:
+                                          - Image9_21:
+                                              Control: Image@2.2.3
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                BorderColor: =RGBA(0, 89, 178, 1)
+                                                FillPortions: =5
+                                                Height: =250
+                                                Image: =crossChargeLabor
+                                                ImagePosition: =ImagePosition.Stretch
+                                                LayoutMaxHeight: =
+                                                LayoutMaxWidth: =
+                                                LayoutMinHeight: =0
+                                          - TextCanvas33_43:
+                                              Control: Text@0.0.51
+                                              Properties:
+                                                Align: ='TextCanvas.Align'.Center
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                FillPortions: =1
+                                                Font: =Font.Arial
+                                                FontColor: =RGBA(237, 234, 222, 1)
+                                                LayoutMaxHeight: =
+                                                LayoutMaxWidth: =
+                                                LayoutMinHeight: =60
+                                                Size: =20
+                                                Text: ="Cross Charge Labor"
+                                                VerticalAlign: =VerticalAlign.Middle
+                                                Weight: ='TextCanvas.Weight'.Bold
+                                    - ButtonCanvas11_21:
+                                        Control: Button@0.0.45
+                                        Properties:
+                                          Appearance: ='ButtonCanvas.Appearance'.Transparent
+                                          Height: =Parent.Height
+                                          Text: =
+                                          Width: =Parent.Width
+                                    - Icon30:
+                                        Control: Classic/Icon@2.5.0
+                                        Properties:
+                                          BorderColor: =RGBA(0, 89, 178, 1)
+                                          Color: =RGBA(0, 0, 0, 0)
+                                          Height: =175
+                                          Icon: =Icon.Cancel
+                                          Width: =175
+                              - Rectangle33_24:
+                                  Control: Rectangle@2.3.0
+                                  Properties:
+                                    BorderColor: =RGBA(0, 0, 0, 0)
+                                    Fill: =RGBA(0, 0, 0, 0)
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                                    Width: =100
+                  - Container64_2:
+                      Control: GroupContainer@1.5.0
+                      Variant: AutoLayout
+                      Properties:
+                        DropShadow: =DropShadow.Bold
+                        Fill: =RGBA(237, 234, 222, 1)
+                        Height: =458
+                        LayoutAlignItems: =LayoutAlignItems.Center
+                        LayoutDirection: =LayoutDirection.Horizontal
+                        LayoutJustifyContent: =LayoutJustifyContent.Center
+                        LayoutOverflowX: =LayoutOverflow.Scroll
+                        RadiusBottomLeft: =20
+                        RadiusBottomRight: =20
+                        RadiusTopLeft: =20
+                        RadiusTopRight: =20
+                        Visible: =!load && ComboboxCanvas14.Selected.Value = "PI"
+                        Width: =1166
+                        X: =100
+                        Y: =133
+                      Children:
+                        - Rectangle33_9:
+                            Control: Rectangle@2.3.0
+                            Properties:
+                              BorderColor: =RGBA(0, 0, 0, 0)
+                              Fill: =RGBA(0, 0, 0, 0)
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              Width: =100
+                        - Container74_14:
+                            Control: GroupContainer@1.5.0
+                            Variant: ManualLayout
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Center
+                              BorderColor: =RGBA(255, 193, 7, 1)
+                              BorderThickness: =5
+                              DropShadow: =DropShadow.Bold
+                              FillPortions: =0
+                              Height: =250
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              RadiusBottomLeft: =20
+                              RadiusBottomRight: =20
+                              RadiusTopLeft: =20
+                              RadiusTopRight: =20
+                              Visible: =LookUp(Access, Type = "CreateUnfunded").Access
+                              Width: =250
+                            Children:
+                              - Container75_14:
+                                  Control: GroupContainer@1.5.0
+                                  Variant: AutoLayout
+                                  Properties:
+                                    Fill: =RGBA(106, 122, 127, 1)
+                                    Height: =Parent.Height
+                                    LayoutDirection: =LayoutDirection.Vertical
+                                    Width: =Parent.Width
+                                  Children:
+                                    - Image9_14:
+                                        Control: Image@2.2.3
+                                        Properties:
+                                          AlignInContainer: =AlignInContainer.Stretch
+                                          BorderColor: =RGBA(0, 89, 178, 1)
+                                          FillPortions: =5
+                                          Height: =250
+                                          Image: =UnfundedWIC
+                                          ImagePosition: =ImagePosition.Stretch
+                                          LayoutMaxHeight: =
+                                          LayoutMaxWidth: =
+                                          LayoutMinHeight: =0
+                                    - TextCanvas33_36:
+                                        Control: Text@0.0.51
+                                        Properties:
+                                          Align: ='TextCanvas.Align'.Center
+                                          AlignInContainer: =AlignInContainer.Stretch
+                                          FillPortions: =1
+                                          Font: =Font.Arial
+                                          FontColor: =RGBA(237, 234, 222, 1)
+                                          LayoutMaxHeight: =
+                                          LayoutMaxWidth: =
+                                          LayoutMinHeight: =60
+                                          Size: =20
+                                          Text: |-
+                                            ="Create an 
+                                            Unfunded WIC"
+                                          VerticalAlign: =VerticalAlign.Middle
+                                          Weight: ='TextCanvas.Weight'.Bold
+                              - ButtonCanvas11_14:
+                                  Control: Button@0.0.45
+                                  Properties:
+                                    Appearance: ='ButtonCanvas.Appearance'.Transparent
+                                    Height: =Parent.Height
+                                    OnSelect: |-
+                                      =ClearCollect(
+                                          Base36Map,
+                                          ForAll(
+                                              Sequence(36),
+                                              {
+                                                  Index: ThisRecord.Value - 1,
+                                                  Char: Mid(
+                                                      "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+                                                      ThisRecord.Value,
+                                                      1
+                                                  )
+                                              }
+                                          )
+                                      );
+                                      Navigate(CreateTBDWIC);
+                                      Concurrent(
+                                          Reset(TextInputCanvas18),
+                                          Reset(TextInputCanvas18_1),
+                                          Reset(ComboboxCanvas12_1),
+                                          Reset(DatePickerCanvas2),
+                                          Reset(DatePickerCanvas3),
+                                          Reset(TextInputCanvas21),
+                                          Reset(ComboboxCanvas17),
+                                          Reset(ComboboxCanvas19),
+                                          Reset(ComboboxCanvas20),
+                                          Reset(ComboboxCanvas21),
+                                          UpdateContext({CreateTBD: false, Popup: false})
+                                      );
+                                    Text: =
+                                    Width: =Parent.Width
+                        - Rectangle33_14:
+                            Control: Rectangle@2.3.0
+                            Properties:
+                              BorderColor: =RGBA(0, 0, 0, 0)
+                              Fill: =RGBA(0, 0, 0, 0)
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              Visible: =LookUp(Access, Type = "EditPlan").Access
+                              Width: =100
+                        - Container74_13:
+                            Control: GroupContainer@1.5.0
+                            Variant: ManualLayout
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Center
+                              BorderColor: =RGBA(255, 193, 7, 1)
+                              BorderThickness: =5
+                              DropShadow: =DropShadow.Bold
+                              FillPortions: =0
+                              Height: =250
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              RadiusBottomLeft: =20
+                              RadiusBottomRight: =20
+                              RadiusTopLeft: =20
+                              RadiusTopRight: =20
+                              Visible: =LookUp(Access, Type = "EditPlan").Access
+                              Width: =250
+                            Children:
+                              - Container75_13:
+                                  Control: GroupContainer@1.5.0
+                                  Variant: AutoLayout
+                                  Properties:
+                                    Fill: =RGBA(106, 122, 127, 1)
+                                    Height: =Parent.Height
+                                    LayoutDirection: =LayoutDirection.Vertical
+                                    Width: =Parent.Width
+                                  Children:
+                                    - Image9_13:
+                                        Control: Image@2.2.3
+                                        Properties:
+                                          AlignInContainer: =AlignInContainer.Stretch
+                                          BorderColor: =RGBA(0, 89, 178, 1)
+                                          FillPortions: =5
+                                          Height: =250
+                                          Image: =editPlan
+                                          ImagePosition: =ImagePosition.Stretch
+                                          LayoutMaxHeight: =
+                                          LayoutMaxWidth: =
+                                    - TextCanvas33_35:
+                                        Control: Text@0.0.51
+                                        Properties:
+                                          Align: ='TextCanvas.Align'.Center
+                                          AlignInContainer: =AlignInContainer.Stretch
+                                          FillPortions: =1
+                                          Font: =Font.Arial
+                                          FontColor: =RGBA(237, 234, 222, 1)
+                                          LayoutMaxHeight: =
+                                          LayoutMaxWidth: =
+                                          Size: =20
+                                          Text: ="Edit Plan"
+                                          VerticalAlign: =VerticalAlign.Middle
+                                          Weight: ='TextCanvas.Weight'.Bold
+                              - ButtonCanvas11_13:
+                                  Control: Button@0.0.45
+                                  Properties:
+                                    Appearance: ='ButtonCanvas.Appearance'.Transparent
+                                    Height: =Parent.Height
+                                    OnSelect: |-
+                                      =Navigate(Projects);
+                                      ClearCollect(
+                                          planningControls,
+                                          Table(
+                                              {
+                                                  Type: "LABOR",
+                                                  Value: false
+                                              },
+                                              {
+                                                  Type: "CONTRACTUAL",
+                                                  Value: false
+                                              },
+                                              {
+                                                  Type: "TRAVEL",
+                                                  Value: false
+                                              },
+                                              {
+                                                  Type: "CREDIT CARD",
+                                                  Value: false
+                                              },
+                                              {
+                                                  Type: "OTHER",
+                                                  Value: false
+                                              },
+                                              {
+                                                  Type: "OVERHEAD & FEES",
+                                                  Value: false
+                                              },
+                                              {
+                                                  Type: "GOVERNMENT ORDER",
+                                                  Value: false
+                                              }
+                                          )
+                                      );
+                                    Text: =
+                                    Width: =Parent.Width
+                        - Rectangle33_15:
+                            Control: Rectangle@2.3.0
+                            Properties:
+                              BorderColor: =RGBA(0, 0, 0, 0)
+                              Fill: =RGBA(0, 0, 0, 0)
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              Visible: =LookUp(Access, Type = "CreateUnfunded").Access
+                              Width: =100
+                        - Container74_15:
+                            Control: GroupContainer@1.5.0
+                            Variant: ManualLayout
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Center
+                              BorderColor: =RGBA(255, 193, 7, 1)
+                              BorderThickness: =5
+                              DropShadow: =DropShadow.Bold
+                              FillPortions: =0
+                              Height: =250
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              RadiusBottomLeft: =20
+                              RadiusBottomRight: =20
+                              RadiusTopLeft: =20
+                              RadiusTopRight: =20
+                              Visible: =LookUp(Access, Type = "CrossChargeLabor").Access
+                              Width: =250
+                            Children:
+                              - Container75_15:
+                                  Control: GroupContainer@1.5.0
+                                  Variant: AutoLayout
+                                  Properties:
+                                    Fill: =RGBA(106, 122, 127, 1)
+                                    Height: =Parent.Height
+                                    LayoutDirection: =LayoutDirection.Vertical
+                                    Width: =Parent.Width
+                                  Children:
+                                    - Image9_15:
+                                        Control: Image@2.2.3
+                                        Properties:
+                                          AlignInContainer: =AlignInContainer.Stretch
+                                          BorderColor: =RGBA(0, 89, 178, 1)
+                                          FillPortions: =5
+                                          Height: =250
+                                          Image: =crossChargeLabor
+                                          ImagePosition: =ImagePosition.Stretch
+                                          LayoutMaxHeight: =
+                                          LayoutMaxWidth: =
+                                          LayoutMinHeight: =0
+                                    - TextCanvas33_37:
+                                        Control: Text@0.0.51
+                                        Properties:
+                                          Align: ='TextCanvas.Align'.Center
+                                          AlignInContainer: =AlignInContainer.Stretch
+                                          FillPortions: =1
+                                          Font: =Font.Arial
+                                          FontColor: =RGBA(237, 234, 222, 1)
+                                          LayoutMaxHeight: =
+                                          LayoutMaxWidth: =
+                                          Size: =20
+                                          Text: ="Cross Charge Labor"
+                                          VerticalAlign: =VerticalAlign.Middle
+                                          Weight: ='TextCanvas.Weight'.Bold
+                              - ButtonCanvas11_15:
+                                  Control: Button@0.0.45
+                                  Properties:
+                                    Appearance: ='ButtonCanvas.Appearance'.Transparent
+                                    Height: =Parent.Height
+                                    Text: =
+                                    Width: =Parent.Width
+                              - Icon31:
+                                  Control: Classic/Icon@2.5.0
+                                  Properties:
+                                    BorderColor: =RGBA(0, 89, 178, 1)
+                                    Color: =RGBA(0, 0, 0, 0)
+                                    Height: =250
+                                    Icon: =Icon.Cancel
+                                    Width: =250
+                        - Rectangle33_16:
+                            Control: Rectangle@2.3.0
+                            Properties:
+                              BorderColor: =RGBA(0, 0, 0, 0)
+                              Fill: =RGBA(0, 0, 0, 0)
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              Width: =100
+            - Container6:
+                Control: GroupContainer@1.5.0
+                Variant: AutoLayout
+                Properties:
+                  DropShadow: =DropShadow.None
+                  FillPortions: =0
+                  Height: =75
+                  LayoutDirection: =LayoutDirection.Horizontal
+                  LayoutJustifyContent: =LayoutJustifyContent.End
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                Children:
+                  - Icon1:
+                      Control: Classic/Icon@2.5.0
+                      Properties:
+                        BorderColor: =RGBA(0, 89, 178, 1)
+                        Color: =RGBA(0, 0, 0, 1)
+                        Height: =75
+                        Icon: =Icon.Settings
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        OnSelect: =Navigate(Settings);
+                        PaddingBottom: =5
+                        PaddingLeft: =5
+                        PaddingRight: =5
+                        PaddingTop: =5
+                        Width: =75
+      - Audio1:
+          Control: Audio@2.3.1
+          Properties:
+            AutoStart: =musicStart
+            BorderColor: =RGBA(0, 89, 178, 1)
+            Fill: =RGBA(0, 51, 102, 1)
+            Media: ='03 - Scar Tissue'
+            Reset: =!musicStart
+            Start: =musicStart
+            X: =440
+            Y: =703
+      - Rectangle29:
+          Control: Rectangle@2.3.0
+          Properties:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            Fill: =RGBA(232, 232, 232, 1)
+            Width: =533
+            X: =404
+            Y: =692
+      - TextCanvas16:
+          Control: Text@0.0.51
+          Properties:
+            Text: ="Version 1.1.36"
+            X: =7
+            Y: =736
+      - Image3:
+          Control: Image@2.2.3
+          Properties:
+            BorderColor: =RGBA(0, 89, 178, 1)
+            Height: =75
+            Image: ='photo outline'
+            Width: =75
+            X: =1291
+      - Image5:
+          Control: Image@2.2.3
+          Properties:
+            BorderColor: =RGBA(0, 89, 178, 1)
+            Image: =Picture5
+            Visible: =load
+            X: =PepX
+            Y: =PepY
+      - TextCanvas7_1:
+          Control: Text@0.0.51
+          Properties:
+            Align: ='TextCanvas.Align'.Center
+            FontColor: =RGBA(0, 0, 0, 1)
+            Height: =184
+            Size: =30
+            Text: |-
+              ="While your projects load catch the peppers
+              Use the 'w', 'a', 's', and 'd' keys to move the basket
+              Peppers caught: " & peppers & "
+              " & loadStep
+            Visible: =load
+            Width: =743
+            X: =311
+            Y: =75
+      - Image4:
+          Control: Image@2.2.3
+          Properties:
+            BorderColor: =RGBA(0, 89, 178, 1)
+            Height: =200
+            Image: =mrpeeprsgame_1
+            ImagePosition: =ImagePosition.Stretch
+            Visible: =load
+            Width: =200
+            X: =RecX
+            Y: =RecY
+      - TextInputCanvas5:
+          Control: TextInput@0.0.54
+          Properties:
+            Fill: =RGBA(232, 232, 232, 1)
+            FontColor: =RGBA(232, 232, 232, 1)
+            Height: =35
+            OnChange: "=If(\n    Self.Value = \"w\",\n    Set(\n        RecY,\n        RecY - 30\n    );\n    \n);\nIf(\n    Self.Value = \"s\",\n    Set(\n        RecY,\n        RecY + 30\n    )\n);\nIf(\n    Self.Value = \"a\",\n    Set(\n        RecX,\n        RecX - 30\n    );\n    \n);\nIf(\n    Self.Value = \"d\",\n    Set(\n        RecX,\n        RecX + 30\n    )\n);\nIf(\n    Lower(Self.Value) = \"w\" || Lower(Self.Value) = \"a\" || Lower(Self.Value) = \"s\" || Lower(Self.Value) = \"d\",\n    If(\n        ((RecY + 199 <= PepY + 79 || RecY <= PepY + 79) && (RecY >= PepY + 19 || RecY + 199 >= PepY)) && ((RecX + 199 <= PepX + 69 || RecX <= PepX + 69) && (RecX >= PepX || RecX+ 199 >= PepX + 29)),\n        //(RecX + 199 <= PepX + 99 && RecX >= PepX),\n       \n        Concatenate(\n            Set(\n                PepX,\n                RandBetween(\n                    0,\n                    1266\n                )\n            );\n            Set(\n                PepY,\n                RandBetween(\n                    0,\n                    668\n                )\n            );\n            Set(\n                peppers,\n                peppers + 1\n            );\n        )\n    )\n);\nReset(Self);\nSetFocus(Self);\n"
+            TriggerOutput: ='TextInputCanvas.TriggerOutput'.Keypress
+            Visible: =load
+            Width: =94
+            Y: =733
+      - ComboboxCanvas14:
+          Control: ComboBox@0.0.51
+          Properties:
+            DefaultSelectedItems: =[If(IsBlank(LookUp(Roles, Email = User().Email)), "PI", LookUp(Roles, Email = User().Email).Role.Value)]
+            DisplayMode: =If( LookUp(Roles, Email = User().Email).Role.Value = "Admin", DisplayMode.Edit, DisplayMode.Disabled)
+            Items: =["RE", "BA", "CA", "Admin"]
+            OnChange: |
+              =//Clear(Access);
+              Set(
+                  Access,
+                  Table(
+                      [
+                          {
+                              Type: "Spreadsheet",
+                              Access: Self.Selected.Value in [
+                                  "CA",
+                                  "Admin"
+                              ]
+                          },
+                          {
+                              Type: "NewContractingActions",
+                              Access: Self.Selected.Value in [
+                                  "CA",
+                                  "Admin"
+                              ]
+                          },
+                          {
+                              Type: "SetUpFundedWic",
+                              Access: Self.Selected.Value in [
+                                  "BA",
+                                  "Admin"
+                              ]
+                          },
+                          {
+                              Type: "ChangeRequest",
+                              Access: Self.Selected.Value in [
+                                  "BA",
+                                  "Admin"
+                              ]
+                          },
+                          {
+                              Type: "EditPlan",
+                              Access: CountRows(
+                                  Distinct(
+                                      PlanningData2,
+                                      WIC
+                                  )
+                              ) > 0
+                          },
+                          {
+                              Type: "CreateUnfunded",
+                              Access: true
+                          },
+                          {
+                              Type: "CrossChargeLabor",
+                              Access: true
+                          }
+                      ]
+                  )
+              );
+            Visible: =!load //&& (If(IsBlank(LookUp(Roles, Email = User().Email)), false, LookUp(Roles, Email = User().Email).Role.Value = "Admin"))
+            Width: =200
+            X: =1166
+            Y: =80
+      - TextCanvas6_1:
+          Control: Text@0.0.51
+          Properties:
+            Align: ='TextCanvas.Align'.Center
+            Height: =25
+            Text: =//Concat(Filter('Org code permissions', email_ = ComboboxCanvas2_1.Selected.Email), org_code, ", ")
+            Visible: =!load && ComboboxCanvas14.Selected.Value in ["BA", "Admin"]
+            Width: =200
+            X: =1166
+            Y: =154
+      - ComboboxCanvas2_1:
+          Control: ComboBox@0.0.51
+          Properties:
+            DefaultSelectedItems: =//[If(IsBlank(LookUp(Roles, Email = User().Email)), "", LookUp(Roles, Email = User().Email).Title)]
+            Height: =42
+            InputTextPlaceholder: ="Choose Org Code"
+            Items: |-
+              =["U435000", "U435100", "U435200", "U435300", "U435310", "U435320", "U435330", "U435340", "U435400", "U435410", "U435420", "U435430", "U435A00", "U434010"]
+              //Filter(Distinct('Org code permissions', org_code), Value, SortOrder.Ascending)
+              //Sort(Filter(Roles, Role.Value = "BA"), Title, SortOrder.Ascending)
+            OnChange: |-
+              =Set(
+                  BAdata,
+                  'Get:datafromCatie''sPowerBI'.Run(Self.Selected.Value).response
+              );
+              ClearCollect(
+                  BA,
+                  ForAll(
+                      Table(ParseJSON(BAdata)),
+                      {
+                          WIC: Text(ThisRecord.Value.'FUND_ACCT[FA_WI_CODE]'),
+                          Experation: DateValue(ThisRecord.Value.'[EXP_DATE]'),
+                          RE_ORG_CODE: Text(ThisRecord.Value.'RE[ORG_CODE]'),
+                          RESP_EMP: Text(ThisRecord.Value.'RE[EMP_FullName]'),
+                          AMSCO_CODE: Text(ThisRecord.Value.'FUND_ACCT[AMSCO_CODE]'),
+                          PROJECT_NO: Value(ThisRecord.Value.'PM_PROJECT[PROJECT_NO]'),
+                          TASK_NO: Text(ThisRecord.Value.'PM_TASK[TASK_NO]'),
+                          Wic_Name: Text(ThisRecord.Value.'FUND_WORK_ITEM[WI_NAME]'),
+                          FAR_ORDER_NO: Text(ThisRecord.Value.'FUND_ACCT[FAR_ORDER_NO]'),
+                          _DEPT: Value(ThisRecord.Value.'FUND_ACCT[PEPR_DEPT_CODE]'),
+                          ORDER_TYPE_CODE: Text(ThisRecord.Value.'[ORDER_TYPE_CODE]'),
+                          START: DateValue(ThisRecord.Value.'[START]'),
+                          TOA_Basic: Value(ThisRecord.Value.'[TOA_Basic]'),
+                          DeptExempt: Text(ThisRecord.Value.'FUND_ACCT[DEPT_OVRHD_IND]'),
+                          GenExempt: Text(ThisRecord.Value.'FUND_ACCT[GEN_OVRHD_IND]')
+                      }
+                  )
+              );
+            Visible: =!load && ComboboxCanvas14.Selected.Value in ["BA", "Admin"] && ((If(IsBlank(LookUp(Roles, Email = User().Email)), false, LookUp(Roles, Email = User().Email).Role.Value in ["Admin", "BA"])))
+            Width: =126
+            X: =1240
+            Y: =112
+          Children:
+            - Value14:
+                Control: ComboBoxDataField@1.5.0
+                Variant: textualColumn
+                IsLocked: true
+                Properties:
+                  FieldDisplayName: ="Value"
+                  FieldName: ="Value"
+                  FieldType: ="e"
+                  Order: =1
+      - Gallery37:
+          Control: Gallery@2.15.0
+          Variant: Vertical
+          Properties:
+            BorderColor: =RGBA(0, 89, 178, 1)
+            Height: =46
+            Items: =Sort(Distinct(Filter('PEPR Project Overview', requestPending), RE_ORG_CODE), Value, SortOrder.Ascending)
+            TemplatePadding: =0
+            TemplateSize: =25
+            Visible: =!load && ComboboxCanvas14.Selected.Value in ["BA", "Admin"] && ((If(IsBlank(LookUp(Roles, Email = User().Email)), false, LookUp(Roles, Email = User().Email).Role.Value in ["Admin", "BA"])))
+            Width: =102
+            X: =1263
+            Y: =154
+          Children:
+            - TextCanvas47:
+                Control: Text@0.0.51
+                Properties:
+                  Height: =25
+                  Text: =ThisItem.Value
+                  Width: =66
+            - Circle2:
+                Control: Circle@2.3.0
+                Properties:
+                  BorderColor: =RGBA(0, 0, 0, 0)
+                  Fill: =RGBA(255, 0, 0, 1)
+                  Height: =25
+                  OnSelect: =Select(Parent)
+                  Width: =29
+                  X: =58
+            - TextCanvas48:
+                Control: Text@0.0.51
+                Properties:
+                  Align: ='TextCanvas.Align'.Center
+                  FontColor: =RGBA(255, 255, 255, 1)
+                  Height: =25
+                  Text: =CountRows(Filter('PEPR Project Overview', RE_ORG_CODE = ThisItem.Value && requestPending))
+                  VerticalAlign: =VerticalAlign.Middle
+                  Width: =41
+                  X: =51
+      - ButtonCanvas16:
+          Control: Button@0.0.45
+          Properties:
+            Appearance: ='ButtonCanvas.Appearance'.Transparent
+            Height: =768
+            OnSelect: =SetFocus(TextInputCanvas5);
+            Text: =
+            Visible: =load
+            Width: =1366
+      - ButtonCanvas19:
+          Control: Button@0.0.45
+          Group: Group2
+          Properties:
+            OnSelect: =Navigate(Screen3)
+            Text: ="set up"
+            Visible: =User().Email = "Joseph.P.Nugent@usace.army.mil"
+            X: =-100
+            Y: =660
+      - ButtonCanvas21:
+          Control: Button@0.0.45
+          Group: Group2
+          Properties:
+            Height: =60
+            OnSelect: |-
+              =//Set(a, Now());
+              //ClearCollect(summatedContracts, AddColumns(ContractingDataV1 As A, B, LookUp(ContractingData2, Contract_ID = A.Contract_ID)));
+              //ClearCollect(ContractsSummary, AddColumns(summatedContracts, Title, B.Title, WIC, B.WIC, OfficeSymbol, B.OfficeSymbol, POC, B.POC, AdditionalPOC, B.AdditionalPOC, Decription, B.Description, TypeOfAction, B.TypeOfAction, Status, "STATUS", Amount, B.Amount, Lab, B.Lab, ActionStatus, B.ActionStatus, Options, B.Options, AwardDate, B.AwardDate, LaborCode, B.LaborCode )); 
+              //Notify("This took " & Text(Now() - a) & " Seconds");
+            Text: ="setup Contracts"
+            Visible: =User().Email = "Joseph.P.Nugent@usace.army.mil"
+            X: =-100
+            Y: =600
+      - ButtonCanvas22:
+          Control: Button@0.0.45
+          Group: Group2
+          Properties:
+            Height: =84
+            OnSelect: |+
+              =Set(START, Now());
+              Set(toconvert, Filter(PlanningData2, WIC = "TBD01E")); //"TBD01C"));
+              ForAll(toconvert, With({ var:ThisRecord.ID}, Patch('PEPR Planning 2.0', LookUp('PEPR Planning 2.0', ID = var), {Title: "62D363"})));
+              Clear(Friends);
+              With(
+                  {jsonData: 'GET:REandFriends'.Run("TBD01E").reseponse},
+                  ForAll(
+                      Table(ParseJSON(jsonData)),
+                      Collect(
+                          Friends,
+                          {
+                              ID: Value(Value.ID),
+                              Employee: Text(Value.Title),
+                              WIC: Text(Value.WIC)
+                          }
+                      )
+                  )
+              );
+              ForAll(Friends, With({ var:ThisRecord.ID}, Patch('WIC permissions', LookUp('WIC permissions', ID = var), {WIC: ""})));
+              Remove('PEPR Project Overview', LookUp('PEPR Project Overview', Title = "TBD01E"));
+              Notify("It took " & Text(Now()-START) & "Seconds", NotificationType.Success);
+            Text: ="Set up TBDWIC to Funded"
+            Visible: =User().Email = "Joseph.P.Nugent@usace.army.mil"
+            X: =-100
+            Y: =516
+      - Image6:
+          Control: Image@2.2.3
+          Properties:
+            BorderColor: =RGBA(0, 89, 178, 1)
+            Height: =76
+            Image: =tammy
+            ImagePosition: =ImagePosition.Stretch
+            Visible: =Upper(User().Email) in [Upper("Joseph.P.Nugent@usace.army.mil")] //,Upper("Tammy.L.Shelton@usace.army.mil")]
+            Width: =75
+            X: =1291
+            Y: =800
+      - Container31_1:
+          Control: GroupContainer@1.5.0
+          Variant: AutoLayout
+          Properties:
+            Height: =115
+            LayoutAlignItems: =LayoutAlignItems.Center
+            LayoutDirection: =LayoutDirection.Vertical
+            PaddingBottom: =8
+            PaddingLeft: =8
+            PaddingRight: =8
+            PaddingTop: =8
+            Visible: =Upper(User().Email) = "JOSEPH.P.NUGENT@USACE.ARMY.MIL"
+            Width: =94
+            X: =-95
+            Y: =256
+          Children:
+            - Set to one Wic_1:
+                Control: Button@0.0.45
+                Properties:
+                  OnSelect: =ClearCollect(planningOnStart, Filter(planningOnStart, WIC = "2FD74J"))
+                  Text: ="There can only be one"
+                  X: =39
+                  Y: =75
+            - ButtonCanvas36_1:
+                Control: Button@0.0.45
+                Properties:
+                  OnSelect: "=// ============================================================\r\n// WATERFALL PART 1: Build Change Table (Preview)\r\n// ============================================================\r\n// This file combines Step 1 (Identify) and Step 2 (Preview)\r\n// Run this FIRST to generate colWaterfallChanges for review\r\n// STOP and verify before running Part 2\r\n// ============================================================\r\n\r\n// ===================== STEP 1: SETUP ========================\r\n\r\n// Get the oldest project end date from user's WICs\r\nSet(oldestEnd, Min(Filter('PEPR Project Overview', Title in WicPermissions.Wic), END));\r\n\r\n// Calculate oldest FY from that date\r\nSet(oldestFY, Year(oldestEnd) + If(Month(oldestEnd) >= 10, 1, 0));\r\n\r\n// Current FY and month\r\nSet(currentFY, Year(Today()) + If(Month(Today()) + 3 > 12, 1, 0));\r\nSet(currentMonth, If(Month(Today()) >= 10, Month(Today()), Month(Today())));\r\nSet(currentMonthText, Text(currentMonth));\r\nSet(currentMonthSeq, \r\n    Switch(currentMonthText,\r\n        \"10\", 1, \"11\", 2, \"12\", 3,\r\n        \"1\", 4, \"2\", 5, \"3\", 6,\r\n        \"4\", 7, \"5\", 8, \"6\", 9,\r\n        \"7\", 10, \"8\", 11, \"9\", 12,\r\n        5\r\n    )\r\n);\r\n\r\n// Lab to Org Code mapping\r\nClearCollect(\r\n    colLabOrg,\r\n    Table(\r\n        {Lab: \"GRL\", LabOrg: \"U439\"},\r\n        {Lab: \"CHL\", LabOrg: \"U430\"},\r\n        {Lab: \"EL\", LabOrg: \"U433\"},\r\n        {Lab: \"CERL\", LabOrg: \"U435\"},\r\n        {Lab: \"GSL\", LabOrg: \"U438\"},\r\n        {Lab: \"ITL\", LabOrg: \"U434\"},\r\n        {Lab: \"CTS\", LabOrg: \"U4P0\"},\r\n        {Lab: \"CRREL\", LabOrg: \"U437\"},\r\n        {Lab: \"OTHER ERDC\", LabOrg: \"U400\"}\r\n    )\r\n);\r\n\r\n// Line Item Type to CEFMS PRAC_TYPE mapping\r\nClearCollect(\r\n    colTypeMap,\r\n    Table(\r\n        {PlanType: \"LABOR\", CEFMSType: \"LABOR\", MatchResource: true},\r\n        {PlanType: \"TDY\", CEFMSType: \"TRAVEL\", MatchResource: false},\r\n        {PlanType: \"GPC\", CEFMSType: \"CREDIT CARD\", MatchResource: true},\r\n        {PlanType: \"OTHER\", CEFMSType: \"OTHER\", MatchResource: true},\r\n        {PlanType: \"CONTRACTUAL\", CEFMSType: \"CONTRACTUAL\", MatchResource: false},\r\n        {PlanType: \"MIPR\", CEFMSType: \"GOVERNMENT ORDER\", MatchResource: false}\r\n    )\r\n);\r\n\r\n// Build fiscal months table spanning from oldestFY to currentFY\r\nClearCollect(\r\n    colFiscalMonths,\r\n    Ungroup(\r\n        ForAll(\r\n            Sequence(currentFY - oldestFY + 1, oldestFY) As fy,\r\n            Table(\r\n                {FY: fy.Value, Seq: 1, Mo: \"10\", YYYYMM: Text(fy.Value - 1) & \"10\"},\r\n                {FY: fy.Value, Seq: 2, Mo: \"11\", YYYYMM: Text(fy.Value - 1) & \"11\"},\r\n                {FY: fy.Value, Seq: 3, Mo: \"12\", YYYYMM: Text(fy.Value - 1) & \"12\"},\r\n                {FY: fy.Value, Seq: 4, Mo: \"1\", YYYYMM: Text(fy.Value) & \"01\"},\r\n                {FY: fy.Value, Seq: 5, Mo: \"2\", YYYYMM: Text(fy.Value) & \"02\"},\r\n                {FY: fy.Value, Seq: 6, Mo: \"3\", YYYYMM: Text(fy.Value) & \"03\"},\r\n                {FY: fy.Value, Seq: 7, Mo: \"4\", YYYYMM: Text(fy.Value) & \"04\"},\r\n                {FY: fy.Value, Seq: 8, Mo: \"5\", YYYYMM: Text(fy.Value) & \"05\"},\r\n                {FY: fy.Value, Seq: 9, Mo: \"6\", YYYYMM: Text(fy.Value) & \"06\"},\r\n                {FY: fy.Value, Seq: 10, Mo: \"7\", YYYYMM: Text(fy.Value) & \"07\"},\r\n                {FY: fy.Value, Seq: 11, Mo: \"8\", YYYYMM: Text(fy.Value) & \"08\"},\r\n                {FY: fy.Value, Seq: 12, Mo: \"9\", YYYYMM: Text(fy.Value) & \"09\"}\r\n            )\r\n        ),\r\n        Value\r\n    )\r\n);\r\n\r\n// Filter out future months (only keep up to current month)\r\nClearCollect(\r\n    colFiscalMonths,\r\n    Filter(\r\n        colFiscalMonths,\r\n        FY < currentFY || \r\n        (FY = currentFY && Seq <= currentMonthSeq)\r\n    )\r\n);\r\n\r\n// ===================== STEP 1: BUILD RAW DATA ========================\r\n\r\n// Build raw results for LABOR with correct rate logic\r\nClearCollect(\r\n    colWaterfallRaw,\r\n    ForAll(\r\n        Filter(\r\n            planningOnStart, \r\n            WIC in WicPermissions.Wic && \r\n            LineItemType = \"LABOR\" && \r\n            FiscalYear >= oldestFY && \r\n            FiscalYear <= currentFY\r\n        ) As planRec,\r\n        With(\r\n            {\r\n                projectRec: LookUp('PEPR Project Overview', Title = planRec.WIC),\r\n                labOrg: LookUp(colLabOrg, Lab = planRec.Lab).LabOrg,\r\n                cefmsType: LookUp(colTypeMap, PlanType = planRec.LineItemType).CEFMSType\r\n            },\r\n            With(\r\n                {\r\n                    isArmy: Coalesce(projectRec.Army, false),\r\n                    isExempt: Coalesce(projectRec.DEPT_Exemption && projectRec.'G&A_Exemption', false),\r\n                    lrRec: LookUp(lr, EmployeeName = planRec.BudgetResource)\r\n                },\r\n                With(\r\n                    {\r\n                        empRate: Coalesce(\r\n                            If(\r\n                                isArmy,\r\n                                lrRec.RegHrsArmyRate,\r\n                                If(\r\n                                    isExempt,\r\n                                    lrRec.OverHeadExempt,\r\n                                    lrRec.RegHrsNonArmyRate\r\n                                )\r\n                            ),\r\n                            100\r\n                        )\r\n                    },\r\n                    {\r\n                        PlanID: planRec.ID,\r\n                        WIC: planRec.WIC,\r\n                        Resource: planRec.BudgetResource,\r\n                        Lab: planRec.Lab,\r\n                        Type: \"LABOR\",\r\n                        PlanFY: planRec.FiscalYear,\r\n                        Rate: empRate,\r\n                        Threshold: empRate * 0.25,\r\n                        MatchResource: true,\r\n                        IsArmy: isArmy,\r\n                        IsExempt: isExempt,\r\n                        M10: Coalesce(planRec.'10', 0),\r\n                        M11: Coalesce(planRec.'11', 0),\r\n                        M12: Coalesce(planRec.'12', 0),\r\n                        M1: Coalesce(planRec.'1', 0),\r\n                        M2: Coalesce(planRec.'2', 0),\r\n                        M3: Coalesce(planRec.'3', 0),\r\n                        M4: Coalesce(planRec.'4', 0),\r\n                        M5: Coalesce(planRec.'5', 0),\r\n                        M6: Coalesce(planRec.'6', 0),\r\n                        M7: Coalesce(planRec.'7', 0),\r\n                        M8: Coalesce(planRec.'8', 0),\r\n                        M9: Coalesce(planRec.'9', 0),\r\n                        Months: ForAll(\r\n                            Filter(colFiscalMonths, FY = planRec.FiscalYear) As moRec,\r\n                            With(\r\n                                {\r\n                                    planned: Coalesce(Switch(\r\n                                        moRec.Mo,\r\n                                        \"10\", planRec.'10',\r\n                                        \"11\", planRec.'11',\r\n                                        \"12\", planRec.'12',\r\n                                        \"1\", planRec.'1',\r\n                                        \"2\", planRec.'2',\r\n                                        \"3\", planRec.'3',\r\n                                        \"4\", planRec.'4',\r\n                                        \"5\", planRec.'5',\r\n                                        \"6\", planRec.'6',\r\n                                        \"7\", planRec.'7',\r\n                                        \"8\", planRec.'8',\r\n                                        \"9\", planRec.'9',\r\n                                        0\r\n                                    ), 0),\r\n                                    actual: Coalesce(Sum(\r\n                                        Filter(\r\n                                            ProjectData,\r\n                                            WIC = planRec.WIC && \r\n                                            BUDGET_RESOURCE = planRec.BudgetResource && \r\n                                            ACCT_PER = moRec.YYYYMM &&\r\n                                            Left(ORG_CODE, 4) = labOrg &&\r\n                                            PRAC_TYPE = cefmsType &&\r\n                                            Not(IsBlank(Obligation_Basic))\r\n                                        ),\r\n                                        Value(Obligation_Basic)\r\n                                    ), 0)\r\n                                },\r\n                                {\r\n                                    MonthCode: moRec.Mo,\r\n                                    MonthSeq: moRec.Seq,\r\n                                    MonthFY: moRec.FY,\r\n                                    YYYYMM: moRec.YYYYMM,\r\n                                    Planned: planned,\r\n                                    Actual: actual,\r\n                                    Difference: actual - planned,\r\n                                    IsCurrent: moRec.FY = currentFY && moRec.Seq = currentMonthSeq\r\n                                }\r\n                            )\r\n                        )\r\n                    }\r\n                )\r\n            )\r\n        )\r\n    )\r\n);\r\n\r\n// Add NON-LABOR types with appropriate resource matching\r\n// Uses per-month obligation lookup with Not(IsBlank(Obligation_Basic)) filter\r\n// to exclude commitment-only CEFMS records and prevent duplication\r\nCollect(\r\n    colWaterfallRaw,\r\n    ForAll(\r\n        Filter(\r\n            planningOnStart, \r\n            WIC in WicPermissions.Wic && \r\n            LineItemType <> \"LABOR\" && \r\n            FiscalYear >= oldestFY && \r\n            FiscalYear <= currentFY\r\n        ) As planRec,\r\n        With(\r\n            {\r\n                labOrg: LookUp(colLabOrg, Lab = planRec.Lab).LabOrg,\r\n                typeMapRec: LookUp(colTypeMap, PlanType = planRec.LineItemType)\r\n            },\r\n            {\r\n                PlanID: planRec.ID,\r\n                WIC: planRec.WIC,\r\n                Resource: planRec.BudgetResource,\r\n                Lab: planRec.Lab,\r\n                Type: planRec.LineItemType,\r\n                PlanFY: planRec.FiscalYear,\r\n                Rate: 0,\r\n                Threshold: 1,\r\n                MatchResource: typeMapRec.MatchResource,\r\n                IsArmy: false,\r\n                IsExempt: false,\r\n                M10: Coalesce(planRec.'10', 0),\r\n                M11: Coalesce(planRec.'11', 0),\r\n                M12: Coalesce(planRec.'12', 0),\r\n                M1: Coalesce(planRec.'1', 0),\r\n                M2: Coalesce(planRec.'2', 0),\r\n                M3: Coalesce(planRec.'3', 0),\r\n                M4: Coalesce(planRec.'4', 0),\r\n                M5: Coalesce(planRec.'5', 0),\r\n                M6: Coalesce(planRec.'6', 0),\r\n                M7: Coalesce(planRec.'7', 0),\r\n                M8: Coalesce(planRec.'8', 0),\r\n                M9: Coalesce(planRec.'9', 0),\r\n                Months: ForAll(\r\n                    Filter(colFiscalMonths, FY = planRec.FiscalYear) As moRec,\r\n                    With(\r\n                        {\r\n                            planned: Coalesce(Switch(\r\n                                moRec.Mo,\r\n                                \"10\", planRec.'10',\r\n                                \"11\", planRec.'11',\r\n                                \"12\", planRec.'12',\r\n                                \"1\", planRec.'1',\r\n                                \"2\", planRec.'2',\r\n                                \"3\", planRec.'3',\r\n                                \"4\", planRec.'4',\r\n                                \"5\", planRec.'5',\r\n                                \"6\", planRec.'6',\r\n                                \"7\", planRec.'7',\r\n                                \"8\", planRec.'8',\r\n                                \"9\", planRec.'9',\r\n                                0\r\n                            ), 0),\r\n                            actual: Coalesce(Sum(\r\n                                Filter(\r\n                                    ProjectData,\r\n                                    WIC = planRec.WIC && \r\n                                    ACCT_PER = moRec.YYYYMM &&\r\n                                    Left(ORG_CODE, 4) = labOrg &&\r\n                                    PRAC_TYPE = typeMapRec.CEFMSType &&\r\n                                    Not(IsBlank(Obligation_Basic)) &&\r\n                                    (typeMapRec.MatchResource = false || Coalesce(BUDGET_RESOURCE, \"\") = Coalesce(planRec.BudgetResource, \"\"))\r\n                                ),\r\n                                Value(Obligation_Basic)\r\n                            ), 0)\r\n                        },\r\n                        {\r\n                            MonthCode: moRec.Mo,\r\n                            MonthSeq: moRec.Seq,\r\n                            MonthFY: moRec.FY,\r\n                            YYYYMM: moRec.YYYYMM,\r\n                            Planned: planned,\r\n                            Actual: actual,\r\n                            Difference: actual - planned,\r\n                            IsCurrent: moRec.FY = currentFY && moRec.Seq = currentMonthSeq\r\n                        }\r\n                    )\r\n                )\r\n            }\r\n        )\r\n    )\r\n);\r\n\r\n// ===================== STEP 1: IDENTIFY ISSUES ========================\r\n// Past months: Flag if ANY discrepancy (over OR under) - always match actuals\r\n// Current month: Flag ONLY if OVERSPENT - user can still obligate more\r\n// Actuals use Obligation_Basic only (not Commit_Basic) to prevent duplication\r\n// ======================================================================\r\n\r\nClearCollect(\r\n    colWaterfallIssues,\r\n    Filter(\r\n        Ungroup(\r\n            AddColumns(\r\n                colWaterfallRaw,\r\n                MonthData, Months\r\n            ),\r\n            MonthData\r\n        ),\r\n        // Past FY months: any discrepancy (match to actuals)\r\n        (MonthFY < currentFY && Abs(Difference) > Threshold) ||\r\n        // Past months in current FY: any discrepancy (match to actuals)\r\n        (MonthFY = currentFY && MonthSeq < currentMonthSeq && Abs(Difference) > Threshold) ||\r\n        // Current month: only overspending (don't touch underspending)\r\n        (MonthFY = currentFY && MonthSeq = currentMonthSeq && Difference > Threshold)\r\n    )\r\n);\r\n\r\n// ===================== STEP 2: BUILD CHANGE TABLE (SINGLE-PASS FUNCTIONAL) ========================\r\n// Power Apps ForAll cannot use Set/Patch/Collect - must be purely functional\r\n// Approach: Calculate all pulls in one pass, aggregate by PlanID, then compute final values\r\n// ===================================================================================================\r\n\r\n// STEP 2A: Calculate pulls for each issue (purely functional - returns table)\r\n// Pull chain covers ALL months in fiscal order: 11->12->1->2->3->4->5->6->7->8->9\r\n// (Month 10/October is never a pull target since it's the first month of the FY)\r\nClearCollect(\r\n    colWaterfallPulls,\r\n    ForAll(\r\n        colWaterfallIssues As issue,\r\n        With(\r\n            {\r\n                rawRec: LookUp(colWaterfallRaw, PlanID = issue.PlanID),\r\n                isOverspent: issue.Difference > 0,\r\n                curOverage: Max(issue.Difference, 0),\r\n                issueSeq: issue.MonthSeq\r\n            },\r\n            With(\r\n                {\r\n                    obl11: Coalesce(LookUp(rawRec.Months, MonthCode = \"11\").Actual, 0),\r\n                    obl12: Coalesce(LookUp(rawRec.Months, MonthCode = \"12\").Actual, 0),\r\n                    obl1: Coalesce(LookUp(rawRec.Months, MonthCode = \"1\").Actual, 0),\r\n                    obl2: Coalesce(LookUp(rawRec.Months, MonthCode = \"2\").Actual, 0),\r\n                    obl3: Coalesce(LookUp(rawRec.Months, MonthCode = \"3\").Actual, 0),\r\n                    obl4: Coalesce(LookUp(rawRec.Months, MonthCode = \"4\").Actual, 0),\r\n                    obl5: Coalesce(LookUp(rawRec.Months, MonthCode = \"5\").Actual, 0),\r\n                    obl6: Coalesce(LookUp(rawRec.Months, MonthCode = \"6\").Actual, 0),\r\n                    obl7: Coalesce(LookUp(rawRec.Months, MonthCode = \"7\").Actual, 0),\r\n                    obl8: Coalesce(LookUp(rawRec.Months, MonthCode = \"8\").Actual, 0),\r\n                    obl9: Coalesce(LookUp(rawRec.Months, MonthCode = \"9\").Actual, 0)\r\n                },\r\n                With(\r\n                    {\r\n                        avail11: If(issueSeq < 2 && isOverspent, Max(0, rawRec.M11 - obl11), 0),\r\n                        avail12: If(issueSeq < 3 && isOverspent, Max(0, rawRec.M12 - obl12), 0),\r\n                        avail1: If(issueSeq < 4 && isOverspent, Max(0, rawRec.M1 - obl1), 0),\r\n                        avail2: If(issueSeq < 5 && isOverspent, Max(0, rawRec.M2 - obl2), 0),\r\n                        avail3: If(issueSeq < 6 && isOverspent, Max(0, rawRec.M3 - obl3), 0),\r\n                        avail4: If(issueSeq < 7 && isOverspent, Max(0, rawRec.M4 - obl4), 0),\r\n                        avail5: If(issueSeq < 8 && isOverspent, Max(0, rawRec.M5 - obl5), 0),\r\n                        avail6: If(issueSeq < 9 && isOverspent, Max(0, rawRec.M6 - obl6), 0),\r\n                        avail7: If(issueSeq < 10 && isOverspent, Max(0, rawRec.M7 - obl7), 0),\r\n                        avail8: If(issueSeq < 11 && isOverspent, Max(0, rawRec.M8 - obl8), 0),\r\n                        avail9: If(issueSeq < 12 && isOverspent, Max(0, rawRec.M9 - obl9), 0)\r\n                    },\r\n                    With({pull11: Min(avail11, curOverage), rem11: Max(curOverage - avail11, 0)},\r\n                    With({pull12: Min(avail12, rem11), rem12: Max(rem11 - avail12, 0)},\r\n                    With({pull1: Min(avail1, rem12), rem1: Max(rem12 - avail1, 0)},\r\n                    With({pull2: Min(avail2, rem1), rem2: Max(rem1 - avail2, 0)},\r\n                    With({pull3: Min(avail3, rem2), rem3: Max(rem2 - avail3, 0)},\r\n                    With({pull4: Min(avail4, rem3), rem4: Max(rem3 - avail4, 0)},\r\n                    With({pull5: Min(avail5, rem4), rem5: Max(rem4 - avail5, 0)},\r\n                    With({pull6: Min(avail6, rem5), rem6: Max(rem5 - avail6, 0)},\r\n                    With({pull7: Min(avail7, rem6), rem7: Max(rem6 - avail7, 0)},\r\n                    With({pull8: Min(avail8, rem7), rem8: Max(rem7 - avail8, 0)},\r\n                    With({pull9: Min(avail9, rem8), rem9: Max(rem8 - avail9, 0)},\r\n                        {\r\n                            PlanID: issue.PlanID,\r\n                            WIC: issue.WIC,\r\n                            Resource: issue.Resource,\r\n                            Lab: issue.Lab,\r\n                            Type: issue.Type,\r\n                            PlanFY: issue.MonthFY,\r\n                            \r\n                            IssueMonth: issue.MonthCode,\r\n                            IssueMonthSeq: issueSeq,\r\n                            IssuePlanned: issue.Planned,\r\n                            IssueActual: issue.Actual,\r\n                            IssueDifference: issue.Difference,\r\n                            IsOverspent: isOverspent,\r\n                            IssueOverage: curOverage,\r\n                            IsCurrent: issue.IsCurrent,\r\n                            \r\n                            Pull11: pull11, Pull12: pull12,\r\n                            Pull1: pull1, Pull2: pull2,\r\n                            Pull3: pull3, Pull4: pull4, Pull5: pull5,\r\n                            Pull6: pull6, Pull7: pull7, Pull8: pull8, Pull9: pull9,\r\n                            \r\n                            Unfilled: rem9,\r\n                            \r\n                            Orig10: rawRec.M10, Orig11: rawRec.M11, Orig12: rawRec.M12,\r\n                            Orig1: rawRec.M1, Orig2: rawRec.M2, Orig3: rawRec.M3,\r\n                            Orig4: rawRec.M4, Orig5: rawRec.M5, Orig6: rawRec.M6,\r\n                            Orig7: rawRec.M7, Orig8: rawRec.M8, Orig9: rawRec.M9\r\n                        }\r\n                    )))))))))))\r\n                )\r\n            )\r\n        )\r\n    )\r\n);\r\n\r\n// STEP 2B: Aggregate total pulls per PlanID (sum all pulls from all issues)\r\nClearCollect(\r\n    colAggregatedPulls,\r\n    ForAll(\r\n        Distinct(colWaterfallPulls, PlanID) As pid,\r\n        With(\r\n            {\r\n                pulls: Filter(colWaterfallPulls, PlanID = pid.Value),\r\n                rawRec: LookUp(colWaterfallRaw, PlanID = pid.Value)\r\n            },\r\n            {\r\n                PlanID: pid.Value,\r\n                WIC: rawRec.WIC,\r\n                Resource: rawRec.Resource,\r\n                Lab: rawRec.Lab,\r\n                Type: rawRec.Type,\r\n                PlanFY: rawRec.PlanFY,\r\n                Rate: rawRec.Rate,\r\n                \r\n                // Original values\r\n                Orig10: rawRec.M10, Orig11: rawRec.M11, Orig12: rawRec.M12,\r\n                Orig1: rawRec.M1, Orig2: rawRec.M2, Orig3: rawRec.M3,\r\n                Orig4: rawRec.M4, Orig5: rawRec.M5, Orig6: rawRec.M6,\r\n                Orig7: rawRec.M7, Orig8: rawRec.M8, Orig9: rawRec.M9,\r\n                \r\n                // Obligated amounts for ALL months (for quarter-hour rounding)\r\n                Obl10: Coalesce(LookUp(rawRec.Months, MonthCode = \"10\").Actual, 0),\r\n                Obl11: Coalesce(LookUp(rawRec.Months, MonthCode = \"11\").Actual, 0),\r\n                Obl12: Coalesce(LookUp(rawRec.Months, MonthCode = \"12\").Actual, 0),\r\n                Obl1: Coalesce(LookUp(rawRec.Months, MonthCode = \"1\").Actual, 0),\r\n                Obl2: Coalesce(LookUp(rawRec.Months, MonthCode = \"2\").Actual, 0),\r\n                Obl3: Coalesce(LookUp(rawRec.Months, MonthCode = \"3\").Actual, 0),\r\n                Obl4: Coalesce(LookUp(rawRec.Months, MonthCode = \"4\").Actual, 0),\r\n                Obl5: Coalesce(LookUp(rawRec.Months, MonthCode = \"5\").Actual, 0),\r\n                Obl6: Coalesce(LookUp(rawRec.Months, MonthCode = \"6\").Actual, 0),\r\n                Obl7: Coalesce(LookUp(rawRec.Months, MonthCode = \"7\").Actual, 0),\r\n                Obl8: Coalesce(LookUp(rawRec.Months, MonthCode = \"8\").Actual, 0),\r\n                Obl9: Coalesce(LookUp(rawRec.Months, MonthCode = \"9\").Actual, 0),\r\n                \r\n                // Sum of all pulls from this resource (full fiscal year)\r\n                TotalPull11: Sum(pulls, Pull11),\r\n                TotalPull12: Sum(pulls, Pull12),\r\n                TotalPull1: Sum(pulls, Pull1),\r\n                TotalPull2: Sum(pulls, Pull2),\r\n                TotalPull3: Sum(pulls, Pull3),\r\n                TotalPull4: Sum(pulls, Pull4),\r\n                TotalPull5: Sum(pulls, Pull5),\r\n                TotalPull6: Sum(pulls, Pull6),\r\n                TotalPull7: Sum(pulls, Pull7),\r\n                TotalPull8: Sum(pulls, Pull8),\r\n                TotalPull9: Sum(pulls, Pull9),\r\n                TotalUnfilled: Sum(pulls, Unfilled),\r\n                \r\n                // Get actuals for issue months (to replace planned)\r\n                Act10: Sum(Filter(pulls, IssueMonth = \"10\"), IssueActual),\r\n                Act11: Sum(Filter(pulls, IssueMonth = \"11\"), IssueActual),\r\n                Act12: Sum(Filter(pulls, IssueMonth = \"12\"), IssueActual),\r\n                Act1: Sum(Filter(pulls, IssueMonth = \"1\"), IssueActual),\r\n                Act2: Sum(Filter(pulls, IssueMonth = \"2\"), IssueActual),\r\n                Act3: Sum(Filter(pulls, IssueMonth = \"3\"), IssueActual),\r\n                Act4: Sum(Filter(pulls, IssueMonth = \"4\"), IssueActual),\r\n                Act5: Sum(Filter(pulls, IssueMonth = \"5\"), IssueActual),\r\n                Act6: Sum(Filter(pulls, IssueMonth = \"6\"), IssueActual),\r\n                Act7: Sum(Filter(pulls, IssueMonth = \"7\"), IssueActual),\r\n                Act8: Sum(Filter(pulls, IssueMonth = \"8\"), IssueActual),\r\n                Act9: Sum(Filter(pulls, IssueMonth = \"9\"), IssueActual),\r\n                \r\n                // Flags for which months had issues\r\n                Has10: CountRows(Filter(pulls, IssueMonth = \"10\")) > 0,\r\n                Has11: CountRows(Filter(pulls, IssueMonth = \"11\")) > 0,\r\n                Has12: CountRows(Filter(pulls, IssueMonth = \"12\")) > 0,\r\n                Has1: CountRows(Filter(pulls, IssueMonth = \"1\")) > 0,\r\n                Has2: CountRows(Filter(pulls, IssueMonth = \"2\")) > 0,\r\n                Has3: CountRows(Filter(pulls, IssueMonth = \"3\")) > 0,\r\n                Has4: CountRows(Filter(pulls, IssueMonth = \"4\")) > 0,\r\n                Has5: CountRows(Filter(pulls, IssueMonth = \"5\")) > 0,\r\n                Has6: CountRows(Filter(pulls, IssueMonth = \"6\")) > 0,\r\n                Has7: CountRows(Filter(pulls, IssueMonth = \"7\")) > 0,\r\n                Has8: CountRows(Filter(pulls, IssueMonth = \"8\")) > 0,\r\n                Has9: CountRows(Filter(pulls, IssueMonth = \"9\")) > 0\r\n            }\r\n        )\r\n    )\r\n);\r\n\r\n// STEP 2C: Build final values\r\n// Past months: ALWAYS set plan = obligated (match actuals)\r\n// Net delta (Orig - Obl) from all past months rolls into the current month\r\n// If net delta is negative (more overspent than underspent), cascade deficit to future months\r\n// LABOR current month: round unobligated portion to quarter-hour\r\nClearCollect(\r\n    colWaterfallFinal,\r\n    ForAll(\r\n        colAggregatedPulls As agg,\r\n        With(\r\n            {\r\n                qh: If(agg.Type = \"LABOR\", agg.Rate * 0.25, 0),\r\n                ip10: agg.PlanFY < currentFY || (agg.PlanFY = currentFY && 1 < currentMonthSeq),\r\n                ip11: agg.PlanFY < currentFY || (agg.PlanFY = currentFY && 2 < currentMonthSeq),\r\n                ip12: agg.PlanFY < currentFY || (agg.PlanFY = currentFY && 3 < currentMonthSeq),\r\n                ip1: agg.PlanFY < currentFY || (agg.PlanFY = currentFY && 4 < currentMonthSeq),\r\n                ip2: agg.PlanFY < currentFY || (agg.PlanFY = currentFY && 5 < currentMonthSeq),\r\n                ip3: agg.PlanFY < currentFY || (agg.PlanFY = currentFY && 6 < currentMonthSeq),\r\n                ip4: agg.PlanFY < currentFY || (agg.PlanFY = currentFY && 7 < currentMonthSeq),\r\n                ip5: agg.PlanFY < currentFY || (agg.PlanFY = currentFY && 8 < currentMonthSeq),\r\n                ip6: agg.PlanFY < currentFY || (agg.PlanFY = currentFY && 9 < currentMonthSeq),\r\n                ip7: agg.PlanFY < currentFY || (agg.PlanFY = currentFY && 10 < currentMonthSeq),\r\n                ip8: agg.PlanFY < currentFY || (agg.PlanFY = currentFY && 11 < currentMonthSeq),\r\n                ip9: agg.PlanFY < currentFY || (agg.PlanFY = currentFY && 12 < currentMonthSeq)\r\n            },\r\n            With(\r\n                {\r\n                    netPastDelta:\r\n                        If(ip10, agg.Orig10 - agg.Obl10, 0) +\r\n                        If(ip11, agg.Orig11 - agg.Obl11, 0) +\r\n                        If(ip12, agg.Orig12 - agg.Obl12, 0) +\r\n                        If(ip1, agg.Orig1 - agg.Obl1, 0) +\r\n                        If(ip2, agg.Orig2 - agg.Obl2, 0) +\r\n                        If(ip3, agg.Orig3 - agg.Obl3, 0) +\r\n                        If(ip4, agg.Orig4 - agg.Obl4, 0) +\r\n                        If(ip5, agg.Orig5 - agg.Obl5, 0) +\r\n                        If(ip6, agg.Orig6 - agg.Obl6, 0) +\r\n                        If(ip7, agg.Orig7 - agg.Obl7, 0) +\r\n                        If(ip8, agg.Orig8 - agg.Obl8, 0) +\r\n                        If(ip9, agg.Orig9 - agg.Obl9, 0),\r\n                    curObl: Switch(currentMonthText,\r\n                        \"10\", agg.Obl10, \"11\", agg.Obl11, \"12\", agg.Obl12,\r\n                        \"1\", agg.Obl1, \"2\", agg.Obl2, \"3\", agg.Obl3,\r\n                        \"4\", agg.Obl4, \"5\", agg.Obl5, \"6\", agg.Obl6,\r\n                        \"7\", agg.Obl7, \"8\", agg.Obl8, \"9\", agg.Obl9, 0\r\n                    ),\r\n                    curOrig: Switch(currentMonthText,\r\n                        \"10\", agg.Orig10, \"11\", agg.Orig11, \"12\", agg.Orig12,\r\n                        \"1\", agg.Orig1, \"2\", agg.Orig2, \"3\", agg.Orig3,\r\n                        \"4\", agg.Orig4, \"5\", agg.Orig5, \"6\", agg.Orig6,\r\n                        \"7\", agg.Orig7, \"8\", agg.Orig8, \"9\", agg.Orig9, 0\r\n                    )\r\n                },\r\n                With(\r\n                    {\r\n                        curRaw: Max(curObl, curOrig + netPastDelta),\r\n                        deficit: Max(0, curObl - (curOrig + netPastDelta))\r\n                    },\r\n                    With(\r\n                        {\r\n                            b10: If(ip10, agg.Obl10, If(currentMonthText = \"10\", curRaw, agg.Orig10)),\r\n                            b11: If(ip11, agg.Obl11, If(currentMonthText = \"11\", curRaw, agg.Orig11)),\r\n                            b12: If(ip12, agg.Obl12, If(currentMonthText = \"12\", curRaw, agg.Orig12)),\r\n                            b1: If(ip1, agg.Obl1, If(currentMonthText = \"1\", curRaw, agg.Orig1)),\r\n                            b2: If(ip2, agg.Obl2, If(currentMonthText = \"2\", curRaw, agg.Orig2)),\r\n                            b3: If(ip3, agg.Obl3, If(currentMonthText = \"3\", curRaw, agg.Orig3)),\r\n                            b4: If(ip4, agg.Obl4, If(currentMonthText = \"4\", curRaw, agg.Orig4)),\r\n                            b5: If(ip5, agg.Obl5, If(currentMonthText = \"5\", curRaw, agg.Orig5)),\r\n                            b6: If(ip6, agg.Obl6, If(currentMonthText = \"6\", curRaw, agg.Orig6)),\r\n                            b7: If(ip7, agg.Obl7, If(currentMonthText = \"7\", curRaw, agg.Orig7)),\r\n                            b8: If(ip8, agg.Obl8, If(currentMonthText = \"8\", curRaw, agg.Orig8)),\r\n                            b9: If(ip9, agg.Obl9, If(currentMonthText = \"9\", curRaw, agg.Orig9)),\r\n                            if10: agg.PlanFY = currentFY && 1 > currentMonthSeq,\r\n                            if11: agg.PlanFY = currentFY && 2 > currentMonthSeq,\r\n                            if12: agg.PlanFY = currentFY && 3 > currentMonthSeq,\r\n                            if1: agg.PlanFY = currentFY && 4 > currentMonthSeq,\r\n                            if2: agg.PlanFY = currentFY && 5 > currentMonthSeq,\r\n                            if3: agg.PlanFY = currentFY && 6 > currentMonthSeq,\r\n                            if4: agg.PlanFY = currentFY && 7 > currentMonthSeq,\r\n                            if5: agg.PlanFY = currentFY && 8 > currentMonthSeq,\r\n                            if6: agg.PlanFY = currentFY && 9 > currentMonthSeq,\r\n                            if7: agg.PlanFY = currentFY && 10 > currentMonthSeq,\r\n                            if8: agg.PlanFY = currentFY && 11 > currentMonthSeq,\r\n                            if9: agg.PlanFY = currentFY && 12 > currentMonthSeq\r\n                        },\r\n                        With({dp10: If(if10, Min(b10, deficit), 0), rd10: deficit - If(if10, Min(b10, deficit), 0)},\r\n                        With({dp11: If(if11, Min(b11, rd10), 0), rd11: rd10 - If(if11, Min(b11, rd10), 0)},\r\n                        With({dp12: If(if12, Min(b12, rd11), 0), rd12: rd11 - If(if12, Min(b12, rd11), 0)},\r\n                        With({dp1: If(if1, Min(b1, rd12), 0), rd1: rd12 - If(if1, Min(b1, rd12), 0)},\r\n                        With({dp2: If(if2, Min(b2, rd1), 0), rd2: rd1 - If(if2, Min(b2, rd1), 0)},\r\n                        With({dp3: If(if3, Min(b3, rd2), 0), rd3: rd2 - If(if3, Min(b3, rd2), 0)},\r\n                        With({dp4: If(if4, Min(b4, rd3), 0), rd4: rd3 - If(if4, Min(b4, rd3), 0)},\r\n                        With({dp5: If(if5, Min(b5, rd4), 0), rd5: rd4 - If(if5, Min(b5, rd4), 0)},\r\n                        With({dp6: If(if6, Min(b6, rd5), 0), rd6: rd5 - If(if6, Min(b6, rd5), 0)},\r\n                        With({dp7: If(if7, Min(b7, rd6), 0), rd7: rd6 - If(if7, Min(b7, rd6), 0)},\r\n                        With({dp8: If(if8, Min(b8, rd7), 0), rd8: rd7 - If(if8, Min(b8, rd7), 0)},\r\n                        With({dp9: If(if9, Min(b9, rd8), 0), rd9: rd8 - If(if9, Min(b9, rd8), 0)},\r\n                        With(\r\n                            {\r\n                                r10: b10 - dp10,\r\n                                r11: b11 - dp11,\r\n                                r12: b12 - dp12,\r\n                                r1: b1 - dp1,\r\n                                r2: b2 - dp2,\r\n                                r3: b3 - dp3,\r\n                                r4: b4 - dp4,\r\n                                r5: b5 - dp5,\r\n                                r6: b6 - dp6,\r\n                                r7: b7 - dp7,\r\n                                r8: b8 - dp8,\r\n                                r9: b9 - dp9\r\n                            },\r\n                            With(\r\n                                {\r\n                                    n10: If(agg.Type = \"LABOR\" && currentMonthText = \"10\" && qh > 0, agg.Obl10 + RoundDown(Max(0, r10 - agg.Obl10) / qh, 0) * qh, r10),\r\n                                    n11: If(agg.Type = \"LABOR\" && currentMonthText = \"11\" && qh > 0, agg.Obl11 + RoundDown(Max(0, r11 - agg.Obl11) / qh, 0) * qh, r11),\r\n                                    n12: If(agg.Type = \"LABOR\" && currentMonthText = \"12\" && qh > 0, agg.Obl12 + RoundDown(Max(0, r12 - agg.Obl12) / qh, 0) * qh, r12),\r\n                                    n1: If(agg.Type = \"LABOR\" && currentMonthText = \"1\" && qh > 0, agg.Obl1 + RoundDown(Max(0, r1 - agg.Obl1) / qh, 0) * qh, r1),\r\n                                    n2: If(agg.Type = \"LABOR\" && currentMonthText = \"2\" && qh > 0, agg.Obl2 + RoundDown(Max(0, r2 - agg.Obl2) / qh, 0) * qh, r2),\r\n                                    n3: If(agg.Type = \"LABOR\" && currentMonthText = \"3\" && qh > 0, agg.Obl3 + RoundDown(Max(0, r3 - agg.Obl3) / qh, 0) * qh, r3),\r\n                                    n4: If(agg.Type = \"LABOR\" && currentMonthText = \"4\" && qh > 0, agg.Obl4 + RoundDown(Max(0, r4 - agg.Obl4) / qh, 0) * qh, r4),\r\n                                    n5: If(agg.Type = \"LABOR\" && currentMonthText = \"5\" && qh > 0, agg.Obl5 + RoundDown(Max(0, r5 - agg.Obl5) / qh, 0) * qh, r5),\r\n                                    n6: If(agg.Type = \"LABOR\" && currentMonthText = \"6\" && qh > 0, agg.Obl6 + RoundDown(Max(0, r6 - agg.Obl6) / qh, 0) * qh, r6),\r\n                                    n7: If(agg.Type = \"LABOR\" && currentMonthText = \"7\" && qh > 0, agg.Obl7 + RoundDown(Max(0, r7 - agg.Obl7) / qh, 0) * qh, r7),\r\n                                    n8: If(agg.Type = \"LABOR\" && currentMonthText = \"8\" && qh > 0, agg.Obl8 + RoundDown(Max(0, r8 - agg.Obl8) / qh, 0) * qh, r8),\r\n                                    n9: If(agg.Type = \"LABOR\" && currentMonthText = \"9\" && qh > 0, agg.Obl9 + RoundDown(Max(0, r9 - agg.Obl9) / qh, 0) * qh, r9)\r\n                                },\r\n                                {\r\n                                    PlanID: agg.PlanID,\r\n                                    WIC: agg.WIC,\r\n                                    Resource: agg.Resource,\r\n                                    Lab: agg.Lab,\r\n                                    Type: agg.Type,\r\n                                    PlanFY: agg.PlanFY,\r\n                                    Rate: agg.Rate,\r\n                                    FreedMoney: Round(netPastDelta, 2),\r\n                                    \r\n                                    Orig10: agg.Orig10, Orig11: agg.Orig11, Orig12: agg.Orig12,\r\n                                    Orig1: agg.Orig1, Orig2: agg.Orig2, Orig3: agg.Orig3,\r\n                                    Orig4: agg.Orig4, Orig5: agg.Orig5, Orig6: agg.Orig6,\r\n                                    Orig7: agg.Orig7, Orig8: agg.Orig8, Orig9: agg.Orig9,\r\n                                    \r\n                                    New10: Round(n10, 2), New11: Round(n11, 2), New12: Round(n12, 2),\r\n                                    New1: Round(n1, 2), New2: Round(n2, 2), New3: Round(n3, 2),\r\n                                    New4: Round(n4, 2), New5: Round(n5, 2), New6: Round(n6, 2),\r\n                                    New7: Round(n7, 2), New8: Round(n8, 2), New9: Round(n9, 2),\r\n                                    \r\n                                    OrigTotal: Round(agg.Orig10 + agg.Orig11 + agg.Orig12 + agg.Orig1 + agg.Orig2 + agg.Orig3 + agg.Orig4 + agg.Orig5 + agg.Orig6 + agg.Orig7 + agg.Orig8 + agg.Orig9, 2),\r\n                                    NewTotal: Round(n10 + n11 + n12 + n1 + n2 + n3 + n4 + n5 + n6 + n7 + n8 + n9, 2),\r\n                                    TotalUnfilled: rd9\r\n                                }\r\n                            )\r\n                        )\r\n                        ))))))))))))\r\n                    )\r\n                )\r\n            )\r\n        )\r\n    )\r\n);\r\n\r\n// Copy pulls to changes collection for review\r\nClearCollect(colWaterfallChanges, colWaterfallPulls);\r\n\r\n// ===================== OUTPUT FOR REVIEW ========================\r\n\r\nCopy(JSON(colWaterfallFinal));\r\n\r\nSet(varUnfilledCount, CountRows(Filter(colWaterfallChanges, Unfilled > 0)));\r\n\r\nNotify(\r\n    \"Waterfall complete: \" & CountRows(colWaterfallChanges) & \" issues across \" & \r\n    CountRows(colWaterfallFinal) & \" resources. \" &\r\n    If(varUnfilledCount > 0, \r\n        \"WARNING: \" & varUnfilledCount & \" items have unfilled overages!\",\r\n        \"All issues resolved.\"\r\n    ),\r\n    If(varUnfilledCount > 0, NotificationType.Warning, NotificationType.Success)\r\n);\r\n\r\n// ============================================================\r\n// COLLECTIONS TO REVIEW:\r\n// \r\n// colWaterfallPulls - Individual issue details (one row per issue)\r\n//   - IssueMonth, IssuePlanned, IssueActual, IssueDifference\r\n//   - Pull11,Pull12,Pull1-Pull9: amounts pulled from future months\r\n//   - Unfilled: remaining overage after all pulls\r\n//   (Used for audit trail / review only; Step 2C uses netPastDelta instead)\r\n//\r\n// colAggregatedPulls - Aggregated pulls per PlanID\r\n//   - Obl10-Obl9: obligated amounts per month from CEFMS\r\n//   - Has10-Has9: flags for which months had issues\r\n//\r\n// colWaterfallFinal - Final planned values to write\r\n//   - Orig10-Orig9: Original planned values\r\n//   - New10-New9: New planned values\r\n//   - Past months: New = Obl (always match actuals)\r\n//   - Current month: Orig + netPastDelta, clamped at Obl\r\n//   - Future months: Orig - deficit cascade (if any)\r\n//   - FreedMoney: net delta from all past months (positive = freed, negative = deficit)\r\n//   - TotalUnfilled: deficit remaining after all future months exhausted\r\n//   - OrigTotal, NewTotal: Sum for verification\r\n//\r\n// colWaterfallChanges - Copy of colWaterfallPulls for Part 2\r\n// ============================================================\r\n\r\n// ============================================================\r\n// HOW STEP 2C WORKS:\r\n// 1. Flag each month as past (ip), current (curRaw), or future (if)\r\n// 2. Past months: plan = Obl (CEFMS obligated amount, always)\r\n// 3. netPastDelta = sum(Orig - Obl) for all past months\r\n//    Positive = underspent money freed up\r\n//    Negative = overspent, need to pull from future\r\n// 4. Current month = curOrig + netPastDelta, clamped at curObl\r\n//    If netPastDelta is positive, current month grows\r\n//    If negative, current month shrinks (but never below obligations)\r\n// 5. deficit = whatever current month couldn't absorb\r\n// 6. Cascade deficit through future months (dp10..dp9)\r\n// 7. LABOR current month: round unobligated portion to quarter-hour\r\n// ============================================================\r\n"
+                  Text: ="Part 1"
+                  X: =39
+                  Y: =37
+            - ButtonCanvas37_1:
+                Control: Button@0.0.45
+                Properties:
+                  OnSelect: |+
+                    =// ============================================================
+                    // WATERFALL PART 2: Apply & Log (Per-WIC)
+                    // ============================================================
+                    // Run AFTER Part 1 and reviewing colWaterfallFinal
+                    //
+                    // 1. Build colWaterfallApply (new values) and colWaterfallRevert (old values)
+                    // 2. Send apply data to Power Automate flow
+                    // 3. Patch ONE row per WIC to PEPR_WATERFALL_LOG with:
+                    //      OldValues (JSON), NewValues (JSON), Audit (JSON), WIC, RunBy
+                    // 4. Commented-out revert function at bottom
+                    //
+                    // SharePoint list: PEPR_WATERFALL_LOG
+                    //   Columns needed:
+                    //     Title      (text)           - WIC
+                    //     OldValues  (multiline text) - JSON array of old month values per resource
+                    //     NewValues  (multiline text) - JSON array of new month values per resource
+                    //     Audit      (multiline text) - JSON array of audit detail per resource
+                    //     RunBy      (text)           - User().Email
+                    //     RunAt      (date/time)      - Now()
+                    // ============================================================
+
+                    // ===================== BUILD APPLY COLLECTION ========================
+                    ClearCollect(
+                        colWaterfallApply,
+                        ForAll(
+                            colWaterfallFinal As final,
+                            {
+                                ID: final.PlanID,
+                                WIC: final.WIC,
+                                Resource: Coalesce(final.Resource, ""),
+                                Lab: final.Lab,
+                                Type: final.Type,
+                                FY: final.PlanFY,
+                                '10': final.New10,
+                                '11': final.New11,
+                                '12': final.New12,
+                                '1': final.New1,
+                                '2': final.New2,
+                                '3': final.New3,
+                                '4': final.New4,
+                                '5': final.New5,
+                                '6': final.New6,
+                                '7': final.New7,
+                                '8': final.New8,
+                                '9': final.New9
+                            }
+                        )
+                    );
+
+                    // ===================== BUILD REVERT COLLECTION ========================
+                    ClearCollect(
+                        colWaterfallRevert,
+                        ForAll(
+                            colWaterfallFinal As final,
+                            {
+                                ID: final.PlanID,
+                                WIC: final.WIC,
+                                Resource: Coalesce(final.Resource, ""),
+                                Lab: final.Lab,
+                                Type: final.Type,
+                                FY: final.PlanFY,
+                                '10': final.Orig10,
+                                '11': final.Orig11,
+                                '12': final.Orig12,
+                                '1': final.Orig1,
+                                '2': final.Orig2,
+                                '3': final.Orig3,
+                                '4': final.Orig4,
+                                '5': final.Orig5,
+                                '6': final.Orig6,
+                                '7': final.Orig7,
+                                '8': final.Orig8,
+                                '9': final.Orig9
+                            }
+                        )
+                    );
+
+                    // ===================== SEND TO FLOW ========================
+                    ForAll(
+                        Distinct(colWaterfallApply, WIC) As wicRec,
+                        With(
+                            {
+                                wicApply: Filter(colWaterfallApply, WIC = wicRec.Value)
+                            },
+                            PEPR_UpdateSharePoint.Run(JSON(wicApply))
+                        )
+                    );
+
+                    // ===================== LOG TO PEPR_WATERFALL_LOG ========================
+                    // One row per WIC: OldValues, NewValues, Audit as JSON arrays
+                    Set(varWaterfallRunAt, Now());
+
+                    ForAll(
+                        Distinct(colWaterfallFinal, WIC) As wicRec,
+                        Patch(
+                            PEPR_WATERFALL_LOG,
+                            Defaults(PEPR_WATERFALL_LOG),
+                            {
+                                Title: wicRec.Value,
+                                OldValues: JSON(
+                                    Filter(colWaterfallRevert, WIC = wicRec.Value)
+                                ),
+                                NewValues: JSON(
+                                    Filter(colWaterfallApply, WIC = wicRec.Value)
+                                ),
+                                Audit: JSON(
+                                    ForAll(
+                                        Filter(colWaterfallFinal, WIC = wicRec.Value) As f,
+                                        {
+                                            PlanID: f.PlanID,
+                                            Resource: Coalesce(f.Resource, ""),
+                                            Lab: f.Lab,
+                                            Type: f.Type,
+                                            FY: f.PlanFY,
+                                            OrigTotal: f.OrigTotal,
+                                            NewTotal: f.NewTotal,
+                                            FreedMoney: f.FreedMoney
+                                        }
+                                    )
+                                ),
+                                RunBy: User().Email,
+                                RunAt: varWaterfallRunAt
+                            }
+                        )
+                    );
+
+                    Notify(
+                        "Waterfall applied: " & CountRows(colWaterfallApply) & " records updated across " &
+                        CountRows(Distinct(colWaterfallApply, WIC)) & " WIC(s). Log saved.",
+                        NotificationType.Success
+                    );
+
+                    // ============================================================
+                    // REVERT FUNCTION (commented out - wire to a button)
+                    // ============================================================
+                    // Looks up the most recent PEPR_WATERFALL_LOG row for a given WIC,
+                    // parses the OldValues JSON, and sends it to the same flow to restore.
+                    //
+                    // Set(varRevertWIC, "YOUR_WIC_HERE");
+                    //
+                    // Set(varRevertLog,
+                    //     First(
+                    //         Sort(
+                    //             Filter(PEPR_WATERFALL_LOG, Title = varRevertWIC),
+                    //             RunAt,
+                    //             SortOrder.Descending
+                    //         )
+                    //     )
+                    // );
+                    //
+                    // If(
+                    //     IsBlank(varRevertLog),
+                    //     Notify("No waterfall log found for " & varRevertWIC, NotificationType.Error),
+                    //
+                    //     // Parse OldValues JSON and send to flow
+                    //     PEPR_UpdateSharePoint.Run(varRevertLog.OldValues);
+                    //
+                    //     // Log the revert
+                    //     Patch(
+                    //         PEPR_WATERFALL_LOG,
+                    //         Defaults(PEPR_WATERFALL_LOG),
+                    //         {
+                    //             Title: varRevertWIC,
+                    //             OldValues: varRevertLog.NewValues,
+                    //             NewValues: varRevertLog.OldValues,
+                    //             Audit: varRevertLog.Audit,
+                    //             RunBy: User().Email,
+                    //             RunAt: Now()
+                    //         }
+                    //     );
+                    //
+                    //     Notify("Reverted " & varRevertWIC & " to pre-waterfall values", NotificationType.Success)
+                    // );
+
+                    // ============================================================
+                    // SHAREPOINT LIST: PEPR_WATERFALL_LOG
+                    //
+                    // Create with these columns:
+                    //   Title      (text)           - WIC code
+                    //   OldValues  (multiline text) - JSON array: [{ID,WIC,Resource,...,'10'-'9'}]
+                    //   NewValues  (multiline text) - JSON array: [{ID,WIC,Resource,...,'10'-'9'}]
+                    //   Audit      (multiline text) - JSON array: [{PlanID,Resource,OrigTotal,NewTotal,FreedMoney}]
+                    //   RunBy      (text)           - user email
+                    //   RunAt      (date/time)      - timestamp
+                    //
+                    // USAGE:
+                    //   - Each waterfall run creates one row per WIC
+                    //   - OldValues has everything needed to revert
+                    //   - NewValues has everything that was applied
+                    //   - Audit has the summary (totals, freed money per resource)
+                    //   - Sort by RunAt desc to find the most recent run
+                    //   - Revert function grabs OldValues from most recent row
+                    //     and sends it straight back to the same flow
+                    // ============================================================
+                  Text: ="Part 2"
+                  X: =39
+                  Y: =79
+      - ButtonCanvas44:
+          Control: Button@0.0.45
+          Properties:
+            OnSelect: |-
+              =// --- FAST PATH ---
+              Set(varBenchStart, Now());
+              ClearCollect(ProjectData, 'Get:PEPR_ActualsV2'.Run("D12GL1"));
+              Set(varFastMs, DateDiff(varBenchStart, Now(), TimeUnit.Milliseconds));
+
+              // --- SLOW PATH ---
+              Set(varBenchStart, Now());
+              ClearCollect(
+                  ProjectData,
+                  ForAll(
+                      Table(ParseJSON('PowerAppV2->Runaqueryagainstadataset'.Run("D12GL1").response)),
+                      {
+                          ORDER_WORK_ITEM: Text(ThisRecord.Value.'ORDER_WORK_ITEM[WI_CODE]'),
+                          WIC: Text(ThisRecord.Value.'FUND_ACCT[FA_WI_CODE]'),
+                          Expire: Text(ThisRecord.Value.'FUND_ACCT[EXP_DATE]'),
+                          PRAC_TYPE: Text(ThisRecord.Value.'PRAC_SHORT_DESC[PRAC_TYPE]'),
+                          ORDER: Text(ThisRecord.Value.'PRAC_SHORT_DESC[Order]'),
+                          ORG_CODE: Text(ThisRecord.Value.'P2_ORGS[ORG_CODE]'),
+                          BUDGET_RESOURCE: Text(ThisRecord.Value.'PEPR_RESOURCE[PEPR_RESOURCE]'),
+                          PRAC_NO: Text(ThisRecord.Value.'PRAC[PRAC_NO]'),
+                          CHARGE_CODE: Text(ThisRecord.Value.'PRAC[CHARGE_CODE]'),
+                          ACCT_PER: Text(ThisRecord.Value.'Calendar Table[YYYYMM]'),
+                          IsGrandTotalRowTotal: Text(ThisRecord.Value.'[IsGrandTotalRowTotal]'),
+                          Commit_Basic: Text(ThisRecord.Value.'[Commit_Basic]'),
+                          Commit_Remain_Basic: Text(ThisRecord.Value.'[Commit_Remain_Basic]'),
+                          Description: Text(ThisRecord.Value.'PRAC[ITEM_DESC]'),
+                          Obligation_Basic: Text(ThisRecord.Value.'[Oblig_Basic]'),
+                          Obligation_Hours: Value(ThisRecord.Value.'[Hours_Oblig]'),
+                          P2_Code: Text(ThisRecord.Value.'RESOURCE_CODES[PM_BUDGET_RESOURCE_CODE]')
+                      }
+                  )
+              );
+              Set(varSlowMs, DateDiff(varBenchStart, Now(), TimeUnit.Milliseconds))
+            X: =-100
+            Y: =37
+      - Text1:
+          Control: ModernText@1.0.0
+          Properties:
+            Height: =113
+            Text: |-
+              ="Fast (V2):      " & Text(varFastMs) & "ms" & Char(10) &
+              "Slow (Fallback): " & Text(varSlowMs) & "ms" & Char(10) &
+              "Speedup:        " & Text(Round(varSlowMs / varFastMs, 1)) & "x"
+            Width: =257
+            X: =39
+            Y: =87
+      - PEPR Demos:
+          Control: GroupContainer@1.5.0
+          Variant: AutoLayout
+          Properties:
+            DropShadow: =DropShadow.None
+            Height: =133
+            LayoutAlignItems: =LayoutAlignItems.Stretch
+            LayoutDirection: =LayoutDirection.Vertical
+            PaddingBottom: =8
+            PaddingLeft: =8
+            PaddingRight: =8
+            PaddingTop: =8
+            RadiusBottomLeft: =30
+            RadiusBottomRight: =30
+            RadiusTopLeft: =30
+            RadiusTopRight: =30
+            Visible: =!load
+            Width: =213
+            X: =-15
+            Y: =72
+          Children:
+            - Container3_6:
+                Control: GroupContainer@1.5.0
+                Variant: ManualLayout
+                Properties:
+                  Fill: =RGBA(237, 234, 222, 1)
+                  LayoutMinHeight: =16
+                  LayoutMinWidth: =16
+                Children:
+                  - Text3_1:
+                      Control: ModernText@1.0.0
+                      Properties:
+                        FontWeight: =FontWeight.Bold
+                        Height: =45
+                        Text: |-
+                          ="PEPR Demo: Part 1"
+                        Width: =154
+                        X: =43
+                        Y: =8
+                  - Image1_6:
+                      Control: Image@2.2.3
+                      Properties:
+                        BorderColor: =RGBA(0, 0, 0, 0)
+                        BorderStyle: =BorderStyle.None
+                        BorderThickness: =2
+                        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                        DisabledFill: =RGBA(0, 0, 0, 0)
+                        FocusedBorderThickness: =4
+                        Height: =45
+                        HoverBorderColor: =RGBA(0, 0, 0, 0)
+                        HoverFill: =RGBA(0, 0, 0, 0)
+                        Image: ='play button'
+                        ImagePosition: =ImagePosition.Fill
+                        PressedBorderColor: =RGBA(0, 0, 0, 0)
+                        PressedFill: =RGBA(0, 0, 0, 0)
+                        Width: =38
+                        X: =5
+                        Y: =8
+                  - PEPR Demo Part 1:
+                      Control: Button@0.0.45
+                      Properties:
+                        Appearance: ='ButtonCanvas.Appearance'.Transparent
+                        Height: =45
+                        OnSelect: =Launch( "https://usace-my.dps.mil/:v:/r/personal/clinton_j_cender_usace_army_mil/Documents/CERL_Video_Tutorials/20260212_PEPR_RE_tutorial_part1.webm?csf=1&web=1&e=frhvzb&nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJTdHJlYW1XZWJBcHAiLCJyZWZlcnJhbFZpZXciOiJTaGFyZURpYWxvZy1MaW5rIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXcifX0%3D" )
+                        Text: =
+                        Width: =193
+                        Y: =8
+            - Container3_10:
+                Control: GroupContainer@1.5.0
+                Variant: ManualLayout
+                Properties:
+                  Fill: =RGBA(237, 234, 222, 1)
+                  LayoutMinHeight: =16
+                  LayoutMinWidth: =16
+                Children:
+                  - Text3_2:
+                      Control: ModernText@1.0.0
+                      Properties:
+                        FontWeight: =FontWeight.Bold
+                        Height: =45
+                        Text: |-
+                          ="PEPR Demo: Part 2"
+                        Width: =154
+                        X: =43
+                        Y: =8
+                  - Image1_10:
+                      Control: Image@2.2.3
+                      Properties:
+                        BorderColor: =RGBA(0, 0, 0, 0)
+                        BorderStyle: =BorderStyle.None
+                        BorderThickness: =2
+                        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                        DisabledFill: =RGBA(0, 0, 0, 0)
+                        FocusedBorderThickness: =4
+                        Height: =45
+                        HoverBorderColor: =RGBA(0, 0, 0, 0)
+                        HoverFill: =RGBA(0, 0, 0, 0)
+                        Image: ='play button'
+                        ImagePosition: =ImagePosition.Fill
+                        PressedBorderColor: =RGBA(0, 0, 0, 0)
+                        PressedFill: =RGBA(0, 0, 0, 0)
+                        Width: =38
+                        X: =5
+                        Y: =8
+                  - PEPR Demo Part 1_1:
+                      Control: Button@0.0.45
+                      Properties:
+                        Appearance: ='ButtonCanvas.Appearance'.Transparent
+                        Height: =45
+                        OnSelect: =Launch("https://usace-my.dps.mil/:v:/g/personal/clinton_j_cender_usace_army_mil/IQDETMs5xFC6TJBTFLVSzRUaASiCmpirnUVCXIq7FWc5lME?e=sbUPLf&nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJTdHJlYW1XZWJBcHAiLCJyZWZlcnJhbFZpZXciOiJTaGFyZURpYWxvZy1MaW5rIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXcifX0%3D")
+                        Text: =
+                        Width: =193
+                        Y: =8
