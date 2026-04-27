@@ -189,6 +189,7 @@ Screens:
                                     Size: =13
                         - ProjectGallery:
                             Control: Gallery@2.15.0
+                            Variant: Vertical
                             Properties:
                               AlignInContainer: =AlignInContainer.Stretch
                               BorderColor: =RGBA(0, 0, 0, 0)
