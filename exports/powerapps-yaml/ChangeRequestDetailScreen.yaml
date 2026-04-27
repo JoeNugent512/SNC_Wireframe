@@ -282,14 +282,16 @@ Screens:
                                                 BorderColor: =RGBA(203, 213, 225, 1)
                                                 BorderStyle: =BorderStyle.Solid
                                                 BorderThickness: =1
-                                                Fill: =Switch(varSelectedCR.status,
+                                                Fill: |-
+                                                  =Switch(varSelectedCR.status,
                                                   "Approved", RGBA(209, 250, 229, 1),
                                                   "Pending", RGBA(219, 234, 254, 1),
                                                   "Under Review", RGBA(254, 243, 199, 1),
                                                   "Rejected", RGBA(254, 226, 226, 1),
                                                   RGBA(243, 244, 246, 1))
                                                 Font: =Font.Arial
-                                                FontColor: =Switch(varSelectedCR.status,
+                                                FontColor: |-
+                                                  =Switch(varSelectedCR.status,
                                                   "Approved", RGBA(6, 95, 70, 1),
                                                   "Pending", RGBA(29, 78, 216, 1),
                                                   "Under Review", RGBA(146, 64, 14, 1),
@@ -471,7 +473,8 @@ Screens:
                                               Control: Text@0.0.51
                                               Properties:
                                                 Font: =Font.Arial
-                                                FontColor: =If(
+                                                FontColor: |-
+                                                  =If(
                                                   LookUp(colProjects, number = varSelectedCR.projectNumber, budget) - LookUp(colProjects, number = varSelectedCR.projectNumber, actualObligation) >= 0,
                                                   RGBA(5, 150, 105, 1),
                                                   RGBA(220, 38, 38, 1))

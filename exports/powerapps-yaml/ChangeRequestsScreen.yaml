@@ -322,11 +322,12 @@ Screens:
                               BorderColor: =RGBA(0, 0, 0, 0)
                               Fill: =RGBA(255, 255, 255, 1)
                               Height: =560
-                              Items: =If(
+                              Items: |-
+                                =If(
                                 StatusFilter.Selected.Value = "All Statuses" Or IsBlank(StatusFilter.Selected.Value),
                                 Filter(colChangeRequests, SearchBox.Text = "" Or (projectName in SearchBox.Text) Or (projectNumber in SearchBox.Text) Or (submittedBy in SearchBox.Text)),
                                 Filter(colChangeRequests, status = StatusFilter.Selected.Value)
-                              )
+                                )
                               LayoutMaxHeight: =
                               LayoutMaxWidth: =
                               TemplateSize: =68
@@ -408,7 +409,8 @@ Screens:
                                   Control: Text@0.0.51
                                   Properties:
                                     Align: ='TextCanvas.Align'.Center
-                                    BorderColor: =Switch(ThisItem.status,
+                                    BorderColor: |-
+                                      =Switch(ThisItem.status,
                                       "First Request", RGBA(209, 213, 219, 1),
                                       "Approved", RGBA(167, 243, 208, 1),
                                       "Pending", RGBA(191, 219, 254, 1),
@@ -417,7 +419,8 @@ Screens:
                                       RGBA(203, 213, 225, 1))
                                     BorderStyle: =BorderStyle.Solid
                                     BorderThickness: =1
-                                    Fill: =Switch(ThisItem.status,
+                                    Fill: |-
+                                      =Switch(ThisItem.status,
                                       "First Request", RGBA(243, 244, 246, 1),
                                       "Approved", RGBA(209, 250, 229, 1),
                                       "Pending", RGBA(219, 234, 254, 1),
@@ -425,7 +428,8 @@ Screens:
                                       "Rejected", RGBA(254, 226, 226, 1),
                                       RGBA(241, 245, 249, 1))
                                     Font: =Font.Arial
-                                    FontColor: =Switch(ThisItem.status,
+                                    FontColor: |-
+                                      =Switch(ThisItem.status,
                                       "First Request", RGBA(75, 85, 99, 1),
                                       "Approved", RGBA(6, 95, 70, 1),
                                       "Pending", RGBA(29, 78, 216, 1),
