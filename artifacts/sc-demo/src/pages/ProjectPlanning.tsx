@@ -374,11 +374,9 @@ function QuarterlyPanel({
                 );
               })}
               <th style={{ width: 90, textAlign: "right", paddingBottom: 6, borderLeft: "1px solid #cbd5e1", paddingLeft: 8, paddingRight: 6 }}>
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 1 }}>
-                  <span style={{ fontSize: 10, fontWeight: 700, color: "#1a6ea8", textTransform: "uppercase" }}>FY Total</span>
-                  <span style={{ fontSize: 9, color: "#78350f", fontStyle: "italic" }}>click to set</span>
-                </div>
+                <span style={{ fontSize: 10, fontWeight: 700, color: "#1a6ea8", textTransform: "uppercase" }}>FY Total</span>
               </th>
+              <th style={{ width: 24 }} />
             </tr>
           </thead>
           <tbody>
@@ -386,6 +384,7 @@ function QuarterlyPanel({
               const fyKeys = FY_GROUPS[fy];
               const fyTotal = fyKeys.reduce((s, k) => s + row[k], 0);
               const hasEditable = fyKeys.some((k) => qStatus(k) === "editable");
+              const editableInFY = fyKeys.filter((k) => qStatus(k) === "editable");
               return (
                 <tr key={fy} style={{ borderTop: "1px solid #e2e8f0", background: fyIdx % 2 === 1 ? "rgba(255,255,255,0.55)" : undefined }}>
                   <td style={{ paddingTop: 4, paddingBottom: 4, fontWeight: 700, color: "#1a3557", fontSize: 12 }}>{fy}</td>
@@ -412,7 +411,6 @@ function QuarterlyPanel({
                         value={fyTotal}
                         gold
                         onChange={(newTotal) => {
-                          const editableInFY = fyKeys.filter((k) => qStatus(k) === "editable");
                           const obligatedInFY = fyKeys
                             .filter((k) => qStatus(k) === "past")
                             .reduce((s, k) => s + row[k], 0);
@@ -424,6 +422,21 @@ function QuarterlyPanel({
                       />
                     ) : (
                       <AmtDisplay value={fyTotal} bold />
+                    )}
+                  </td>
+                  {/* Clear-year button — zeros editable quarters in this FY only */}
+                  <td style={{ paddingTop: 0, paddingBottom: 0, paddingLeft: 2, paddingRight: 0, verticalAlign: "middle" }}>
+                    {hasEditable ? (
+                      <button
+                        onClick={() => editableInFY.forEach((k) => onUpdateQ(row.id, k, 0))}
+                        title={`Clear ${fy} — zero editable quarters only`}
+                        className="rounded transition-colors text-slate-300 hover:text-slate-500 hover:bg-slate-100"
+                        style={{ width: 20, height: 20, display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, lineHeight: 1 }}
+                      >
+                        /
+                      </button>
+                    ) : (
+                      <span style={{ width: 20, display: "inline-block" }} />
                     )}
                   </td>
                 </tr>
@@ -459,6 +472,7 @@ function QuarterlyPanel({
                   }}
                 />
               </td>
+              <td />
             </tr>
           </tfoot>
         </table>
