@@ -198,10 +198,9 @@ Screens:
                                     Fill: =RGBA(255, 255, 255, 1)
                                     FillPortions: =0
                                     Height: =36
-                                    HintText: ="Search by project, resource, org code…"
+                                    PlaceholderText: ="Search by project, resource, org code…"
                                     LayoutMaxHeight: =
                                     LayoutMaxWidth: =
-                                    Size: =13
                                     Width: =300
                               - ToolbarMid:
                                   Control: Rectangle@2.3.0

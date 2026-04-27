@@ -526,10 +526,9 @@ Screens:
                                                 Fill: =RGBA(255, 255, 255, 1)
                                                 FillPortions: =0
                                                 Height: =36
-                                                HintText: ="Full name"
+                                                PlaceholderText: ="Full name"
                                                 LayoutMaxHeight: =
                                                 LayoutMaxWidth: =
-                                                Size: =13
                                     - TeamColSpacer1:
                                         Control: Rectangle@2.3.0
                                         Properties:
@@ -623,10 +622,9 @@ Screens:
                                                 Fill: =RGBA(255, 255, 255, 1)
                                                 FillPortions: =0
                                                 Height: =36
-                                                HintText: ="Full name"
+                                                PlaceholderText: ="Full name"
                                                 LayoutMaxHeight: =
                                                 LayoutMaxWidth: =
-                                                Size: =13
                                     - TeamColSpacer2:
                                         Control: Rectangle@2.3.0
                                         Properties:
@@ -783,10 +781,9 @@ Screens:
                                                 Fill: =RGBA(255, 255, 255, 1)
                                                 FillPortions: =0
                                                 Height: =36
-                                                HintText: ="e.g. Resiliency, Emergency"
+                                                PlaceholderText: ="e.g. Resiliency, Emergency"
                                                 LayoutMaxHeight: =
                                                 LayoutMaxWidth: =
-                                                Size: =13
                               - FieldGap3:
                                   Control: Rectangle@2.3.0
                                   Properties:
@@ -861,10 +858,9 @@ Screens:
                                                 Fill: =RGBA(255, 255, 255, 1)
                                                 FillPortions: =0
                                                 Height: =36
-                                                HintText: ="MM/DD/YYYY"
+                                                PlaceholderText: ="MM/DD/YYYY"
                                                 LayoutMaxHeight: =
                                                 LayoutMaxWidth: =
-                                                Size: =13
                                     - SchedColSpacer:
                                         Control: Rectangle@2.3.0
                                         Properties:
@@ -905,10 +901,9 @@ Screens:
                                                 Fill: =RGBA(255, 255, 255, 1)
                                                 FillPortions: =0
                                                 Height: =36
-                                                HintText: ="MM/DD/YYYY"
+                                                PlaceholderText: ="MM/DD/YYYY"
                                                 LayoutMaxHeight: =
                                                 LayoutMaxWidth: =
-                                                Size: =13
                               - FieldGap4:
                                   Control: Rectangle@2.3.0
                                   Properties:
@@ -1043,10 +1038,9 @@ Screens:
                                           Fill: =RGBA(255, 255, 255, 1)
                                           FillPortions: =0
                                           Height: =36
-                                          HintText: ="https://cms.wbdg.org/..."
+                                          PlaceholderText: ="https://cms.wbdg.org/..."
                                           LayoutMaxHeight: =
                                           LayoutMaxWidth: =
-                                          Size: =12
                               - CMSLinkSpacer:
                                   Control: Rectangle@2.3.0
                                   Properties:
@@ -1089,10 +1083,9 @@ Screens:
                                           Fill: =RGBA(255, 255, 255, 1)
                                           FillPortions: =0
                                           Height: =36
-                                          HintText: ="https://cms.wbdg.org/s/..."
+                                          PlaceholderText: ="https://cms.wbdg.org/s/..."
                                           LayoutMaxHeight: =
                                           LayoutMaxWidth: =
-                                          Size: =12
                         - FormFooter:
                             Control: GroupContainer@1.5.0
                             Variant: AutoLayout

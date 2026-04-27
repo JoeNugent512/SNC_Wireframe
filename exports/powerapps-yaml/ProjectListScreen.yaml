@@ -183,10 +183,9 @@ Screens:
                                     Fill: =RGBA(255, 255, 255, 1)
                                     FillPortions: =1
                                     Height: =36
-                                    HintText: ="Search projects..."
+                                    PlaceholderText: ="Search projects..."
                                     LayoutMaxHeight: =
                                     LayoutMaxWidth: =
-                                    Size: =13
                         - ProjectGallery:
                             Control: Gallery@2.15.0
                             Variant: Vertical
