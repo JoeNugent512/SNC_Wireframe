@@ -13,7 +13,11 @@ const fmt = (n: number) =>
 
 const fmtDelta = (n: number) => (n > 0 ? "+" : "") + fmt(n);
 
+const isFirstRequest = (cr: ChangeRequest) => cr.status === "First Request";
+
 function netChange(cr: ChangeRequest) {
+  if (isFirstRequest(cr))
+    return cr.lineItems.reduce((sum, li) => sum + li.to, 0);
   return cr.lineItems.reduce((sum, li) =>
     li.direction === "Increase" ? sum + li.amount : sum - li.amount, 0);
 }
@@ -31,10 +35,11 @@ function typeChipClass(type: CRLineItem["type"]) {
 
 function StatusBadge({ status }: { status: ChangeRequest["status"] }) {
   const map: Record<string, string> = {
-    Approved:      "bg-emerald-100 text-emerald-800 border-emerald-200",
-    Pending:       "bg-blue-100 text-blue-800 border-blue-200",
-    "Under Review":"bg-amber-100 text-amber-800 border-amber-200",
-    Rejected:      "bg-red-100 text-red-800 border-red-200",
+    "First Request":"bg-slate-100 text-slate-600 border-slate-300",
+    Approved:       "bg-emerald-100 text-emerald-800 border-emerald-200",
+    Pending:        "bg-blue-100 text-blue-800 border-blue-200",
+    "Under Review": "bg-amber-100 text-amber-800 border-amber-200",
+    Rejected:       "bg-red-100 text-red-800 border-red-200",
   };
   return (
     <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${map[status]}`}>
@@ -77,6 +82,7 @@ function DescNotesCell({ initialDesc, disabled }: { initialDesc: string; disable
 }
 
 function BudgetChangesTable({ cr, disabled }: { cr: ChangeRequest; disabled: boolean }) {
+  const firstReq = isFirstRequest(cr);
   const groups: { orgCode: string; items: CRLineItem[] }[] = [];
   const seen = new Map<string, number>();
   for (const li of cr.lineItems) {
@@ -111,7 +117,8 @@ function BudgetChangesTable({ cr, disabled }: { cr: ChangeRequest; disabled: boo
             </span>
           </div>
           {group.items.map((li, i) => {
-            const delta = li.direction === "Increase" ? li.amount : -li.amount;
+            const displayFrom = firstReq ? 0 : li.from;
+            const delta = firstReq ? li.to : (li.direction === "Increase" ? li.amount : -li.amount);
             return (
               <div
                 key={i}
@@ -126,7 +133,7 @@ function BudgetChangesTable({ cr, disabled }: { cr: ChangeRequest; disabled: boo
                 <span className="text-sm text-slate-700 font-medium leading-tight pt-0.5 truncate" title={li.resource}>
                   {li.resource}
                 </span>
-                <span className="text-sm tabular-nums text-slate-500 text-right pt-0.5">{fmt(li.from)}</span>
+                <span className="text-sm tabular-nums text-slate-500 text-right pt-0.5">{fmt(displayFrom)}</span>
                 <span className="text-sm tabular-nums font-medium text-slate-800 text-right pt-0.5">{fmt(li.to)}</span>
                 <span className={`text-sm tabular-nums font-semibold text-right pt-0.5 ${delta > 0 ? "text-emerald-700" : "text-red-600"}`}>
                   {delta > 0 ? "+" : ""}{fmt(delta)}
