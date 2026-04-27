@@ -120,6 +120,32 @@ const DISTRICT_OPTIONS = [
 // Combined flat list (used for lookups)
 const ORG_OPTIONS = [...ERDC_LABS, ...DISTRICT_OPTIONS];
 
+/* ─── ERDC overhead / Flex-4 tables ───────────────────────────── */
+// ADD_ON_RATE per lab (from labRates screenshot): used for OH split in Create Request modal
+const ERDC_OH_RATES: Record<string, number> = {
+  "U439000": 0.25, // GRL
+  "U430000": 0.28, // CHL
+  "U433000": 0.28, // EL
+  "U435000": 0.28, // CERL
+  "U438000": 0.28, // GSL
+  "U43400":  0.29, // ITL
+  "U4P0000": 0.00, // CTS
+  "U437000": 0.39, // CRRL (note: labRates shows CRREL — same code)
+  "U400000": 0.00, // OTHER ERDC
+  "U440000": 0.43, // HPC
+};
+
+// True only for ERDC org codes (districts are W-prefix — no OH breakout)
+const isErdcCode = (code: string) => code in ERDC_OH_RATES;
+
+// Flex-4 = 3% off the top; OH split on remaining 97%
+// All arithmetic in whole dollars; any fractional penny in lab_base stays in OH (FRB = 0 for whole-dollar amounts)
+const flex4Amt      = (req: number) => Math.round(req * 0.03);
+const flex4Remain   = (req: number) => req - flex4Amt(req);
+const labBaseAmt    = (rem: number, ohRate: number) => Math.floor(rem / (1 + ohRate));
+const ohAmt         = (rem: number, ohRate: number) => rem - labBaseAmt(rem, ohRate);
+const frbAmt        = (rem: number, ohRate: number) => rem - labBaseAmt(rem, ohRate) - ohAmt(rem, ohRate);
+
 const CONTRACT_CODES = [
   { code: "DFC-CONTR",  name: "Direct Fund Cite Contract" },
   { code: "EQUIPMENT",  name: "Durable property" },
@@ -1028,6 +1054,309 @@ const INITIAL_OUTSOURCING: OutsourcingRow[] = [
     openCommitment: 1400, requested: 15000 },
 ];
 
+/* ─── Create Request Modal ──────────────────────────────────────── */
+type CREntry = {
+  rowId:       number;
+  orgCode:     string;
+  orgLabel:    string;
+  type:        "Labor" | "Travel" | "Contracting" | "Outsourcing";
+  displayName: string;
+  committed:   number; // obligatedQ
+  change:      number; // requested - committed
+  requested:   number;
+  isErdc:      boolean;
+};
+type TravelForm   = { poc: string; travelers: string; dates: string; purpose: string };
+type ResourceForm = { pop: string; poc: string; purpose: string };
+
+function Flex4Breakdown({ requested, orgCode }: { requested: number; orgCode: string }) {
+  const ohRate = ERDC_OH_RATES[orgCode] ?? 0;
+  const f4  = flex4Amt(requested);
+  const rem = flex4Remain(requested);
+  const lb  = labBaseAmt(rem, ohRate);
+  const oh  = ohAmt(rem, ohRate);
+  const frb = frbAmt(rem, ohRate);
+  return (
+    <div className="mt-3 rounded-lg border border-blue-100 bg-blue-50 px-3 py-2.5 text-xs" onClick={(e) => e.stopPropagation()}>
+      <p className="font-bold text-blue-800 uppercase tracking-wide mb-2" style={{ fontSize: 10 }}>OH Rate / Flex-4 Breakdown</p>
+      <div className="grid gap-y-1" style={{ gridTemplateColumns: "1fr auto" }}>
+        <span className="text-blue-700">OH Rate</span>
+        <span className="text-right font-mono font-bold text-blue-800">{(ohRate * 100).toFixed(0)}%</span>
+        <span className="text-blue-700">Flex-4 (3% off top)</span>
+        <span className="text-right font-mono font-semibold text-blue-800">{fmt(f4)}</span>
+        <span className="text-slate-500">Remaining (97%)</span>
+        <span className="text-right font-mono text-slate-600">{fmt(rem)}</span>
+        <span className="pl-4 text-blue-700">Lab Base</span>
+        <span className="text-right font-mono font-semibold text-blue-800">{fmt(lb)}</span>
+        <span className="pl-4 text-blue-700">OH ({(ohRate * 100).toFixed(0)}%)</span>
+        <span className="text-right font-mono font-semibold text-blue-800">{fmt(oh)}</span>
+        <span className="pl-4 text-slate-400">FRB (rounding)</span>
+        <span className="text-right font-mono text-slate-400">{fmt(frb)}</span>
+      </div>
+    </div>
+  );
+}
+
+function CreateRequestModal({
+  project, laborRows, travelRows, contractRows, outsourcingRows, totalPlanned, onClose,
+}: {
+  project: Project;
+  laborRows: PlanRow[];
+  travelRows: PlanRow[];
+  contractRows: ContractRow[];
+  outsourcingRows: OutsourcingRow[];
+  totalPlanned: number;
+  onClose: () => void;
+}) {
+  const [travelForms,    setTravelForms]    = useState<Record<number, TravelForm>>({});
+  const [resourceForms,  setResourceForms]  = useState<Record<number, ResourceForm>>({});
+  const [expandedTravel, setExpandedTravel] = useState<Set<number>>(new Set());
+  const [expandedRes,    setExpandedRes]    = useState<Set<number>>(new Set());
+
+  const getTF  = (id: number): TravelForm   => travelForms[id]   ?? { poc: "", travelers: "", dates: "", purpose: "" };
+  const getRF  = (id: number): ResourceForm => resourceForms[id]  ?? { pop: "", poc: "", purpose: "" };
+  const togSet = (s: Set<number>, id: number) => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; };
+
+  // Build a flat unified entry list
+  const entries: CREntry[] = [
+    ...laborRows.map((r) => {
+      const parts = r.sub.split("/");
+      const orgCode = parts[0] ?? r.sub;
+      return { rowId: r.id, orgCode, orgLabel: parts[1] ?? orgCode, type: "Labor" as const,
+        displayName: r.label, committed: obligatedQ(r), change: r.requested - obligatedQ(r), requested: r.requested, isErdc: isErdcCode(orgCode) };
+    }),
+    ...travelRows.map((r) => ({
+      rowId: r.id, orgCode: r.sub, orgLabel: r.label, type: "Travel" as const,
+      displayName: r.label, committed: obligatedQ(r), change: r.requested - obligatedQ(r), requested: r.requested, isErdc: isErdcCode(r.sub),
+    })),
+    ...contractRows.map((r) => ({
+      rowId: r.id, orgCode: r.orgCode, orgLabel: r.org, type: "Contracting" as const,
+      displayName: `${r.contractCode} — ${r.contractName}`, committed: obligatedQ(r), change: r.requested - obligatedQ(r), requested: r.requested, isErdc: isErdcCode(r.orgCode),
+    })),
+    ...outsourcingRows.map((r) => ({
+      rowId: r.id, orgCode: r.orgCode, orgLabel: r.org, type: "Outsourcing" as const,
+      displayName: `${r.resourceCode} — ${r.resourceName}`, committed: obligatedQ(r), change: r.requested - obligatedQ(r), requested: r.requested, isErdc: isErdcCode(r.orgCode),
+    })),
+  ];
+
+  // Group by orgCode preserving insertion order
+  const orgOrder: string[] = [];
+  const byOrg: Record<string, CREntry[]> = {};
+  for (const e of entries) {
+    if (!byOrg[e.orgCode]) { byOrg[e.orgCode] = []; orgOrder.push(e.orgCode); }
+    byOrg[e.orgCode].push(e);
+  }
+
+  const TYPE_ORDER: CREntry["type"][] = ["Labor", "Travel", "Contracting", "Outsourcing"];
+  const TYPE_DOT: Record<string, string> = {
+    Labor: "#60a5fa", Travel: "#a78bfa", Contracting: "#34d399", Outsourcing: "#f59e0b",
+  };
+  const freeBalance = project.budget - totalPlanned;
+  const fieldCls = "w-full border border-slate-200 rounded px-2.5 py-1.5 text-sm text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-300";
+  const labelCls = "block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1";
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto"
+      style={{ backgroundColor: "rgba(15,23,42,0.55)", paddingTop: 40, paddingBottom: 40 }}
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col"
+        style={{ width: "100%", maxWidth: 840, margin: "0 16px" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-3 flex-shrink-0" style={{ backgroundColor: "#1a3557" }}>
+          <span className="text-white font-bold text-sm tracking-widest uppercase">Create Request — Preview</span>
+          <button onClick={onClose} className="text-white/60 hover:text-white transition-colors"><X size={16} /></button>
+        </div>
+
+        <div className="overflow-y-auto" style={{ maxHeight: "calc(90vh - 52px)" }}>
+          {/* Project card */}
+          <div className="m-4 mb-3 border border-slate-200 rounded-lg overflow-hidden">
+            <div className="px-4 py-1.5 border-b border-slate-100" style={{ backgroundColor: "#f8fafc" }}>
+              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Budget Change Request</span>
+            </div>
+            <div className="p-4 flex items-start gap-4 flex-wrap">
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-mono text-slate-400 mb-0.5">{project.number}</p>
+                <p className="text-xl font-bold text-slate-800 leading-tight">{project.name}</p>
+                <div className="flex items-center flex-wrap gap-3 mt-2">
+                  <span className="text-xs font-semibold px-2 py-0.5 rounded" style={{ backgroundColor: "#fef9c3", color: "#854d0e", border: "1px solid #fde047" }}>Pending</span>
+                  <span className="text-xs text-slate-500">{project.pmName} · 2026-04-27</span>
+                  <span className="text-xs text-slate-500">Proponent: <span className="font-semibold text-slate-700">{project.hqProponent}</span></span>
+                </div>
+              </div>
+              <div className="flex-shrink-0 border border-slate-200 rounded-lg overflow-hidden">
+                <div className="grid divide-x divide-slate-200" style={{ gridTemplateColumns: "repeat(3, minmax(90px, 1fr))" }}>
+                  {[
+                    { label: "TOA",          val: project.budget, color: "#1e293b" },
+                    { label: "Planned",      val: totalPlanned,   color: "#1e293b" },
+                    { label: "Free Balance", val: freeBalance,    color: freeBalance >= 0 ? "#16a34a" : "#dc2626" },
+                  ].map((c) => (
+                    <div key={c.label} className="px-3 py-2 text-right">
+                      <p className="text-xs text-slate-400 uppercase tracking-wide font-semibold whitespace-nowrap">{c.label}</p>
+                      <p className="font-bold tabular-nums text-sm" style={{ color: c.color }}>{fmt(c.val)}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Project description */}
+          <div className="mx-4 mb-3 border border-slate-200 rounded-lg p-4">
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1">Project Description</p>
+            <p className="text-sm text-slate-700 leading-relaxed">{project.description}</p>
+          </div>
+
+          {/* Budget Breakdown */}
+          <div className="mx-4 mb-4 border border-slate-200 rounded-lg overflow-hidden">
+            <div className="px-4 py-2.5" style={{ backgroundColor: "#1a3557" }}>
+              <span className="text-white font-bold text-xs tracking-widest uppercase">Budget Breakdown</span>
+            </div>
+
+            {orgOrder.map((orgCode) => {
+              const orgEntries = byOrg[orgCode];
+              const orgLabel   = orgEntries[0].orgLabel;
+              // sub-group by type, preserving TYPE_ORDER
+              const typeMap: Partial<Record<CREntry["type"], CREntry[]>> = {};
+              for (const e of orgEntries) {
+                if (!typeMap[e.type]) typeMap[e.type] = [];
+                typeMap[e.type]!.push(e);
+              }
+              const usedTypes = TYPE_ORDER.filter((t) => typeMap[t]);
+
+              return (
+                <div key={orgCode} className="border-b border-slate-200 last:border-b-0">
+                  {/* Org code header */}
+                  <div className="px-4 py-1.5 flex items-center gap-3" style={{ backgroundColor: "#1e3a5f" }}>
+                    <span className="font-mono text-xs font-bold" style={{ color: "#93c5fd" }}>{orgCode}</span>
+                    {orgLabel && orgLabel !== orgCode && (
+                      <span className="text-xs" style={{ color: "#94a3b8" }}>· {orgLabel}</span>
+                    )}
+                  </div>
+
+                  {usedTypes.map((type) => {
+                    const typeEntries = typeMap[type]!;
+                    return (
+                      <div key={type}>
+                        {/* Type sub-header with column labels */}
+                        <div className="px-4 py-1.5 flex items-center gap-2 border-b border-slate-100" style={{ backgroundColor: "#f1f5f9" }}>
+                          <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: TYPE_DOT[type] }} />
+                          <span className="text-xs font-bold text-slate-600 uppercase tracking-wide flex-1">{type}</span>
+                          <span className="text-xs font-semibold text-slate-400 uppercase" style={{ width: 100, textAlign: "right" }}>Committed</span>
+                          <span className="text-xs font-semibold text-slate-400 uppercase" style={{ width: 100, textAlign: "right" }}>Change</span>
+                          <span className="text-xs font-semibold text-slate-400 uppercase" style={{ width: 100, textAlign: "right" }}>Requested</span>
+                          <span style={{ width: 28 }} />
+                        </div>
+
+                        {typeEntries.map((entry) => {
+                          const isTravel   = entry.type === "Travel";
+                          const isResource = entry.type === "Contracting" || entry.type === "Outsourcing";
+                          const expandable = isTravel || isResource;
+                          const isExpanded = isTravel ? expandedTravel.has(entry.rowId) : expandedRes.has(entry.rowId);
+
+                          return (
+                            <React.Fragment key={entry.rowId}>
+                              {/* Data row */}
+                              <div
+                                className="px-4 py-2.5 flex items-center gap-2 border-b border-slate-100 transition-colors"
+                                style={{ cursor: expandable ? "pointer" : "default", backgroundColor: isExpanded ? "#f8fafc" : undefined }}
+                                onMouseEnter={(e) => { if (expandable) e.currentTarget.style.backgroundColor = "#f8fafc"; }}
+                                onMouseLeave={(e) => { if (!isExpanded) e.currentTarget.style.backgroundColor = ""; }}
+                                onClick={() => {
+                                  if (isTravel)    setExpandedTravel((s) => togSet(s, entry.rowId));
+                                  else if (isResource) setExpandedRes((s) => togSet(s, entry.rowId));
+                                }}
+                              >
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-semibold text-slate-800 leading-snug truncate">{entry.displayName}</p>
+                                  <p className="text-xs text-slate-400">{entry.orgCode}</p>
+                                </div>
+                                <span className="tabular-nums text-sm text-slate-600" style={{ width: 100, textAlign: "right" }}>
+                                  {entry.committed > 0 ? fmt(entry.committed) : "—"}
+                                </span>
+                                <span className="tabular-nums text-sm font-semibold" style={{ width: 100, textAlign: "right", color: entry.change > 0 ? "#15803d" : entry.change < 0 ? "#b91c1c" : "#94a3b8" }}>
+                                  {entry.change === 0 ? "—" : `${entry.change > 0 ? "+" : ""}${fmt(entry.change)}`}
+                                </span>
+                                <span className="tabular-nums text-sm font-bold text-slate-800" style={{ width: 100, textAlign: "right" }}>
+                                  {entry.requested > 0 ? fmt(entry.requested) : "—"}
+                                </span>
+                                <span style={{ width: 28, display: "flex", alignItems: "center", justifyContent: "center", color: "#94a3b8" }}>
+                                  {expandable ? (isExpanded ? <ChevronDown size={13} /> : <ChevronRight size={13} />) : null}
+                                </span>
+                              </div>
+
+                              {/* Travel detail form */}
+                              {isTravel && isExpanded && (
+                                <div className="px-6 py-4 border-b border-slate-100 bg-slate-50" onClick={(e) => e.stopPropagation()}>
+                                  <div className="grid grid-cols-2 gap-3">
+                                    {[
+                                      { key: "poc",      label: "POC",              placeholder: "Point of contact name"        },
+                                      { key: "travelers", label: "Travelers",        placeholder: "Names / number of travelers"  },
+                                      { key: "dates",    label: "Dates of Travel",  placeholder: "e.g. 15–18 Jul 2026"          },
+                                      { key: "purpose",  label: "Purpose of Travel", placeholder: "Brief purpose statement"     },
+                                    ].map(({ key, label, placeholder }) => (
+                                      <div key={key}>
+                                        <label className={labelCls}>{label}</label>
+                                        <input
+                                          className={fieldCls}
+                                          placeholder={placeholder}
+                                          value={(getTF(entry.rowId) as Record<string, string>)[key] ?? ""}
+                                          onChange={(e) => setTravelForms((f) => ({ ...f, [entry.rowId]: { ...getTF(entry.rowId), [key]: e.target.value } }))}
+                                        />
+                                      </div>
+                                    ))}
+                                  </div>
+                                  {entry.isErdc && entry.requested > 0 && (
+                                    <Flex4Breakdown requested={entry.requested} orgCode={entry.orgCode} />
+                                  )}
+                                </div>
+                              )}
+
+                              {/* Contract / Outsourcing detail form */}
+                              {isResource && isExpanded && (
+                                <div className="px-6 py-4 border-b border-slate-100 bg-slate-50" onClick={(e) => e.stopPropagation()}>
+                                  <div className="grid grid-cols-3 gap-3">
+                                    {[
+                                      { key: "pop",     label: "Period of Performance (POP)", placeholder: "e.g. 01 Oct 2026 – 30 Sep 2027" },
+                                      { key: "poc",     label: "POC",                          placeholder: "Point of contact name"          },
+                                      { key: "purpose", label: "Purpose",                       placeholder: "Brief purpose statement"        },
+                                    ].map(({ key, label, placeholder }) => (
+                                      <div key={key}>
+                                        <label className={labelCls}>{label}</label>
+                                        <input
+                                          className={fieldCls}
+                                          placeholder={placeholder}
+                                          value={(getRF(entry.rowId) as Record<string, string>)[key] ?? ""}
+                                          onChange={(e) => setResourceForms((f) => ({ ...f, [entry.rowId]: { ...getRF(entry.rowId), [key]: e.target.value } }))}
+                                        />
+                                      </div>
+                                    ))}
+                                  </div>
+                                  {entry.isErdc && entry.requested > 0 && (
+                                    <Flex4Breakdown requested={entry.requested} orgCode={entry.orgCode} />
+                                  )}
+                                </div>
+                              )}
+                            </React.Fragment>
+                          );
+                        })}
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ─── main page ─────────────────────────────────────────────────── */
 export default function ProjectPlanning() {
   const { id } = useParams<{ id: string }>();
@@ -1043,10 +1372,11 @@ export default function ProjectPlanning() {
   const [expandedContract,   setExpandedContract]   = useState<Set<number>>(new Set());
   const [expandedOutsourcing, setExpandedOutsourcing] = useState<Set<number>>(new Set());
 
-  const [showLaborPicker,      setShowLaborPicker]      = useState(false);
-  const [showTravelPicker,     setShowTravelPicker]     = useState(false);
-  const [showContractPicker,   setShowContractPicker]   = useState(false);
+  const [showLaborPicker,       setShowLaborPicker]       = useState(false);
+  const [showTravelPicker,      setShowTravelPicker]      = useState(false);
+  const [showContractPicker,    setShowContractPicker]    = useState(false);
   const [showOutsourcingPicker, setShowOutsourcingPicker] = useState(false);
+  const [showCreateRequest,     setShowCreateRequest]     = useState(false);
 
   const toggleSet = (set: Set<number>, id: number): Set<number> => {
     const next = new Set(set);
@@ -1057,6 +1387,10 @@ export default function ProjectPlanning() {
   // Live totals for the summary bubbles
   const totalPlanned = [...laborRows, ...travelRows, ...contractRows, ...outsourcingRows]
     .reduce((sum, r) => sum + sumAll(r), 0);
+
+  // "Create Request" gate: enabled only when 0 <= leftToPlan <= $50
+  const leftToPlan = project.budget - totalPlanned;
+  const createEnabled = leftToPlan >= 0 && leftToPlan <= 50;
 
   /* generic Q updater for PlanRow */
   function updatePlanQ(setRows: React.Dispatch<React.SetStateAction<PlanRow[]>>, id: number, field: keyof QData, val: number) {
@@ -1210,13 +1544,36 @@ export default function ProjectPlanning() {
             <p className="text-xs font-mono" style={{ color: "rgba(255,255,255,0.5)" }}>{project.number}</p>
             <p className="font-bold text-white truncate">{project.name}</p>
           </div>
-          <div className="flex items-center gap-6 flex-shrink-0">
+          <div className="flex items-center gap-4 flex-shrink-0">
             <div className="text-right">
               <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "rgba(255,255,255,0.5)" }}>Project POP</p>
               <p className="font-semibold text-sm text-white">{PLAN_WINDOW_LABEL}</p>
             </div>
             <div className="text-right px-2 py-1 rounded text-xs font-semibold" style={{ backgroundColor: "rgba(167,243,208,0.2)", color: "#6ee7b7", border: "1px solid rgba(167,243,208,0.3)" }}>
               {PLAN_STATUS_LABEL}
+            </div>
+            {/* Create Request button + hint */}
+            <div className="flex flex-col items-end gap-1">
+              <button
+                disabled={!createEnabled}
+                onClick={() => createEnabled && setShowCreateRequest(true)}
+                className="text-xs font-bold px-3 py-1.5 rounded transition-colors"
+                style={createEnabled
+                  ? { backgroundColor: "#1a6ea8", color: "#fff", border: "1px solid #2d8fcf", cursor: "pointer" }
+                  : { backgroundColor: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.35)", border: "1px solid rgba(255,255,255,0.12)", cursor: "not-allowed" }
+                }
+                onMouseEnter={(e) => { if (createEnabled) e.currentTarget.style.backgroundColor = "#1e82c6"; }}
+                onMouseLeave={(e) => { if (createEnabled) e.currentTarget.style.backgroundColor = "#1a6ea8"; }}
+              >
+                Create Request
+              </button>
+              {!createEnabled && (
+                <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
+                  {leftToPlan < 0
+                    ? `Over budget by ${fmt(Math.abs(leftToPlan))} — reduce to enable`
+                    : `Plan ${fmt(leftToPlan)} more to enable`}
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -1234,10 +1591,15 @@ export default function ProjectPlanning() {
               <p className="text-2xl font-bold text-slate-800 mt-0.5">{fmt(totalPlanned)}</p>
               <p className="text-xs text-slate-400 mt-1">Amount currently planned</p>
             </div>
-            <div className="flex-1 rounded-xl px-5 py-4" style={{ backgroundColor: "#fffbeb", border: "1px solid #fcd34d" }}>
-              <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "#92400e" }}>Left to Plan</p>
-              <p className="text-2xl font-bold mt-0.5" style={{ color: "#b45309" }}>{fmt(Math.max(0, project.budget - totalPlanned))}</p>
-              <p className="text-xs mt-1" style={{ color: "#a16207" }}>Unallocated funds remaining</p>
+            <div className="flex-1 rounded-xl px-5 py-4" style={leftToPlan < 0
+              ? { backgroundColor: "#fef2f2", border: "1px solid #fca5a5" }
+              : { backgroundColor: "#fffbeb", border: "1px solid #fcd34d" }
+            }>
+              <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: leftToPlan < 0 ? "#991b1b" : "#92400e" }}>Left to Plan</p>
+              <p className="text-2xl font-bold mt-0.5" style={{ color: leftToPlan < 0 ? "#dc2626" : "#b45309" }}>{fmt(leftToPlan)}</p>
+              <p className="text-xs mt-1" style={{ color: leftToPlan < 0 ? "#b91c1c" : "#a16207" }}>
+                {leftToPlan < 0 ? "Over budget — reduce planned amounts" : "Unallocated funds remaining"}
+              </p>
             </div>
           </div>
         </div>
@@ -1439,6 +1801,19 @@ export default function ProjectPlanning() {
 
         </div>
       </div>
+
+      {/* Create Request modal */}
+      {showCreateRequest && (
+        <CreateRequestModal
+          project={project}
+          laborRows={laborRows}
+          travelRows={travelRows}
+          contractRows={contractRows}
+          outsourcingRows={outsourcingRows}
+          totalPlanned={totalPlanned}
+          onClose={() => setShowCreateRequest(false)}
+        />
+      )}
     </Layout>
   );
 }
