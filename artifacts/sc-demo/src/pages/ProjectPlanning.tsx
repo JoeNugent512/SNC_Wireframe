@@ -1044,26 +1044,28 @@ export default function ProjectPlanning() {
     </div>
   );
 
-  return (
-    <Layout>
-      <div className="min-h-screen" style={{ backgroundColor: "#f8fafc" }}>
-        {/* breadcrumb bar */}
-        <div className="bg-white border-b border-slate-200 px-6 py-2 flex items-center justify-between">
-          <div className="flex items-center gap-1 text-sm text-slate-500">
-            <Link href="/" className="hover:text-blue-600 transition-colors">Home</Link>
-            <ChevronRight size={13} className="text-slate-300" />
-            <Link href="/projects" className="hover:text-blue-600 transition-colors">Projects</Link>
-            <ChevronRight size={13} className="text-slate-300" />
-            <Link href={`/projects/${project.id}`} className="hover:text-blue-600 transition-colors">{project.number}</Link>
-            <ChevronRight size={13} className="text-slate-300" />
-            <span className="font-semibold text-slate-700">Planning</span>
-          </div>
-          <Link href={`/projects/${project.id}/settings`} className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-700 transition-colors">
-            <Settings size={13} />
-            Settings
-          </Link>
-        </div>
+  const breadcrumb = (
+    <>
+      <Link href="/" className="hover:text-blue-600 transition-colors text-slate-500">Home</Link>
+      <ChevronRight size={13} className="text-slate-300" />
+      <Link href="/projects" className="hover:text-blue-600 transition-colors text-slate-500">Projects</Link>
+      <ChevronRight size={13} className="text-slate-300" />
+      <Link href={`/projects/${project.id}`} className="hover:text-blue-600 transition-colors text-slate-500">{project.number}</Link>
+      <ChevronRight size={13} className="text-slate-300" />
+      <span className="font-semibold text-slate-700">Planning</span>
+    </>
+  );
 
+  const headerActions = (
+    <Link href={`/projects/${project.id}/settings`} className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-700 transition-colors">
+      <Settings size={13} />
+      Settings
+    </Link>
+  );
+
+  return (
+    <Layout breadcrumb={breadcrumb} headerActions={headerActions}>
+      <div className="min-h-screen" style={{ backgroundColor: "#f8fafc" }}>
         {/* project info bar — no TOA here; TOA lives in the summary bubbles below */}
         <div className="px-6 py-3 flex items-center gap-4" style={{ backgroundColor: "#1a3557" }}>
           <div className="flex-1 min-w-0">
