@@ -6,3 +6,9 @@ id = "eaQUuNluKvmVmrkyK5yQ-"
 uri = "file://artifacts/sc-demo/powerapps-yaml/HomeScreen.yaml"
 type = "unspecified"
 title = "HomeScreen.yaml — PowerApps Canvas"
+
+[[outputs]]
+id = "8lU1d-CiccyRttWhxjHzQ"
+uri = "file://.local/powerapps-yaml/HomeScreen.yaml"
+type = "unspecified"
+title = "HomeScreen.yaml — PowerApps Canvas (not tracked by git)"
