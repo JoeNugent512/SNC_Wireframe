@@ -39,12 +39,16 @@ function ReadonlyField({ label, value, url }: { label: string; value: string; ur
   );
 }
 
-function YesNoBadge({ value }: { value: boolean }) {
+function ContractSupportBadge({ value }: { value: "" | "Yes" | "No" | "N/A" }) {
+  if (!value) return <span className="text-sm text-slate-400 italic">—</span>;
+  const styles: Record<string, string> = {
+    Yes:  "bg-emerald-100 text-emerald-800 border border-emerald-200",
+    No:   "bg-slate-100 text-slate-600 border border-slate-200",
+    "N/A":"bg-amber-50 text-amber-700 border border-amber-200",
+  };
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-      value ? "bg-emerald-100 text-emerald-800 border border-emerald-200" : "bg-slate-100 text-slate-600 border border-slate-200"
-    }`}>
-      {value ? "Yes" : "No"}
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${styles[value] ?? ""}`}>
+      {value}
     </span>
   );
 }
@@ -446,11 +450,18 @@ export default function ProjectSettings() {
                   <ReadonlyField label="S&C Number" value={project.number} />
                   <ReadonlyField label="Project Title" value={project.name} />
                 </div>
+                {project.description && (
+                  <div className="mt-4">
+                    <Label className="text-xs text-slate-400 uppercase tracking-wider font-semibold mb-1.5 block">Description</Label>
+                    <p className="text-sm text-slate-700 leading-relaxed">{project.description}</p>
+                  </div>
+                )}
               </div>
 
               <div>
                 <SectionLabel>Team</SectionLabel>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <ReadonlyField label="Project Manager" value={project.pmName} />
                   <ReadonlyField label="DWG / CoP" value={project.dwgCoP} />
                   <ReadonlyField label="HQ Proponent" value={project.hqProponent} />
                   <ReadonlyField label="Executing Org" value={project.executingOrg} />
@@ -465,7 +476,7 @@ export default function ProjectSettings() {
                     <Label className="text-xs text-slate-400 uppercase tracking-wider font-semibold mb-1.5 block">
                       Need S&amp;C Contract Support?
                     </Label>
-                    <YesNoBadge value={project.needsContractSupport} />
+                    <ContractSupportBadge value={project.needsContractSupport} />
                   </div>
                   <div>
                     <Label className="text-xs text-slate-400 uppercase tracking-wider font-semibold mb-1.5 block">

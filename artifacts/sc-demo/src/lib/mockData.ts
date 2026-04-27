@@ -13,7 +13,7 @@ export interface Project {
   hqProponent: string;
   executingOrg: string;
   projectLead: string;
-  needsContractSupport: boolean;
+  needsContractSupport: "" | "Yes" | "No" | "N/A";
   specialFundingType: string;
   budgetAtSubmission: number;
   actualObligation: number;
@@ -156,7 +156,7 @@ export const MOCK_PROJECTS: Project[] = [
     hqProponent: "Joe Bush",
     executingOrg: "ERDC",
     projectLead: "John Smith",
-    needsContractSupport: true,
+    needsContractSupport: "Yes",
     specialFundingType: "Resiliency",
     budgetAtSubmission: 2400000,
     actualObligation: 2358000,
@@ -178,7 +178,7 @@ export const MOCK_PROJECTS: Project[] = [
     hqProponent: "Marcus Thorne",
     executingOrg: "CERL",
     projectLead: "Sarah Jenkins",
-    needsContractSupport: false,
+    needsContractSupport: "No",
     specialFundingType: "",
     budgetAtSubmission: 1200000,
     actualObligation: 0,
@@ -200,7 +200,7 @@ export const MOCK_PROJECTS: Project[] = [
     hqProponent: "Elena Rodriguez",
     executingOrg: "ERDC",
     projectLead: "Marcus Thorne",
-    needsContractSupport: true,
+    needsContractSupport: "Yes",
     specialFundingType: "Critical Infrastructure",
     budgetAtSubmission: 3500000,
     actualObligation: 3212500,
@@ -222,7 +222,7 @@ export const MOCK_PROJECTS: Project[] = [
     hqProponent: "David Chen",
     executingOrg: "CERL",
     projectLead: "Elena Rodriguez",
-    needsContractSupport: true,
+    needsContractSupport: "Yes",
     specialFundingType: "MILCON",
     budgetAtSubmission: 8500000,
     actualObligation: 0,
@@ -244,7 +244,7 @@ export const MOCK_PROJECTS: Project[] = [
     hqProponent: "Joe Bush",
     executingOrg: "ERDC",
     projectLead: "David Chen",
-    needsContractSupport: false,
+    needsContractSupport: "No",
     specialFundingType: "",
     budgetAtSubmission: 500000,
     actualObligation: 0,
@@ -266,7 +266,7 @@ export const MOCK_PROJECTS: Project[] = [
     hqProponent: "Sarah Jenkins",
     executingOrg: "CERL",
     projectLead: "John Smith",
-    needsContractSupport: false,
+    needsContractSupport: "No",
     specialFundingType: "Coastal Defense",
     budgetAtSubmission: 1800000,
     actualObligation: 1798400,

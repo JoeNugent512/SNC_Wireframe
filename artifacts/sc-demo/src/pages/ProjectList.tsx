@@ -289,7 +289,7 @@ export default function ProjectList() {
                       <div className="grid grid-cols-2 gap-2">
                         {[
                           { label: "DWG / CoP",       value: selectedProject.dwgCoP },
-                          { label: "Need S&C Contract Support", value: selectedProject.needsContractSupport ? "Yes" : "No" },
+                          { label: "Need S&C Contract Support", value: selectedProject.needsContractSupport || "—" },
                           { label: "HQ Proponent",    value: selectedProject.hqProponent },
                           { label: "Special Funding Type", value: selectedProject.specialFundingType || "—" },
                           { label: "Executing Org",   value: selectedProject.executingOrg },
