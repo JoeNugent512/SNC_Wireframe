@@ -940,8 +940,8 @@ function SubmitPreviewModal({
             {sections.map((grp, gi) => (
               <div key={grp.orgCode} className={gi > 0 ? "border-t-2 border-slate-200" : ""}>
                 {/* Org code header */}
-                <div className="flex items-center gap-2 px-5 py-2 bg-slate-100">
-                  <span className="text-[11px] font-bold text-slate-500 uppercase tracking-widest font-mono">{grp.orgCode}</span>
+                <div className="flex items-center gap-2 px-5 py-2" style={{ backgroundColor: "#1e293b" }}>
+                  <span className="text-[11px] font-bold text-slate-200 uppercase tracking-widest font-mono">{grp.orgCode}</span>
                 </div>
 
                 {grp.sections.map((sec) => {
