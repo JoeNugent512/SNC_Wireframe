@@ -933,8 +933,8 @@ function SubmitPreviewModal({
 
           {/* Budget breakdown */}
           <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-            <div className="px-5 py-3 border-b border-slate-200 bg-slate-50/60">
-              <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Budget Breakdown</p>
+            <div className="px-5 py-3" style={{ backgroundColor: "#1a3557" }}>
+              <p className="text-xs font-bold text-blue-200 uppercase tracking-widest">Budget Breakdown</p>
             </div>
 
             {sections.map((grp, gi) => (
