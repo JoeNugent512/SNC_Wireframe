@@ -136,6 +136,7 @@ export interface ChangeRequest {
   submittedBy: string;
   date: string;
   justification: string;
+  typeJustifications?: Partial<Record<string, string>>;
   status: "First Request" | "Pending" | "Approved" | "Under Review" | "Rejected";
   lineItems: CRLineItem[];
 }
@@ -284,6 +285,10 @@ export const MOCK_CHANGE_REQUESTS: ChangeRequest[] = [
     submittedBy: "John Smith",
     date: "2024-02-10",
     justification: "Labor reallocation needed after geotechnical scope expanded. Nugent picked up additional survey tasks; offsetting by reducing planned site visits that can be combined into fewer trips.",
+    typeJustifications: {
+      Labor:  "Nugent took on additional geotechnical survey tasks beyond original scope agreement. Rate increase approved by PM on 2024-02-08.",
+      Travel: "Two previously separate site visits consolidated into a single trip to reduce per-diem and mileage costs.",
+    },
     status: "Pending",
     lineItems: [
       { direction: "Increase", type: "Labor",  orgCode: "U435310", resource: "Nugent, Joseph Pat",  amount: 22000, from: 215000, to: 237000 },
@@ -298,6 +303,11 @@ export const MOCK_CHANGE_REQUESTS: ChangeRequest[] = [
     submittedBy: "Sarah Jenkins",
     date: "2024-01-25",
     justification: "Additional org-code labor is required for the extended environmental compliance phase. Equipment transport trips have been consolidated and steel fasteners sourced locally, freeing those funds.",
+    typeJustifications: {
+      Labor:     "Environmental compliance phase extended by 6 weeks per regulatory review outcome dated 2024-01-20. Additional org-code hours required.",
+      Travel:    "Equipment transport consolidated; single-carrier arrangement reduces trips from 4 to 2.",
+      Materials: "Steel fasteners sourced from local supplier at 22% lower unit cost; quantity unchanged.",
+    },
     status: "Pending",
     lineItems: [
       { direction: "Increase", type: "Labor",     orgCode: "U435310", resource: "U435310",              amount: 45000, from: 280000, to: 325000 },
@@ -314,6 +324,10 @@ export const MOCK_CHANGE_REQUESTS: ChangeRequest[] = [
     submittedBy: "Elena Rodriguez",
     date: "2024-02-05",
     justification: "Adding Park, Jennifer to support excavation coordination. Funded by trimming Contractor Pool and Okafor hours. Small Cold Regions Research Lab site visit added by pulling remaining labor from Contractor Pool.",
+    typeJustifications: {
+      Labor:  "Park, Jennifer added for excavation coordination per field director request 2024-01-30. Offset by scope reduction for Okafor and Contractor Pool.",
+      Travel: "Cold Regions Research Lab site visit added at request of technical advisor to assess soil conditions.",
+    },
     status: "First Request",
     lineItems: [
       { direction: "Increase", type: "Labor",  orgCode: "U601847", resource: "Park, Jennifer",            amount:  9000, from:  145000, to:  154000 },
@@ -330,6 +344,10 @@ export const MOCK_CHANGE_REQUESTS: ChangeRequest[] = [
     submittedBy: "Marcus Thorne",
     date: "2024-01-18",
     justification: "Additional senior labor required for systems integration across all checkpoints. Value-engineered panel selection reduces materials spend to offset the labor increase.",
+    typeJustifications: {
+      Labor:     "Senior systems integration expertise required across all 7 checkpoint lanes; Rodriguez and Thorne are sole qualified resources on contract.",
+      Materials: "Value-engineered composite panel selected over original steel/glass spec; equivalent structural rating at 35% lower cost per unit.",
+    },
     status: "Pending",
     lineItems: [
       { direction: "Increase", type: "Labor",     orgCode: "U920183", resource: "Rodriguez, Elena",    amount: 75000,  from: 1125000, to: 1200000 },

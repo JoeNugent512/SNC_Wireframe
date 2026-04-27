@@ -142,16 +142,23 @@ function BudgetChangesTable({ cr, disabled }: { cr: ChangeRequest; disabled: boo
           {group.items.map((li, i) => {
             const displayFrom = firstReq ? 0 : li.from;
             const delta = firstReq ? li.to : (li.direction === "Increase" ? li.amount : -li.amount);
+            const hasJust = !!cr.typeJustifications?.[li.type];
             return (
               <div
                 key={i}
                 className="grid items-start px-4 py-3 gap-3 border-t border-slate-100"
                 style={{ gridTemplateColumns: "90px 1fr 96px 96px 84px 1fr" }}
               >
-                <div className="pt-0.5">
+                <div className="pt-0.5 flex flex-col gap-1">
                   <span className={`inline-flex items-center text-[10px] font-semibold px-1.5 py-0.5 rounded border ${typeChipClass(li.type)}`}>
                     {li.type}
                   </span>
+                  {hasJust && (
+                    <span className="inline-flex items-center gap-0.5 text-[9px] font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-1 py-0.5 rounded">
+                      <span className="w-1 h-1 rounded-full bg-amber-500 inline-block" />
+                      JUSTIF.
+                    </span>
+                  )}
                 </div>
                 <span className="text-sm text-slate-700 font-medium leading-tight pt-0.5 truncate" title={li.resource}>
                   {li.resource}
@@ -167,6 +174,22 @@ function BudgetChangesTable({ cr, disabled }: { cr: ChangeRequest; disabled: boo
               </div>
             );
           })}
+          {/* per-type justification callouts for this org code group */}
+          {(() => {
+            const typesInGroup = [...new Set(group.items.map((li) => li.type))];
+            const callouts = typesInGroup.filter((t) => cr.typeJustifications?.[t]);
+            if (callouts.length === 0) return null;
+            return (
+              <div className="mx-4 mb-3 mt-1 rounded-lg border border-amber-200 bg-amber-50 overflow-hidden">
+                {callouts.map((t, ci) => (
+                  <div key={t} className={`px-3 py-2.5 ${ci > 0 ? "border-t border-amber-200" : ""}`}>
+                    <p className="text-[10px] font-bold text-amber-700 uppercase tracking-wider mb-0.5">{t} Justification</p>
+                    <p className="text-xs text-amber-900 leading-relaxed">{cr.typeJustifications![t]}</p>
+                  </div>
+                ))}
+              </div>
+            );
+          })()}
         </div>
       ))}
 
