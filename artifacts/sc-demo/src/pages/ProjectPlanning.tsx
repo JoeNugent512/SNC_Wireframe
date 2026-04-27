@@ -494,6 +494,7 @@ function FundingSection({
   const [showPicker, setShowPicker] = useState(false);
   const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
   const [justification, setJustification] = useState("");
+  const [showJustification, setShowJustification] = useState(false);
   const toggleExpand = (id: number) =>
     setExpandedRows((prev) => { const next = new Set(prev); next.has(id) ? next.delete(id) : next.add(id); return next; });
   const getNextFY = (quarters: YearQuarters[]): string => {
@@ -792,25 +793,47 @@ function FundingSection({
         </table>
         </div>
 
-        {/* justification */}
-        <div className="border-t border-slate-100 px-4 py-3">
-          <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
-            Justification
-          </label>
-          <textarea
-            value={justification}
-            onChange={(e) => setJustification(e.target.value)}
-            rows={2}
-            placeholder={`Enter justification for ${title} budget allocation…`}
-            className="w-full text-sm text-slate-700 border border-slate-200 rounded-lg px-3 py-2 resize-none focus:outline-none focus:ring-1 focus:ring-blue-200 bg-white placeholder-slate-300"
-          />
-          {justification.trim() && (
-            <p className="mt-1 text-[11px] text-amber-600 font-medium flex items-center gap-1">
+        {/* justification toggle footer */}
+        <div className="border-t border-slate-100 flex items-center justify-end px-3 py-1.5 gap-2">
+          {justification.trim() && !showJustification && (
+            <span className="text-[11px] text-amber-600 font-medium flex items-center gap-1">
               <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-500" />
-              Justification will appear on the change request
-            </p>
+              Justification added
+            </span>
           )}
+          <button
+            onClick={() => setShowJustification((v) => !v)}
+            className="flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-md transition-colors border"
+            style={
+              showJustification || justification.trim()
+                ? { backgroundColor: "#fef3c7", color: "#92400e", borderColor: "#fcd34d" }
+                : { backgroundColor: "#f8fafc", color: "#64748b", borderColor: "#e2e8f0" }
+            }
+          >
+            <span>{showJustification ? "▲" : "▼"}</span>
+            Justification
+          </button>
         </div>
+
+        {/* collapsible justification panel */}
+        {showJustification && (
+          <div className="border-t border-amber-100 bg-amber-50 px-4 py-3">
+            <textarea
+              value={justification}
+              onChange={(e) => setJustification(e.target.value)}
+              rows={3}
+              autoFocus
+              placeholder={`Enter justification for ${title} budget allocation…`}
+              className="w-full text-sm text-slate-700 border border-amber-200 rounded-lg px-3 py-2 resize-none focus:outline-none focus:ring-1 focus:ring-amber-300 bg-white placeholder-slate-300"
+            />
+            {justification.trim() && (
+              <p className="mt-1 text-[11px] text-amber-700 font-medium flex items-center gap-1">
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-500" />
+                Justification will appear on the change request
+              </p>
+            )}
+          </div>
+        )}
       </div>
     </>
   );
