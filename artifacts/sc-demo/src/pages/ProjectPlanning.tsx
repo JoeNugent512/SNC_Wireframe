@@ -11,18 +11,60 @@ const fmt = (n: number) =>
 let _uid = 100;
 const uid = () => ++_uid;
 
-/* ─── fiscal window config (demo — shifted from real calendar) ───
- *  FY25 = current federal FY (Apr 2026 real = FY25 Q3 in this demo)
- *  PAST  – obligated, locked:        FY25 Q1 (Oct–Dec), FY25 Q2 (Jan–Mar)
- *  OPEN  – requestable, editable:    FY25 Q3 (Apr–Jun), FY25 Q4, FY26 Q1-Q3
- *  FY26 Q4 is beyond the max request window and is excluded from QData entirely.
- *  Near-quarter-end rule: within 30 days of current quarter end, the next
- *  quarter auto-opens. This demo uses a static window; a production build
- *  would derive OPEN_QKEYS from varCurrentFY/varCurrentQ/varMaxFY/varMaxQ.
+/* ─── fiscal window config (mirrors varCurrentFY / varCurrentQ / varMaxFY / varMaxQ) ──
+ *  Production builds would source these from backend settings or named formulas.
+ *  All QKey arrays are DERIVED from this config — not hardcoded — including the
+ *  near-quarter-end auto-open rule (within NEAR_QTR_END_DAYS the next quarter opens).
  * ────────────────────────────────────────────────────────────────── */
 type QKey = keyof QData;
-const PAST_QKEYS: QKey[] = ["fy25q1", "fy25q2"];
-const OPEN_QKEYS: QKey[] = ["fy25q3", "fy25q4", "fy26q1", "fy26q2", "fy26q3"];
+
+const ALL_QKEYS: QKey[] = [
+  "fy25q1","fy25q2","fy25q3","fy25q4",
+  "fy26q1","fy26q2","fy26q3",
+  // fy26q4 is excluded from QData — beyond the max request window
+];
+
+interface FiscalWindowConfig {
+  currentFY:          number;   // 2-digit FY, e.g. 25 = FY25
+  currentQ:           number;   // 1-4
+  maxFY:              number;   // last requestable FY
+  maxQ:               number;   // last requestable quarter within maxFY
+  nearQtrEndDays:     number;   // days threshold to auto-open next quarter
+  daysUntilQtrEnd:    number;   // how many days until current quarter closes
+}
+
+// Demo snapshot: April 27 is FY25 Q3 (ends Jun 30), 64 days remain → NOT near-end
+const FISCAL_CONFIG: FiscalWindowConfig = {
+  currentFY:       25,
+  currentQ:        3,
+  maxFY:           26,
+  maxQ:            3,
+  nearQtrEndDays:  30,
+  daysUntilQtrEnd: 64,
+};
+
+function buildQWindow(cfg: FiscalWindowConfig): { past: QKey[]; open: QKey[] } {
+  const autoOpenNext = cfg.daysUntilQtrEnd <= cfg.nearQtrEndDays;
+  const past: QKey[] = [];
+  const open: QKey[] = [];
+
+  for (const k of ALL_QKEYS) {
+    // Parse "fy25q3" → fyNum=25, qNum=3
+    const fyNum = parseInt(k.slice(2, 4), 10);
+    const qNum  = parseInt(k.slice(5),    10);
+
+    const isPast   = fyNum < cfg.currentFY || (fyNum === cfg.currentFY && qNum < cfg.currentQ);
+    const maxQAdj  = cfg.maxQ + (autoOpenNext ? 1 : 0); // widen window by 1 near quarter-end
+    const isOpen   = !isPast && (fyNum < cfg.maxFY || (fyNum === cfg.maxFY && qNum <= maxQAdj));
+
+    if (isPast) past.push(k);
+    else if (isOpen) open.push(k);
+    // quarters beyond the open window are silently skipped (not editable, shown as "closed")
+  }
+  return { past, open };
+}
+
+const { past: PAST_QKEYS, open: OPEN_QKEYS } = buildQWindow(FISCAL_CONFIG);
 
 /* ─── resource code tables ─────────────────────────────────────── */
 const ORG_OPTIONS = [
@@ -153,10 +195,12 @@ const plannedRem = (r: QData) => OPEN_QKEYS.reduce((s, k) => s + r[k], 0);
 // (past/obligated quarters are excluded from the request ceiling)
 const openWindowMax = plannedRem;
 
-// Clamp requested to [0, openWindowMax].
-// The lower bound is 0: obligated is a separate column; the request covers only open quarters.
-function clampRequested(requested: number, max: number): number {
-  return Math.max(0, Math.min(requested, max));
+// Clamp requested to [obligated, openWindowMax].
+// Lower bound = obligated: cannot request less than already-paid quarters.
+// Upper bound = openWindowMax: cannot request beyond the open quarter window.
+function clampRequested(requested: number, obligated: number, max: number): number {
+  const lo = Math.min(obligated, max); // guard: if max < obligated (edge case), lock to max
+  return Math.max(lo, Math.min(requested, max));
 }
 
 /* ─── empty row factories ───────────────────────────────────────── */
@@ -413,16 +457,16 @@ function PlanDataRow({
         <td className={td} style={{ backgroundColor: BLUE_BG, borderLeft: BLUE_BORDER }}>
           <AmtDisplay value={row.openCommitment} />
         </td>
-        {/* Request / Max — gold, editable; clamped to [0, openWindowMax (OPEN quarters only)] */}
+        {/* Request / Max — gold, editable; clamped to [obligated, openWindowMax] */}
         <td className="px-2 py-2" style={{ backgroundColor: AMBER_BG, borderLeft: AMBER_BORDER }}>
           <div className="flex items-center gap-1">
             <div style={{ flex: "0 0 100px" }}>
               <AmtInput
                 value={row.requested}
-                min={0}
+                min={obligated}
                 max={maxReq}
                 gold
-                onChange={(v) => onUpdateRequested(row.id, clampRequested(v, maxReq))}
+                onChange={(v) => onUpdateRequested(row.id, clampRequested(v, obligated, maxReq))}
               />
             </div>
             <span className="text-xs text-slate-400 whitespace-nowrap tabular-nums">/ {maxReq === 0 ? "—" : fmt(maxReq)}</span>
@@ -525,10 +569,10 @@ function ResourceDataRow<T extends QData & { id: number; org: string; orgCode: s
             <div style={{ flex: "0 0 100px" }}>
               <AmtInput
                 value={row.requested}
-                min={0}
+                min={obligated}
                 max={maxReq}
                 gold
-                onChange={(v) => onUpdateRequested(row.id, clampRequested(v, maxReq))}
+                onChange={(v) => onUpdateRequested(row.id, clampRequested(v, obligated, maxReq))}
               />
             </div>
             <span className="text-xs text-slate-400 whitespace-nowrap tabular-nums">/ {maxReq === 0 ? "—" : fmt(maxReq)}</span>
@@ -824,8 +868,8 @@ export default function ProjectPlanning() {
     setRows((rows) => rows.map((r) => {
       if (r.id !== id) return r;
       const updated = { ...r, [field]: val };
-      // Re-clamp requested to [0, openWindowMax] since open quarters may have changed
-      return { ...updated, requested: clampRequested(r.requested, openWindowMax(updated)) };
+      // Re-clamp requested to [obligated, openWindowMax] since quarters may have changed
+      return { ...updated, requested: clampRequested(r.requested, obligatedQ(updated), openWindowMax(updated)) };
     }));
   }
 
@@ -836,7 +880,7 @@ export default function ProjectPlanning() {
     setRows((rows) => rows.map((r) => {
       if (r.id !== id) return r;
       const updated = { ...r, [field]: val };
-      return { ...updated, requested: clampRequested(r.requested, openWindowMax(updated)) };
+      return { ...updated, requested: clampRequested(r.requested, obligatedQ(updated), openWindowMax(updated)) };
     }));
   }
 
