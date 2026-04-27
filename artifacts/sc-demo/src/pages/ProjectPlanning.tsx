@@ -11,12 +11,18 @@ const fmt = (n: number) =>
 let _uid = 100;
 const uid = () => ++_uid;
 
-/* ─── fiscal year constants (demo — shifted from real calendar) ── */
-// FY25 = current federal FY (Apr 2026 real = FY25 Q3 in demo)
-// Past (obligated): FY25 Q1 (Oct-Dec), FY25 Q2 (Jan-Mar)
-// Current:          FY25 Q3 (Apr-Jun)
-// Future open:      FY25 Q4, FY26 Q1-Q3
-// Closed (beyond max request window): FY26 Q4+
+/* ─── fiscal window config (demo — shifted from real calendar) ───
+ *  FY25 = current federal FY (Apr 2026 real = FY25 Q3 in this demo)
+ *  PAST  – obligated, locked:        FY25 Q1 (Oct–Dec), FY25 Q2 (Jan–Mar)
+ *  OPEN  – requestable, editable:    FY25 Q3 (Apr–Jun), FY25 Q4, FY26 Q1-Q3
+ *  FY26 Q4 is beyond the max request window and is excluded from QData entirely.
+ *  Near-quarter-end rule: within 30 days of current quarter end, the next
+ *  quarter auto-opens. This demo uses a static window; a production build
+ *  would derive OPEN_QKEYS from varCurrentFY/varCurrentQ/varMaxFY/varMaxQ.
+ * ────────────────────────────────────────────────────────────────── */
+type QKey = keyof QData;
+const PAST_QKEYS: QKey[] = ["fy25q1", "fy25q2"];
+const OPEN_QKEYS: QKey[] = ["fy25q3", "fy25q4", "fy26q1", "fy26q2", "fy26q3"];
 
 /* ─── resource code tables ─────────────────────────────────────── */
 const ORG_OPTIONS = [
@@ -133,13 +139,24 @@ type OutsourcingRow = QData & {
 };
 
 /* ─── derived field helpers ─────────────────────────────────────── */
-const sumQ = (r: QData) =>
-  r.fy25q1 + r.fy25q2 + r.fy25q3 + r.fy25q4 + r.fy26q1 + r.fy26q2 + r.fy26q3;
-const obligatedQ = (r: QData) => r.fy25q1 + r.fy25q2;
-const plannedRem = (r: QData) => sumQ(r) - obligatedQ(r);
+// Total Planned = sum of ALL quarters in the request window (past + open)
+const sumAll = (r: QData) =>
+  PAST_QKEYS.reduce((s, k) => s + r[k], 0) + OPEN_QKEYS.reduce((s, k) => s + r[k], 0);
 
-function clampRequested(requested: number, obligated: number, max: number): number {
-  return Math.max(obligated, Math.min(requested, max));
+// Obligated = sum of PAST quarters only (already paid, locked)
+const obligatedQ = (r: QData) => PAST_QKEYS.reduce((s, k) => s + r[k], 0);
+
+// Planned Remaining = Total Planned - Obligated = sum of OPEN quarters
+const plannedRem = (r: QData) => OPEN_QKEYS.reduce((s, k) => s + r[k], 0);
+
+// Open Window Max = max amount that can be requested = sum of OPEN quarters only
+// (past/obligated quarters are excluded from the request ceiling)
+const openWindowMax = plannedRem;
+
+// Clamp requested to [0, openWindowMax].
+// The lower bound is 0: obligated is a separate column; the request covers only open quarters.
+function clampRequested(requested: number, max: number): number {
+  return Math.max(0, Math.min(requested, max));
 }
 
 /* ─── empty row factories ───────────────────────────────────────── */
@@ -345,9 +362,10 @@ function PlanDataRow({
   onUpdateRequested: (id: number, val: number) => void;
   onDelete: (id: number) => void;
 }) {
-  const planned   = sumQ(row);
+  const planned   = sumAll(row);
   const obligated = obligatedQ(row);
-  const remaining = plannedRem(row);
+  const remaining = plannedRem(row);   // = open-window quarters sum
+  const maxReq    = openWindowMax(row); // ceiling for the request field
   const canDelete = obligated === 0;
 
   const td = "px-3 py-2.5 text-right tabular-nums text-sm text-slate-800";
@@ -370,26 +388,24 @@ function PlanDataRow({
             </div>
           </div>
         </td>
-        {/* Total Planned — gold, spread-fill editable */}
+        {/* Total Planned — gold, spread-fill editable (distributes delta across OPEN_QKEYS) */}
         <td className="px-3 py-2" style={{ backgroundColor: AMBER_BG, borderLeft: AMBER_BORDER }}>
           <AmtInput
             value={planned}
             gold
             onChange={(newTotal) => {
-              const openQs: (keyof QData)[] = ["fy25q3", "fy25q4", "fy26q1", "fy26q2", "fy26q3"];
-              const fixedObligation = obligated;
-              const delta = newTotal - fixedObligation;
-              const perQ = delta > 0 ? Math.floor(delta / 5) : 0;
-              const rem  = delta > 0 ? delta - perQ * 5 : 0;
-              openQs.forEach((q, i) => onUpdateQ(row.id, q, perQ + (i === 0 ? rem : 0)));
+              const delta = newTotal - obligated;
+              const perQ = delta > 0 ? Math.floor(delta / OPEN_QKEYS.length) : 0;
+              const rem  = delta > 0 ? delta - perQ * OPEN_QKEYS.length : 0;
+              OPEN_QKEYS.forEach((q, i) => onUpdateQ(row.id, q, perQ + (i === 0 ? rem : 0)));
             }}
           />
         </td>
-        {/* Obligated — blue, read-only */}
+        {/* Obligated — blue, read-only (PAST quarters sum) */}
         <td className={td} style={{ backgroundColor: BLUE_BG, borderLeft: "2px solid #475569" }}>
           <AmtDisplay value={obligated} />
         </td>
-        {/* Planned Remaining — blue, read-only */}
+        {/* Planned Remaining — blue, read-only (OPEN quarters sum) */}
         <td className={td} style={{ backgroundColor: BLUE_BG, borderLeft: BLUE_BORDER }}>
           <AmtDisplay value={remaining} />
         </td>
@@ -397,19 +413,19 @@ function PlanDataRow({
         <td className={td} style={{ backgroundColor: BLUE_BG, borderLeft: BLUE_BORDER }}>
           <AmtDisplay value={row.openCommitment} />
         </td>
-        {/* Request / Max — gold, editable, clamped */}
+        {/* Request / Max — gold, editable; clamped to [0, openWindowMax (OPEN quarters only)] */}
         <td className="px-2 py-2" style={{ backgroundColor: AMBER_BG, borderLeft: AMBER_BORDER }}>
           <div className="flex items-center gap-1">
             <div style={{ flex: "0 0 100px" }}>
               <AmtInput
                 value={row.requested}
-                min={obligated}
-                max={planned}
+                min={0}
+                max={maxReq}
                 gold
-                onChange={(v) => onUpdateRequested(row.id, clampRequested(v, obligated, planned))}
+                onChange={(v) => onUpdateRequested(row.id, clampRequested(v, maxReq))}
               />
             </div>
-            <span className="text-xs text-slate-400 whitespace-nowrap tabular-nums">/ {planned === 0 ? "—" : fmt(planned)}</span>
+            <span className="text-xs text-slate-400 whitespace-nowrap tabular-nums">/ {maxReq === 0 ? "—" : fmt(maxReq)}</span>
           </div>
         </td>
         <td style={{ padding: 0, textAlign: "center", verticalAlign: "middle", borderLeft: "1px solid #e2e8f0", backgroundColor: "#f8fafc" }}>
@@ -457,9 +473,10 @@ function ResourceDataRow<T extends QData & { id: number; org: string; orgCode: s
   onUpdateRequested: (id: number, val: number) => void;
   onDelete: (id: number) => void;
 }) {
-  const planned   = sumQ(row);
+  const planned   = sumAll(row);
   const obligated = obligatedQ(row);
-  const remaining = plannedRem(row);
+  const remaining = plannedRem(row);   // = open-window sum
+  const maxReq    = openWindowMax(row); // ceiling for the request field
   const canDelete = obligated === 0;
   const td = "px-3 py-2.5 text-right tabular-nums text-sm text-slate-800";
 
@@ -480,17 +497,16 @@ function ResourceDataRow<T extends QData & { id: number; org: string; orgCode: s
             </div>
           </div>
         </td>
+        {/* Total Planned — gold, spread-fill editable (distributes delta across OPEN_QKEYS) */}
         <td className="px-3 py-2" style={{ backgroundColor: AMBER_BG, borderLeft: AMBER_BORDER }}>
           <AmtInput
             value={planned}
             gold
             onChange={(newTotal) => {
-              const openQs: (keyof QData)[] = ["fy25q3", "fy25q4", "fy26q1", "fy26q2", "fy26q3"];
-              const fixedObligation = obligated;
-              const delta = newTotal - fixedObligation;
-              const perQ = delta > 0 ? Math.floor(delta / 5) : 0;
-              const rem  = delta > 0 ? delta - perQ * 5 : 0;
-              openQs.forEach((q, i) => onUpdateQ(row.id, q, perQ + (i === 0 ? rem : 0)));
+              const delta = newTotal - obligated;
+              const perQ = delta > 0 ? Math.floor(delta / OPEN_QKEYS.length) : 0;
+              const rem  = delta > 0 ? delta - perQ * OPEN_QKEYS.length : 0;
+              OPEN_QKEYS.forEach((q, i) => onUpdateQ(row.id, q, perQ + (i === 0 ? rem : 0)));
             }}
           />
         </td>
@@ -503,18 +519,19 @@ function ResourceDataRow<T extends QData & { id: number; org: string; orgCode: s
         <td className={td} style={{ backgroundColor: BLUE_BG, borderLeft: BLUE_BORDER }}>
           <AmtDisplay value={row.openCommitment} />
         </td>
+        {/* Request / Max — clamped to [0, openWindowMax (OPEN quarters only)] */}
         <td className="px-2 py-2" style={{ backgroundColor: AMBER_BG, borderLeft: AMBER_BORDER }}>
           <div className="flex items-center gap-1">
             <div style={{ flex: "0 0 100px" }}>
               <AmtInput
                 value={row.requested}
-                min={obligated}
-                max={planned}
+                min={0}
+                max={maxReq}
                 gold
-                onChange={(v) => onUpdateRequested(row.id, clampRequested(v, obligated, planned))}
+                onChange={(v) => onUpdateRequested(row.id, clampRequested(v, maxReq))}
               />
             </div>
-            <span className="text-xs text-slate-400 whitespace-nowrap tabular-nums">/ {planned === 0 ? "—" : fmt(planned)}</span>
+            <span className="text-xs text-slate-400 whitespace-nowrap tabular-nums">/ {maxReq === 0 ? "—" : fmt(maxReq)}</span>
           </div>
         </td>
         <td style={{ padding: 0, textAlign: "center", verticalAlign: "middle", borderLeft: "1px solid #e2e8f0", backgroundColor: "#f8fafc" }}>
@@ -546,7 +563,7 @@ function ResourceDataRow<T extends QData & { id: number; org: string; orgCode: s
 
 /* ─── section footer totals row ─────────────────────────────────── */
 function TotalsRow({ rows }: { rows: (QData & { openCommitment: number; requested: number })[] }) {
-  const totalPlanned   = rows.reduce((s, r) => s + sumQ(r), 0);
+  const totalPlanned   = rows.reduce((s, r) => s + sumAll(r), 0);
   const totalObligated = rows.reduce((s, r) => s + obligatedQ(r), 0);
   const totalRemaining = rows.reduce((s, r) => s + plannedRem(r), 0);
   const totalOpen      = rows.reduce((s, r) => s + r.openCommitment, 0);
@@ -723,30 +740,31 @@ function SectionWrapper({ title, dotColor, children }: { title: string; dotColor
 }
 
 /* ─── initial data ──────────────────────────────────────────────── */
+// requested = sum of OPEN quarters only (FY25 Q3+Q4 + FY26 Q1-Q3)
 const INITIAL_LABOR: PlanRow[] = [
   { id: 1, label: "Nugent, Joseph Pat", sub: "U435310/CERL",
     fy25q1: 10000, fy25q2: 12000, fy25q3: 13000, fy25q4: 10000,
     fy26q1: 12000, fy26q2: 12000, fy26q3: 11000,
-    openCommitment: 3500, requested: 80000 },
+    openCommitment: 3500, requested: 58000 },   // open-window: 13+10+12+12+11 = 58K
   { id: 2, label: "Chen, David", sub: "U719203/CERL",
     fy25q1: 8000, fy25q2: 8000, fy25q3: 8000, fy25q4: 8000,
     fy26q1: 9000, fy26q2: 9000, fy26q3: 9000,
-    openCommitment: 2000, requested: 59000 },
+    openCommitment: 2000, requested: 43000 },   // open-window: 8+8+9+9+9 = 43K
   { id: 3, label: "Williams, Sandra K.", sub: "U920183/CERL",
     fy25q1: 6000, fy25q2: 7000, fy25q3: 7500, fy25q4: 6500,
     fy26q1: 7000, fy26q2: 7000, fy26q3: 6000,
-    openCommitment: 2500, requested: 47000 },
+    openCommitment: 2500, requested: 34000 },   // open-window: 7.5+6.5+7+7+6 = 34K
 ];
 
 const INITIAL_TRAVEL: PlanRow[] = [
   { id: 4, label: "CERL", sub: "U435310",
     fy25q1: 3000, fy25q2: 3000, fy25q3: 4000, fy25q4: 3000,
     fy26q1: 4000, fy26q2: 4000, fy26q3: 3000,
-    openCommitment: 800, requested: 24000 },
+    openCommitment: 800, requested: 18000 },    // open-window: 4+3+4+4+3 = 18K
   { id: 5, label: "ERDC Headquarters", sub: "U582094",
     fy25q1: 1500, fy25q2: 1500, fy25q3: 2000, fy25q4: 1500,
     fy26q1: 2000, fy26q2: 2000, fy26q3: 1500,
-    openCommitment: 400, requested: 12000 },
+    openCommitment: 400, requested: 9000 },     // open-window: 2+1.5+2+2+1.5 = 9K
 ];
 
 const INITIAL_CONTRACT: ContractRow[] = [
@@ -754,12 +772,12 @@ const INITIAL_CONTRACT: ContractRow[] = [
     contractCode: "ITSFTMAINT", contractName: "Software maintenance or support",
     fy25q1: 0, fy25q2: 15000, fy25q3: 20000, fy25q4: 20000,
     fy26q1: 18000, fy26q2: 18000, fy26q3: 17000,
-    openCommitment: 3000, requested: 108000 },
+    openCommitment: 3000, requested: 93000 },   // open-window: 20+20+18+18+17 = 93K
   { id: 7, org: "CERL", orgCode: "U435310",
     contractCode: "OTHCONSVC", contractName: "Private Sector contracts not otherwise classified",
     fy25q1: 25000, fy25q2: 25000, fy25q3: 25000, fy25q4: 25000,
     fy26q1: 20000, fy26q2: 20000, fy26q3: 20000,
-    openCommitment: 5000, requested: 160000 },
+    openCommitment: 5000, requested: 110000 },  // open-window: 25+25+20+20+20 = 110K
 ];
 
 const INITIAL_OUTSOURCING: OutsourcingRow[] = [
@@ -767,12 +785,12 @@ const INITIAL_OUTSOURCING: OutsourcingRow[] = [
     resourceCode: "WKBOTHCOE", resourceName: "Corps District (MIPR)",
     fy25q1: 10000, fy25q2: 10000, fy25q3: 10000, fy25q4: 10000,
     fy26q1: 8000, fy26q2: 8000, fy26q3: 8000,
-    openCommitment: 1500, requested: 64000 },
+    openCommitment: 1500, requested: 44000 },   // open-window: 10+10+8+8+8 = 44K
   { id: 9, org: "CERL", orgCode: "U435310",
     resourceCode: "SHOP/FACIL", resourceName: "OrderTrak",
     fy25q1: 5000, fy25q2: 5000, fy25q3: 5000, fy25q4: 5000,
     fy26q1: 4000, fy26q2: 4000, fy26q3: 4000,
-    openCommitment: 800, requested: 32000 },
+    openCommitment: 800, requested: 22000 },    // open-window: 5+5+4+4+4 = 22K
 ];
 
 /* ─── main page ─────────────────────────────────────────────────── */
@@ -806,8 +824,8 @@ export default function ProjectPlanning() {
     setRows((rows) => rows.map((r) => {
       if (r.id !== id) return r;
       const updated = { ...r, [field]: val };
-      const obl = obligatedQ(updated);
-      return { ...updated, requested: Math.max(r.requested, obl) };
+      // Re-clamp requested to [0, openWindowMax] since open quarters may have changed
+      return { ...updated, requested: clampRequested(r.requested, openWindowMax(updated)) };
     }));
   }
 
@@ -818,8 +836,7 @@ export default function ProjectPlanning() {
     setRows((rows) => rows.map((r) => {
       if (r.id !== id) return r;
       const updated = { ...r, [field]: val };
-      const obl = obligatedQ(updated);
-      return { ...updated, requested: Math.max(r.requested, obl) };
+      return { ...updated, requested: clampRequested(r.requested, openWindowMax(updated)) };
     }));
   }
 
