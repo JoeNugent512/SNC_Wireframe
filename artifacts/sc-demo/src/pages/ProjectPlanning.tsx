@@ -602,8 +602,8 @@ function ResourceDataRow<T extends QData & { id: number; org: string; orgCode: s
               {expanded ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
             </button>
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold text-slate-800 leading-snug truncate">{row.org} ({row.orgCode})</p>
-              <p className="text-xs text-slate-400 leading-snug truncate mt-0.5" title={line2}>{line2}</p>
+              <p className="text-sm font-semibold text-slate-800 leading-snug truncate" title={line2}>{line2}</p>
+              <p className="text-xs text-slate-400 leading-snug truncate mt-0.5">{row.orgCode}</p>
             </div>
           </div>
         </td>
