@@ -1,8 +1,7 @@
-import React, { useState, useMemo, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { Link, useParams } from "wouter";
-import { ChevronRight, ChevronDown, Settings, Plus, Trash2, MinusCircle, X, Search, Check, FolderOpen } from "lucide-react";
+import { ChevronRight, ChevronDown, Settings, Plus, Trash2, X, MinusCircle } from "lucide-react";
 import { MOCK_PROJECTS, Project } from "@/lib/mockData";
-import { Toaster } from "@/components/ui/toaster";
 import Layout from "@/components/Layout";
 
 /* ─── helpers ─────────────────────────────────────────────────── */
@@ -12,23 +11,79 @@ const fmt = (n: number) =>
 let _uid = 100;
 const uid = () => ++_uid;
 
-/* ─── option data ──────────────────────────────────────────────── */
+/* ─── fiscal year constants (demo — shifted from real calendar) ── */
+// FY25 = current federal FY (Apr 2026 real = FY25 Q3 in demo)
+// Past (obligated): FY25 Q1 (Oct-Dec), FY25 Q2 (Jan-Mar)
+// Current:          FY25 Q3 (Apr-Jun)
+// Future open:      FY25 Q4, FY26 Q1-Q3
+// Closed (beyond max request window): FY26 Q4+
+
+/* ─── resource code tables ─────────────────────────────────────── */
+const ORG_OPTIONS = [
+  { label: "CERL",                              code: "U435310" },
+  { label: "ERDC Headquarters",                 code: "U582094" },
+  { label: "Cold Regions Research Lab",         code: "U601847" },
+  { label: "Waterways Experiment Station",      code: "U719203" },
+  { label: "Vicksburg District",                code: "U834512" },
+  { label: "Nashville District",                code: "U920183" },
+  { label: "USACE Chicago District",            code: "U435310" },
+  { label: "USACE Omaha District",              code: "U582094" },
+  { label: "USACE Kansas City District",        code: "U601847" },
+  { label: "USACE Tulsa District",              code: "U719203" },
+  { label: "Huntsville Center",                 code: "U223456" },
+];
+
+const CONTRACT_CODES = [
+  { code: "DFC-CONTR",  name: "Direct Fund Cite Contract" },
+  { code: "EQUIPMENT",  name: "Durable property" },
+  { code: "INTEREST",   name: "Interest Payments and Dividends" },
+  { code: "ITCONTSVS",  name: "IT Other Services (NON-GOV)" },
+  { code: "ITEQUIPEXP", name: "IT Equipment (Printers, scanners, hard drives, etc)" },
+  { code: "ITSFTDEVL",  name: "Software (Private Sector for software development)" },
+  { code: "ITSFTMAINT", name: "Software maintenance or support" },
+  { code: "ITSFTWREXP", name: "Custom/off the shelf Software licenses, updates" },
+  { code: "ITSOFTLEAS", name: "ADP/telecommunication software leases" },
+  { code: "O&MEQUIP",   name: "Contracts for O&M, repair, storage, parts for equipment" },
+  { code: "OTHCONSVC",  name: "Private Sector contracts not otherwise classified" },
+  { code: "OTHFACSVCS", name: "Private Sector Contractual Services Not Otherwise Classified" },
+  { code: "OTHRENTAL",  name: "Rental of Equipment (IT equip, cylinder, equipment rental)" },
+  { code: "R&D",        name: "R&D contractual services including BAAs" },
+  { code: "SUPMATRL",   name: "Commodities expended within one year (supplies, fuel, parts, etc.)" },
+  { code: "TRANTHNGS",  name: "Shipping" },
+];
+
+const OUTSOURCING_CODES = [
+  { code: "WKBOTHCOE", name: "Corps District (MIPR)" },
+  { code: "WKBOTHFED", name: "DoD or other Federal Agency (MIPR)" },
+  { code: "OTHFACSVCS", name: "Editing (ITLEDITOR)" },
+  { code: "OTHFACSVCS", name: "Library Purchases (Periodicals, subscriptions etc.)" },
+  { code: "OTHFACSVCS", name: "Paint Tests - Billings (PAINT-TST)" },
+  { code: "OTHFACSVCS", name: "Paint Tests" },
+  { code: "OTHFACSVCS", name: "Civil Funded Military Officers" },
+  { code: "OTHFACSVCS", name: "CQAB Chemical Tests & Analysis" },
+  { code: "OTHFACSVCS", name: "SMS Facility Account" },
+  { code: "OTHFACSVCS", name: "Other Facility Services (Vehicle maintenance, fuel)" },
+  { code: "SHOP/FACIL", name: "OrderTrak" },
+  { code: "SHOP/FACIL", name: "ERDC-CCE" },
+  { code: "SHOP/FACIL", name: "Printing" },
+  { code: "GSAVEH",     name: "Government Vehicle" },
+  { code: "TRANTHNGS",  name: "Other Shipping (TRANTHNGS)" },
+  { code: "TRANTHNGS",  name: "52E Shipping (NIGHTMAIL)" },
+  { code: "GOVPURCH",   name: "TESS (unburdened)" },
+  { code: "GOVPURCH",   name: "TESS-S (burdened)" },
+  { code: "GOVPURCH",   name: "Other Federal Agency Purchases (ex. Fee-For-Service)" },
+];
+
 const LABOR_OPTIONS = [
-  { label: "Nugent, Joseph Pat",       sub: "U435310" },
-  { label: "Chen, David",              sub: "U719203" },
-  { label: "Williams, Sandra K.",      sub: "U920183" },
-  { label: "Torres, Miguel A.",        sub: "U582094" },
-  { label: "Park, Jennifer",           sub: "U601847" },
-  { label: "Harrison, Mark T.",        sub: "U719203" },
-  { label: "Okafor, Chioma",           sub: "U601847" },
-  { label: "Reyes, Carlos",            sub: "U834512" },
-  { label: "USACE Chicago District",   sub: "U435310" },
-  { label: "USACE Omaha District",     sub: "U582094" },
-  { label: "USACE Kansas City District", sub: "U601847" },
-  { label: "USACE Tulsa District",     sub: "U719203" },
-  { label: "USACE Little Rock District", sub: "U834512" },
-  { label: "USACE Memphis District",   sub: "U920183" },
-  { label: "Placeholder",             sub: "— name / org code TBD" },
+  { label: "Nugent, Joseph Pat",         sub: "U435310/CERL" },
+  { label: "Chen, David",                sub: "U719203/CERL" },
+  { label: "Williams, Sandra K.",        sub: "U920183/CERL" },
+  { label: "Torres, Miguel A.",          sub: "U582094/ERDC" },
+  { label: "Park, Jennifer",             sub: "U601847/CERL" },
+  { label: "Harrison, Mark T.",          sub: "U719203/CERL" },
+  { label: "Okafor, Chioma",             sub: "U601847/CERL" },
+  { label: "Reyes, Carlos",              sub: "U834512/CERL" },
+  { label: "Placeholder — TBD",          sub: "— name/org code pending" },
 ];
 
 const TRAVEL_OPTIONS = [
@@ -38,162 +93,527 @@ const TRAVEL_OPTIONS = [
   { label: "Waterways Experiment Station",      sub: "U719203" },
   { label: "Vicksburg District",                sub: "U834512" },
   { label: "Nashville District",                sub: "U920183" },
-  { label: "Fort Worth District",               sub: "U110234" },
+  { label: "USACE Chicago District",            sub: "U435310" },
+  { label: "USACE Omaha District",              sub: "U582094" },
   { label: "Huntsville Center",                 sub: "U223456" },
-  { label: "Pacific Ocean Division",            sub: "U334567" },
-  { label: "South Atlantic Division",           sub: "U445678" },
-  { label: "Great Lakes & Ohio River Division", sub: "U556789" },
-  { label: "Fort Campbell",                     sub: "U667890" },
-  { label: "Fort Bragg",                        sub: "U778901" },
-  { label: "Aberdeen Proving Ground",           sub: "U889012" },
 ];
 
-const MATERIAL_OPTIONS = [
-  { label: "Concrete",             sub: "Structural concrete materials" },
-  { label: "Steel Rebar",          sub: "Reinforcement steel" },
-  { label: "Lumber / Timber",      sub: "Wood structural members" },
-  { label: "Pipe & Fittings",      sub: "Plumbing and drainage" },
-  { label: "Electrical Conduit",   sub: "Wiring and conduit supplies" },
-  { label: "Geotextile Fabric",    sub: "Erosion control material" },
-  { label: "Asphalt",              sub: "Paving materials" },
-  { label: "Gravel / Aggregate",   sub: "Base course and fill" },
-  { label: "Equipment Rental",     sub: "Heavy machinery rental" },
-  { label: "Consulting Services",  sub: "Professional services contract" },
-];
+/* ─── types ────────────────────────────────────────────────────── */
+type QData = {
+  fy25q1: number; fy25q2: number; fy25q3: number; fy25q4: number;
+  fy26q1: number; fy26q2: number; fy26q3: number;
+};
 
-/* ─── multi-select checkbox list panel ─────────────────────────── */
-function CheckList({
-  options,
-  selected,
-  onToggle,
-  placeholder,
+type PlanRow = QData & {
+  id: number;
+  label: string;
+  sub: string;
+  openCommitment: number;
+  requested: number;
+};
+
+type ContractRow = QData & {
+  id: number;
+  org: string;
+  orgCode: string;
+  contractCode: string;
+  contractName: string;
+  openCommitment: number;
+  requested: number;
+};
+
+type OutsourcingRow = QData & {
+  id: number;
+  org: string;
+  orgCode: string;
+  resourceCode: string;
+  resourceName: string;
+  openCommitment: number;
+  requested: number;
+};
+
+/* ─── derived field helpers ─────────────────────────────────────── */
+const sumQ = (r: QData) =>
+  r.fy25q1 + r.fy25q2 + r.fy25q3 + r.fy25q4 + r.fy26q1 + r.fy26q2 + r.fy26q3;
+const obligatedQ = (r: QData) => r.fy25q1 + r.fy25q2;
+const plannedRem = (r: QData) => sumQ(r) - obligatedQ(r);
+
+function clampRequested(requested: number, obligated: number, max: number): number {
+  return Math.max(obligated, Math.min(requested, max));
+}
+
+/* ─── empty row factories ───────────────────────────────────────── */
+const emptyQ = (): QData => ({ fy25q1: 0, fy25q2: 0, fy25q3: 0, fy25q4: 0, fy26q1: 0, fy26q2: 0, fy26q3: 0 });
+
+/* ─── color tokens ──────────────────────────────────────────────── */
+const AMBER_BG     = "#fffbeb";
+const AMBER_BORDER = "1px solid #fcd34d";
+const AMBER_INNER  = "1px solid #e9a825";
+const AMBER_TOTAL  = "#fef3c7";
+const BLUE_BG      = "#eff6ff";
+const BLUE_BORDER  = "1px solid #bfdbfe";
+const BLUE_HD_BG   = "#1a6ea8";
+const BLUE_TOTAL   = "#dbeafe";
+
+/* ─── simple amount input ───────────────────────────────────────── */
+function AmtInput({
+  value, onChange, min, max, gold,
+}: { value: number; onChange: (v: number) => void; min?: number; max?: number; gold?: boolean }) {
+  const [editing, setEditing] = useState(false);
+  const [raw, setRaw] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+  if (editing) {
+    return (
+      <input
+        ref={inputRef}
+        autoFocus
+        type="text"
+        value={raw}
+        onChange={(e) => setRaw(e.target.value.replace(/[^0-9]/g, ""))}
+        onBlur={() => {
+          let v = parseInt(raw) || 0;
+          if (min !== undefined) v = Math.max(min, v);
+          if (max !== undefined) v = Math.min(max, v);
+          onChange(v);
+          setEditing(false);
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") inputRef.current?.blur();
+          if (e.key === "Escape") setEditing(false);
+        }}
+        className="w-full text-right text-sm border rounded px-1 py-0.5 focus:outline-none tabular-nums"
+        style={{ borderColor: gold ? "#fbbf24" : "#93c5fd", backgroundColor: "#fff" }}
+      />
+    );
+  }
+  return (
+    <button
+      onClick={() => { setRaw(String(value)); setEditing(true); }}
+      className="w-full text-right text-sm tabular-nums hover:underline decoration-dotted underline-offset-2 focus:outline-none"
+      style={{ color: value === 0 ? "#94a3b8" : "#1e293b" }}
+    >
+      {value === 0 ? "—" : fmt(value)}
+    </button>
+  );
+}
+
+/* ─── read-only amount cell ─────────────────────────────────────── */
+function AmtDisplay({ value, bold }: { value: number; bold?: boolean }) {
+  return (
+    <span
+      className="block w-full text-right tabular-nums text-sm"
+      style={{ color: value === 0 ? "#94a3b8" : "#1e293b", fontWeight: bold ? 700 : 400 }}
+    >
+      {value === 0 ? "—" : fmt(value)}
+    </span>
+  );
+}
+
+/* ─── quarterly panel ───────────────────────────────────────────── */
+function QuarterlyPanel({
+  row, onUpdateQ,
 }: {
-  options: { label: string; sub: string }[];
-  selected: Set<string>;
-  onToggle: (label: string) => void;
-  placeholder: string;
+  row: QData & { id: number };
+  onUpdateQ: (id: number, field: keyof QData, val: number) => void;
 }) {
-  const [query, setQuery] = useState("");
-  const filtered = useMemo(() => {
-    const q = query.toLowerCase();
-    return options.filter((o) => o.label.toLowerCase().includes(q) || o.sub.toLowerCase().includes(q));
-  }, [query, options]);
+  const pastStyle: React.CSSProperties = { backgroundColor: BLUE_BG, color: "#1e40af", fontWeight: 500 };
+  const openStyle: React.CSSProperties = { backgroundColor: AMBER_BG };
+  const closedStyle: React.CSSProperties = { backgroundColor: "#f8fafc", color: "#cbd5e1", cursor: "not-allowed" };
+
+  const fy25Total = row.fy25q1 + row.fy25q2 + row.fy25q3 + row.fy25q4;
+  const fy26Total = row.fy26q1 + row.fy26q2 + row.fy26q3;
 
   return (
-    <div className="flex flex-col" style={{ minWidth: 0 }}>
-      {/* search */}
-      <div className="px-3 pt-3 pb-2">
-        <div className="flex items-center gap-1.5 border border-slate-300 rounded-lg px-2.5 py-1.5 focus-within:border-blue-400 focus-within:ring-1 focus-within:ring-blue-100 bg-white">
-          <Search size={13} className="text-slate-400 flex-shrink-0" />
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder={placeholder}
-            className="text-sm w-full focus:outline-none text-slate-700 placeholder-slate-400 bg-transparent"
-          />
-        </div>
+    <div style={{ borderTop: "2px solid #1a6ea8", background: "linear-gradient(to bottom, #f0f4f8, #f8fafc)", padding: "0 0 12px 0" }}>
+      <div style={{ background: "#1a3557", padding: "5px 16px", display: "flex", alignItems: "center", gap: 8 }}>
+        <span style={{ fontSize: 10, fontWeight: 700, color: "#93c5fd", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+          Quarterly Breakdown
+        </span>
+        <span style={{ flex: 1 }} />
+        <span style={{ fontSize: 10, color: "#93c5fd", opacity: 0.7 }}>
+          Past quarters (Q1-Q2) are obligated and locked &nbsp;·&nbsp; Q3 onward is editable
+        </span>
       </div>
-      {/* list */}
-      <ul className="overflow-y-auto flex-1" style={{ maxHeight: 220 }}>
-        {filtered.length === 0 && (
-          <li className="px-4 py-3 text-center text-xs text-slate-400">No matches</li>
-        )}
-        {filtered.map((opt) => {
-          const checked = selected.has(opt.label);
-          const isPlaceholder = opt.label === "Placeholder";
-          return (
-            <li key={opt.label}>
-              <button
-                onClick={() => onToggle(opt.label)}
-                className={`w-full text-left px-3 py-2 transition-colors border-b border-slate-100 last:border-none flex items-center gap-2.5 ${isPlaceholder ? "hover:bg-amber-50 border-t border-dashed border-slate-200" : "hover:bg-slate-50"}`}
-              >
-                <div
-                  className="flex-shrink-0 rounded flex items-center justify-center transition-colors"
-                  style={{
-                    width: 16, height: 16,
-                    backgroundColor: checked ? "#1a3557" : "#fff",
-                    border: checked ? "2px solid #1a3557" : "2px solid #cbd5e1",
-                  }}
-                >
-                  {checked && <Check size={10} color="#fff" strokeWidth={3} />}
-                </div>
-                <div className="min-w-0">
-                  <p className={`text-sm leading-tight truncate ${isPlaceholder ? "italic text-slate-400 font-normal" : "font-medium text-slate-800"}`}>
-                    {opt.label}
-                  </p>
-                  <p className="text-xs text-slate-400 leading-tight">{opt.sub}</p>
-                </div>
-              </button>
-            </li>
-          );
-        })}
-      </ul>
+      <div style={{ padding: "10px 16px 0" }}>
+        <table style={{ borderCollapse: "collapse", fontSize: 12, width: "100%", tableLayout: "fixed" }}>
+          <thead>
+            <tr>
+              <th style={{ width: 60, textAlign: "left", color: "#475569", fontWeight: 700, paddingBottom: 6, textTransform: "uppercase", fontSize: 10, letterSpacing: "0.05em" }}>Year</th>
+              <th style={{ textAlign: "right", paddingBottom: 6, paddingRight: 6 }}>
+                <span style={{ fontSize: 10, fontWeight: 700, color: "#1e40af", textTransform: "uppercase" }}>Q1 Oct–Dec</span>
+                <br /><span style={{ fontSize: 9, color: "#64748b", fontWeight: 400 }}>past</span>
+              </th>
+              <th style={{ textAlign: "right", paddingBottom: 6, paddingRight: 6 }}>
+                <span style={{ fontSize: 10, fontWeight: 700, color: "#1e40af", textTransform: "uppercase" }}>Q2 Jan–Mar</span>
+                <br /><span style={{ fontSize: 9, color: "#64748b", fontWeight: 400 }}>past</span>
+              </th>
+              <th style={{ textAlign: "right", paddingBottom: 6, paddingRight: 6 }}>
+                <span style={{ fontSize: 10, fontWeight: 700, color: "#78350f", textTransform: "uppercase" }}>Q3 Apr–Jun</span>
+                <br /><span style={{ fontSize: 9, color: "#92400e", fontWeight: 400 }}>current</span>
+              </th>
+              <th style={{ textAlign: "right", paddingBottom: 6, paddingRight: 6 }}>
+                <span style={{ fontSize: 10, fontWeight: 700, color: "#78350f", textTransform: "uppercase" }}>Q4 Jul–Sep</span>
+                <br /><span style={{ fontSize: 9, color: "#92400e", fontWeight: 400 }}>open</span>
+              </th>
+              <th style={{ width: 90, textAlign: "right", paddingBottom: 6, borderLeft: "1px solid #cbd5e1", paddingLeft: 8, paddingRight: 6 }}>
+                <span style={{ fontSize: 10, fontWeight: 700, color: "#1a6ea8", textTransform: "uppercase" }}>FY Total</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {/* FY25 */}
+            <tr style={{ borderTop: "1px solid #e2e8f0" }}>
+              <td style={{ paddingTop: 4, paddingBottom: 4, fontWeight: 700, color: "#1a3557", fontSize: 12 }}>FY25</td>
+              <td style={{ ...pastStyle, paddingTop: 3, paddingBottom: 3, paddingRight: 6, borderRadius: 3 }}>
+                <AmtDisplay value={row.fy25q1} />
+              </td>
+              <td style={{ ...pastStyle, paddingTop: 3, paddingBottom: 3, paddingRight: 6, borderRadius: 3 }}>
+                <AmtDisplay value={row.fy25q2} />
+              </td>
+              <td style={{ ...openStyle, paddingTop: 3, paddingBottom: 3, paddingRight: 6, borderRadius: 3 }}>
+                <AmtInput value={row.fy25q3} onChange={(v) => onUpdateQ(row.id, "fy25q3", v)} gold />
+              </td>
+              <td style={{ ...openStyle, paddingTop: 3, paddingBottom: 3, paddingRight: 6, borderRadius: 3 }}>
+                <AmtInput value={row.fy25q4} onChange={(v) => onUpdateQ(row.id, "fy25q4", v)} gold />
+              </td>
+              <td style={{ paddingTop: 3, paddingBottom: 3, borderLeft: "1px solid #cbd5e1", paddingLeft: 8, paddingRight: 6, textAlign: "right", fontWeight: 700, color: fy25Total === 0 ? "#94a3b8" : "#1a3557", fontSize: 12 }} className="tabular-nums">
+                {fy25Total === 0 ? "—" : fmt(fy25Total)}
+              </td>
+            </tr>
+            {/* FY26 */}
+            <tr style={{ borderTop: "1px solid #e2e8f0", background: "rgba(255,255,255,0.55)" }}>
+              <td style={{ paddingTop: 4, paddingBottom: 4, fontWeight: 700, color: "#1a3557", fontSize: 12 }}>FY26</td>
+              <td style={{ ...openStyle, paddingTop: 3, paddingBottom: 3, paddingRight: 6, borderRadius: 3 }}>
+                <AmtInput value={row.fy26q1} onChange={(v) => onUpdateQ(row.id, "fy26q1", v)} gold />
+              </td>
+              <td style={{ ...openStyle, paddingTop: 3, paddingBottom: 3, paddingRight: 6, borderRadius: 3 }}>
+                <AmtInput value={row.fy26q2} onChange={(v) => onUpdateQ(row.id, "fy26q2", v)} gold />
+              </td>
+              <td style={{ ...openStyle, paddingTop: 3, paddingBottom: 3, paddingRight: 6, borderRadius: 3 }}>
+                <AmtInput value={row.fy26q3} onChange={(v) => onUpdateQ(row.id, "fy26q3", v)} gold />
+              </td>
+              <td style={{ ...closedStyle, paddingTop: 3, paddingBottom: 3, paddingRight: 6, borderRadius: 3, textAlign: "right", fontSize: 12 }}>
+                — <span style={{ fontSize: 9 }}>closed</span>
+              </td>
+              <td style={{ paddingTop: 3, paddingBottom: 3, borderLeft: "1px solid #cbd5e1", paddingLeft: 8, paddingRight: 6, textAlign: "right", fontWeight: 700, color: fy26Total === 0 ? "#94a3b8" : "#1a3557", fontSize: 12 }} className="tabular-nums">
+                {fy26Total === 0 ? "—" : fmt(fy26Total)}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
 
-/* ─── picker modal ──────────────────────────────────────────────── */
-function MultiPickerModal({
-  title,
-  options,
-  existingLabels,
-  placeholder,
-  onAdd,
-  onClose,
+/* ─── column header row (shared by all sections) ────────────────── */
+function ColHeaders({ nameHeader }: { nameHeader: string }) {
+  const hd = "px-3 py-2.5 text-xs font-bold uppercase tracking-wide leading-snug text-right align-bottom";
+  return (
+    <tr style={{ borderBottom: "2px solid #cbd5e1", borderTop: "1px solid #e2e8f0" }}>
+      <th className="px-3 py-2.5 text-left text-xs font-bold text-slate-600 uppercase tracking-wider align-bottom" style={{ backgroundColor: "#f1f5f9", width: 220 }}>
+        {nameHeader}
+      </th>
+      <th className={hd} style={{ backgroundColor: AMBER_TOTAL, color: "#78350f", borderLeft: AMBER_BORDER, width: 120 }}>
+        Total<br />Planned
+      </th>
+      <th className={hd} style={{ backgroundColor: BLUE_BG, color: "#1e40af", borderLeft: "2px solid #475569", width: 115 }}>
+        Obligated
+      </th>
+      <th className={hd} style={{ backgroundColor: BLUE_BG, color: "#1e40af", borderLeft: BLUE_BORDER, width: 130 }}>
+        Planned<br />Remaining
+      </th>
+      <th className={hd} style={{ backgroundColor: BLUE_BG, color: "#1e40af", borderLeft: BLUE_BORDER, width: 115 }}>
+        Open<br />Commitment
+      </th>
+      <th className={hd} style={{ backgroundColor: AMBER_TOTAL, color: "#78350f", borderLeft: AMBER_BORDER }}>
+        Request / Max
+      </th>
+      <th style={{ width: 38, backgroundColor: "#f1f5f9", borderLeft: "1px solid #e2e8f0" }} />
+    </tr>
+  );
+}
+
+/* ─── single data row (Labor / Travel) ─────────────────────────── */
+function PlanDataRow({
+  row, expanded, onToggle, onUpdateQ, onUpdateRequested, onDelete,
+}: {
+  row: PlanRow;
+  expanded: boolean;
+  onToggle: () => void;
+  onUpdateQ: (id: number, field: keyof QData, val: number) => void;
+  onUpdateRequested: (id: number, val: number) => void;
+  onDelete: (id: number) => void;
+}) {
+  const planned   = sumQ(row);
+  const obligated = obligatedQ(row);
+  const remaining = plannedRem(row);
+  const canDelete = obligated === 0;
+
+  const td = "px-3 py-2.5 text-right tabular-nums text-sm text-slate-800";
+
+  return (
+    <React.Fragment>
+      <tr style={{ borderBottom: expanded ? "none" : "1px solid #f1f5f9" }}>
+        <td className="px-2 py-2 bg-white">
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={onToggle}
+              className="flex-shrink-0 p-0.5 rounded text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+              title={expanded ? "Collapse quarterly plan" : "Expand quarterly plan"}
+            >
+              {expanded ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
+            </button>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-slate-800 leading-snug truncate">{row.label}</p>
+              {row.sub && <p className="text-xs text-slate-400 leading-snug truncate mt-0.5">{row.sub}</p>}
+            </div>
+          </div>
+        </td>
+        {/* Total Planned — gold, spread-fill editable */}
+        <td className="px-3 py-2" style={{ backgroundColor: AMBER_BG, borderLeft: AMBER_BORDER }}>
+          <AmtInput
+            value={planned}
+            gold
+            onChange={(newTotal) => {
+              const openQs: (keyof QData)[] = ["fy25q3", "fy25q4", "fy26q1", "fy26q2", "fy26q3"];
+              const fixedObligation = obligated;
+              const delta = newTotal - fixedObligation;
+              const perQ = delta > 0 ? Math.floor(delta / 5) : 0;
+              const rem  = delta > 0 ? delta - perQ * 5 : 0;
+              openQs.forEach((q, i) => onUpdateQ(row.id, q, perQ + (i === 0 ? rem : 0)));
+            }}
+          />
+        </td>
+        {/* Obligated — blue, read-only */}
+        <td className={td} style={{ backgroundColor: BLUE_BG, borderLeft: "2px solid #475569" }}>
+          <AmtDisplay value={obligated} />
+        </td>
+        {/* Planned Remaining — blue, read-only */}
+        <td className={td} style={{ backgroundColor: BLUE_BG, borderLeft: BLUE_BORDER }}>
+          <AmtDisplay value={remaining} />
+        </td>
+        {/* Open Commitment — blue, read-only */}
+        <td className={td} style={{ backgroundColor: BLUE_BG, borderLeft: BLUE_BORDER }}>
+          <AmtDisplay value={row.openCommitment} />
+        </td>
+        {/* Request / Max — gold, editable, clamped */}
+        <td className="px-2 py-2" style={{ backgroundColor: AMBER_BG, borderLeft: AMBER_BORDER }}>
+          <div className="flex items-center gap-1">
+            <div style={{ flex: "0 0 100px" }}>
+              <AmtInput
+                value={row.requested}
+                min={obligated}
+                max={planned}
+                gold
+                onChange={(v) => onUpdateRequested(row.id, clampRequested(v, obligated, planned))}
+              />
+            </div>
+            <span className="text-xs text-slate-400 whitespace-nowrap tabular-nums">/ {planned === 0 ? "—" : fmt(planned)}</span>
+          </div>
+        </td>
+        <td style={{ padding: 0, textAlign: "center", verticalAlign: "middle", borderLeft: "1px solid #e2e8f0", backgroundColor: "#f8fafc" }}>
+          {canDelete ? (
+            <button
+              onClick={() => onDelete(row.id)}
+              title="Remove row"
+              className="rounded transition-colors text-slate-300 hover:text-red-400 hover:bg-red-50"
+              style={{ width: 28, height: 28, display: "inline-flex", alignItems: "center", justifyContent: "center" }}
+            >
+              <Trash2 size={14} />
+            </button>
+          ) : (
+            <button
+              onClick={() => {}}
+              title="Row has obligations — cannot be deleted"
+              className="rounded text-slate-300 cursor-not-allowed"
+              style={{ width: 28, height: 28, display: "inline-flex", alignItems: "center", justifyContent: "center" }}
+            >
+              <MinusCircle size={14} />
+            </button>
+          )}
+        </td>
+      </tr>
+      {expanded && (
+        <tr style={{ borderBottom: "1px solid #e2e8f0" }}>
+          <td colSpan={7} style={{ padding: 0 }}>
+            <QuarterlyPanel row={row} onUpdateQ={onUpdateQ} />
+          </td>
+        </tr>
+      )}
+    </React.Fragment>
+  );
+}
+
+/* ─── contract / outsourcing data row ──────────────────────────── */
+function ResourceDataRow<T extends QData & { id: number; org: string; orgCode: string; openCommitment: number; requested: number }>({
+  row, line2, expanded, onToggle, onUpdateQ, onUpdateRequested, onDelete,
+}: {
+  row: T;
+  line2: string;
+  expanded: boolean;
+  onToggle: () => void;
+  onUpdateQ: (id: number, field: keyof QData, val: number) => void;
+  onUpdateRequested: (id: number, val: number) => void;
+  onDelete: (id: number) => void;
+}) {
+  const planned   = sumQ(row);
+  const obligated = obligatedQ(row);
+  const remaining = plannedRem(row);
+  const canDelete = obligated === 0;
+  const td = "px-3 py-2.5 text-right tabular-nums text-sm text-slate-800";
+
+  return (
+    <React.Fragment>
+      <tr style={{ borderBottom: expanded ? "none" : "1px solid #f1f5f9" }}>
+        <td className="px-2 py-2 bg-white">
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={onToggle}
+              className="flex-shrink-0 p-0.5 rounded text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+            >
+              {expanded ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
+            </button>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-slate-800 leading-snug truncate">{row.org}</p>
+              <p className="text-xs text-slate-400 leading-snug truncate mt-0.5" title={line2}>{line2}</p>
+            </div>
+          </div>
+        </td>
+        <td className="px-3 py-2" style={{ backgroundColor: AMBER_BG, borderLeft: AMBER_BORDER }}>
+          <AmtInput
+            value={planned}
+            gold
+            onChange={(newTotal) => {
+              const openQs: (keyof QData)[] = ["fy25q3", "fy25q4", "fy26q1", "fy26q2", "fy26q3"];
+              const fixedObligation = obligated;
+              const delta = newTotal - fixedObligation;
+              const perQ = delta > 0 ? Math.floor(delta / 5) : 0;
+              const rem  = delta > 0 ? delta - perQ * 5 : 0;
+              openQs.forEach((q, i) => onUpdateQ(row.id, q, perQ + (i === 0 ? rem : 0)));
+            }}
+          />
+        </td>
+        <td className={td} style={{ backgroundColor: BLUE_BG, borderLeft: "2px solid #475569" }}>
+          <AmtDisplay value={obligated} />
+        </td>
+        <td className={td} style={{ backgroundColor: BLUE_BG, borderLeft: BLUE_BORDER }}>
+          <AmtDisplay value={remaining} />
+        </td>
+        <td className={td} style={{ backgroundColor: BLUE_BG, borderLeft: BLUE_BORDER }}>
+          <AmtDisplay value={row.openCommitment} />
+        </td>
+        <td className="px-2 py-2" style={{ backgroundColor: AMBER_BG, borderLeft: AMBER_BORDER }}>
+          <div className="flex items-center gap-1">
+            <div style={{ flex: "0 0 100px" }}>
+              <AmtInput
+                value={row.requested}
+                min={obligated}
+                max={planned}
+                gold
+                onChange={(v) => onUpdateRequested(row.id, clampRequested(v, obligated, planned))}
+              />
+            </div>
+            <span className="text-xs text-slate-400 whitespace-nowrap tabular-nums">/ {planned === 0 ? "—" : fmt(planned)}</span>
+          </div>
+        </td>
+        <td style={{ padding: 0, textAlign: "center", verticalAlign: "middle", borderLeft: "1px solid #e2e8f0", backgroundColor: "#f8fafc" }}>
+          {canDelete ? (
+            <button onClick={() => onDelete(row.id)} title="Remove row"
+              className="rounded transition-colors text-slate-300 hover:text-red-400 hover:bg-red-50"
+              style={{ width: 28, height: 28, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+              <Trash2 size={14} />
+            </button>
+          ) : (
+            <button title="Has obligations — cannot delete"
+              className="rounded text-slate-300 cursor-not-allowed"
+              style={{ width: 28, height: 28, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+              <MinusCircle size={14} />
+            </button>
+          )}
+        </td>
+      </tr>
+      {expanded && (
+        <tr style={{ borderBottom: "1px solid #e2e8f0" }}>
+          <td colSpan={7} style={{ padding: 0 }}>
+            <QuarterlyPanel row={row} onUpdateQ={onUpdateQ} />
+          </td>
+        </tr>
+      )}
+    </React.Fragment>
+  );
+}
+
+/* ─── section footer totals row ─────────────────────────────────── */
+function TotalsRow({ rows }: { rows: (QData & { openCommitment: number; requested: number })[] }) {
+  const totalPlanned   = rows.reduce((s, r) => s + sumQ(r), 0);
+  const totalObligated = rows.reduce((s, r) => s + obligatedQ(r), 0);
+  const totalRemaining = rows.reduce((s, r) => s + plannedRem(r), 0);
+  const totalOpen      = rows.reduce((s, r) => s + r.openCommitment, 0);
+  const totalRequested = rows.reduce((s, r) => s + r.requested, 0);
+  const td = "px-3 py-2 text-right text-sm font-bold tabular-nums";
+  return (
+    <tr style={{ borderTop: "2px solid #94a3b8" }}>
+      <td className="px-3 py-2 text-xs text-slate-500 uppercase tracking-wide font-bold" style={{ backgroundColor: "#f1f5f9" }}>Total</td>
+      <td className={td} style={{ backgroundColor: AMBER_TOTAL, borderLeft: AMBER_BORDER }}>{fmt(totalPlanned)}</td>
+      <td className={td} style={{ backgroundColor: BLUE_TOTAL, borderLeft: "2px solid #475569" }}>{fmt(totalObligated)}</td>
+      <td className={td} style={{ backgroundColor: BLUE_TOTAL, borderLeft: BLUE_BORDER }}>{fmt(totalRemaining)}</td>
+      <td className={td} style={{ backgroundColor: BLUE_TOTAL, borderLeft: BLUE_BORDER }}>{fmt(totalOpen)}</td>
+      <td className={td} style={{ backgroundColor: AMBER_TOTAL, borderLeft: AMBER_BORDER }}>{fmt(totalRequested)}</td>
+      <td style={{ backgroundColor: "#f1f5f9", borderLeft: "1px solid #e2e8f0" }} />
+    </tr>
+  );
+}
+
+/* ─── add-row picker (Labor / Travel) ───────────────────────────── */
+function AddRowModal({
+  title, options, existingLabels, onAdd, onClose,
 }: {
   title: string;
   options: { label: string; sub: string }[];
   existingLabels: Set<string>;
-  placeholder: string;
   onAdd: (items: { label: string; sub: string }[]) => void;
   onClose: () => void;
 }) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const avail = useMemo(() => options.filter((o) => !existingLabels.has(o.label)), [options, existingLabels]);
-
+  const avail = options.filter((o) => !existingLabels.has(o.label));
   const toggle = (label: string) =>
     setSelected((prev) => { const next = new Set(prev); next.has(label) ? next.delete(label) : next.add(label); return next; });
 
-  const handleAdd = () => {
-    if (selected.size > 0) onAdd(avail.filter((o) => selected.has(o.label)));
-    onClose();
-  };
-
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center"
-      style={{ backgroundColor: "rgba(15,23,42,0.45)" }}
-      onClick={onClose}
-    >
-      <div
-        className="bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col"
-        style={{ width: 340, maxHeight: "70vh" }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center justify-between px-4 py-2.5 flex-shrink-0" style={{ backgroundColor: "#1a3557" }}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ backgroundColor: "rgba(15,23,42,0.45)" }} onClick={onClose}>
+      <div className="bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col" style={{ width: 340, maxHeight: "70vh" }} onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between px-4 py-2.5" style={{ backgroundColor: "#1a3557" }}>
           <span className="text-white font-semibold text-xs tracking-wide uppercase">{title}</span>
-          <button onClick={onClose} className="text-white/60 hover:text-white transition-colors">
-            <X size={15} />
-          </button>
+          <button onClick={onClose} className="text-white/60 hover:text-white"><X size={15} /></button>
         </div>
-
-        <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
-          <CheckList options={avail} selected={selected} onToggle={toggle} placeholder={placeholder} />
-        </div>
-
-        <div className="px-4 py-3 border-t border-slate-200 flex items-center justify-between flex-shrink-0 bg-slate-50">
-          <p className="text-xs text-slate-500">
-            {selected.size === 0 ? "Select items above" : `${selected.size} selected`}
-          </p>
+        <ul className="overflow-y-auto" style={{ maxHeight: 280 }}>
+          {avail.map((opt) => (
+            <li key={opt.label}>
+              <button
+                onClick={() => toggle(opt.label)}
+                className="w-full text-left px-3 py-2 flex items-center gap-2.5 border-b border-slate-100 hover:bg-slate-50 transition-colors"
+              >
+                <div className="flex-shrink-0 rounded flex items-center justify-center"
+                  style={{ width: 16, height: 16, backgroundColor: selected.has(opt.label) ? "#1a3557" : "#fff", border: `2px solid ${selected.has(opt.label) ? "#1a3557" : "#cbd5e1"}` }}>
+                  {selected.has(opt.label) && <span style={{ color: "#fff", fontSize: 9, fontWeight: 900 }}>✓</span>}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-slate-800 truncate">{opt.label}</p>
+                  <p className="text-xs text-slate-400">{opt.sub}</p>
+                </div>
+              </button>
+            </li>
+          ))}
+          {avail.length === 0 && <li className="px-4 py-6 text-center text-xs text-slate-400">All options already added</li>}
+        </ul>
+        <div className="px-4 py-3 border-t border-slate-200 flex items-center justify-between bg-slate-50">
+          <span className="text-xs text-slate-500">{selected.size === 0 ? "Select items above" : `${selected.size} selected`}</span>
           <button
-            onClick={handleAdd}
+            onClick={() => { if (selected.size > 0) onAdd(avail.filter((o) => selected.has(o.label))); onClose(); }}
             disabled={selected.size === 0}
-            className="px-5 py-2 text-sm font-semibold rounded-lg transition-colors disabled:cursor-not-allowed"
-            style={
-              selected.size > 0
-                ? { backgroundColor: "#1a3557", color: "#fff" }
-                : { backgroundColor: "#e2e8f0", color: "#94a3b8" }
-            }
+            className="px-4 py-1.5 text-sm font-semibold rounded-lg transition-colors disabled:cursor-not-allowed"
+            style={selected.size > 0 ? { backgroundColor: "#1a3557", color: "#fff" } : { backgroundColor: "#e2e8f0", color: "#94a3b8" }}
           >
             Add to Plan
           </button>
@@ -203,1230 +623,467 @@ function MultiPickerModal({
   );
 }
 
-/* ─── types ────────────────────────────────────────────────────── */
-type YearQuarters = { fy: string; q1: number; q2: number; q3: number; q4: number };
-
-type FundingRow = {
-  id: number;
-  label: string;
-  sub?: string;
-  planned: number;
-  requested: number;
-  totalCommitments: number;
-  openCommitments: number;
-  obligated: number;
-  description: string;
-  notes: string;
-  quarters: YearQuarters[];
-};
-
-/* ─── editable amount cell ─────────────────────────────────────── */
-function EditableAmount({ value, onChange }: { value: number; onChange: (v: number) => void }) {
-  const [editing, setEditing] = useState(false);
-  const [raw, setRaw] = useState("");
-  if (editing) {
-    return (
-      <input
-        autoFocus type="text" value={raw}
-        onChange={(e) => setRaw(e.target.value.replace(/[^0-9]/g, ""))}
-        onBlur={() => { onChange(parseInt(raw) || 0); setEditing(false); }}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") { onChange(parseInt(raw) || 0); setEditing(false); }
-          if (e.key === "Escape") setEditing(false);
-        }}
-        className="w-full text-right text-sm border border-amber-400 rounded px-1 py-0.5 focus:outline-none focus:ring-1 focus:ring-amber-300 tabular-nums bg-white"
-      />
-    );
-  }
-  return (
-    <button
-      onClick={() => { setRaw(String(value)); setEditing(true); }}
-      className="w-full text-right text-sm text-slate-800 tabular-nums hover:underline decoration-dotted underline-offset-2 focus:outline-none"
-    >
-      {value === 0 ? "—" : fmt(value)}
-    </button>
-  );
-}
-
-/* ─── spread-fill total cell ──────────────────────────────────── */
-function SpreadFillTotal({
-  total, onSpread, allYears,
-}: {
-  total: number;
-  onSpread: (q1: number, q2: number, q3: number, q4: number) => void;
-  allYears?: boolean;
-}) {
-  const [editing, setEditing] = useState(false);
-  const [raw, setRaw] = useState("");
-  const commit = () => {
-    const v = parseInt(raw) || 0;
-    if (allYears) {
-      onSpread(v, 0, 0, 0);
-    } else {
-      const base = Math.floor(v / 4);
-      const rem = v - base * 4;
-      onSpread(base + rem, base, base, base);
-    }
-    setEditing(false);
-  };
-  if (editing) {
-    return (
-      <input
-        autoFocus type="text" value={raw}
-        onChange={(e) => setRaw(e.target.value.replace(/[^0-9]/g, ""))}
-        onBlur={commit}
-        onKeyDown={(e) => { if (e.key === "Enter") commit(); if (e.key === "Escape") setEditing(false); }}
-        className="w-full text-right text-sm border border-blue-400 rounded px-1 py-0.5 focus:outline-none focus:ring-1 focus:ring-blue-200 tabular-nums bg-white"
-      />
-    );
-  }
-  return (
-    <button
-      onClick={() => { setRaw(String(total)); setEditing(true); }}
-      title={allYears ? "Enter a total to spread evenly across all fiscal years" : "Enter a total to spread evenly across Q1–Q4"}
-      className="w-full text-right text-sm font-semibold tabular-nums hover:underline decoration-dotted underline-offset-2 focus:outline-none"
-      style={{ color: total === 0 ? "#94a3b8" : "#1a3557" }}
-    >
-      {total === 0 ? "—" : fmt(total)}
-    </button>
-  );
-}
-
-/* ─── spread-fill quarter-column total ────────────────────────── */
-function SpreadFillQuarterTotal({
-  total, onSpread,
-}: {
-  total: number;
-  onSpread: (v: number) => void;
-}) {
-  const [editing, setEditing] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const onSpreadRef = useRef(onSpread);
-  useEffect(() => { onSpreadRef.current = onSpread; }, [onSpread]);
-
-  const commit = () => {
-    const v = parseInt(inputRef.current?.value ?? "", 10) || 0;
-    onSpreadRef.current(v);
-    setEditing(false);
-  };
-
-  useEffect(() => {
-    if (editing && inputRef.current) {
-      inputRef.current.value = String(total);
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, [editing]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  if (editing) {
-    return (
-      <input
-        ref={inputRef}
-        type="text"
-        defaultValue={String(total)}
-        onInput={(e) => { (e.target as HTMLInputElement).value = (e.target as HTMLInputElement).value.replace(/[^0-9]/g, ""); }}
-        onBlur={commit}
-        onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); commit(); } if (e.key === "Escape") setEditing(false); }}
-        className="w-full text-right text-sm border border-blue-400 rounded px-1 py-0.5 focus:outline-none focus:ring-1 focus:ring-blue-200 tabular-nums bg-white"
-      />
-    );
-  }
-  return (
-    <button
-      onClick={() => setEditing(true)}
-      title="Enter a total to spread evenly across all fiscal years for this quarter"
-      className="w-full text-right text-sm font-bold tabular-nums hover:underline decoration-dotted underline-offset-2 focus:outline-none"
-      style={{ color: total === 0 ? "#94a3b8" : "#1a3557" }}
-    >
-      {total === 0 ? "—" : fmt(total)}
-    </button>
-  );
-}
-
-/* ─── row state hook ───────────────────────────────────────────── */
-function makeFiveYears(baseFYNum: number): YearQuarters[] {
-  return Array.from({ length: 5 }, (_, i) => ({
-    fy: `FY${String(baseFYNum + i).padStart(2, "0")}`,
-    q1: 0, q2: 0, q3: 0, q4: 0,
-  }));
-}
-
-function useFundingRows(initial: FundingRow[], defaultFYNum: number) {
-  const [rows, setRows] = useState(initial);
-
-  const updateAmount = (id: number, field: "planned" | "requested", value: number) =>
-    setRows((r) => r.map((row) => {
-      if (row.id !== id) return row;
-      if (field === "planned" && row.quarters.some((q) => q.q1 + q.q2 + q.q3 + q.q4 > 0)) return row;
-      return { ...row, [field]: value };
-    }));
-
-  const updateNote = (id: number, value: string) =>
-    setRows((r) => r.map((row) => row.id === id ? { ...row, notes: value } : row));
-
-  const deleteRow = (id: number) =>
-    setRows((r) => r.filter((row) => row.id !== id));
-
-  const zeroOutRow = (id: number) =>
-    setRows((r) => r.map((row) => {
-      if (row.id !== id) return row;
-      const floor = row.obligated ?? 0;
-      return {
-        ...row,
-        planned:   Math.max(floor, 0),
-        requested: Math.max(floor, 0),
-        quarters: row.quarters.map((q) => ({ ...q, q1: 0, q2: 0, q3: 0, q4: 0 })),
-      };
-    }));
-
-  const addRow = (label: string, description: string) =>
-    setRows((r) => [...r, {
-      id: uid(), label, planned: 0, requested: 0,
-      totalCommitments: 0, openCommitments: 0, obligated: 0,
-      description, notes: "", quarters: makeFiveYears(defaultFYNum),
-    }]);
-
-  const addMany = (items: { label: string; sub?: string }[], descTemplate: string) =>
-    setRows((r) => [
-      ...r,
-      ...items.map(({ label, sub }) => ({
-        id: uid(), label, sub, planned: 0, requested: 0,
-        totalCommitments: 0, openCommitments: 0, obligated: 0,
-        description: descTemplate, notes: "", quarters: makeFiveYears(defaultFYNum),
-      })),
-    ]);
-
-  const updateQuarter = (id: number, fy: string, qKey: keyof Omit<YearQuarters, "fy">, value: number) =>
-    setRows((r) => r.map((row) => {
-      if (row.id !== id) return row;
-      const quarters = row.quarters.map((q) => q.fy === fy ? { ...q, [qKey]: value } : q);
-      const planned = quarters.reduce((s, q) => s + q.q1 + q.q2 + q.q3 + q.q4, 0);
-      return { ...row, quarters, planned };
-    }));
-
-  const spreadFiscalYear = (id: number, fy: string, q1: number, q2: number, q3: number, q4: number) =>
-    setRows((r) => r.map((row) => {
-      if (row.id !== id) return row;
-      const quarters = row.quarters.map((q) => q.fy === fy ? { ...q, q1, q2, q3, q4 } : q);
-      const planned = quarters.reduce((s, q) => s + q.q1 + q.q2 + q.q3 + q.q4, 0);
-      return { ...row, quarters, planned };
-    }));
-
-  const addFiscalYear = (id: number, fy: string) =>
-    setRows((r) => r.map((row) => {
-      if (row.id !== id || row.quarters.some((q) => q.fy === fy)) return row;
-      return { ...row, quarters: [...row.quarters, { fy, q1: 0, q2: 0, q3: 0, q4: 0 }] };
-    }));
-
-  const removeFiscalYear = (id: number, fy: string) =>
-    setRows((r) => r.map((row) => {
-      if (row.id !== id) return row;
-      const quarters = row.quarters.filter((q) => q.fy !== fy);
-      const planned = quarters.reduce((s, q) => s + q.q1 + q.q2 + q.q3 + q.q4, 0);
-      return { ...row, quarters, planned };
-    }));
-
-  const zeroFiscalYear = (id: number, fy: string) =>
-    setRows((r) => r.map((row) => {
-      if (row.id !== id) return row;
-      const quarters = row.quarters.map((q) => q.fy === fy ? { ...q, q1: 0, q2: 0, q3: 0, q4: 0 } : q);
-      const planned = quarters.reduce((s, q) => s + q.q1 + q.q2 + q.q3 + q.q4, 0);
-      return { ...row, quarters, planned };
-    }));
-
-  const spreadAllYears = (id: number, total: number) =>
-    setRows((r) => r.map((row) => {
-      if (row.id !== id || row.quarters.length === 0) return row;
-      const n = row.quarters.length;
-      const perFY = Math.floor(total / n);
-      const fyRem = total - perFY * n;
-      const quarters = row.quarters.map((q, fi) => {
-        const fyTotal = perFY + (fi === 0 ? fyRem : 0);
-        const base = Math.floor(fyTotal / 4);
-        const rem = fyTotal - base * 4;
-        return { ...q, q1: base + rem, q2: base, q3: base, q4: base };
-      });
-      return { ...row, quarters, planned: total };
-    }));
-
-  const spreadQuarter = (id: number, qKey: keyof Omit<YearQuarters, "fy">, total: number) =>
-    setRows((r) => r.map((row) => {
-      if (row.id !== id || row.quarters.length === 0) return row;
-      const n = row.quarters.length;
-      const base = Math.floor(total / n);
-      const rem = total - base * n;
-      const quarters = row.quarters.map((q, i) => ({ ...q, [qKey]: base + (i === 0 ? rem : 0) }));
-      const planned = quarters.reduce((s, q) => s + q.q1 + q.q2 + q.q3 + q.q4, 0);
-      return { ...row, quarters, planned };
-    }));
-
-  return { rows, updateAmount, updateNote, deleteRow, zeroOutRow, addRow, addMany, updateQuarter, spreadFiscalYear, zeroFiscalYear, spreadAllYears, addFiscalYear, removeFiscalYear, spreadQuarter };
-}
-
-/* ─── single funding section table ─────────────────────────────── */
-function FundingSection({
-  title, columnHeader, addButtonLabel, descTemplate, rows,
-  onUpdateAmount, onUpdateNote, onDelete, onZeroOut, onAddMany,
-  pickerMode, existingLabels,
-  pickerTitle, pickerOptions, pickerPlaceholder,
-  showDetails, defaultFY,
-  onUpdateQuarter, onSpreadFiscalYear, onSpreadAllYears, onSpreadQuarter, onAddFiscalYear, onRemoveFiscalYear,
-  justification, onJustificationChange,
+/* ─── two-step add modal (Contracting / Outsourcing) ────────────── */
+function TwoStepAddModal({
+  title, codes, onAdd, onClose,
 }: {
   title: string;
-  columnHeader: string;
-  addButtonLabel: string;
-  descTemplate: string;
-  rows: FundingRow[];
-  onUpdateAmount: (id: number, field: "planned" | "requested", value: number) => void;
-  onUpdateNote: (id: number, value: string) => void;
-  onDelete: (id: number) => void;
-  onZeroOut: (id: number) => void;
-  onAddMany: (items: { label: string; sub?: string }[]) => void;
-  pickerMode: "multi";
-  existingLabels: Set<string>;
-  pickerTitle?: string;
-  pickerOptions?: { label: string; sub: string }[];
-  pickerPlaceholder?: string;
-  showDetails: boolean;
-  defaultFY: string;
-  onUpdateQuarter: (id: number, fy: string, qKey: keyof Omit<YearQuarters, "fy">, value: number) => void;
-  onSpreadFiscalYear: (id: number, fy: string, q1: number, q2: number, q3: number, q4: number) => void;
-  onSpreadAllYears: (id: number, total: number) => void;
-  onSpreadQuarter: (id: number, qKey: keyof Omit<YearQuarters, "fy">, total: number) => void;
-  onAddFiscalYear: (id: number, fy: string) => void;
-  onRemoveFiscalYear: (id: number, fy: string) => void;
-  justification: string;
-  onJustificationChange: (v: string) => void;
-}) {
-  const [showPicker, setShowPicker] = useState(false);
-  const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
-  const [showJustification, setShowJustification] = useState(false);
-  const toggleExpand = (id: number) =>
-    setExpandedRows((prev) => { const next = new Set(prev); next.has(id) ? next.delete(id) : next.add(id); return next; });
-  const getNextFY = (quarters: YearQuarters[]): string => {
-    if (quarters.length === 0) return defaultFY;
-    const nums = quarters.map((q) => parseInt(q.fy.replace("FY", "")));
-    return `FY${Math.max(...nums) + 1}`;
-  };
-  const numCols = showDetails ? 9 : 7;
-
-  const totalPlanned     = rows.reduce((s, r) => s + r.planned, 0);
-  const totalRequested   = rows.reduce((s, r) => s + r.requested, 0);
-  const totalCommitments = rows.reduce((s, r) => s + r.totalCommitments, 0);
-  const totalOpen        = rows.reduce((s, r) => s + r.openCommitments, 0);
-  const totalObligated   = rows.reduce((s, r) => s + r.obligated, 0);
-
-  const blueHd = "px-3 py-3 text-center text-xs font-semibold text-white uppercase tracking-wide leading-snug";
-  const blueTd = "px-3 py-2.5 text-right tabular-nums text-slate-800";
-
-  const amberBg        = "#fffbeb";
-  const amberBorder    = "1px solid #fcd34d";   /* outer left edge of amber zone */
-  const amberInner     = "1px solid #e9a825";   /* inner divider between amber cols */
-  const amberTotalBg   = "#fef3c7";
-  const blueCellBg     = "#eff6ff";
-  const blueBorder     = "1px solid #bfdbfe";
-  const blueHdBg       = "#1a6ea8";
-
-  return (
-    <>
-      {showPicker && pickerOptions && (
-        <MultiPickerModal
-          title={pickerTitle ?? ""}
-          options={pickerOptions}
-          existingLabels={existingLabels}
-          placeholder={pickerPlaceholder ?? "Search…"}
-          onAdd={(items) => onAddMany(items)}
-          onClose={() => setShowPicker(false)}
-        />
-      )}
-
-      <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-        {/* section header */}
-        <div className="flex items-center" style={{ backgroundColor: "#1a3557" }}>
-          <span className="font-bold text-white text-sm tracking-wide px-4 py-2.5">{title}</span>
-          <span style={{ flex: 1 }} />
-          <span className="text-xs pr-3" style={{ color: "rgba(255,255,255,0.65)", fontWeight: 500 }}>{addButtonLabel}</span>
-          {/* 44 px — matches action column <col width={44}> */}
-          <div style={{ width: 44, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <button
-              onClick={() => setShowPicker(true)}
-              className="flex items-center justify-center rounded transition-colors"
-              style={{ width: 30, height: 30, backgroundColor: "rgba(255,255,255,0.18)", color: "#fff", border: "1px solid rgba(255,255,255,0.35)" }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.32)")}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.18)")}
-              title={addButtonLabel}
-            >
-              <Plus size={16} />
-            </button>
-          </div>
-        </div>
-
-        {/* table with horizontal scroll for narrow viewports */}
-        <div style={{ overflowX: "auto" }}>
-        <table className="w-full" style={{ borderCollapse: "collapse", tableLayout: "fixed", minWidth: showDetails ? 860 : 660, fontSize: 13 }}>
-          <colgroup>
-            <col style={{ width: 180 }} />
-            <col style={{ width: 108 }} />
-            <col style={{ width: 108 }} />
-            <col style={{ width: 108 }} />
-            <col style={{ width: 108 }} />
-            <col style={{ width: 98 }} />
-            {showDetails && <col />}
-            {showDetails && <col style={{ width: 95 }} />}
-            <col style={{ width: 44 }} />
-          </colgroup>
-          <thead>
-            <tr style={{ borderBottom: "2px solid #cbd5e1", borderTop: "1px solid #e2e8f0" }}>
-              <th className="px-3 py-3 text-left text-xs font-bold text-slate-600 uppercase tracking-wider whitespace-nowrap align-bottom" style={{ backgroundColor: "#f1f5f9" }}>
-                {columnHeader}
-              </th>
-              <th className="px-3 py-3 text-right text-xs font-bold uppercase tracking-wide leading-snug align-bottom" style={{ backgroundColor: "#fef3c7", color: "#78350f", borderLeft: amberBorder }}>
-                Total<br />Planned
-              </th>
-              <th className="px-3 py-3 text-right text-xs font-bold uppercase tracking-wide leading-snug align-bottom" style={{ backgroundColor: "#fef3c7", color: "#78350f", borderLeft: amberInner }}>
-                Total<br />Requested
-              </th>
-              <th className={blueHd + " align-bottom"} style={{ backgroundColor: blueHdBg, borderLeft: "2px solid #475569" }}>Total<br />Commitments</th>
-              <th className={blueHd + " align-bottom"} style={{ backgroundColor: blueHdBg, borderLeft: blueBorder }}>Open<br />Commitments</th>
-              <th className={blueHd + " align-bottom"} style={{ backgroundColor: blueHdBg, borderLeft: blueBorder }}>Obligated</th>
-              {showDetails && (
-                <th className="px-3 py-3 text-left text-xs font-bold text-slate-600 uppercase tracking-wider align-bottom" style={{ backgroundColor: "#f1f5f9", borderLeft: "1px solid #e2e8f0" }}>
-                  Description
-                </th>
-              )}
-              {showDetails && (
-                <th className="px-3 py-3 text-left text-xs font-bold uppercase tracking-wider whitespace-nowrap align-bottom" style={{ backgroundColor: "#fef3c7", color: "#78350f", borderLeft: amberBorder }}>
-                  Notes
-                </th>
-              )}
-              <th className="py-3 bg-slate-100" style={{ borderLeft: "1px solid #e2e8f0" }} />
-            </tr>
-          </thead>
-
-          <tbody>
-            {rows.map((row) => {
-              const hasObligations = row.obligated > 0;
-              const isExpanded = expandedRows.has(row.id);
-              const hasQuarters = row.quarters.length > 0;
-              return (
-                <React.Fragment key={row.id}>
-                  <tr style={{ borderBottom: isExpanded ? "none" : "1px solid #fef9c3" }}>
-                    <td className="px-3 py-2 bg-slate-50">
-                      <div className="flex items-center gap-1.5">
-                        <button
-                          onClick={() => toggleExpand(row.id)}
-                          className="flex-shrink-0 p-0.5 rounded text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-colors"
-                          title={isExpanded ? "Collapse year/quarter plan" : "Expand year/quarter plan"}
-                        >
-                          {isExpanded ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
-                        </button>
-                        <div className="min-w-0">
-                          <p className="text-sm font-semibold text-slate-800 leading-snug truncate" title={row.label}>{row.label}</p>
-                          {row.sub && <p className="text-xs text-slate-400 leading-snug truncate mt-0.5" title={row.sub}>{row.sub}</p>}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-3 py-2.5" style={{ backgroundColor: amberBg, borderLeft: amberBorder }}>
-                      {hasQuarters ? (
-                        <SpreadFillTotal
-                          total={row.planned}
-                          onSpread={(total) => onSpreadAllYears(row.id, total)}
-                          allYears
-                        />
-                      ) : (
-                        <EditableAmount value={row.planned} onChange={(v) => onUpdateAmount(row.id, "planned", v)} />
-                      )}
-                    </td>
-                    <td className="px-3 py-2.5" style={{ backgroundColor: amberBg, borderLeft: amberInner }}>
-                      <EditableAmount value={row.requested} onChange={(v) => onUpdateAmount(row.id, "requested", v)} />
-                    </td>
-                    <td className={blueTd} style={{ backgroundColor: blueCellBg, borderLeft: "2px solid #64748b" }}>{fmt(row.totalCommitments)}</td>
-                    <td className={blueTd} style={{ backgroundColor: blueCellBg, borderLeft: blueBorder }}>{fmt(row.openCommitments)}</td>
-                    <td className={blueTd} style={{ backgroundColor: blueCellBg, borderLeft: blueBorder }}>{fmt(row.obligated)}</td>
-                    {showDetails && (
-                      <td className="px-3 py-2.5 text-xs text-slate-500 font-mono bg-white truncate" style={{ borderLeft: "1px solid #e2e8f0" }} title={row.description}>
-                        {row.description}
-                      </td>
-                    )}
-                    {showDetails && (
-                      <td className="px-3 py-2.5" style={{ backgroundColor: amberBg, borderLeft: amberBorder }}>
-                        <input
-                          type="text" value={row.notes}
-                          onChange={(e) => onUpdateNote(row.id, e.target.value)}
-                          placeholder="notes"
-                          className="w-full text-sm text-slate-700 border-none focus:outline-none"
-                          style={{ backgroundColor: "transparent" }}
-                        />
-                      </td>
-                    )}
-                    <td style={{ padding: 0, textAlign: "center", verticalAlign: "middle", borderLeft: "1px solid #e2e8f0", backgroundColor: "#f8fafc" }}>
-                      {hasObligations ? (
-                        <button
-                          onClick={() => onZeroOut(row.id)}
-                          title="Zero out planned amounts (has obligations — cannot be deleted)"
-                          className="rounded transition-colors text-amber-500 hover:bg-amber-50"
-                          style={{ width: 30, height: 30, display: "inline-flex", alignItems: "center", justifyContent: "center" }}
-                        >
-                          <MinusCircle size={16} />
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => onDelete(row.id)}
-                          title="Delete row"
-                          className="rounded transition-colors text-slate-300 hover:text-red-400 hover:bg-red-50"
-                          style={{ width: 30, height: 30, display: "inline-flex", alignItems: "center", justifyContent: "center" }}
-                        >
-                          <Trash2 size={15} />
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-
-                  {/* ── expanded quarterly breakdown ── */}
-                  {isExpanded && (
-                    <tr key={`${row.id}-qtr`} style={{ borderBottom: "1px solid #fef9c3" }}>
-                      <td colSpan={numCols} style={{ padding: 0 }}>
-                        <div style={{ background: "linear-gradient(to bottom, #f0f4f8, #f8fafc)", borderTop: "2px solid #1a6ea8", borderBottom: "1px solid #dde3ea", padding: "0 0 14px 0" }}>
-                          {/* inner header bar */}
-                          <div style={{ background: "#1a3557", padding: "6px 16px", display: "flex", alignItems: "center", gap: 8 }}>
-                            <span style={{ fontSize: 10, fontWeight: 700, color: "#93c5fd", textTransform: "uppercase", letterSpacing: "0.08em" }}>Quarterly Breakdown</span>
-                            <span style={{ flex: 1 }} />
-                            <span style={{ fontSize: 10, color: "#93c5fd", opacity: 0.7 }}>Click any amount to edit &nbsp;·&nbsp; Click FY Total to spread evenly &nbsp;·&nbsp; Click Q Total to spread across all FYs</span>
-                          </div>
-
-                          <div style={{ padding: "10px 16px 0 16px" }}>
-                          {/* quarter table */}
-                          <table style={{ borderCollapse: "collapse", fontSize: 12, width: "100%", tableLayout: "fixed" }}>
-                            <thead>
-                              <tr>
-                                <th style={{ textAlign: "left", color: "#475569", fontWeight: 700, paddingBottom: 6, paddingRight: 12, textTransform: "uppercase", letterSpacing: "0.05em", fontSize: 10 }}>Year</th>
-                                {(["Q1 Oct–Dec", "Q2 Jan–Mar", "Q3 Apr–Jun", "Q4 Jul–Sep"] as const).map((label) => (
-                                  <th key={label} style={{ textAlign: "right", color: "#1a3557", fontWeight: 700, paddingBottom: 6, paddingRight: 8, textTransform: "uppercase", letterSpacing: "0.05em", fontSize: 10 }}>{label}</th>
-                                ))}
-                                <th style={{ width: 104, textAlign: "right", color: "#1a6ea8", fontWeight: 700, paddingBottom: 6, paddingRight: 8, textTransform: "uppercase", letterSpacing: "0.05em", fontSize: 10, borderLeft: "1px solid #cbd5e1", paddingLeft: 8 }}>FY Total</th>
-                                <th style={{ width: 44 }} />
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {row.quarters.map((yr, idx) => {
-                                const fyTotal = yr.q1 + yr.q2 + yr.q3 + yr.q4;
-                                return (
-                                  <tr key={yr.fy} style={{ borderTop: "1px solid #e2e8f0", background: idx % 2 === 0 ? "transparent" : "rgba(255,255,255,0.55)" }}>
-                                    <td style={{ paddingTop: 5, paddingBottom: 5, paddingRight: 12, fontWeight: 700, color: "#1a3557", fontSize: 12 }}>{yr.fy}</td>
-                                    {(["q1", "q2", "q3", "q4"] as const).map((qk) => (
-                                      <td key={qk} style={{ paddingTop: 3, paddingBottom: 3, paddingRight: 8 }}>
-                                        <EditableAmount value={yr[qk]} onChange={(v) => onUpdateQuarter(row.id, yr.fy, qk, v)} />
-                                      </td>
-                                    ))}
-                                    <td style={{ paddingTop: 3, paddingBottom: 3, paddingRight: 8, borderLeft: "1px solid #cbd5e1", paddingLeft: 8 }}>
-                                      <SpreadFillTotal
-                                        total={fyTotal}
-                                        onSpread={(q1, q2, q3, q4) => onSpreadFiscalYear(row.id, yr.fy, q1, q2, q3, q4)}
-                                      />
-                                    </td>
-                                    <td style={{ padding: 0, textAlign: "center", verticalAlign: "middle" }}>
-                                      <button
-                                        onClick={() => onSpreadFiscalYear(row.id, yr.fy, 0, 0, 0, 0)}
-                                        className="rounded transition-colors"
-                                        style={{ color: "#cbd5e1", fontSize: 14, fontWeight: 600, fontFamily: "inherit", background: "none", border: "none", cursor: "pointer", lineHeight: 1, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 30, height: 30 }}
-                                        title={`Zero out ${yr.fy}`}
-                                        onMouseEnter={(e) => { e.currentTarget.style.color = "#64748b"; e.currentTarget.style.background = "#e2e8f0"; }}
-                                        onMouseLeave={(e) => { e.currentTarget.style.color = "#cbd5e1"; e.currentTarget.style.background = "transparent"; }}
-                                      >
-                                        0
-                                      </button>
-                                    </td>
-                                  </tr>
-                                );
-                              })}
-                              {row.quarters.length === 0 && (
-                                <tr>
-                                  <td colSpan={7} style={{ paddingTop: 10, paddingBottom: 6, color: "#94a3b8", fontStyle: "italic" }}>
-                                    No fiscal years added yet.
-                                  </td>
-                                </tr>
-                              )}
-                              {row.quarters.length > 0 && (() => {
-                                const qTotals = row.quarters.reduce(
-                                  (acc, q) => ({ q1: acc.q1 + q.q1, q2: acc.q2 + q.q2, q3: acc.q3 + q.q3, q4: acc.q4 + q.q4 }),
-                                  { q1: 0, q2: 0, q3: 0, q4: 0 }
-                                );
-                                const grandTotal = qTotals.q1 + qTotals.q2 + qTotals.q3 + qTotals.q4;
-                                return (
-                                  <tr style={{ borderTop: "2px solid #94a3b8", background: "#eef2f7" }}>
-                                    <td style={{ paddingTop: 5, paddingBottom: 5, paddingRight: 12, fontWeight: 700, color: "#475569", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.04em" }}>Total</td>
-                                    {(["q1", "q2", "q3", "q4"] as const).map((qk) => (
-                                      <td key={qk} style={{ paddingTop: 3, paddingBottom: 3, paddingRight: 8 }}>
-                                        <SpreadFillQuarterTotal
-                                          total={qTotals[qk]}
-                                          onSpread={(v) => onSpreadQuarter(row.id, qk, v)}
-                                        />
-                                      </td>
-                                    ))}
-                                    <td style={{ paddingTop: 3, paddingBottom: 3, paddingRight: 8, borderLeft: "1px solid #cbd5e1", paddingLeft: 8, textAlign: "right", fontWeight: 700, fontSize: 12, color: grandTotal === 0 ? "#94a3b8" : "#1a3557" }} className="tabular-nums">
-                                      {grandTotal === 0 ? "—" : fmt(grandTotal)}
-                                    </td>
-                                    <td />
-                                  </tr>
-                                );
-                              })()}
-                            </tbody>
-                          </table>
-                          </div>
-
-                        </div>
-                      </td>
-                    </tr>
-                  )}
-                </React.Fragment>
-              );
-            })}
-          </tbody>
-
-          <tfoot>
-            <tr style={{ borderTop: "2px solid #94a3b8" }}>
-              <td className="px-3 py-2 text-xs text-slate-500 uppercase tracking-wide font-bold bg-slate-100" style={{ verticalAlign: "top" }}>
-                <div className="flex flex-col gap-1.5 pt-0.5">
-                  <span>Total</span>
-                  <button
-                    onClick={() => setShowJustification((v) => !v)}
-                    className="flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded transition-colors border w-fit"
-                    style={
-                      showJustification || justification.trim()
-                        ? { backgroundColor: "#fef3c7", color: "#92400e", borderColor: "#fcd34d" }
-                        : { backgroundColor: "#f8fafc", color: "#64748b", borderColor: "#e2e8f0" }
-                    }
-                  >
-                    <span>{showJustification ? "▼" : "▶"}</span>
-                    Justification
-                    {justification.trim() && !showJustification && (
-                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-500 ml-0.5" />
-                    )}
-
-                  </button>
-                </div>
-              </td>
-              <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-bold" style={{ backgroundColor: amberTotalBg, borderLeft: amberBorder }}>{fmt(totalPlanned)}</td>
-              <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-bold" style={{ backgroundColor: amberTotalBg, borderLeft: amberInner }}>{fmt(totalRequested)}</td>
-              <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-bold bg-blue-100" style={{ borderLeft: "2px solid #64748b" }}>{fmt(totalCommitments)}</td>
-              <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-bold bg-blue-100" style={{ borderLeft: blueBorder }}>{fmt(totalOpen)}</td>
-              <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-bold bg-blue-100" style={{ borderLeft: blueBorder }}>{fmt(totalObligated)}</td>
-              {showDetails && <td className="bg-white" style={{ borderLeft: "1px solid #e2e8f0" }} />}
-              {showDetails && <td style={{ backgroundColor: amberTotalBg, borderLeft: amberBorder }} />}
-              <td className="bg-slate-100" style={{ borderLeft: "1px solid #e2e8f0" }} />
-            </tr>
-          </tfoot>
-        </table>
-        </div>
-
-        {/* collapsible justification panel — expands below the footer */}
-        {showJustification && (
-          <div className="border-t border-amber-100 bg-amber-50 px-4 py-3">
-            <textarea
-              value={justification}
-              onChange={(e) => onJustificationChange(e.target.value)}
-              rows={3}
-              autoFocus
-              placeholder={`Enter justification for ${title} budget allocation…`}
-              className="w-full text-sm text-slate-700 border border-amber-200 rounded-lg px-3 py-2 resize-none focus:outline-none focus:ring-1 focus:ring-amber-300 bg-white placeholder-slate-300"
-            />
-            {justification.trim() && (
-              <p className="mt-1 text-[11px] text-amber-700 font-medium flex items-center gap-1">
-                <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-500" />
-                Justification will appear on the change request
-              </p>
-            )}
-          </div>
-        )}
-      </div>
-    </>
-  );
-}
-
-/* ─── submit preview modal ─────────────────────────────────────── */
-const TYPE_ORDER_MODAL = ["Labor", "Travel", "Contracting", "Materials & Other"] as const;
-type SectionType = typeof TYPE_ORDER_MODAL[number];
-
-function typeModalColor(type: SectionType) {
-  if (type === "Labor")             return { bg: "#eff6ff", border: "#bfdbfe", text: "#1e40af", dot: "#3b82f6" };
-  if (type === "Travel")            return { bg: "#f5f3ff", border: "#ddd6fe", text: "#5b21b6", dot: "#7c3aed" };
-  if (type === "Contracting")       return { bg: "#f0fdf4", border: "#bbf7d0", text: "#166534", dot: "#16a34a" };
-  return                              { bg: "#f8fafc", border: "#e2e8f0", text: "#475569", dot: "#94a3b8" };
-}
-
-interface ModalRow { label: string; sub: string; planned: number; requested: number; description: string; }
-interface ModalSection { type: SectionType; rows: ModalRow[]; justification: string; }
-interface OrgGroup { orgCode: string; sections: ModalSection[]; }
-
-function SubmitPreviewModal({
-  project, sections, matsSection,
-  allPlanned, repoJustification, onRepoJustificationChange,
-  onClose, onSubmit,
-}: {
-  project: Project;
-  sections: OrgGroup[];
-  matsSection: ModalSection | null;
-  allPlanned: number;
-  repoJustification: string;
-  onRepoJustificationChange: (v: string) => void;
+  codes: { code: string; name: string }[];
+  onAdd: (org: string, orgCode: string, code: string, name: string) => void;
   onClose: () => void;
-  onSubmit: () => void;
 }) {
-  const freeBalance = project.budget - allPlanned;
-  const today = new Date().toISOString().slice(0, 10);
+  const [selectedOrg, setSelectedOrg]   = useState("");
+  const [selectedCode, setSelectedCode] = useState("");
+
+  const org  = ORG_OPTIONS.find((o) => o.label === selectedOrg);
+  const code = codes.find((c) => `${c.code}|${c.name}` === selectedCode);
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto"
-      style={{ backgroundColor: "rgba(15,23,42,0.6)", padding: "40px 16px 60px" }}
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
-    >
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden">
-        {/* Modal header bar */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-slate-50/70">
-          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Submit Plan — Preview</span>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-200 text-slate-500 hover:text-slate-800 transition-colors">
-            <X size={16} />
+    <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ backgroundColor: "rgba(15,23,42,0.45)" }} onClick={onClose}>
+      <div className="bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col" style={{ width: 420, maxHeight: "80vh" }} onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between px-4 py-2.5" style={{ backgroundColor: "#1a3557" }}>
+          <span className="text-white font-semibold text-xs tracking-wide uppercase">{title}</span>
+          <button onClick={onClose} className="text-white/60 hover:text-white"><X size={15} /></button>
+        </div>
+        <div className="p-4 space-y-4 overflow-y-auto">
+          {/* Step 1: Org */}
+          <div>
+            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">1. Select Org / Lab / District</label>
+            <select
+              value={selectedOrg}
+              onChange={(e) => setSelectedOrg(e.target.value)}
+              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
+            >
+              <option value="">— Select org —</option>
+              {ORG_OPTIONS.map((o) => (
+                <option key={o.label} value={o.label}>{o.label} ({o.code})</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Step 2: Code */}
+          <div>
+            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">2. Select Resource Code</label>
+            <select
+              value={selectedCode}
+              onChange={(e) => setSelectedCode(e.target.value)}
+              disabled={!selectedOrg}
+              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:bg-slate-50 disabled:text-slate-400"
+            >
+              <option value="">— Select resource code —</option>
+              {codes.map((c) => (
+                <option key={`${c.code}|${c.name}`} value={`${c.code}|${c.name}`}>
+                  {c.code} — {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Preview */}
+          {org && code && (
+            <div className="rounded-lg border border-blue-100 bg-blue-50 px-3 py-2 text-xs text-blue-800">
+              <span className="font-semibold">{org.label}</span>
+              <span className="text-blue-400"> · {org.code}</span>
+              <br />
+              <span className="text-blue-600">{code.code}</span>
+              <span className="text-blue-400"> — {code.name}</span>
+            </div>
+          )}
+        </div>
+
+        <div className="px-4 py-3 border-t border-slate-200 flex items-center justify-between bg-slate-50">
+          <button onClick={onClose} className="text-sm text-slate-500 hover:text-slate-700">Cancel</button>
+          <button
+            onClick={() => {
+              if (org && code) { onAdd(org.label, org.code, code.code, code.name); onClose(); }
+            }}
+            disabled={!org || !code}
+            className="px-4 py-1.5 text-sm font-semibold rounded-lg transition-colors disabled:cursor-not-allowed"
+            style={org && code ? { backgroundColor: "#1a3557", color: "#fff" } : { backgroundColor: "#e2e8f0", color: "#94a3b8" }}
+          >
+            Add to Plan
           </button>
         </div>
-
-        <div className="p-6 space-y-6">
-          {/* Project header card — matching CR detail style */}
-          <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
-            <div className="flex items-start justify-between gap-6 flex-wrap">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <FolderOpen size={13} className="text-slate-400" />
-                  <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Budget Change Request</span>
-                </div>
-                <h2 className="text-xl font-bold text-slate-900 leading-snug">
-                  <span className="font-mono text-sm text-slate-400 mr-2">{project.number}</span>
-                  {project.name}
-                </h2>
-                <div className="flex items-center gap-3 mt-2 flex-wrap">
-                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border bg-blue-100 text-blue-800 border-blue-200">Pending</span>
-                  <span className="text-sm text-slate-500">{project.pmName} · {today}</span>
-                  <span className="text-sm text-slate-500">Proponent: <strong className="text-slate-700 font-medium">{project.hqProponent || "—"}</strong></span>
-                </div>
-              </div>
-              <div className="flex items-stretch gap-px bg-slate-200 rounded-lg overflow-hidden border border-slate-200 self-start">
-                {([
-                  { label: "TOA",          value: project.budget, color: "text-slate-800" },
-                  { label: "Planned",      value: allPlanned,     color: "text-slate-800" },
-                  { label: "Free Balance", value: freeBalance,    color: freeBalance >= 0 ? "text-emerald-700" : "text-red-600" },
-                ] as const).map(({ label, value, color }) => (
-                  <div key={label} className="flex flex-col items-end px-4 py-3 bg-white gap-0.5 min-w-[110px]">
-                    <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider whitespace-nowrap">{label}</span>
-                    <span className={`text-sm font-bold tabular-nums ${color}`}>{fmt(value)}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Project description */}
-          <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
-            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Project Description</p>
-            <p className="text-sm text-slate-700 leading-relaxed">{project.description}</p>
-          </div>
-
-          {/* Budget breakdown */}
-          <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-            <div className="px-5 py-3" style={{ backgroundColor: "#1a3557", borderBottom: "2px solid rgba(255,255,255,0.25)" }}>
-              <p className="text-xs font-bold text-blue-200 uppercase tracking-widest">Budget Breakdown</p>
-            </div>
-
-            {sections.map((grp, gi) => (
-              <div key={grp.orgCode} className={gi > 0 ? "border-t-2 border-slate-200" : ""}>
-                {/* Org code header */}
-                <div className="flex items-center gap-2 px-5 py-2" style={{ backgroundColor: "#1a3557" }}>
-                  <span className="text-[11px] font-bold text-blue-200 uppercase tracking-widest font-mono">{grp.orgCode}</span>
-                </div>
-
-                {grp.sections.map((sec) => {
-                  const colors = typeModalColor(sec.type);
-                  return (
-                    <div key={sec.type}>
-                      {/* Type sub-header */}
-                      <div className="flex items-center gap-2 px-5 py-1.5"
-                        style={{ backgroundColor: colors.bg, borderTop: `1px solid ${colors.border}`, borderBottom: `1px solid ${colors.border}` }}>
-                        <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: colors.dot }} />
-                        <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: colors.text }}>{sec.type}</span>
-                      </div>
-
-                      {/* Justification for this type */}
-                      {sec.justification.trim() && (
-                        <div className="px-5 py-2 border-b" style={{ backgroundColor: "#fffbeb", borderColor: "#fde68a" }}>
-                          <p className="text-[9px] font-bold text-amber-700 uppercase tracking-wider mb-0.5">Justification</p>
-                          <p className="text-xs text-amber-900 leading-relaxed">{sec.justification}</p>
-                        </div>
-                      )}
-
-                      {/* Column mini-header */}
-                      <div className="grid px-5 py-1 bg-slate-50/50 border-b border-slate-100"
-                        style={{ gridTemplateColumns: "1fr 96px 96px 1fr" }}>
-                        <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Person / Org</span>
-                        <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider text-right">Planned</span>
-                        <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider text-right">Requested</span>
-                        <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider pl-3">Description</span>
-                      </div>
-
-                      {/* Rows */}
-                      {sec.rows.map((row, ri) => (
-                        <div key={ri} className="grid px-5 py-2 border-b border-slate-100 items-center gap-2"
-                          style={{ gridTemplateColumns: "1fr 96px 96px 1fr" }}>
-                          <span className="text-sm text-slate-700 font-medium truncate">{row.label}</span>
-                          <span className="text-sm tabular-nums text-slate-600 text-right">{fmt(row.planned)}</span>
-                          <span className="text-sm tabular-nums font-semibold text-slate-800 text-right">{fmt(row.requested)}</span>
-                          <span className="text-xs text-slate-400 font-mono pl-3 truncate" title={row.description}>{row.description}</span>
-                        </div>
-                      ))}
-                    </div>
-                  );
-                })}
-              </div>
-            ))}
-
-            {/* Materials & Other — no org code grouping */}
-            {matsSection && matsSection.rows.length > 0 && (
-              <div className={sections.length > 0 ? "border-t-2 border-slate-200" : ""}>
-                {(() => { const colors = typeModalColor("Materials & Other"); return (
-                  <div className="flex items-center gap-2 px-5 py-1.5"
-                    style={{ backgroundColor: colors.bg, borderBottom: `1px solid ${colors.border}` }}>
-                    <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: colors.dot }} />
-                    <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: colors.text }}>Materials &amp; Other</span>
-                  </div>
-                ); })()}
-
-                {matsSection.justification.trim() && (
-                  <div className="px-5 py-2 border-b" style={{ backgroundColor: "#fffbeb", borderColor: "#fde68a" }}>
-                    <p className="text-[9px] font-bold text-amber-700 uppercase tracking-wider mb-0.5">Justification</p>
-                    <p className="text-xs text-amber-900 leading-relaxed">{matsSection.justification}</p>
-                  </div>
-                )}
-
-                <div className="grid px-5 py-1 bg-slate-50/50 border-b border-slate-100"
-                  style={{ gridTemplateColumns: "1fr 96px 96px 1fr" }}>
-                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Item</span>
-                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider text-right">Planned</span>
-                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider text-right">Requested</span>
-                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider pl-3">Description</span>
-                </div>
-
-                {matsSection.rows.map((row, ri) => (
-                  <div key={ri} className="grid px-5 py-2 border-b border-slate-100 items-center gap-2"
-                    style={{ gridTemplateColumns: "1fr 96px 96px 1fr" }}>
-                    <span className="text-sm text-slate-700 font-medium truncate">{row.label}</span>
-                    <span className="text-sm tabular-nums text-slate-600 text-right">{fmt(row.planned)}</span>
-                    <span className="text-sm tabular-nums font-semibold text-slate-800 text-right">{fmt(row.requested)}</span>
-                    <span className="text-xs text-slate-400 font-mono pl-3 truncate" title={row.description}>{row.description}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Repositioning justification */}
-          <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
-            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Repositioning Justification</p>
-            <p className="text-xs text-slate-400 mb-3">Explain the overall rationale for this budget change request.</p>
-            <textarea
-              value={repoJustification}
-              onChange={(e) => onRepoJustificationChange(e.target.value)}
-              rows={4}
-              placeholder="Describe why the reallocation is needed…"
-              className="w-full text-sm text-slate-700 border border-slate-200 rounded-lg px-3 py-2.5 resize-none focus:outline-none focus:ring-2 focus:ring-blue-200 bg-white placeholder-slate-300"
-            />
-          </div>
-
-          {/* Final submit */}
-          <div className="flex items-center justify-between pt-2">
-            <button onClick={onClose} className="text-sm text-slate-500 hover:text-slate-800 px-4 py-2 rounded-lg hover:bg-slate-100 transition-colors">
-              Cancel
-            </button>
-            <button
-              onClick={onSubmit}
-              className="px-8 py-2.5 text-sm font-semibold rounded-lg shadow-sm text-white transition-colors"
-              style={{ backgroundColor: "#1a3557" }}
-              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#16304d"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "#1a3557"; }}
-            >
-              Submit Change Request
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   );
 }
 
-/* ─── main funding view ────────────────────────────────────────── */
-function FundingView({ project }: { project: Project }) {
-  const budget = project.budget;
-  const b      = budget;
-  const fy     = project.number.slice(0, 2);
-  const fyNum  = parseInt(fy);
-  const num    = project.number;
-  const [showDetails, setShowDetails] = useState(false);
-  const [laborJust, setLaborJust]             = useState("");
-  const [travelJust, setTravelJust]           = useState("");
-  const [contractingJust, setContractingJust] = useState("");
-  const [matsJust, setMatsJust]               = useState("");
-  const [showModal, setShowModal]             = useState(false);
-  const [repoJustification, setRepoJustification] = useState("");
-
-  const labor = useFundingRows([
-    { id: 1, label: "Nugent, Joseph Pat", sub: "U435310",
-      planned: Math.round(b * 0.09), requested: Math.round(b * 0.09 * 0.05),
-      totalCommitments: Math.round(b * 0.09 * 0.05), openCommitments: Math.round(b * 0.09 * 0.03), obligated: Math.round(b * 0.09 * 0.02),
-      description: `FY${fy}/SANDC LABOR FUNDS FOR ${num}/CEFMS/`, notes: "notes",
-      quarters: makeFiveYears(fyNum).map((q, i) => i === 0
-        ? { ...q, q1: Math.round(b * 0.09 * 0.26), q2: Math.round(b * 0.09 * 0.27), q3: Math.round(b * 0.09 * 0.25), q4: Math.round(b * 0.09 * 0.22) }
-        : q) },
-    { id: 2, label: "USACE Chicago District", sub: "U435310",
-      planned: Math.round(b * 0.05), requested: Math.round(b * 0.05 * 0.95),
-      totalCommitments: Math.round(b * 0.05 * 0.95), openCommitments: Math.round(b * 0.05 * 0.50), obligated: Math.round(b * 0.05 * 0.45),
-      description: `FY${fy}/SANDC LABOR FUNDS FOR ${num}/U435310/`, notes: "notes",
-      quarters: makeFiveYears(fyNum) },
-    { id: 3, label: "Chen, David", sub: "U719203",
-      planned: Math.round(b * 0.035), requested: Math.round(b * 0.035),
-      totalCommitments: Math.round(b * 0.035 * 0.60), openCommitments: Math.round(b * 0.035 * 0.30), obligated: Math.round(b * 0.035 * 0.30),
-      description: `FY${fy}/SANDC LABOR FUNDS FOR ${num}/Chen D/`, notes: "",
-      quarters: makeFiveYears(fyNum) },
-  ], fyNum);
-
-  const travel = useFundingRows([
-    { id: 10, label: "CERL", sub: "U435310",
-      planned: Math.round(b * 0.02), requested: Math.round(b * 0.02),
-      totalCommitments: Math.round(b * 0.02), openCommitments: Math.round(b * 0.02 * 0.59), obligated: Math.round(b * 0.02 * 0.41),
-      description: `FY${fy}/SANDC TRAVEL FOR ${num}/CERL/`, notes: "",
-      quarters: makeFiveYears(fyNum).map((q, i) => i === 0
-        ? { ...q, q1: Math.round(b * 0.02 * 0.30), q2: Math.round(b * 0.02 * 0.30), q3: Math.round(b * 0.02 * 0.25), q4: Math.round(b * 0.02 * 0.15) }
-        : q) },
-    { id: 11, label: "Vicksburg District", sub: "U834512",
-      planned: Math.round(b * 0.013), requested: Math.round(b * 0.013),
-      totalCommitments: Math.round(b * 0.013), openCommitments: Math.round(b * 0.013 * 0.50), obligated: 0,
-      description: `FY${fy}/SANDC TRAVEL FOR ${num}/Vicksburg District/`, notes: "",
-      quarters: makeFiveYears(fyNum) },
-  ], fyNum);
-
-  const mats = useFundingRows([
-    { id: 20, label: "Concrete (500 units)", planned: Math.round(b * 0.031), requested: Math.round(b * 0.031),
-      totalCommitments: Math.round(b * 0.031), openCommitments: Math.round(b * 0.031 * 0.53), obligated: Math.round(b * 0.031 * 0.47),
-      description: `FY${fy}/SANDC MATL FOR ${num}/Concrete/500 units`, notes: "",
-      quarters: makeFiveYears(fyNum) },
-    { id: 21, label: "Steel Rebar (2000 ft)", planned: Math.round(b * 0.021), requested: Math.round(b * 0.021 * 0.98),
-      totalCommitments: Math.round(b * 0.021 * 0.98), openCommitments: Math.round(b * 0.021 * 0.49), obligated: 0,
-      description: `FY${fy}/SANDC MATL FOR ${num}/Rebar/2000 units`, notes: "",
-      quarters: makeFiveYears(fyNum) },
-  ], fyNum);
-
-  const contracting = useFundingRows([], fyNum);
-
-  const laborDescTemplate       = `FY${fy}/SANDC LABOR FUNDS FOR ${num}//`;
-  const travelDescTemplate      = `FY${fy}/SANDC TRAVEL FOR ${num}//`;
-  const matlDescTemplate        = `FY${fy}/SANDC MATL FOR ${num}//`;
-  const contractingDescTemplate = `FY${fy}/SANDC CONTRACT FOR ${num}//`;
-
-  const laborExisting       = useMemo(() => new Set(labor.rows.map((r) => r.label)),       [labor.rows]);
-  const travelExisting      = useMemo(() => new Set(travel.rows.map((r) => r.label)),      [travel.rows]);
-  const matsExisting        = useMemo(() => new Set(mats.rows.map((r) => r.label)),        [mats.rows]);
-  const contractingExisting = useMemo(() => new Set(contracting.rows.map((r) => r.label)), [contracting.rows]);
-
-  const allPlanned = [...labor.rows, ...travel.rows, ...mats.rows, ...contracting.rows].reduce((s, r) => s + r.planned, 0);
-  const leftToPlan = budget - allPlanned;
-
-  /* build modal org-code groups */
-  const modalOrgGroups = useMemo((): OrgGroup[] => {
-    const orgMap = new Map<string, { type: SectionType; row: ModalRow }[]>();
-    const addRows = (rows: typeof labor.rows, type: SectionType) => {
-      for (const r of rows) {
-        const key = r.sub || "—";
-        if (!orgMap.has(key)) orgMap.set(key, []);
-        orgMap.get(key)!.push({ type, row: { label: r.label, sub: r.sub, planned: r.planned, requested: r.requested, description: r.description } });
-      }
-    };
-    addRows(labor.rows, "Labor");
-    addRows(travel.rows, "Travel");
-    addRows(contracting.rows, "Contracting");
-
-    const justMap: Record<SectionType, string> = {
-      "Labor": laborJust, "Travel": travelJust, "Contracting": contractingJust, "Materials & Other": matsJust,
-    };
-    return Array.from(orgMap.entries()).map(([orgCode, items]) => {
-      const typeMap = new Map<SectionType, ModalRow[]>();
-      for (const { type, row } of items) {
-        if (!typeMap.has(type)) typeMap.set(type, []);
-        typeMap.get(type)!.push(row);
-      }
-      const sections: ModalSection[] = (["Labor", "Travel", "Contracting"] as const)
-        .filter((t) => typeMap.has(t))
-        .map((t) => ({ type: t, rows: typeMap.get(t)!, justification: justMap[t] }));
-      return { orgCode, sections };
-    });
-  }, [labor.rows, travel.rows, contracting.rows, laborJust, travelJust, contractingJust]);
-
-  const modalMatsSection = useMemo((): ModalSection | null => {
-    if (mats.rows.length === 0) return null;
-    return {
-      type: "Materials & Other",
-      rows: mats.rows.map((r) => ({ label: r.label, sub: r.sub, planned: r.planned, requested: r.requested, description: r.description })),
-      justification: matsJust,
-    };
-  }, [mats.rows, matsJust]);
-
+/* ─── section wrapper ───────────────────────────────────────────── */
+function SectionWrapper({ title, dotColor, children }: { title: string; dotColor: string; children: React.ReactNode }) {
   return (
-    <div className="space-y-5">
-      {/* summary cards */}
-      <div className="grid grid-cols-3 gap-4">
-        <div className="rounded-2xl px-6 py-5 shadow-md" style={{ backgroundColor: "#1a3557" }}>
-          <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: "#93c5fd" }}>TOA</p>
-          <p className="text-3xl font-bold text-white tabular-nums leading-none">{fmt(budget)}</p>
-          <p className="text-xs mt-1" style={{ color: "#93c5fd" }}>Total Obligating Authority</p>
-        </div>
-        <div className="rounded-2xl px-6 py-5 shadow-sm border border-slate-200 bg-white">
-          <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-1">Planned</p>
-          <p className="text-3xl font-bold text-slate-900 tabular-nums leading-none">{fmt(allPlanned)}</p>
-          <p className="text-xs text-slate-400 mt-1">Amount currently planned</p>
-        </div>
-        <div className={`rounded-2xl px-6 py-5 shadow-sm border ${
-          leftToPlan < 0
-            ? "bg-red-50 border-red-200"
-            : leftToPlan <= 50
-              ? "bg-emerald-50 border-emerald-200"
-              : "bg-amber-50 border-amber-300"
-        }`}>
-          <p className={`text-xs font-semibold uppercase tracking-widest mb-1 ${
-            leftToPlan < 0 ? "text-red-500" : leftToPlan <= 50 ? "text-emerald-600" : "text-amber-600"
-          }`}>Left to Plan</p>
-          <p className={`text-3xl font-bold tabular-nums leading-none ${
-            leftToPlan < 0 ? "text-red-600" : leftToPlan <= 50 ? "text-emerald-700" : "text-amber-700"
-          }`}>{fmt(leftToPlan)}</p>
-          <p className={`text-xs mt-1 ${
-            leftToPlan < 0 ? "text-red-400" : leftToPlan <= 50 ? "text-emerald-500" : "text-amber-500"
-          }`}>
-            {leftToPlan < 0 ? "Over budget" : leftToPlan <= 50 ? "Remaining to allocate" : "Unallocated funds remaining"}
-          </p>
-        </div>
+    <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+      <div className="flex items-center gap-2 px-4 py-2.5" style={{ backgroundColor: "#1a3557" }}>
+        <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: dotColor }} />
+        <span className="font-bold text-white text-sm tracking-wide">{title}</span>
       </div>
-
-      {/* table toolbar */}
-      <div className="flex items-center justify-end">
-        <button
-          onClick={() => setShowDetails((v) => !v)}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-medium transition-colors"
-          style={
-            showDetails
-              ? { backgroundColor: "#1a3557", color: "#fff", borderColor: "#1a3557" }
-              : { backgroundColor: "#fff", color: "#475569", borderColor: "#cbd5e1" }
-          }
-        >
-          <span
-            className="inline-flex items-center justify-center rounded-full transition-colors"
-            style={{
-              width: 28, height: 16, flexShrink: 0,
-              backgroundColor: showDetails ? "rgba(255,255,255,0.25)" : "#e2e8f0",
-              position: "relative",
-            }}
-          >
-            <span
-              style={{
-                width: 12, height: 12, borderRadius: "50%", backgroundColor: "#fff",
-                position: "absolute",
-                left: showDetails ? "calc(100% - 14px)" : 2,
-                transition: "left 0.15s",
-                boxShadow: "0 1px 2px rgba(0,0,0,0.2)",
-              }}
-            />
-          </span>
-          Description &amp; Notes
-        </button>
-      </div>
-
-      {/* tables */}
-      <FundingSection
-        title="Labor" columnHeader="Employee / Org Code"
-        addButtonLabel="Add Labor"
-        descTemplate={laborDescTemplate}
-        rows={labor.rows}
-        onUpdateAmount={labor.updateAmount} onUpdateNote={labor.updateNote}
-        onDelete={labor.deleteRow} onZeroOut={labor.zeroOutRow}
-        onAddMany={(items) => labor.addMany(items, laborDescTemplate)}
-        pickerMode="multi"
-        existingLabels={laborExisting}
-        pickerTitle="Add Labor"
-        pickerOptions={LABOR_OPTIONS}
-        pickerPlaceholder="Search by name, org code, or department…"
-        showDetails={showDetails}
-        defaultFY={`FY${fy}`}
-        onUpdateQuarter={labor.updateQuarter}
-        onSpreadFiscalYear={labor.spreadFiscalYear}
-        onSpreadAllYears={labor.spreadAllYears}
-        onSpreadQuarter={labor.spreadQuarter}
-        onAddFiscalYear={labor.addFiscalYear}
-        onRemoveFiscalYear={labor.removeFiscalYear}
-        justification={laborJust}
-        onJustificationChange={setLaborJust}
-      />
-      <FundingSection
-        title="Travel" columnHeader="Organization"
-        addButtonLabel="Add Travel"
-        descTemplate={travelDescTemplate}
-        rows={travel.rows}
-        onUpdateAmount={travel.updateAmount} onUpdateNote={travel.updateNote}
-        onDelete={travel.deleteRow} onZeroOut={travel.zeroOutRow}
-        onAddMany={(items) => travel.addMany(items, travelDescTemplate)}
-        pickerMode="multi"
-        existingLabels={travelExisting}
-        pickerTitle="Add Travel"
-        pickerOptions={TRAVEL_OPTIONS}
-        pickerPlaceholder="Search by name or org code…"
-        showDetails={showDetails}
-        defaultFY={`FY${fy}`}
-        onUpdateQuarter={travel.updateQuarter}
-        onSpreadFiscalYear={travel.spreadFiscalYear}
-        onSpreadAllYears={travel.spreadAllYears}
-        onSpreadQuarter={travel.spreadQuarter}
-        onAddFiscalYear={travel.addFiscalYear}
-        onRemoveFiscalYear={travel.removeFiscalYear}
-        justification={travelJust}
-        onJustificationChange={setTravelJust}
-      />
-      <FundingSection
-        title="Contracting" columnHeader="Organization"
-        addButtonLabel="Add Contracting"
-        descTemplate={contractingDescTemplate}
-        rows={contracting.rows}
-        onUpdateAmount={contracting.updateAmount} onUpdateNote={contracting.updateNote}
-        onDelete={contracting.deleteRow} onZeroOut={contracting.zeroOutRow}
-        onAddMany={(items) => contracting.addMany(items, contractingDescTemplate)}
-        pickerMode="multi"
-        existingLabels={contractingExisting}
-        pickerTitle="Add Contracting"
-        pickerOptions={TRAVEL_OPTIONS}
-        pickerPlaceholder="Search by org code or district…"
-        showDetails={showDetails}
-        defaultFY={`FY${fy}`}
-        onUpdateQuarter={contracting.updateQuarter}
-        onSpreadFiscalYear={contracting.spreadFiscalYear}
-        onSpreadAllYears={contracting.spreadAllYears}
-        onSpreadQuarter={contracting.spreadQuarter}
-        onAddFiscalYear={contracting.addFiscalYear}
-        onRemoveFiscalYear={contracting.removeFiscalYear}
-        justification={contractingJust}
-        onJustificationChange={setContractingJust}
-      />
-      <FundingSection
-        title="Materials & Other" columnHeader="Item"
-        addButtonLabel="Add Item"
-        descTemplate={matlDescTemplate}
-        rows={mats.rows}
-        onUpdateAmount={mats.updateAmount} onUpdateNote={mats.updateNote}
-        onDelete={mats.deleteRow} onZeroOut={mats.zeroOutRow}
-        onAddMany={(items) => mats.addMany(items, matlDescTemplate)}
-        pickerMode="multi"
-        existingLabels={matsExisting}
-        pickerTitle="Add Items"
-        pickerOptions={MATERIAL_OPTIONS}
-        pickerPlaceholder="Search items…"
-        showDetails={showDetails}
-        defaultFY={`FY${fy}`}
-        onUpdateQuarter={mats.updateQuarter}
-        onSpreadFiscalYear={mats.spreadFiscalYear}
-        onSpreadAllYears={mats.spreadAllYears}
-        onSpreadQuarter={mats.spreadQuarter}
-        onAddFiscalYear={mats.addFiscalYear}
-        onRemoveFiscalYear={mats.removeFiscalYear}
-        justification={matsJust}
-        onJustificationChange={setMatsJust}
-      />
-
-      {/* submit */}
-      {(() => {
-        const canSubmit = leftToPlan >= 0 && leftToPlan < 50;
-        return (
-          <div className="flex flex-col items-center gap-1.5 pt-2 pb-4">
-            <button
-              disabled={!canSubmit}
-              className="px-12 py-2.5 text-sm font-semibold rounded-lg shadow-sm transition-colors disabled:cursor-not-allowed"
-              style={
-                canSubmit
-                  ? { backgroundColor: "#1a3557", color: "#fff" }
-                  : { backgroundColor: "#e2e8f0", color: "#94a3b8" }
-              }
-              onMouseEnter={(e) => { if (canSubmit) e.currentTarget.style.backgroundColor = "#16304d"; }}
-              onMouseLeave={(e) => { if (canSubmit) e.currentTarget.style.backgroundColor = "#1a3557"; }}
-              onClick={() => { if (canSubmit) setShowModal(true); }}
-            >
-              Submit Plan
-            </button>
-            {leftToPlan < 0 && (
-              <p className="text-xs text-slate-400">Plan exceeds budget — reduce planned amounts before submitting</p>
-            )}
-            {leftToPlan >= 50 && (
-              <p className="text-xs text-slate-400">At least ${(leftToPlan - 49).toLocaleString()} more must be allocated before submitting</p>
-            )}
-          </div>
-        );
-      })()}
-
-      {/* submit preview modal */}
-      {showModal && (
-        <SubmitPreviewModal
-          project={project}
-          sections={modalOrgGroups}
-          matsSection={modalMatsSection}
-          allPlanned={allPlanned}
-          repoJustification={repoJustification}
-          onRepoJustificationChange={setRepoJustification}
-          onClose={() => setShowModal(false)}
-          onSubmit={() => {
-            setShowModal(false);
-            alert("Change request submitted successfully!");
-          }}
-        />
-      )}
+      {children}
     </div>
   );
 }
 
-/* ─── page ─────────────────────────────────────────────────────── */
-export default function ProjectPlanning() {
-  const params    = useParams();
-  const projectId = params.id;
-  const project   = MOCK_PROJECTS.find((p) => p.id === projectId);
+/* ─── initial data ──────────────────────────────────────────────── */
+const INITIAL_LABOR: PlanRow[] = [
+  { id: 1, label: "Nugent, Joseph Pat", sub: "U435310/CERL",
+    fy25q1: 10000, fy25q2: 12000, fy25q3: 13000, fy25q4: 10000,
+    fy26q1: 12000, fy26q2: 12000, fy26q3: 11000,
+    openCommitment: 3500, requested: 80000 },
+  { id: 2, label: "Chen, David", sub: "U719203/CERL",
+    fy25q1: 8000, fy25q2: 8000, fy25q3: 8000, fy25q4: 8000,
+    fy26q1: 9000, fy26q2: 9000, fy26q3: 9000,
+    openCommitment: 2000, requested: 59000 },
+  { id: 3, label: "Williams, Sandra K.", sub: "U920183/CERL",
+    fy25q1: 6000, fy25q2: 7000, fy25q3: 7500, fy25q4: 6500,
+    fy26q1: 7000, fy26q2: 7000, fy26q3: 6000,
+    openCommitment: 2500, requested: 47000 },
+];
 
-  if (!project) {
-    return (
-      <Layout>
-        <div className="flex items-center justify-center py-24 text-slate-500">Project not found.</div>
-      </Layout>
-    );
+const INITIAL_TRAVEL: PlanRow[] = [
+  { id: 4, label: "CERL", sub: "U435310",
+    fy25q1: 3000, fy25q2: 3000, fy25q3: 4000, fy25q4: 3000,
+    fy26q1: 4000, fy26q2: 4000, fy26q3: 3000,
+    openCommitment: 800, requested: 24000 },
+  { id: 5, label: "ERDC Headquarters", sub: "U582094",
+    fy25q1: 1500, fy25q2: 1500, fy25q3: 2000, fy25q4: 1500,
+    fy26q1: 2000, fy26q2: 2000, fy26q3: 1500,
+    openCommitment: 400, requested: 12000 },
+];
+
+const INITIAL_CONTRACT: ContractRow[] = [
+  { id: 6, org: "ERDC", orgCode: "U582094",
+    contractCode: "ITSFTMAINT", contractName: "Software maintenance or support",
+    fy25q1: 0, fy25q2: 15000, fy25q3: 20000, fy25q4: 20000,
+    fy26q1: 18000, fy26q2: 18000, fy26q3: 17000,
+    openCommitment: 3000, requested: 108000 },
+  { id: 7, org: "CERL", orgCode: "U435310",
+    contractCode: "OTHCONSVC", contractName: "Private Sector contracts not otherwise classified",
+    fy25q1: 25000, fy25q2: 25000, fy25q3: 25000, fy25q4: 25000,
+    fy26q1: 20000, fy26q2: 20000, fy26q3: 20000,
+    openCommitment: 5000, requested: 160000 },
+];
+
+const INITIAL_OUTSOURCING: OutsourcingRow[] = [
+  { id: 8, org: "ERDC", orgCode: "U582094",
+    resourceCode: "WKBOTHCOE", resourceName: "Corps District (MIPR)",
+    fy25q1: 10000, fy25q2: 10000, fy25q3: 10000, fy25q4: 10000,
+    fy26q1: 8000, fy26q2: 8000, fy26q3: 8000,
+    openCommitment: 1500, requested: 64000 },
+  { id: 9, org: "CERL", orgCode: "U435310",
+    resourceCode: "SHOP/FACIL", resourceName: "OrderTrak",
+    fy25q1: 5000, fy25q2: 5000, fy25q3: 5000, fy25q4: 5000,
+    fy26q1: 4000, fy26q2: 4000, fy26q3: 4000,
+    openCommitment: 800, requested: 32000 },
+];
+
+/* ─── main page ─────────────────────────────────────────────────── */
+export default function ProjectPlanning() {
+  const { id } = useParams<{ id: string }>();
+  const project = MOCK_PROJECTS.find((p) => p.id === id) ?? MOCK_PROJECTS[0];
+
+  const [laborRows,      setLaborRows]      = useState<PlanRow[]>(INITIAL_LABOR);
+  const [travelRows,     setTravelRows]     = useState<PlanRow[]>(INITIAL_TRAVEL);
+  const [contractRows,   setContractRows]   = useState<ContractRow[]>(INITIAL_CONTRACT);
+  const [outsourcingRows, setOutsourcingRows] = useState<OutsourcingRow[]>(INITIAL_OUTSOURCING);
+
+  const [expandedLabor,      setExpandedLabor]      = useState<Set<number>>(new Set());
+  const [expandedTravel,     setExpandedTravel]     = useState<Set<number>>(new Set());
+  const [expandedContract,   setExpandedContract]   = useState<Set<number>>(new Set());
+  const [expandedOutsourcing, setExpandedOutsourcing] = useState<Set<number>>(new Set());
+
+  const [showLaborPicker,      setShowLaborPicker]      = useState(false);
+  const [showTravelPicker,     setShowTravelPicker]     = useState(false);
+  const [showContractPicker,   setShowContractPicker]   = useState(false);
+  const [showOutsourcingPicker, setShowOutsourcingPicker] = useState(false);
+
+  const toggleSet = (set: Set<number>, id: number): Set<number> => {
+    const next = new Set(set);
+    next.has(id) ? next.delete(id) : next.add(id);
+    return next;
+  };
+
+  /* generic Q updater for PlanRow */
+  function updatePlanQ(setRows: React.Dispatch<React.SetStateAction<PlanRow[]>>, id: number, field: keyof QData, val: number) {
+    setRows((rows) => rows.map((r) => {
+      if (r.id !== id) return r;
+      const updated = { ...r, [field]: val };
+      const obl = obligatedQ(updated);
+      return { ...updated, requested: Math.max(r.requested, obl) };
+    }));
   }
 
-  const breadcrumb = (
-    <>
-      <Link href="/" className="text-slate-400 hover:text-slate-700 transition-colors">Home</Link>
-      <ChevronRight size={14} className="text-slate-300 flex-shrink-0" />
-      <Link href="/projects" className="text-slate-400 hover:text-slate-700 transition-colors">Project List</Link>
-      <ChevronRight size={14} className="text-slate-300 flex-shrink-0" />
-      <span className="font-semibold text-slate-800">{project.number}</span>
-    </>
+  /* generic Q updater for ContractRow / OutsourcingRow */
+  function updateResourceQ<T extends QData & { id: number; requested: number }>(
+    setRows: React.Dispatch<React.SetStateAction<T[]>>, id: number, field: keyof QData, val: number
+  ) {
+    setRows((rows) => rows.map((r) => {
+      if (r.id !== id) return r;
+      const updated = { ...r, [field]: val };
+      const obl = obligatedQ(updated);
+      return { ...updated, requested: Math.max(r.requested, obl) };
+    }));
+  }
+
+  function updatePlanRequested(setRows: React.Dispatch<React.SetStateAction<PlanRow[]>>, id: number, val: number) {
+    setRows((rows) => rows.map((r) => r.id === id ? { ...r, requested: val } : r));
+  }
+
+  function updateResourceRequested<T extends { id: number; requested: number }>(
+    setRows: React.Dispatch<React.SetStateAction<T[]>>, id: number, val: number
+  ) {
+    setRows((rows) => rows.map((r) => r.id === id ? { ...r, requested: val } : r));
+  }
+
+  const addSectionHeader = (title: string, dotColor: string, onAdd: () => void, addLabel: string) => (
+    <div className="flex items-center gap-2 px-4 py-2.5 border-b border-slate-200" style={{ backgroundColor: "#1a3557" }}>
+      <div className="w-2 h-2 rounded-full" style={{ backgroundColor: dotColor }} />
+      <span className="font-bold text-white text-sm tracking-wide flex-1">{title}</span>
+      <button
+        onClick={onAdd}
+        className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded transition-colors"
+        style={{ backgroundColor: "rgba(255,255,255,0.15)", color: "#fff", border: "1px solid rgba(255,255,255,0.3)" }}
+        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.28)")}
+        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.15)")}
+        title={addLabel}
+      >
+        <Plus size={13} />
+        {addLabel}
+      </button>
+    </div>
   );
 
-  const headerActions = (
-    <Link href={`/projects/${project.id}/settings`} data-testid="nav-settings-header">
-      <button className="p-2 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors border border-transparent hover:border-slate-200">
-        <Settings size={17} />
-      </button>
-    </Link>
+  const tableWrap = (children: React.ReactNode) => (
+    <div style={{ overflowX: "auto" }}>
+      <table style={{ borderCollapse: "collapse", tableLayout: "fixed", width: "100%", minWidth: 780, fontSize: 13 }}>
+        <colgroup>
+          <col style={{ width: 220 }} />
+          <col style={{ width: 120 }} />
+          <col style={{ width: 115 }} />
+          <col style={{ width: 130 }} />
+          <col style={{ width: 115 }} />
+          <col />
+          <col style={{ width: 38 }} />
+        </colgroup>
+        {children}
+      </table>
+    </div>
   );
 
   return (
-    <Layout breadcrumb={breadcrumb} headerActions={headerActions}>
-      <FundingView project={project} />
-      <Toaster />
+    <Layout>
+      <div className="min-h-screen" style={{ backgroundColor: "#f8fafc" }}>
+        {/* breadcrumb bar */}
+        <div className="bg-white border-b border-slate-200 px-6 py-2 flex items-center justify-between">
+          <div className="flex items-center gap-1 text-sm text-slate-500">
+            <Link href="/" className="hover:text-blue-600 transition-colors">Home</Link>
+            <ChevronRight size={13} className="text-slate-300" />
+            <Link href="/projects" className="hover:text-blue-600 transition-colors">Projects</Link>
+            <ChevronRight size={13} className="text-slate-300" />
+            <Link href={`/projects/${project.id}`} className="hover:text-blue-600 transition-colors">{project.number}</Link>
+            <ChevronRight size={13} className="text-slate-300" />
+            <span className="font-semibold text-slate-700">Planning</span>
+          </div>
+          <Link href={`/projects/${project.id}/settings`} className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-700 transition-colors">
+            <Settings size={13} />
+            Settings
+          </Link>
+        </div>
+
+        {/* project info bar */}
+        <div className="px-6 py-3 flex items-center gap-4" style={{ backgroundColor: "#1a3557" }}>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-mono" style={{ color: "rgba(255,255,255,0.5)" }}>{project.number}</p>
+            <p className="font-bold text-white truncate">{project.name}</p>
+          </div>
+          <div className="flex items-center gap-6 flex-shrink-0">
+            <div className="text-right">
+              <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "rgba(255,255,255,0.5)" }}>Total TOA</p>
+              <p className="font-bold text-base" style={{ color: "#fbbf24" }}>{fmt(project.budget)}</p>
+            </div>
+            <div className="text-right">
+              <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "rgba(255,255,255,0.5)" }}>Plan Window</p>
+              <p className="font-semibold text-sm text-white">FY25 + FY26 Q1-Q3</p>
+            </div>
+            <div className="text-right px-2 py-1 rounded text-xs font-semibold" style={{ backgroundColor: "rgba(167,243,208,0.2)", color: "#6ee7b7", border: "1px solid rgba(167,243,208,0.3)" }}>
+              FY25 Q3 — Plan Open
+            </div>
+          </div>
+        </div>
+
+        {/* column legend */}
+        <div className="px-6 py-2 flex items-center gap-4 border-b border-slate-200 bg-white text-xs text-slate-500">
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: AMBER_BG, border: "1px solid #fcd34d" }} />
+            <span>Editable</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: BLUE_BG, border: "1px solid #bfdbfe" }} />
+            <span>Read-only (system data)</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span style={{ color: "#64748b" }}>Request cannot be less than Obligated</span>
+          </div>
+        </div>
+
+        <div className="px-6 py-5 space-y-6">
+
+          {/* ── LABOR ── */}
+          {showLaborPicker && (
+            <AddRowModal
+              title="Add Labor Resource"
+              options={LABOR_OPTIONS}
+              existingLabels={new Set(laborRows.map((r) => r.label))}
+              onAdd={(items) => setLaborRows((rows) => [...rows, ...items.map(({ label, sub }) => ({
+                id: uid(), label, sub: sub ?? "", ...emptyQ(), openCommitment: 0, requested: 0,
+              }))])}
+              onClose={() => setShowLaborPicker(false)}
+            />
+          )}
+          <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+            {addSectionHeader("LABOR", "#60a5fa", () => setShowLaborPicker(true), "+ Add Labor")}
+            {tableWrap(
+              <>
+                <thead>
+                  <ColHeaders nameHeader="Employee / Org Code" />
+                </thead>
+                <tbody>
+                  {laborRows.map((row) => (
+                    <PlanDataRow
+                      key={row.id} row={row}
+                      expanded={expandedLabor.has(row.id)}
+                      onToggle={() => setExpandedLabor((s) => toggleSet(s, row.id))}
+                      onUpdateQ={(id, f, v) => updatePlanQ(setLaborRows, id, f, v)}
+                      onUpdateRequested={(id, v) => updatePlanRequested(setLaborRows, id, v)}
+                      onDelete={(id) => setLaborRows((rows) => rows.filter((r) => r.id !== id))}
+                    />
+                  ))}
+                  {laborRows.length === 0 && (
+                    <tr><td colSpan={7} className="px-4 py-6 text-center text-sm text-slate-400 italic">No labor resources added yet.</td></tr>
+                  )}
+                </tbody>
+                <tfoot><TotalsRow rows={laborRows} /></tfoot>
+              </>
+            )}
+          </div>
+
+          {/* ── TRAVEL ── */}
+          {showTravelPicker && (
+            <AddRowModal
+              title="Add Travel Resource"
+              options={TRAVEL_OPTIONS}
+              existingLabels={new Set(travelRows.map((r) => r.label))}
+              onAdd={(items) => setTravelRows((rows) => [...rows, ...items.map(({ label, sub }) => ({
+                id: uid(), label, sub: sub ?? "", ...emptyQ(), openCommitment: 0, requested: 0,
+              }))])}
+              onClose={() => setShowTravelPicker(false)}
+            />
+          )}
+          <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+            {addSectionHeader("TRAVEL", "#a78bfa", () => setShowTravelPicker(true), "+ Add Travel")}
+            {tableWrap(
+              <>
+                <thead><ColHeaders nameHeader="Organization" /></thead>
+                <tbody>
+                  {travelRows.map((row) => (
+                    <PlanDataRow
+                      key={row.id} row={row}
+                      expanded={expandedTravel.has(row.id)}
+                      onToggle={() => setExpandedTravel((s) => toggleSet(s, row.id))}
+                      onUpdateQ={(id, f, v) => updatePlanQ(setTravelRows, id, f, v)}
+                      onUpdateRequested={(id, v) => updatePlanRequested(setTravelRows, id, v)}
+                      onDelete={(id) => setTravelRows((rows) => rows.filter((r) => r.id !== id))}
+                    />
+                  ))}
+                  {travelRows.length === 0 && (
+                    <tr><td colSpan={7} className="px-4 py-6 text-center text-sm text-slate-400 italic">No travel resources added yet.</td></tr>
+                  )}
+                </tbody>
+                <tfoot><TotalsRow rows={travelRows} /></tfoot>
+              </>
+            )}
+          </div>
+
+          {/* ── CONTRACTING ── */}
+          {showContractPicker && (
+            <TwoStepAddModal
+              title="Add Contracting Resource"
+              codes={CONTRACT_CODES}
+              onAdd={(org, orgCode, contractCode, contractName) =>
+                setContractRows((rows) => [...rows, {
+                  id: uid(), org, orgCode, contractCode, contractName,
+                  ...emptyQ(), openCommitment: 0, requested: 0,
+                }])
+              }
+              onClose={() => setShowContractPicker(false)}
+            />
+          )}
+          <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+            {addSectionHeader("CONTRACTING", "#34d399", () => setShowContractPicker(true), "+ Add Contract")}
+            {tableWrap(
+              <>
+                <thead><ColHeaders nameHeader="Org / Contract Code" /></thead>
+                <tbody>
+                  {contractRows.map((row) => (
+                    <ResourceDataRow
+                      key={row.id} row={row}
+                      line2={`${row.contractCode} — ${row.contractName}`}
+                      expanded={expandedContract.has(row.id)}
+                      onToggle={() => setExpandedContract((s) => toggleSet(s, row.id))}
+                      onUpdateQ={(id, f, v) => updateResourceQ(setContractRows, id, f, v)}
+                      onUpdateRequested={(id, v) => updateResourceRequested(setContractRows, id, v)}
+                      onDelete={(id) => setContractRows((rows) => rows.filter((r) => r.id !== id))}
+                    />
+                  ))}
+                  {contractRows.length === 0 && (
+                    <tr><td colSpan={7} className="px-4 py-6 text-center text-sm text-slate-400 italic">No contracting resources added yet.</td></tr>
+                  )}
+                </tbody>
+                <tfoot><TotalsRow rows={contractRows} /></tfoot>
+              </>
+            )}
+          </div>
+
+          {/* ── OUTSOURCING & OTHER ── */}
+          {showOutsourcingPicker && (
+            <TwoStepAddModal
+              title="Add Outsourcing & Other Resource"
+              codes={OUTSOURCING_CODES}
+              onAdd={(org, orgCode, resourceCode, resourceName) =>
+                setOutsourcingRows((rows) => [...rows, {
+                  id: uid(), org, orgCode, resourceCode, resourceName,
+                  ...emptyQ(), openCommitment: 0, requested: 0,
+                }])
+              }
+              onClose={() => setShowOutsourcingPicker(false)}
+            />
+          )}
+          <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+            {addSectionHeader("OUTSOURCING & OTHER", "#f59e0b", () => setShowOutsourcingPicker(true), "+ Add Resource")}
+            {tableWrap(
+              <>
+                <thead><ColHeaders nameHeader="Org / Resource Code" /></thead>
+                <tbody>
+                  {outsourcingRows.map((row) => (
+                    <ResourceDataRow
+                      key={row.id} row={row}
+                      line2={`${row.resourceCode} — ${row.resourceName}`}
+                      expanded={expandedOutsourcing.has(row.id)}
+                      onToggle={() => setExpandedOutsourcing((s) => toggleSet(s, row.id))}
+                      onUpdateQ={(id, f, v) => updateResourceQ(setOutsourcingRows, id, f, v)}
+                      onUpdateRequested={(id, v) => updateResourceRequested(setOutsourcingRows, id, v)}
+                      onDelete={(id) => setOutsourcingRows((rows) => rows.filter((r) => r.id !== id))}
+                    />
+                  ))}
+                  {outsourcingRows.length === 0 && (
+                    <tr><td colSpan={7} className="px-4 py-6 text-center text-sm text-slate-400 italic">No outsourcing resources added yet.</td></tr>
+                  )}
+                </tbody>
+                <tfoot><TotalsRow rows={outsourcingRows} /></tfoot>
+              </>
+            )}
+          </div>
+
+        </div>
+      </div>
     </Layout>
   );
 }
