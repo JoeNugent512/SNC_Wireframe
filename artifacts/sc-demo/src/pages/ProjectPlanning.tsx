@@ -586,9 +586,12 @@ function PlanDataRow({
             </button>
           ) : (
             <button
-              onClick={() => {}}
-              title="Row has obligations — cannot be deleted"
-              className="rounded text-slate-300 cursor-not-allowed"
+              onClick={() => {
+                EDITABLE_QKEYS.forEach((q) => onUpdateQ(row.id, q, 0));
+                onUpdateRequested(row.id, obligated);
+              }}
+              title="Reset — set planned and request back to obligated amount"
+              className="rounded transition-colors text-slate-300 hover:text-amber-500 hover:bg-amber-50"
               style={{ width: 28, height: 28, display: "inline-flex", alignItems: "center", justifyContent: "center" }}
             >
               <MinusCircle size={14} />
@@ -696,8 +699,13 @@ function ResourceDataRow<T extends QData & { id: number; org: string; orgCode: s
               <Trash2 size={14} />
             </button>
           ) : (
-            <button title="Has obligations — cannot delete"
-              className="rounded text-slate-300 cursor-not-allowed"
+            <button
+              onClick={() => {
+                EDITABLE_QKEYS.forEach((q) => onUpdateQ(row.id, q, 0));
+                onUpdateRequested(row.id, obligated);
+              }}
+              title="Reset — set planned and request back to obligated amount"
+              className="rounded transition-colors text-slate-300 hover:text-amber-500 hover:bg-amber-50"
               style={{ width: 28, height: 28, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
               <MinusCircle size={14} />
             </button>
