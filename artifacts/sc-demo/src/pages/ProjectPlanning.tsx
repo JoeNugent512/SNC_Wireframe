@@ -1344,7 +1344,7 @@ function FundingView({ project }: { project: Project }) {
 
       {/* submit */}
       {(() => {
-        const canSubmit = leftToPlan > 0 && leftToPlan < 50;
+        const canSubmit = leftToPlan >= 0 && leftToPlan < 50;
         return (
           <div className="flex flex-col items-center gap-1.5 pt-2 pb-4">
             <button
@@ -1363,9 +1363,6 @@ function FundingView({ project }: { project: Project }) {
             </button>
             {leftToPlan < 0 && (
               <p className="text-xs text-slate-400">Plan exceeds budget — reduce planned amounts before submitting</p>
-            )}
-            {leftToPlan === 0 && (
-              <p className="text-xs text-slate-400">Nothing has been planned yet</p>
             )}
             {leftToPlan >= 50 && (
               <p className="text-xs text-slate-400">At least ${(leftToPlan - 49).toLocaleString()} more must be allocated before submitting</p>
