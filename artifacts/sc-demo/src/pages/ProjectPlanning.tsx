@@ -793,29 +793,7 @@ function FundingSection({
         </table>
         </div>
 
-        {/* justification toggle footer */}
-        <div className="border-t border-slate-100 flex items-center justify-end px-3 py-1.5 gap-2">
-          {justification.trim() && !showJustification && (
-            <span className="text-[11px] text-amber-600 font-medium flex items-center gap-1">
-              <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-500" />
-              Justification added
-            </span>
-          )}
-          <button
-            onClick={() => setShowJustification((v) => !v)}
-            className="flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-md transition-colors border"
-            style={
-              showJustification || justification.trim()
-                ? { backgroundColor: "#fef3c7", color: "#92400e", borderColor: "#fcd34d" }
-                : { backgroundColor: "#f8fafc", color: "#64748b", borderColor: "#e2e8f0" }
-            }
-          >
-            <span>{showJustification ? "▲" : "▼"}</span>
-            Justification
-          </button>
-        </div>
-
-        {/* collapsible justification panel */}
+        {/* collapsible justification panel — sits above the toggle footer */}
         {showJustification && (
           <div className="border-t border-amber-100 bg-amber-50 px-4 py-3">
             <textarea
@@ -834,6 +812,28 @@ function FundingSection({
             )}
           </div>
         )}
+
+        {/* justification toggle footer */}
+        <div className="border-t border-slate-100 flex items-center justify-end px-3 py-1.5 gap-2">
+          {justification.trim() && !showJustification && (
+            <span className="text-[11px] text-amber-600 font-medium flex items-center gap-1">
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-500" />
+              Justification added
+            </span>
+          )}
+          <button
+            onClick={() => setShowJustification((v) => !v)}
+            className="flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-md transition-colors border"
+            style={
+              showJustification || justification.trim()
+                ? { backgroundColor: "#fef3c7", color: "#92400e", borderColor: "#fcd34d" }
+                : { backgroundColor: "#f8fafc", color: "#64748b", borderColor: "#e2e8f0" }
+            }
+          >
+            <span>{showJustification ? "▼" : "▲"}</span>
+            Justification
+          </button>
+        </div>
       </div>
     </>
   );
