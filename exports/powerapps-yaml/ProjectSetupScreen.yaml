@@ -526,7 +526,6 @@ Screens:
                                                 Fill: =RGBA(255, 255, 255, 1)
                                                 FillPortions: =0
                                                 Height: =36
-                                                PlaceholderText: ="Full name"
                                                 LayoutMaxHeight: =
                                                 LayoutMaxWidth: =
                                     - TeamColSpacer1:
@@ -622,7 +621,6 @@ Screens:
                                                 Fill: =RGBA(255, 255, 255, 1)
                                                 FillPortions: =0
                                                 Height: =36
-                                                PlaceholderText: ="Full name"
                                                 LayoutMaxHeight: =
                                                 LayoutMaxWidth: =
                                     - TeamColSpacer2:
@@ -781,7 +779,6 @@ Screens:
                                                 Fill: =RGBA(255, 255, 255, 1)
                                                 FillPortions: =0
                                                 Height: =36
-                                                PlaceholderText: ="e.g. Resiliency, Emergency"
                                                 LayoutMaxHeight: =
                                                 LayoutMaxWidth: =
                               - FieldGap3:
@@ -858,7 +855,6 @@ Screens:
                                                 Fill: =RGBA(255, 255, 255, 1)
                                                 FillPortions: =0
                                                 Height: =36
-                                                PlaceholderText: ="MM/DD/YYYY"
                                                 LayoutMaxHeight: =
                                                 LayoutMaxWidth: =
                                     - SchedColSpacer:
@@ -901,7 +897,6 @@ Screens:
                                                 Fill: =RGBA(255, 255, 255, 1)
                                                 FillPortions: =0
                                                 Height: =36
-                                                PlaceholderText: ="MM/DD/YYYY"
                                                 LayoutMaxHeight: =
                                                 LayoutMaxWidth: =
                               - FieldGap4:
@@ -1038,7 +1033,6 @@ Screens:
                                           Fill: =RGBA(255, 255, 255, 1)
                                           FillPortions: =0
                                           Height: =36
-                                          PlaceholderText: ="https://cms.wbdg.org/..."
                                           LayoutMaxHeight: =
                                           LayoutMaxWidth: =
                               - CMSLinkSpacer:
@@ -1083,7 +1077,6 @@ Screens:
                                           Fill: =RGBA(255, 255, 255, 1)
                                           FillPortions: =0
                                           Height: =36
-                                          PlaceholderText: ="https://cms.wbdg.org/s/..."
                                           LayoutMaxHeight: =
                                           LayoutMaxWidth: =
                         - FormFooter:

@@ -939,7 +939,6 @@ Screens:
                                     Fill: =RGBA(255, 255, 255, 1)
                                     FillPortions: =0
                                     Height: =72
-                                    PlaceholderText: ="Provide a reason for your decision…"
                                     LayoutMaxHeight: =
                                     LayoutMaxWidth: =
                                     Mode: =TextMode.MultiLine

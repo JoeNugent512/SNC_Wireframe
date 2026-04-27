@@ -198,7 +198,6 @@ Screens:
                                     Fill: =RGBA(255, 255, 255, 1)
                                     FillPortions: =0
                                     Height: =36
-                                    PlaceholderText: ="Search by project, resource, org code…"
                                     LayoutMaxHeight: =
                                     LayoutMaxWidth: =
                                     Width: =300
