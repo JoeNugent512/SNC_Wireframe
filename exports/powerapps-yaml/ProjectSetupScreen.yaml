@@ -84,8 +84,6 @@ Screens:
                         Image: =User().Image
                         LayoutMaxHeight: =
                         LayoutMaxWidth: =
-                        Size: =32
-                        Text: =User().FullName
                         Width: =48
             - YellowBar:
                 Control: Rectangle@2.3.0

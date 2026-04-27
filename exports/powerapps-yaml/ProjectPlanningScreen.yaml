@@ -106,8 +106,6 @@ Screens:
                         Image: =User().Image
                         LayoutMaxHeight: =
                         LayoutMaxWidth: =
-                        Size: =32
-                        Text: =User().FullName
                         Width: =48
             - YellowBar:
                 Control: Rectangle@2.3.0
@@ -568,7 +566,6 @@ Screens:
                                     Weight: ='TextCanvas.Weight'.Semibold
                         - LaborGallery:
                             Control: Gallery@2.15.0
-                            Variant: galleryVertical
                             Properties:
                               AlignInContainer: =AlignInContainer.Stretch
                               BorderColor: =RGBA(0, 0, 0, 0)
@@ -860,7 +857,6 @@ Screens:
                                     Width: =100
                         - TravelGallery:
                             Control: Gallery@2.15.0
-                            Variant: galleryVertical
                             Properties:
                               AlignInContainer: =AlignInContainer.Stretch
                               BorderColor: =RGBA(0, 0, 0, 0)
@@ -1080,7 +1076,6 @@ Screens:
                                     Width: =120
                         - MaterialGallery:
                             Control: Gallery@2.15.0
-                            Variant: galleryVertical
                             Properties:
                               AlignInContainer: =AlignInContainer.Stretch
                               BorderColor: =RGBA(0, 0, 0, 0)
