@@ -1,0 +1,44 @@
+Details:
+(84,25) : error PA2108 : Unknown property 'PaddingRight' for control type 'Avatar@1.0.40'.
+(149,25) : error PA2108 : Unknown property 'Gap' for control type 'GroupContainer@1.5.0' and variant 'AutoLayout'.
+(192,37) : error PA2108 : Unknown property 'RadiusBottomLeft' for control type 'Rectangle@2.3.0'.
+(193,37) : error PA2108 : Unknown property 'RadiusBottomRight' for control type 'Rectangle@2.3.0'.
+(194,37) : error PA2108 : Unknown property 'RadiusTopLeft' for control type 'Rectangle@2.3.0'.
+(195,37) : error PA2108 : Unknown property 'RadiusTopRight' for control type 'Rectangle@2.3.0'.
+(230,37) : error PA2108 : Unknown property 'Color' for control type 'Button@0.0.44'.
+(231,37) : error PA2108 : Unknown property 'Fill' for control type 'Button@0.0.44'.
+(235,37) : error PA2108 : Unknown property 'HoverColor' for control type 'Button@0.0.44'.
+(236,37) : error PA2108 : Unknown property 'HoverFill' for control type 'Button@0.0.44'.
+(240,37) : error PA2108 : Unknown property 'PressedFill' for control type 'Button@0.0.44'.
+(241,37) : error PA2108 : Unknown property 'Size' for control type 'Button@0.0.44'.
+(243,37) : error PA2108 : Unknown property 'Weight' for control type 'Button@0.0.44'.
+(281,37) : error PA2108 : Unknown property 'RadiusBottomLeft' for control type 'Rectangle@2.3.0'.
+(282,37) : error PA2108 : Unknown property 'RadiusBottomRight' for control type 'Rectangle@2.3.0'.
+(283,37) : error PA2108 : Unknown property 'RadiusTopLeft' for control type 'Rectangle@2.3.0'.
+(284,37) : error PA2108 : Unknown property 'RadiusTopRight' for control type 'Rectangle@2.3.0'.
+(319,37) : error PA2108 : Unknown property 'Color' for control type 'Button@0.0.44'.
+(320,37) : error PA2108 : Unknown property 'Fill' for control type 'Button@0.0.44'.
+(324,37) : error PA2108 : Unknown property 'HoverColor' for control type 'Button@0.0.44'.
+(325,37) : error PA2108 : Unknown property 'HoverFill' for control type 'Button@0.0.44'.
+(329,37) : error PA2108 : Unknown property 'PressedFill' for control type 'Button@0.0.44'.
+(330,37) : error PA2108 : Unknown property 'Size' for control type 'Button@0.0.44'.
+(332,37) : error PA2108 : Unknown property 'Weight' for control type 'Button@0.0.44'.
+(370,37) : error PA2108 : Unknown property 'RadiusBottomLeft' for control type 'Rectangle@2.3.0'.
+(371,37) : error PA2108 : Unknown property 'RadiusBottomRight' for control type 'Rectangle@2.3.0'.
+(372,37) : error PA2108 : Unknown property 'RadiusTopLeft' for control type 'Rectangle@2.3.0'.
+(373,37) : error PA2108 : Unknown property 'RadiusTopRight' for control type 'Rectangle@2.3.0'.
+(408,37) : error PA2108 : Unknown property 'Color' for control type 'Button@0.0.44'.
+(409,37) : error PA2108 : Unknown property 'Fill' for control type 'Button@0.0.44'.
+(413,37) : error PA2108 : Unknown property 'HoverColor' for control type 'Button@0.0.44'.
+(414,37) : error PA2108 : Unknown property 'HoverFill' for control type 'Button@0.0.44'.
+(418,37) : error PA2108 : Unknown property 'PressedFill' for control type 'Button@0.0.44'.
+(419,37) : error PA2108 : Unknown property 'Size' for control type 'Button@0.0.44'.
+(421,37) : error PA2108 : Unknown property 'Weight' for control type 'Button@0.0.44'.
+(225,33) : warning PA2105 : Control type 'Button@0.0.44' has a version that is older than the current version of '0.0.45'. Using the current version, which may produce errors.
+(314,33) : warning PA2105 : Control type 'Button@0.0.44' has a version that is older than the current version of '0.0.45'. Using the current version, which may produce errors.
+(403,33) : warning PA2105 : Control type 'Button@0.0.44' has a version that is older than the current version of '0.0.45'. Using the current version, which may produce errors.
+
+Note:
+Make sure to use the Source Code schema, which is the only supported format. To learn more: https://go.microsoft.com/fwlink/?linkid=2299600
+
+Session ID: 8a55ba74-d1eb-4ec7-9ef3-bdb489126663
