@@ -38,10 +38,11 @@ interface FiscalWindowConfig {
 }
 
 // Demo snapshot: FY26 Q3 is current; past = FY25 Q1–Q4 + FY26 Q1–Q2 (6 quarters)
+// Request window = FY26 Q3 – FY28 Q2 (8 quarters, ~80k ceiling for Nugent)
 const FISCAL_CONFIG: FiscalWindowConfig = {
   currentFY:       26,
   currentQ:        3,
-  requestMaxFY:    27,
+  requestMaxFY:    28,
   requestMaxQ:     2,
   planHorizonFY:   29,
   nearQtrEndDays:  30,
@@ -397,8 +398,22 @@ function QuarterlyPanel({
                       </td>
                     );
                   })}
-                  <td style={{ paddingTop: 3, paddingBottom: 3, borderLeft: "1px solid #cbd5e1", paddingLeft: 8, paddingRight: 6, textAlign: "right", fontWeight: 700, color: fyTotal === 0 ? "#94a3b8" : "#1a3557", fontSize: 12 }} className="tabular-nums">
-                    {fyTotal === 0 ? "—" : fmt(fyTotal)}
+                  <td style={{ paddingTop: 2, paddingBottom: 2, borderLeft: "1px solid #cbd5e1", paddingLeft: 6, paddingRight: 6, backgroundColor: AMBER_BG }}>
+                    <AmtInput
+                      value={fyTotal}
+                      gold
+                      onChange={(newTotal) => {
+                        const editableInFY = fyKeys.filter((k) => qStatus(k) === "editable");
+                        if (editableInFY.length === 0) return;
+                        const obligatedInFY = fyKeys
+                          .filter((k) => qStatus(k) === "past")
+                          .reduce((s, k) => s + row[k], 0);
+                        const remaining = Math.max(0, newTotal - obligatedInFY);
+                        const perQ = Math.floor(remaining / editableInFY.length);
+                        const rem  = remaining - perQ * editableInFY.length;
+                        editableInFY.forEach((k, i) => onUpdateQ(row.id, k, perQ + (i === 0 ? rem : 0)));
+                      }}
+                    />
                   </td>
                 </tr>
               );
@@ -430,7 +445,7 @@ function ColHeaders({ nameHeader }: { nameHeader: string }) {
       <th className={hd} style={{ backgroundColor: BLUE_BG, color: "#1e40af", borderLeft: BLUE_BORDER, width: 115 }}>
         Open<br />Commitment
       </th>
-      <th className={hd} style={{ backgroundColor: AMBER_TOTAL, color: "#78350f", borderLeft: AMBER_BORDER }}>
+      <th className={hd} style={{ backgroundColor: AMBER_TOTAL, color: "#78350f", borderLeft: AMBER_BORDER, width: 260 }}>
         Request / Max
       </th>
       <th style={{ width: 38, backgroundColor: "#f1f5f9", borderLeft: "1px solid #e2e8f0" }} />
@@ -501,9 +516,9 @@ function PlanDataRow({
           <AmtDisplay value={row.openCommitment} />
         </td>
         {/* Request / Max — gold, editable; clamped to [obligated, openWindowMax] */}
-        <td className="px-2 py-2" style={{ backgroundColor: AMBER_BG, borderLeft: AMBER_BORDER }}>
-          <div className="flex items-center gap-1" style={{ justifyContent: "flex-end" }}>
-            <div style={{ flex: "0 0 100px" }}>
+        <td className="px-3 py-2" style={{ backgroundColor: AMBER_BG, borderLeft: AMBER_BORDER }}>
+          <div className="flex items-center gap-2" style={{ justifyContent: "flex-end" }}>
+            <div style={{ flex: "0 0 130px" }}>
               <AmtInput
                 value={row.requested}
                 min={obligated}
@@ -512,7 +527,9 @@ function PlanDataRow({
                 onChange={(v) => onUpdateRequested(row.id, clampRequested(v, obligated, maxReq))}
               />
             </div>
-            <span className="text-xs text-slate-400 whitespace-nowrap tabular-nums">/ {maxReq === 0 ? "—" : fmt(maxReq)}</span>
+            <span className="text-sm font-semibold tabular-nums whitespace-nowrap" style={{ color: "#92400e", minWidth: 90, textAlign: "right" }}>
+              / {maxReq === 0 ? "—" : fmt(maxReq)}
+            </span>
           </div>
         </td>
         <td style={{ padding: 0, textAlign: "center", verticalAlign: "middle", borderLeft: "1px solid #e2e8f0", backgroundColor: "#f8fafc" }}>
@@ -572,10 +589,6 @@ function ResourceDataRow<T extends QData & { id: number; org: string; orgCode: s
   const maxReq    = openWindowMax(row);
   const canDelete = obligated === 0;
   const td = "px-3 py-2.5 text-right tabular-nums text-sm text-slate-800";
-  const selStyle: React.CSSProperties = {
-    fontSize: 12, border: "1px solid #e2e8f0", borderRadius: 4, padding: "1px 3px",
-    background: "white", color: "#1e293b", width: "100%", cursor: "pointer",
-  };
 
   return (
     <React.Fragment>
@@ -589,39 +602,8 @@ function ResourceDataRow<T extends QData & { id: number; org: string; orgCode: s
               {expanded ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
             </button>
             <div className="min-w-0 flex-1">
-              {orgOptions ? (
-                <select
-                  value={`${row.org}|${row.orgCode}`}
-                  style={selStyle}
-                  onChange={(e) => {
-                    const [label, code] = e.target.value.split("|");
-                    onUpdateOrg?.(row.id, label, code);
-                  }}
-                >
-                  {orgOptions.map((o) => (
-                    <option key={`${o.label}|${o.code}`} value={`${o.label}|${o.code}`}>{o.label} ({o.code})</option>
-                  ))}
-                </select>
-              ) : (
-                <p className="text-sm font-semibold text-slate-800 leading-snug truncate">{row.org}</p>
-              )}
-              {codeOptions ? (
-                <select
-                  value={currentCode ?? ""}
-                  style={{ ...selStyle, marginTop: 2, color: "#475569" }}
-                  onChange={(e) => {
-                    // use name as unique select value (codes can repeat in some lists)
-                    const opt = codeOptions.find((o) => o.name === e.target.value);
-                    if (opt) onUpdateCode?.(row.id, opt.code, opt.name);
-                  }}
-                >
-                  {codeOptions.map((o) => (
-                    <option key={`${o.code}|${o.name}`} value={o.name}>{o.code} — {o.name}</option>
-                  ))}
-                </select>
-              ) : (
-                <p className="text-xs text-slate-400 leading-snug truncate mt-0.5" title={line2}>{line2}</p>
-              )}
+              <p className="text-sm font-semibold text-slate-800 leading-snug truncate">{row.org} ({row.orgCode})</p>
+              <p className="text-xs text-slate-400 leading-snug truncate mt-0.5" title={line2}>{line2}</p>
             </div>
           </div>
         </td>
@@ -648,9 +630,9 @@ function ResourceDataRow<T extends QData & { id: number; org: string; orgCode: s
           <AmtDisplay value={row.openCommitment} />
         </td>
         {/* Request / Max — clamped to [obligated, openWindowMax (request window)] */}
-        <td className="px-2 py-2" style={{ backgroundColor: AMBER_BG, borderLeft: AMBER_BORDER }}>
-          <div className="flex items-center gap-1" style={{ justifyContent: "flex-end" }}>
-            <div style={{ flex: "0 0 100px" }}>
+        <td className="px-3 py-2" style={{ backgroundColor: AMBER_BG, borderLeft: AMBER_BORDER }}>
+          <div className="flex items-center gap-2" style={{ justifyContent: "flex-end" }}>
+            <div style={{ flex: "0 0 130px" }}>
               <AmtInput
                 value={row.requested}
                 min={obligated}
@@ -659,7 +641,9 @@ function ResourceDataRow<T extends QData & { id: number; org: string; orgCode: s
                 onChange={(v) => onUpdateRequested(row.id, clampRequested(v, obligated, maxReq))}
               />
             </div>
-            <span className="text-xs text-slate-400 whitespace-nowrap tabular-nums">/ {maxReq === 0 ? "—" : fmt(maxReq)}</span>
+            <span className="text-sm font-semibold tabular-nums whitespace-nowrap" style={{ color: "#92400e", minWidth: 90, textAlign: "right" }}>
+              / {maxReq === 0 ? "—" : fmt(maxReq)}
+            </span>
           </div>
         </td>
         <td style={{ padding: 0, textAlign: "center", verticalAlign: "middle", borderLeft: "1px solid #e2e8f0", backgroundColor: "#f8fafc" }}>
@@ -868,7 +852,7 @@ function SectionWrapper({ title, dotColor, children }: { title: string; dotColor
 }
 
 /* ─── initial data (FY25–FY29 full planning horizon) ───────────── */
-// requested = sum of REQUEST_WINDOW_KEYS (FY26 Q3 + Q4 + FY27 Q1 + Q2)
+// requested = initial request within REQUEST_WINDOW_KEYS (FY26 Q3 – FY28 Q2)
 const INITIAL_LABOR: PlanRow[] = [
   { id: 1, label: "Nugent, Joseph Pat", sub: "U435000/CERL",
     fy25q1: 10000, fy25q2: 12000, fy25q3: 13000, fy25q4: 10000,
@@ -876,7 +860,7 @@ const INITIAL_LABOR: PlanRow[] = [
     fy27q1: 11000, fy27q2: 11000, fy27q3: 11000, fy27q4: 11000,
     fy28q1: 10000, fy28q2: 10000, fy28q3: 10000, fy28q4: 10000,
     fy29q1:  8000, fy29q2:  8000, fy29q3:  8000, fy29q4:  8000,
-    openCommitment: 4200, requested: 43000 },
+    openCommitment: 4200, requested: 80000 },
   { id: 2, label: "Chen, David", sub: "U435000/CERL",
     fy25q1: 8000, fy25q2: 8000, fy25q3: 8000, fy25q4: 8000,
     fy26q1: 9000, fy26q2: 9000, fy26q3: 9000, fy26q4: 8000,
@@ -1088,7 +1072,7 @@ export default function ProjectPlanning() {
           </div>
           <div className="flex items-center gap-6 flex-shrink-0">
             <div className="text-right">
-              <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "rgba(255,255,255,0.5)" }}>Plan Window</p>
+              <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "rgba(255,255,255,0.5)" }}>Project POP</p>
               <p className="font-semibold text-sm text-white">{PLAN_WINDOW_LABEL}</p>
             </div>
             <div className="text-right px-2 py-1 rounded text-xs font-semibold" style={{ backgroundColor: "rgba(167,243,208,0.2)", color: "#6ee7b7", border: "1px solid rgba(167,243,208,0.3)" }}>
