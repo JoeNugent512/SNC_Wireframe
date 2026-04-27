@@ -849,15 +849,19 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
       quarters: makeFiveYears(fyNum) },
   ], fyNum);
 
-  const laborDescTemplate  = `FY${fy}/SANDC LABOR FUNDS FOR ${num}//`;
-  const travelDescTemplate = `FY${fy}/SANDC TRAVEL FOR ${num}//`;
-  const matlDescTemplate   = `FY${fy}/SANDC MATL FOR ${num}//`;
+  const contracting = useFundingRows([], fyNum);
 
-  const laborExisting  = useMemo(() => new Set(labor.rows.map((r) => r.label)),  [labor.rows]);
-  const travelExisting = useMemo(() => new Set(travel.rows.map((r) => r.label)), [travel.rows]);
-  const matsExisting   = useMemo(() => new Set(mats.rows.map((r) => r.label)),   [mats.rows]);
+  const laborDescTemplate       = `FY${fy}/SANDC LABOR FUNDS FOR ${num}//`;
+  const travelDescTemplate      = `FY${fy}/SANDC TRAVEL FOR ${num}//`;
+  const matlDescTemplate        = `FY${fy}/SANDC MATL FOR ${num}//`;
+  const contractingDescTemplate = `FY${fy}/SANDC CONTRACT FOR ${num}//`;
 
-  const allPlanned = [...labor.rows, ...travel.rows, ...mats.rows].reduce((s, r) => s + r.planned, 0);
+  const laborExisting       = useMemo(() => new Set(labor.rows.map((r) => r.label)),       [labor.rows]);
+  const travelExisting      = useMemo(() => new Set(travel.rows.map((r) => r.label)),      [travel.rows]);
+  const matsExisting        = useMemo(() => new Set(mats.rows.map((r) => r.label)),        [mats.rows]);
+  const contractingExisting = useMemo(() => new Set(contracting.rows.map((r) => r.label)), [contracting.rows]);
+
+  const allPlanned = [...labor.rows, ...travel.rows, ...mats.rows, ...contracting.rows].reduce((s, r) => s + r.planned, 0);
   const leftToPlan = budget - allPlanned;
 
   return (
@@ -972,6 +976,28 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
         onSpreadQuarter={travel.spreadQuarter}
         onAddFiscalYear={travel.addFiscalYear}
         onRemoveFiscalYear={travel.removeFiscalYear}
+      />
+      <FundingSection
+        title="Contracting" columnHeader="Organization"
+        addButtonLabel="Add Contracting"
+        descTemplate={contractingDescTemplate}
+        rows={contracting.rows}
+        onUpdateAmount={contracting.updateAmount} onUpdateNote={contracting.updateNote}
+        onDelete={contracting.deleteRow} onZeroOut={contracting.zeroOutRow}
+        onAddMany={(items) => contracting.addMany(items, contractingDescTemplate)}
+        pickerMode="multi"
+        existingLabels={contractingExisting}
+        pickerTitle="Add Contracting"
+        pickerOptions={TRAVEL_OPTIONS}
+        pickerPlaceholder="Search by org code or district…"
+        showDetails={showDetails}
+        defaultFY={`FY${fy}`}
+        onUpdateQuarter={contracting.updateQuarter}
+        onSpreadFiscalYear={contracting.spreadFiscalYear}
+        onSpreadAllYears={contracting.spreadAllYears}
+        onSpreadQuarter={contracting.spreadQuarter}
+        onAddFiscalYear={contracting.addFiscalYear}
+        onRemoveFiscalYear={contracting.removeFiscalYear}
       />
       <FundingSection
         title="Materials & Other" columnHeader="Item"
