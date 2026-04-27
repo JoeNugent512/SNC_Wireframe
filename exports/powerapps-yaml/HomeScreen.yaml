@@ -1,0 +1,538 @@
+Screens:
+  HomeScreen:
+    Properties:
+      Fill: =RGBA(248, 250, 252, 1)
+      LoadingSpinnerColor: =RGBA(26, 53, 87, 1)
+    Children:
+      - RootContainer:
+          Control: GroupContainer@1.5.0
+          Variant: AutoLayout
+          Properties:
+            Height: =768
+            LayoutDirection: =LayoutDirection.Vertical
+            LayoutMaxHeight: =
+            LayoutMaxWidth: =
+            Width: =1366
+          Children:
+            - NavBar:
+                Control: GroupContainer@1.5.0
+                Variant: AutoLayout
+                Properties:
+                  Fill: =RGBA(26, 53, 87, 1)
+                  FillPortions: =0
+                  Height: =56
+                  LayoutDirection: =LayoutDirection.Horizontal
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                Children:
+                  - NavLogo:
+                      Control: Image@2.2.3
+                      Properties:
+                        AlignInContainer: =AlignInContainer.Center
+                        BorderColor: =RGBA(0, 0, 0, 0)
+                        BorderStyle: =BorderStyle.None
+                        BorderThickness: =0
+                        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                        DisabledFill: =RGBA(0, 0, 0, 0)
+                        FocusedBorderThickness: =4
+                        Height: =40
+                        HoverBorderColor: =RGBA(0, 0, 0, 0)
+                        HoverFill: =RGBA(0, 0, 0, 0)
+                        Image: ='usace logo'
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        PaddingLeft: =12
+                        PressedBorderColor: =RGBA(0, 0, 0, 0)
+                        PressedFill: =RGBA(0, 0, 0, 0)
+                        Width: =48
+                  - NavTitle:
+                      Control: Text@0.0.51
+                      Properties:
+                        Align: ='TextCanvas.Align'.Start
+                        AlignInContainer: =AlignInContainer.Stretch
+                        FillPortions: =1
+                        Font: =Font.Arial
+                        FontColor: =RGBA(255, 255, 255, 1)
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        PaddingLeft: =12
+                        Size: =15
+                        Text: ="S&C Project Management"
+                        VerticalAlign: =VerticalAlign.Middle
+                        Weight: ='TextCanvas.Weight'.Bold
+                  - NavUserName:
+                      Control: Text@0.0.51
+                      Properties:
+                        Align: ='TextCanvas.Align'.End
+                        AlignInContainer: =AlignInContainer.Stretch
+                        FillPortions: =1
+                        Font: =Font.Arial
+                        FontColor: =RGBA(255, 255, 255, 1)
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        PaddingRight: =12
+                        Size: =13
+                        Text: =User().FullName
+                        VerticalAlign: =VerticalAlign.Middle
+                  - NavAvatarSpacer:
+                      Control: Rectangle@2.3.0
+                      Properties:
+                        AlignInContainer: =AlignInContainer.Center
+                        BorderColor: =RGBA(0, 0, 0, 0)
+                        BorderStyle: =BorderStyle.None
+                        DisabledFill: =RGBA(0, 0, 0, 0)
+                        Fill: =RGBA(0, 0, 0, 0)
+                        FillPortions: =0
+                        FocusedBorderThickness: =4
+                        Height: =40
+                        HoverFill: =RGBA(0, 0, 0, 0)
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        PressedFill: =RGBA(0, 0, 0, 0)
+                        Width: =12
+                  - NavAvatar:
+                      Control: Avatar@1.0.40
+                      Properties:
+                        AlignInContainer: =AlignInContainer.Center
+                        Height: =40
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        Width: =40
+                  - NavAvatarRightSpacer:
+                      Control: Rectangle@2.3.0
+                      Properties:
+                        AlignInContainer: =AlignInContainer.Center
+                        BorderColor: =RGBA(0, 0, 0, 0)
+                        BorderStyle: =BorderStyle.None
+                        DisabledFill: =RGBA(0, 0, 0, 0)
+                        Fill: =RGBA(0, 0, 0, 0)
+                        FillPortions: =0
+                        FocusedBorderThickness: =4
+                        Height: =40
+                        HoverFill: =RGBA(0, 0, 0, 0)
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        PressedFill: =RGBA(0, 0, 0, 0)
+                        Width: =12
+            - ContentContainer:
+                Control: GroupContainer@1.5.0
+                Variant: AutoLayout
+                Properties:
+                  FillPortions: =1
+                  LayoutDirection: =LayoutDirection.Vertical
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  PaddingBottom: =40
+                  PaddingLeft: =40
+                  PaddingRight: =40
+                  PaddingTop: =32
+                Children:
+                  - WelcomeHeading:
+                      Control: Text@0.0.51
+                      Properties:
+                        Align: ='TextCanvas.Align'.Start
+                        AlignInContainer: =AlignInContainer.Stretch
+                        FillPortions: =0
+                        Font: =Font.Arial
+                        FontColor: =RGBA(15, 23, 42, 1)
+                        Height: =40
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        Size: =22
+                        Text: ="Welcome back, John."
+                        VerticalAlign: =VerticalAlign.Middle
+                        Weight: ='TextCanvas.Weight'.Bold
+                  - WelcomeSubtitle:
+                      Control: Text@0.0.51
+                      Properties:
+                        Align: ='TextCanvas.Align'.Start
+                        AlignInContainer: =AlignInContainer.Stretch
+                        FillPortions: =0
+                        Font: =Font.Arial
+                        FontColor: =RGBA(100, 116, 139, 1)
+                        Height: =28
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        Size: =13
+                        Text: ="Here is your quick access panel for today."
+                        VerticalAlign: =VerticalAlign.Middle
+                  - SpacerA:
+                      Control: Rectangle@2.3.0
+                      Properties:
+                        AlignInContainer: =AlignInContainer.Stretch
+                        BorderColor: =RGBA(0, 0, 0, 0)
+                        BorderStyle: =BorderStyle.None
+                        DisabledFill: =RGBA(0, 0, 0, 0)
+                        Fill: =RGBA(0, 0, 0, 0)
+                        FillPortions: =0
+                        FocusedBorderThickness: =4
+                        Height: =20
+                        HoverFill: =RGBA(0, 0, 0, 0)
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        PressedFill: =RGBA(0, 0, 0, 0)
+                  - CardsRow:
+                      Control: GroupContainer@1.5.0
+                      Variant: AutoLayout
+                      Properties:
+                        AlignInContainer: =AlignInContainer.Stretch
+                        FillPortions: =0
+                        Height: =280
+                        LayoutDirection: =LayoutDirection.Horizontal
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                      Children:
+                        - Card1:
+                            Control: GroupContainer@1.5.0
+                            Variant: AutoLayout
+                            Properties:
+                              BorderColor: =RGBA(226, 232, 240, 1)
+                              BorderStyle: =BorderStyle.Solid
+                              BorderThickness: =1
+                              DropShadow: =DropShadow.Light
+                              Fill: =RGBA(255, 255, 255, 1)
+                              FillPortions: =1
+                              LayoutDirection: =LayoutDirection.Vertical
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              PaddingBottom: =20
+                              PaddingLeft: =20
+                              PaddingRight: =20
+                              PaddingTop: =20
+                              RadiusBottomLeft: =12
+                              RadiusBottomRight: =12
+                              RadiusTopLeft: =12
+                              RadiusTopRight: =12
+                            Children:
+                              - Card1IconBg:
+                                  Control: Rectangle@2.3.0
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Start
+                                    BorderColor: =RGBA(0, 0, 0, 0)
+                                    BorderStyle: =BorderStyle.None
+                                    DisabledFill: =RGBA(255, 251, 235, 1)
+                                    Fill: =RGBA(255, 251, 235, 1)
+                                    FillPortions: =0
+                                    FocusedBorderThickness: =4
+                                    Height: =48
+                                    HoverFill: =RGBA(255, 251, 235, 1)
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                                    PressedFill: =RGBA(255, 251, 235, 1)
+                                    Width: =48
+                              - Card1Title:
+                                  Control: Text@0.0.51
+                                  Properties:
+                                    Align: ='TextCanvas.Align'.Start
+                                    AlignInContainer: =AlignInContainer.Stretch
+                                    FillPortions: =0
+                                    Font: =Font.Arial
+                                    FontColor: =RGBA(15, 23, 42, 1)
+                                    Height: =32
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                                    Size: =14
+                                    Text: ="Set Up New Project"
+                                    VerticalAlign: =VerticalAlign.Middle
+                                    Weight: ='TextCanvas.Weight'.Semibold
+                              - Card1Subtitle:
+                                  Control: Text@0.0.51
+                                  Properties:
+                                    Align: ='TextCanvas.Align'.Start
+                                    AlignInContainer: =AlignInContainer.Stretch
+                                    FillPortions: =1
+                                    Font: =Font.Arial
+                                    FontColor: =RGBA(100, 116, 139, 1)
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                                    Size: =11
+                                    Text: ="Complete EPMP charter data for newly picked-up projects awaiting BA setup."
+                                    VerticalAlign: =VerticalAlign.Top
+                              - Card1Button:
+                                  Control: Classic/Button@2.2.0
+                                  Properties:
+                                    Align: =Align.Left
+                                    AlignInContainer: =AlignInContainer.Start
+                                    FontWeight: =FontWeight.Bold
+                                    BorderColor: =RGBA(0, 0, 0, 0)
+                                    BorderStyle: =BorderStyle.None
+                                    Color: =RGBA(217, 119, 6, 1)
+                                    Fill: =RGBA(0, 0, 0, 0)
+                                    FillPortions: =0
+                                    Font: =Font.Arial
+                                    Height: =28
+                                    HoverColor: =RGBA(180, 90, 0, 1)
+                                    HoverFill: =RGBA(0, 0, 0, 0)
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                                    OnSelect: =false //Navigate(SetupQueueScreen)
+                                    PressedFill: =RGBA(0, 0, 0, 0)
+                                    Size: =11
+                                    Text: ="View setup queue →"
+                        - CardsGap1:
+                            Control: Rectangle@2.3.0
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Stretch
+                              BorderColor: =RGBA(0, 0, 0, 0)
+                              BorderStyle: =BorderStyle.None
+                              DisabledFill: =RGBA(0, 0, 0, 0)
+                              Fill: =RGBA(0, 0, 0, 0)
+                              FillPortions: =0
+                              FocusedBorderThickness: =4
+                              HoverFill: =RGBA(0, 0, 0, 0)
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              PressedFill: =RGBA(0, 0, 0, 0)
+                              Width: =20
+                        - Card2:
+                            Control: GroupContainer@1.5.0
+                            Variant: AutoLayout
+                            Properties:
+                              BorderColor: =RGBA(226, 232, 240, 1)
+                              BorderStyle: =BorderStyle.Solid
+                              BorderThickness: =1
+                              DropShadow: =DropShadow.Light
+                              Fill: =RGBA(255, 255, 255, 1)
+                              FillPortions: =1
+                              LayoutDirection: =LayoutDirection.Vertical
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              PaddingBottom: =20
+                              PaddingLeft: =20
+                              PaddingRight: =20
+                              PaddingTop: =20
+                              RadiusBottomLeft: =12
+                              RadiusBottomRight: =12
+                              RadiusTopLeft: =12
+                              RadiusTopRight: =12
+                            Children:
+                              - Card2IconBg:
+                                  Control: Rectangle@2.3.0
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Start
+                                    BorderColor: =RGBA(0, 0, 0, 0)
+                                    BorderStyle: =BorderStyle.None
+                                    DisabledFill: =RGBA(238, 242, 255, 1)
+                                    Fill: =RGBA(238, 242, 255, 1)
+                                    FillPortions: =0
+                                    FocusedBorderThickness: =4
+                                    Height: =48
+                                    HoverFill: =RGBA(238, 242, 255, 1)
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                                    PressedFill: =RGBA(238, 242, 255, 1)
+                                    Width: =48
+                              - Card2Title:
+                                  Control: Text@0.0.51
+                                  Properties:
+                                    Align: ='TextCanvas.Align'.Start
+                                    AlignInContainer: =AlignInContainer.Stretch
+                                    FillPortions: =0
+                                    Font: =Font.Arial
+                                    FontColor: =RGBA(15, 23, 42, 1)
+                                    Height: =32
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                                    Size: =14
+                                    Text: ="Process Funding Request"
+                                    VerticalAlign: =VerticalAlign.Middle
+                                    Weight: ='TextCanvas.Weight'.Semibold
+                              - Card2Subtitle:
+                                  Control: Text@0.0.51
+                                  Properties:
+                                    Align: ='TextCanvas.Align'.Start
+                                    AlignInContainer: =AlignInContainer.Stretch
+                                    FillPortions: =1
+                                    Font: =Font.Arial
+                                    FontColor: =RGBA(100, 116, 139, 1)
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                                    Size: =11
+                                    Text: ="Review, approve, or reject pending change requests and budget reallocations."
+                                    VerticalAlign: =VerticalAlign.Top
+                              - Card2Button:
+                                  Control: Classic/Button@2.2.0
+                                  Properties:
+                                    Align: =Align.Left
+                                    AlignInContainer: =AlignInContainer.Start
+                                    FontWeight: =FontWeight.Bold
+                                    BorderColor: =RGBA(0, 0, 0, 0)
+                                    BorderStyle: =BorderStyle.None
+                                    Color: =RGBA(79, 70, 229, 1)
+                                    Fill: =RGBA(0, 0, 0, 0)
+                                    FillPortions: =0
+                                    Font: =Font.Arial
+                                    Height: =28
+                                    HoverColor: =RGBA(55, 48, 163, 1)
+                                    HoverFill: =RGBA(0, 0, 0, 0)
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                                    OnSelect: =false //Navigate(ChangeRequestsScreen)
+                                    PressedFill: =RGBA(0, 0, 0, 0)
+                                    Size: =11
+                                    Text: ="View requests →"
+                        - CardsGap2:
+                            Control: Rectangle@2.3.0
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Stretch
+                              BorderColor: =RGBA(0, 0, 0, 0)
+                              BorderStyle: =BorderStyle.None
+                              DisabledFill: =RGBA(0, 0, 0, 0)
+                              Fill: =RGBA(0, 0, 0, 0)
+                              FillPortions: =0
+                              FocusedBorderThickness: =4
+                              HoverFill: =RGBA(0, 0, 0, 0)
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              PressedFill: =RGBA(0, 0, 0, 0)
+                              Width: =20
+                        - Card3:
+                            Control: GroupContainer@1.5.0
+                            Variant: AutoLayout
+                            Properties:
+                              BorderColor: =RGBA(226, 232, 240, 1)
+                              BorderStyle: =BorderStyle.Solid
+                              BorderThickness: =1
+                              DropShadow: =DropShadow.Light
+                              Fill: =RGBA(255, 255, 255, 1)
+                              FillPortions: =1
+                              LayoutDirection: =LayoutDirection.Vertical
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              PaddingBottom: =20
+                              PaddingLeft: =20
+                              PaddingRight: =20
+                              PaddingTop: =20
+                              RadiusBottomLeft: =12
+                              RadiusBottomRight: =12
+                              RadiusTopLeft: =12
+                              RadiusTopRight: =12
+                            Children:
+                              - Card3IconBg:
+                                  Control: Rectangle@2.3.0
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Start
+                                    BorderColor: =RGBA(0, 0, 0, 0)
+                                    BorderStyle: =BorderStyle.None
+                                    DisabledFill: =RGBA(248, 250, 252, 1)
+                                    Fill: =RGBA(248, 250, 252, 1)
+                                    FillPortions: =0
+                                    FocusedBorderThickness: =4
+                                    Height: =48
+                                    HoverFill: =RGBA(248, 250, 252, 1)
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                                    PressedFill: =RGBA(248, 250, 252, 1)
+                                    Width: =48
+                              - Card3Title:
+                                  Control: Text@0.0.51
+                                  Properties:
+                                    Align: ='TextCanvas.Align'.Start
+                                    AlignInContainer: =AlignInContainer.Stretch
+                                    FillPortions: =0
+                                    Font: =Font.Arial
+                                    FontColor: =RGBA(15, 23, 42, 1)
+                                    Height: =32
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                                    Size: =14
+                                    Text: ="Edit Plan"
+                                    VerticalAlign: =VerticalAlign.Middle
+                                    Weight: ='TextCanvas.Weight'.Semibold
+                              - Card3Subtitle:
+                                  Control: Text@0.0.51
+                                  Properties:
+                                    Align: ='TextCanvas.Align'.Start
+                                    AlignInContainer: =AlignInContainer.Stretch
+                                    FillPortions: =1
+                                    Font: =Font.Arial
+                                    FontColor: =RGBA(100, 116, 139, 1)
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                                    Size: =11
+                                    Text: ="Access existing projects to update labor, travel, and material allocations."
+                                    VerticalAlign: =VerticalAlign.Top
+                              - Card3Button:
+                                  Control: Classic/Button@2.2.0
+                                  Properties:
+                                    Align: =Align.Left
+                                    AlignInContainer: =AlignInContainer.Start
+                                    FontWeight: =FontWeight.Bold
+                                    BorderColor: =RGBA(0, 0, 0, 0)
+                                    BorderStyle: =BorderStyle.None
+                                    Color: =RGBA(71, 85, 105, 1)
+                                    Fill: =RGBA(0, 0, 0, 0)
+                                    FillPortions: =0
+                                    Font: =Font.Arial
+                                    Height: =28
+                                    HoverColor: =RGBA(30, 41, 59, 1)
+                                    HoverFill: =RGBA(0, 0, 0, 0)
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                                    OnSelect: =false //Navigate(ProjectListScreen)
+                                    PressedFill: =RGBA(0, 0, 0, 0)
+                                    Size: =11
+                                    Text: ="Browse projects →"
+                  - SpacerB:
+                      Control: Rectangle@2.3.0
+                      Properties:
+                        AlignInContainer: =AlignInContainer.Stretch
+                        BorderColor: =RGBA(0, 0, 0, 0)
+                        BorderStyle: =BorderStyle.None
+                        DisabledFill: =RGBA(0, 0, 0, 0)
+                        Fill: =RGBA(0, 0, 0, 0)
+                        FillPortions: =0
+                        FocusedBorderThickness: =4
+                        Height: =32
+                        HoverFill: =RGBA(0, 0, 0, 0)
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        PressedFill: =RGBA(0, 0, 0, 0)
+                  - NoticeBanner:
+                      Control: GroupContainer@1.5.0
+                      Variant: AutoLayout
+                      Properties:
+                        AlignInContainer: =AlignInContainer.Stretch
+                        Fill: =RGBA(30, 41, 59, 1)
+                        FillPortions: =0
+                        LayoutDirection: =LayoutDirection.Vertical
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        PaddingBottom: =12
+                        PaddingLeft: =24
+                        PaddingRight: =24
+                        PaddingTop: =12
+                        RadiusBottomLeft: =12
+                        RadiusBottomRight: =12
+                        RadiusTopLeft: =12
+                        RadiusTopRight: =12
+                      Children:
+                        - NoticeHeading:
+                            Control: Text@0.0.51
+                            Properties:
+                              Align: ='TextCanvas.Align'.Start
+                              AlignInContainer: =AlignInContainer.Stretch
+                              FillPortions: =0
+                              Font: =Font.Arial
+                              FontColor: =RGBA(255, 255, 255, 1)
+                              Height: =28
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              Size: =14
+                              Text: ="System Notice"
+                              VerticalAlign: =VerticalAlign.Middle
+                              Weight: ='TextCanvas.Weight'.Semibold
+                        - NoticeBody:
+                            Control: Text@0.0.51
+                            Properties:
+                              Align: ='TextCanvas.Align'.Start
+                              AlignInContainer: =AlignInContainer.Stretch
+                              FillPortions: =0
+                              Font: =Font.Arial
+                              FontColor: =RGBA(203, 213, 225, 1)
+                              Height: =32
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              Size: =12
+                              Text: ="End of month financial reconciliation begins in 3 days. Please ensure all active projects have their current month labor hours submitted and approved."
+                              VerticalAlign: =VerticalAlign.Top

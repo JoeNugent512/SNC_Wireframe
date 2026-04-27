@@ -1,0 +1,1005 @@
+Screens:
+  ChangeRequestDetailScreen:
+    Properties:
+      Fill: =RGBA(248, 250, 252, 1)
+      LoadingSpinnerColor: =RGBA(26, 53, 87, 1)
+    Children:
+      - RootContainer:
+          Control: GroupContainer@1.5.0
+          Variant: AutoLayout
+          Properties:
+            Height: =768
+            LayoutDirection: =LayoutDirection.Vertical
+            LayoutMaxHeight: =
+            LayoutMaxWidth: =
+            Width: =1366
+          Children:
+            - NavBar:
+                Control: GroupContainer@1.5.0
+                Variant: AutoLayout
+                Properties:
+                  Fill: =RGBA(26, 53, 87, 1)
+                  FillPortions: =0
+                  Height: =56
+                  LayoutDirection: =LayoutDirection.Horizontal
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                Children:
+                  - NavLogo:
+                      Control: Image@2.2.3
+                      Properties:
+                        AlignInContainer: =AlignInContainer.Center
+                        BorderColor: =RGBA(0, 0, 0, 0)
+                        BorderStyle: =BorderStyle.None
+                        BorderThickness: =0
+                        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                        DisabledFill: =RGBA(0, 0, 0, 0)
+                        FocusedBorderThickness: =4
+                        Height: =40
+                        HoverBorderColor: =RGBA(0, 0, 0, 0)
+                        HoverFill: =RGBA(0, 0, 0, 0)
+                        Image: ='usace logo'
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        PaddingLeft: =12
+                        PressedBorderColor: =RGBA(0, 0, 0, 0)
+                        PressedFill: =RGBA(0, 0, 0, 0)
+                        Width: =48
+                  - NavTitle:
+                      Control: Text@0.0.51
+                      Properties:
+                        Align: ='TextCanvas.Align'.Start
+                        AlignInContainer: =AlignInContainer.Stretch
+                        FillPortions: =1
+                        Font: =Font.Arial
+                        FontColor: =RGBA(255, 255, 255, 1)
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        PaddingLeft: =12
+                        Size: =15
+                        Text: ="S&C Project Management"
+                        VerticalAlign: =VerticalAlign.Middle
+                        Weight: ='TextCanvas.Weight'.Semibold
+                  - NavBadgeBA:
+                      Control: Text@0.0.51
+                      Properties:
+                        Align: ='TextCanvas.Align'.End
+                        AlignInContainer: =AlignInContainer.Stretch
+                        Font: =Font.Arial
+                        FontColor: =RGBA(251, 191, 36, 1)
+                        FillPortions: =0
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        PaddingRight: =12
+                        Size: =11
+                        Text: ="BA View"
+                        VerticalAlign: =VerticalAlign.Middle
+                        Weight: ='TextCanvas.Weight'.Semibold
+                        Width: =80
+                  - NavUserName:
+                      Control: Text@0.0.51
+                      Properties:
+                        Align: ='TextCanvas.Align'.End
+                        AlignInContainer: =AlignInContainer.Stretch
+                        Font: =Font.Arial
+                        FontColor: =RGBA(255, 255, 255, 1)
+                        FillPortions: =0
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        PaddingRight: =8
+                        Size: =13
+                        Text: =User().FullName
+                        VerticalAlign: =VerticalAlign.Middle
+                        Width: =180
+                  - NavUserAvatar:
+                      Control: Avatar@1.0.40
+                      Properties:
+                        AlignInContainer: =AlignInContainer.Center
+                        BasePaletteColor: =RGBA(26, 110, 168, 1)
+                        FillPortions: =0
+                        Image: =User().Image
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        Size: =32
+                        Text: =User().FullName
+                        Width: =48
+            - YellowBar:
+                Control: Rectangle@2.3.0
+                Properties:
+                  AlignInContainer: =AlignInContainer.Stretch
+                  Fill: =RGBA(251, 191, 36, 1)
+                  FillPortions: =0
+                  Height: =4
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+            - BreadcrumbRow:
+                Control: GroupContainer@1.5.0
+                Variant: AutoLayout
+                Properties:
+                  AlignInContainer: =AlignInContainer.Stretch
+                  Fill: =RGBA(255, 255, 255, 1)
+                  FillPortions: =0
+                  Height: =40
+                  LayoutDirection: =LayoutDirection.Horizontal
+                  LayoutAlignItems: =LayoutAlignItems.Center
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  PaddingLeft: =24
+                Children:
+                  - BreadHome:
+                      Control: Classic/Button@2.2.0
+                      Properties:
+                        FontWeight: =FontWeight.Normal
+                        Height: =32
+                        OnSelect: =Navigate(HomeScreen, ScreenTransition.None)
+                        Text: ="Home"
+                        Width: =60
+                  - BreadSep1:
+                      Control: Text@0.0.51
+                      Properties:
+                        FontColor: =RGBA(148, 163, 184, 1)
+                        Height: =32
+                        Text: =">"
+                        VerticalAlign: =VerticalAlign.Middle
+                        Width: =20
+                  - BreadCR:
+                      Control: Classic/Button@2.2.0
+                      Properties:
+                        FontWeight: =FontWeight.Normal
+                        Height: =32
+                        OnSelect: =Navigate(ChangeRequestsScreen, ScreenTransition.UnCover)
+                        Text: ="Change Requests"
+                        Width: =130
+                  - BreadSep2:
+                      Control: Text@0.0.51
+                      Properties:
+                        FontColor: =RGBA(148, 163, 184, 1)
+                        Height: =32
+                        Text: =">"
+                        VerticalAlign: =VerticalAlign.Middle
+                        Width: =20
+                  - BreadCurrent:
+                      Control: Text@0.0.51
+                      Properties:
+                        Font: =Font.Arial
+                        FontColor: =RGBA(15, 23, 42, 1)
+                        Height: =32
+                        Size: =13
+                        Text: =varSelectedCR.projectNumber
+                        VerticalAlign: =VerticalAlign.Middle
+                        Weight: ='TextCanvas.Weight'.Semibold
+                        Width: =120
+            - ScrollContent:
+                Control: GroupContainer@1.5.0
+                Variant: AutoLayout
+                Properties:
+                  AlignInContainer: =AlignInContainer.Stretch
+                  Fill: =RGBA(0, 0, 0, 0)
+                  LayoutDirection: =LayoutDirection.Vertical
+                  LayoutAlignItems: =LayoutAlignItems.Center
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  LayoutOverflowY: =LayoutOverflow.Scroll
+                  PaddingTop: =20
+                  PaddingBottom: =32
+                Children:
+                  - DetailInner:
+                      Control: GroupContainer@1.5.0
+                      Variant: AutoLayout
+                      Properties:
+                        Fill: =RGBA(0, 0, 0, 0)
+                        FillPortions: =0
+                        LayoutDirection: =LayoutDirection.Vertical
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        Width: =1000
+                      Children:
+                        - BackBtn:
+                            Control: Classic/Button@2.2.0
+                            Properties:
+                              FontWeight: =FontWeight.Normal
+                              FillPortions: =0
+                              Height: =32
+                              HoverColor: =RGBA(15, 23, 42, 1)
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              OnSelect: =Navigate(ChangeRequestsScreen, ScreenTransition.UnCover)
+                              Text: ="< Back to Change Requests"
+                              Width: =200
+                        - CardSpacer1:
+                            Control: Rectangle@2.3.0
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Stretch
+                              Fill: =RGBA(0, 0, 0, 0)
+                              FillPortions: =0
+                              Height: =12
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                        - HeaderCard:
+                            Control: GroupContainer@1.5.0
+                            Variant: AutoLayout
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Stretch
+                              Fill: =RGBA(255, 255, 255, 1)
+                              FillPortions: =0
+                              LayoutDirection: =LayoutDirection.Horizontal
+                              LayoutAlignItems: =LayoutAlignItems.Start
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              PaddingLeft: =24
+                              PaddingRight: =24
+                              PaddingTop: =20
+                              PaddingBottom: =20
+                            Children:
+                              - HeaderLeft:
+                                  Control: GroupContainer@1.5.0
+                                  Variant: AutoLayout
+                                  Properties:
+                                    Fill: =RGBA(0, 0, 0, 0)
+                                    FillPortions: =1
+                                    LayoutDirection: =LayoutDirection.Vertical
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                                  Children:
+                                    - CRLabel:
+                                        Control: Text@0.0.51
+                                        Properties:
+                                          Font: =Font.Arial
+                                          FontColor: =RGBA(100, 116, 139, 1)
+                                          FillPortions: =0
+                                          Height: =18
+                                          LayoutMaxHeight: =
+                                          LayoutMaxWidth: =
+                                          Size: =11
+                                          Text: ="BUDGET CHANGE REQUEST"
+                                          Weight: ='TextCanvas.Weight'.Semibold
+                                    - CRTitle:
+                                        Control: Text@0.0.51
+                                        Properties:
+                                          Font: =Font.Arial
+                                          FontColor: =RGBA(15, 23, 42, 1)
+                                          FillPortions: =0
+                                          Height: =36
+                                          LayoutMaxHeight: =
+                                          LayoutMaxWidth: =
+                                          Size: =20
+                                          Text: =varSelectedCR.projectNumber & "  " & varSelectedCR.projectName
+                                          Weight: ='TextCanvas.Weight'.Bold
+                                    - CRMeta:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: AutoLayout
+                                        Properties:
+                                          Fill: =RGBA(0, 0, 0, 0)
+                                          FillPortions: =0
+                                          Height: =28
+                                          LayoutDirection: =LayoutDirection.Horizontal
+                                          LayoutAlignItems: =LayoutAlignItems.Center
+                                          LayoutMaxHeight: =
+                                          LayoutMaxWidth: =
+                                        Children:
+                                          - CRStatusBadge:
+                                              Control: Text@0.0.51
+                                              Properties:
+                                                Align: ='TextCanvas.Align'.Center
+                                                BorderColor: =RGBA(203, 213, 225, 1)
+                                                BorderStyle: =BorderStyle.Solid
+                                                BorderThickness: =1
+                                                Fill: =Switch(varSelectedCR.status,
+                                                  "Approved", RGBA(209, 250, 229, 1),
+                                                  "Pending", RGBA(219, 234, 254, 1),
+                                                  "Under Review", RGBA(254, 243, 199, 1),
+                                                  "Rejected", RGBA(254, 226, 226, 1),
+                                                  RGBA(243, 244, 246, 1))
+                                                Font: =Font.Arial
+                                                FontColor: =Switch(varSelectedCR.status,
+                                                  "Approved", RGBA(6, 95, 70, 1),
+                                                  "Pending", RGBA(29, 78, 216, 1),
+                                                  "Under Review", RGBA(146, 64, 14, 1),
+                                                  "Rejected", RGBA(185, 28, 28, 1),
+                                                  RGBA(75, 85, 99, 1))
+                                                FillPortions: =0
+                                                Height: =24
+                                                LayoutMaxHeight: =
+                                                LayoutMaxWidth: =
+                                                Size: =11
+                                                Text: =varSelectedCR.status
+                                                VerticalAlign: =VerticalAlign.Middle
+                                                Weight: ='TextCanvas.Weight'.Semibold
+                                                Width: =120
+                                          - CRMetaSep:
+                                              Control: Rectangle@2.3.0
+                                              Properties:
+                                                Fill: =RGBA(0, 0, 0, 0)
+                                                FillPortions: =0
+                                                Height: =24
+                                                LayoutMaxHeight: =
+                                                LayoutMaxWidth: =
+                                                Width: =12
+                                          - CRSubmittedBy:
+                                              Control: Text@0.0.51
+                                              Properties:
+                                                Font: =Font.Arial
+                                                FontColor: =RGBA(71, 85, 105, 1)
+                                                FillPortions: =0
+                                                Height: =24
+                                                LayoutMaxHeight: =
+                                                LayoutMaxWidth: =
+                                                Size: =13
+                                                Text: =varSelectedCR.submittedBy & "  ·  " & varSelectedCR.date
+                                                VerticalAlign: =VerticalAlign.Middle
+                                                Width: =300
+                              - FundingSummary:
+                                  Control: GroupContainer@1.5.0
+                                  Variant: AutoLayout
+                                  Properties:
+                                    BorderColor: =RGBA(226, 232, 240, 1)
+                                    BorderStyle: =BorderStyle.Solid
+                                    BorderThickness: =1
+                                    Fill: =RGBA(255, 255, 255, 1)
+                                    FillPortions: =0
+                                    Height: =70
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutAlignItems: =LayoutAlignItems.Stretch
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                                  Children:
+                                    - FundTOA:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: AutoLayout
+                                        Properties:
+                                          Fill: =RGBA(255, 255, 255, 1)
+                                          FillPortions: =0
+                                          LayoutDirection: =LayoutDirection.Vertical
+                                          LayoutAlignItems: =LayoutAlignItems.End
+                                          LayoutMaxHeight: =
+                                          LayoutMaxWidth: =
+                                          PaddingLeft: =16
+                                          PaddingRight: =16
+                                          PaddingTop: =10
+                                          PaddingBottom: =10
+                                          Width: =130
+                                        Children:
+                                          - FundTOALabel:
+                                              Control: Text@0.0.51
+                                              Properties:
+                                                Font: =Font.Arial
+                                                FontColor: =RGBA(100, 116, 139, 1)
+                                                FillPortions: =0
+                                                Height: =16
+                                                LayoutMaxHeight: =
+                                                LayoutMaxWidth: =
+                                                Size: =10
+                                                Text: ="TOA"
+                                                Weight: ='TextCanvas.Weight'.Semibold
+                                          - FundTOAVal:
+                                              Control: Text@0.0.51
+                                              Properties:
+                                                Font: =Font.Arial
+                                                FontColor: =RGBA(15, 23, 42, 1)
+                                                FillPortions: =0
+                                                Height: =24
+                                                LayoutMaxHeight: =
+                                                LayoutMaxWidth: =
+                                                Size: =16
+                                                Text: =Text(LookUp(colProjects, number = varSelectedCR.projectNumber, budget), "[$-en-US]$ #,##0")
+                                                Weight: ='TextCanvas.Weight'.Bold
+                                    - FundDivider1:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                          Fill: =RGBA(226, 232, 240, 1)
+                                          FillPortions: =0
+                                          Height: =70
+                                          LayoutMaxHeight: =
+                                          LayoutMaxWidth: =
+                                          Width: =1
+                                    - FundPlanned:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: AutoLayout
+                                        Properties:
+                                          Fill: =RGBA(255, 255, 255, 1)
+                                          FillPortions: =0
+                                          LayoutDirection: =LayoutDirection.Vertical
+                                          LayoutAlignItems: =LayoutAlignItems.End
+                                          LayoutMaxHeight: =
+                                          LayoutMaxWidth: =
+                                          PaddingLeft: =16
+                                          PaddingRight: =16
+                                          PaddingTop: =10
+                                          PaddingBottom: =10
+                                          Width: =130
+                                        Children:
+                                          - FundPlannedLabel:
+                                              Control: Text@0.0.51
+                                              Properties:
+                                                Font: =Font.Arial
+                                                FontColor: =RGBA(100, 116, 139, 1)
+                                                FillPortions: =0
+                                                Height: =16
+                                                LayoutMaxHeight: =
+                                                LayoutMaxWidth: =
+                                                Size: =10
+                                                Text: ="PLANNED"
+                                                Weight: ='TextCanvas.Weight'.Semibold
+                                          - FundPlannedVal:
+                                              Control: Text@0.0.51
+                                              Properties:
+                                                Font: =Font.Arial
+                                                FontColor: =RGBA(15, 23, 42, 1)
+                                                FillPortions: =0
+                                                Height: =24
+                                                LayoutMaxHeight: =
+                                                LayoutMaxWidth: =
+                                                Size: =16
+                                                Text: =Text(LookUp(colProjects, number = varSelectedCR.projectNumber, actualObligation), "[$-en-US]$ #,##0")
+                                                Weight: ='TextCanvas.Weight'.Bold
+                                    - FundDivider2:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                          Fill: =RGBA(226, 232, 240, 1)
+                                          FillPortions: =0
+                                          Height: =70
+                                          LayoutMaxHeight: =
+                                          LayoutMaxWidth: =
+                                          Width: =1
+                                    - FundBalance:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: AutoLayout
+                                        Properties:
+                                          Fill: =RGBA(255, 255, 255, 1)
+                                          FillPortions: =0
+                                          LayoutDirection: =LayoutDirection.Vertical
+                                          LayoutAlignItems: =LayoutAlignItems.End
+                                          LayoutMaxHeight: =
+                                          LayoutMaxWidth: =
+                                          PaddingLeft: =16
+                                          PaddingRight: =16
+                                          PaddingTop: =10
+                                          PaddingBottom: =10
+                                          Width: =140
+                                        Children:
+                                          - FundBalanceLabel:
+                                              Control: Text@0.0.51
+                                              Properties:
+                                                Font: =Font.Arial
+                                                FontColor: =RGBA(100, 116, 139, 1)
+                                                FillPortions: =0
+                                                Height: =16
+                                                LayoutMaxHeight: =
+                                                LayoutMaxWidth: =
+                                                Size: =10
+                                                Text: ="FREE BALANCE"
+                                                Weight: ='TextCanvas.Weight'.Semibold
+                                          - FundBalanceVal:
+                                              Control: Text@0.0.51
+                                              Properties:
+                                                Font: =Font.Arial
+                                                FontColor: =If(
+                                                  LookUp(colProjects, number = varSelectedCR.projectNumber, budget) - LookUp(colProjects, number = varSelectedCR.projectNumber, actualObligation) >= 0,
+                                                  RGBA(5, 150, 105, 1),
+                                                  RGBA(220, 38, 38, 1))
+                                                FillPortions: =0
+                                                Height: =24
+                                                LayoutMaxHeight: =
+                                                LayoutMaxWidth: =
+                                                Size: =16
+                                                Text: =Text(LookUp(colProjects, number = varSelectedCR.projectNumber, budget) - LookUp(colProjects, number = varSelectedCR.projectNumber, actualObligation), "[$-en-US]$ #,##0")
+                                                Weight: ='TextCanvas.Weight'.Bold
+                        - CardSpacer2:
+                            Control: Rectangle@2.3.0
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Stretch
+                              Fill: =RGBA(0, 0, 0, 0)
+                              FillPortions: =0
+                              Height: =16
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                        - OverviewCard:
+                            Control: GroupContainer@1.5.0
+                            Variant: AutoLayout
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Stretch
+                              Fill: =RGBA(255, 255, 255, 1)
+                              FillPortions: =0
+                              LayoutDirection: =LayoutDirection.Vertical
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              PaddingLeft: =24
+                              PaddingRight: =24
+                              PaddingTop: =20
+                              PaddingBottom: =20
+                            Children:
+                              - OverviewLabel:
+                                  Control: Text@0.0.51
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Stretch
+                                    Font: =Font.Arial
+                                    FontColor: =RGBA(100, 116, 139, 1)
+                                    FillPortions: =0
+                                    Height: =18
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                                    Size: =11
+                                    Text: ="PROJECT OVERVIEW"
+                                    Weight: ='TextCanvas.Weight'.Semibold
+                              - OverviewSpacer:
+                                  Control: Rectangle@2.3.0
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Stretch
+                                    Fill: =RGBA(0, 0, 0, 0)
+                                    FillPortions: =0
+                                    Height: =8
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                              - OverviewText:
+                                  Control: Text@0.0.51
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Stretch
+                                    Font: =Font.Arial
+                                    FontColor: =RGBA(71, 85, 105, 1)
+                                    FillPortions: =0
+                                    Height: =60
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                                    Size: =13
+                                    Text: =varSelectedCR.projectDescription
+                        - CardSpacer3:
+                            Control: Rectangle@2.3.0
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Stretch
+                              Fill: =RGBA(0, 0, 0, 0)
+                              FillPortions: =0
+                              Height: =16
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                        - BudgetChangesCard:
+                            Control: GroupContainer@1.5.0
+                            Variant: AutoLayout
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Stretch
+                              Fill: =RGBA(255, 255, 255, 1)
+                              FillPortions: =0
+                              LayoutDirection: =LayoutDirection.Vertical
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              PaddingLeft: =24
+                              PaddingRight: =24
+                              PaddingTop: =20
+                              PaddingBottom: =20
+                            Children:
+                              - BudgetLabel:
+                                  Control: Text@0.0.51
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Stretch
+                                    Font: =Font.Arial
+                                    FontColor: =RGBA(100, 116, 139, 1)
+                                    FillPortions: =0
+                                    Height: =18
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                                    Size: =11
+                                    Text: ="BUDGET CHANGES"
+                                    Weight: ='TextCanvas.Weight'.Semibold
+                              - BudgetSpacer:
+                                  Control: Rectangle@2.3.0
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Stretch
+                                    Fill: =RGBA(0, 0, 0, 0)
+                                    FillPortions: =0
+                                    Height: =12
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                              - BudgetTableHeader:
+                                  Control: GroupContainer@1.5.0
+                                  Variant: AutoLayout
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Stretch
+                                    Fill: =RGBA(248, 250, 252, 1)
+                                    FillPortions: =0
+                                    Height: =36
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutAlignItems: =LayoutAlignItems.Center
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                                    PaddingLeft: =12
+                                  Children:
+                                    - BthType:
+                                        Control: Text@0.0.51
+                                        Properties:
+                                          Font: =Font.Arial
+                                          FontColor: =RGBA(100, 116, 139, 1)
+                                          FillPortions: =0
+                                          Height: =36
+                                          Size: =10
+                                          Text: ="TYPE"
+                                          VerticalAlign: =VerticalAlign.Middle
+                                          Weight: ='TextCanvas.Weight'.Semibold
+                                          Width: =120
+                                    - BthResource:
+                                        Control: Text@0.0.51
+                                        Properties:
+                                          Font: =Font.Arial
+                                          FontColor: =RGBA(100, 116, 139, 1)
+                                          FillPortions: =1
+                                          Height: =36
+                                          Size: =10
+                                          Text: ="RESOURCE"
+                                          VerticalAlign: =VerticalAlign.Middle
+                                          Weight: ='TextCanvas.Weight'.Semibold
+                                    - BthOrgCode:
+                                        Control: Text@0.0.51
+                                        Properties:
+                                          Font: =Font.Arial
+                                          FontColor: =RGBA(100, 116, 139, 1)
+                                          FillPortions: =0
+                                          Height: =36
+                                          Size: =10
+                                          Text: ="ORG CODE"
+                                          VerticalAlign: =VerticalAlign.Middle
+                                          Weight: ='TextCanvas.Weight'.Semibold
+                                          Width: =160
+                                    - BthCurrent:
+                                        Control: Text@0.0.51
+                                        Properties:
+                                          Align: ='TextCanvas.Align'.End
+                                          Font: =Font.Arial
+                                          FontColor: =RGBA(100, 116, 139, 1)
+                                          FillPortions: =0
+                                          Height: =36
+                                          Size: =10
+                                          Text: ="CURRENT"
+                                          VerticalAlign: =VerticalAlign.Middle
+                                          Weight: ='TextCanvas.Weight'.Semibold
+                                          Width: =100
+                                    - BthProposed:
+                                        Control: Text@0.0.51
+                                        Properties:
+                                          Align: ='TextCanvas.Align'.End
+                                          Font: =Font.Arial
+                                          FontColor: =RGBA(100, 116, 139, 1)
+                                          FillPortions: =0
+                                          Height: =36
+                                          Size: =10
+                                          Text: ="PROPOSED"
+                                          VerticalAlign: =VerticalAlign.Middle
+                                          Weight: ='TextCanvas.Weight'.Semibold
+                                          Width: =100
+                                    - BthChange:
+                                        Control: Text@0.0.51
+                                        Properties:
+                                          Align: ='TextCanvas.Align'.End
+                                          Font: =Font.Arial
+                                          FontColor: =RGBA(100, 116, 139, 1)
+                                          FillPortions: =0
+                                          Height: =36
+                                          Size: =10
+                                          Text: ="CHANGE"
+                                          VerticalAlign: =VerticalAlign.Middle
+                                          Weight: ='TextCanvas.Weight'.Semibold
+                                          Width: =100
+                              - BudgetRow1:
+                                  Control: GroupContainer@1.5.0
+                                  Variant: AutoLayout
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Stretch
+                                    Fill: =RGBA(239, 246, 255, 1)
+                                    FillPortions: =0
+                                    Height: =48
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutAlignItems: =LayoutAlignItems.Center
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                                    PaddingLeft: =12
+                                  Children:
+                                    - BR1TypeBadge:
+                                        Control: Text@0.0.51
+                                        Properties:
+                                          Align: ='TextCanvas.Align'.Center
+                                          BorderColor: =RGBA(191, 219, 254, 1)
+                                          BorderStyle: =BorderStyle.Solid
+                                          BorderThickness: =1
+                                          Fill: =RGBA(219, 234, 254, 1)
+                                          Font: =Font.Arial
+                                          FontColor: =RGBA(29, 78, 216, 1)
+                                          FillPortions: =0
+                                          Height: =24
+                                          LayoutMaxHeight: =
+                                          LayoutMaxWidth: =
+                                          Size: =11
+                                          Text: =varSelectedCR.resourceType
+                                          VerticalAlign: =VerticalAlign.Middle
+                                          Weight: ='TextCanvas.Weight'.Semibold
+                                          Width: =120
+                                    - BR1Resource:
+                                        Control: Text@0.0.51
+                                        Properties:
+                                          Font: =Font.Arial
+                                          FontColor: =RGBA(51, 65, 85, 1)
+                                          FillPortions: =1
+                                          Height: =48
+                                          LayoutMaxHeight: =
+                                          LayoutMaxWidth: =
+                                          PaddingLeft: =8
+                                          Size: =13
+                                          Text: =varSelectedCR.resource
+                                          VerticalAlign: =VerticalAlign.Middle
+                                          Weight: ='TextCanvas.Weight'.Semibold
+                                    - BR1OrgCode:
+                                        Control: Text@0.0.51
+                                        Properties:
+                                          Font: =Font.Courier
+                                          FontColor: =RGBA(100, 116, 139, 1)
+                                          FillPortions: =0
+                                          Height: =48
+                                          LayoutMaxHeight: =
+                                          LayoutMaxWidth: =
+                                          Size: =11
+                                          Text: =varSelectedCR.orgCode
+                                          VerticalAlign: =VerticalAlign.Middle
+                                          Width: =160
+                                    - BR1From:
+                                        Control: Text@0.0.51
+                                        Properties:
+                                          Align: ='TextCanvas.Align'.End
+                                          Font: =Font.Arial
+                                          FontColor: =RGBA(100, 116, 139, 1)
+                                          FillPortions: =0
+                                          Height: =48
+                                          LayoutMaxHeight: =
+                                          LayoutMaxWidth: =
+                                          Size: =13
+                                          Text: =Text(varSelectedCR.fromAmount, "[$-en-US]$ #,##0")
+                                          VerticalAlign: =VerticalAlign.Middle
+                                          Width: =100
+                                    - BR1To:
+                                        Control: Text@0.0.51
+                                        Properties:
+                                          Align: ='TextCanvas.Align'.End
+                                          Font: =Font.Arial
+                                          FontColor: =RGBA(15, 23, 42, 1)
+                                          FillPortions: =0
+                                          Height: =48
+                                          LayoutMaxHeight: =
+                                          LayoutMaxWidth: =
+                                          Size: =13
+                                          Text: =Text(varSelectedCR.toAmount, "[$-en-US]$ #,##0")
+                                          VerticalAlign: =VerticalAlign.Middle
+                                          Weight: ='TextCanvas.Weight'.Semibold
+                                          Width: =100
+                                    - BR1Change:
+                                        Control: Text@0.0.51
+                                        Properties:
+                                          Align: ='TextCanvas.Align'.End
+                                          Font: =Font.Arial
+                                          FontColor: =If(varSelectedCR.changeAmount > 0 And varSelectedCR.direction = "Increase", RGBA(5, 150, 105, 1), RGBA(220, 38, 38, 1))
+                                          FillPortions: =0
+                                          Height: =48
+                                          LayoutMaxHeight: =
+                                          LayoutMaxWidth: =
+                                          Size: =13
+                                          Text: =If(varSelectedCR.direction = "Increase", "+", "-") & Text(varSelectedCR.changeAmount, "[$-en-US]$ #,##0")
+                                          VerticalAlign: =VerticalAlign.Middle
+                                          Weight: ='TextCanvas.Weight'.Semibold
+                                          Width: =100
+                              - NetRow:
+                                  Control: GroupContainer@1.5.0
+                                  Variant: AutoLayout
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Stretch
+                                    Fill: =RGBA(248, 250, 252, 1)
+                                    FillPortions: =0
+                                    Height: =40
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutAlignItems: =LayoutAlignItems.Center
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                                    PaddingLeft: =12
+                                  Children:
+                                    - NetLabel:
+                                        Control: Text@0.0.51
+                                        Properties:
+                                          Align: ='TextCanvas.Align'.End
+                                          Font: =Font.Arial
+                                          FontColor: =RGBA(100, 116, 139, 1)
+                                          FillPortions: =1
+                                          Height: =40
+                                          LayoutMaxHeight: =
+                                          LayoutMaxWidth: =
+                                          PaddingRight: =8
+                                          Size: =11
+                                          Text: ="NET CHANGE"
+                                          VerticalAlign: =VerticalAlign.Middle
+                                          Weight: ='TextCanvas.Weight'.Semibold
+                                    - NetValue:
+                                        Control: Text@0.0.51
+                                        Properties:
+                                          Align: ='TextCanvas.Align'.End
+                                          Font: =Font.Arial
+                                          FontColor: =If(varSelectedCR.direction = "Increase", RGBA(5, 150, 105, 1), RGBA(220, 38, 38, 1))
+                                          FillPortions: =0
+                                          Height: =40
+                                          LayoutMaxHeight: =
+                                          LayoutMaxWidth: =
+                                          Size: =14
+                                          Text: =If(varSelectedCR.direction = "Increase", "+", "-") & Text(varSelectedCR.changeAmount, "[$-en-US]$ #,##0")
+                                          VerticalAlign: =VerticalAlign.Middle
+                                          Weight: ='TextCanvas.Weight'.Bold
+                                          Width: =100
+                        - CardSpacer4:
+                            Control: Rectangle@2.3.0
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Stretch
+                              Fill: =RGBA(0, 0, 0, 0)
+                              FillPortions: =0
+                              Height: =16
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                        - JustificationCard:
+                            Control: GroupContainer@1.5.0
+                            Variant: AutoLayout
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Stretch
+                              Fill: =RGBA(255, 255, 255, 1)
+                              FillPortions: =0
+                              LayoutDirection: =LayoutDirection.Vertical
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              PaddingLeft: =24
+                              PaddingRight: =24
+                              PaddingTop: =20
+                              PaddingBottom: =20
+                            Children:
+                              - JustLabel:
+                                  Control: Text@0.0.51
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Stretch
+                                    Font: =Font.Arial
+                                    FontColor: =RGBA(100, 116, 139, 1)
+                                    FillPortions: =0
+                                    Height: =18
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                                    Size: =11
+                                    Text: ="JUSTIFICATION"
+                                    Weight: ='TextCanvas.Weight'.Semibold
+                              - JustSpacer:
+                                  Control: Rectangle@2.3.0
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Stretch
+                                    Fill: =RGBA(0, 0, 0, 0)
+                                    FillPortions: =0
+                                    Height: =8
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                              - JustText:
+                                  Control: Text@0.0.51
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Stretch
+                                    Font: =Font.Arial
+                                    FontColor: =RGBA(51, 65, 85, 1)
+                                    FillPortions: =0
+                                    Height: =60
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                                    Size: =13
+                                    Text: =varSelectedCR.justification
+                        - CardSpacer5:
+                            Control: Rectangle@2.3.0
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Stretch
+                              Fill: =RGBA(0, 0, 0, 0)
+                              FillPortions: =0
+                              Height: =16
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                        - DecisionCard:
+                            Control: GroupContainer@1.5.0
+                            Variant: AutoLayout
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Stretch
+                              Fill: =RGBA(255, 255, 255, 1)
+                              FillPortions: =0
+                              LayoutDirection: =LayoutDirection.Vertical
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              PaddingLeft: =24
+                              PaddingRight: =24
+                              PaddingTop: =20
+                              PaddingBottom: =20
+                              Visible: =varSelectedCR.status <> "Approved" And varSelectedCR.status <> "Rejected"
+                            Children:
+                              - DecisionLabel:
+                                  Control: Text@0.0.51
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Stretch
+                                    Font: =Font.Arial
+                                    FontColor: =RGBA(100, 116, 139, 1)
+                                    FillPortions: =0
+                                    Height: =18
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                                    Size: =11
+                                    Text: ="DECISION"
+                                    Weight: ='TextCanvas.Weight'.Semibold
+                              - ReasonLabel:
+                                  Control: Text@0.0.51
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Stretch
+                                    Font: =Font.Arial
+                                    FontColor: =RGBA(71, 85, 105, 1)
+                                    FillPortions: =0
+                                    Height: =24
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                                    Size: =13
+                                    Text: ="Reason (optional)"
+                                    VerticalAlign: =VerticalAlign.Middle
+                              - ReasonInput:
+                                  Control: TextInput@0.0.54
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Stretch
+                                    BorderColor: =RGBA(203, 213, 225, 1)
+                                    Fill: =RGBA(255, 255, 255, 1)
+                                    FillPortions: =0
+                                    Height: =72
+                                    HintText: ="Provide a reason for your decision…"
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                                    Mode: =TextMode.MultiLine
+                                    OnChange: =Set(varActionReason, ReasonInput.Text)
+                                    Size: =13
+                              - ActionSpacer:
+                                  Control: Rectangle@2.3.0
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Stretch
+                                    Fill: =RGBA(0, 0, 0, 0)
+                                    FillPortions: =0
+                                    Height: =12
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                              - ActionButtons:
+                                  Control: GroupContainer@1.5.0
+                                  Variant: AutoLayout
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Stretch
+                                    Fill: =RGBA(0, 0, 0, 0)
+                                    FillPortions: =0
+                                    Height: =40
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutJustifyContent: =LayoutJustifyContent.End
+                                    LayoutAlignItems: =LayoutAlignItems.Center
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                                  Children:
+                                    - RejectBtn:
+                                        Control: Classic/Button@2.2.0
+                                        Properties:
+                                          BorderColor: =RGBA(254, 202, 202, 1)
+                                          Color: =RGBA(185, 28, 28, 1)
+                                          Fill: =RGBA(254, 226, 226, 1)
+                                          FontWeight: =FontWeight.Semibold
+                                          Height: =38
+                                          HoverFill: =RGBA(254, 202, 202, 1)
+                                          OnSelect: |-
+                                            =Navigate(ChangeRequestsScreen, ScreenTransition.UnCover)
+                                          Text: ="Reject"
+                                          Width: =100
+                                    - ActionBtnSpacer:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                          Fill: =RGBA(0, 0, 0, 0)
+                                          FillPortions: =0
+                                          Height: =38
+                                          LayoutMaxHeight: =
+                                          LayoutMaxWidth: =
+                                          Width: =12
+                                    - ApproveBtn:
+                                        Control: Classic/Button@2.2.0
+                                        Properties:
+                                          Fill: =RGBA(5, 150, 105, 1)
+                                          FontWeight: =FontWeight.Semibold
+                                          Height: =38
+                                          HoverFill: =RGBA(4, 120, 87, 1)
+                                          OnSelect: |-
+                                            =Navigate(ChangeRequestsScreen, ScreenTransition.UnCover)
+                                          Text: ="Approve Changes"
+                                          Width: =160

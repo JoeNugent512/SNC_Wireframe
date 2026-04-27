@@ -1,0 +1,471 @@
+Screens:
+  ChangeRequestsScreen:
+    Properties:
+      Fill: =RGBA(248, 250, 252, 1)
+      LoadingSpinnerColor: =RGBA(26, 53, 87, 1)
+    Children:
+      - RootContainer:
+          Control: GroupContainer@1.5.0
+          Variant: AutoLayout
+          Properties:
+            Height: =768
+            LayoutDirection: =LayoutDirection.Vertical
+            LayoutMaxHeight: =
+            LayoutMaxWidth: =
+            Width: =1366
+          Children:
+            - NavBar:
+                Control: GroupContainer@1.5.0
+                Variant: AutoLayout
+                Properties:
+                  Fill: =RGBA(26, 53, 87, 1)
+                  FillPortions: =0
+                  Height: =56
+                  LayoutDirection: =LayoutDirection.Horizontal
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                Children:
+                  - NavLogo:
+                      Control: Image@2.2.3
+                      Properties:
+                        AlignInContainer: =AlignInContainer.Center
+                        BorderColor: =RGBA(0, 0, 0, 0)
+                        BorderStyle: =BorderStyle.None
+                        BorderThickness: =0
+                        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                        DisabledFill: =RGBA(0, 0, 0, 0)
+                        FocusedBorderThickness: =4
+                        Height: =40
+                        HoverBorderColor: =RGBA(0, 0, 0, 0)
+                        HoverFill: =RGBA(0, 0, 0, 0)
+                        Image: ='usace logo'
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        PaddingLeft: =12
+                        PressedBorderColor: =RGBA(0, 0, 0, 0)
+                        PressedFill: =RGBA(0, 0, 0, 0)
+                        Width: =48
+                  - NavTitle:
+                      Control: Text@0.0.51
+                      Properties:
+                        Align: ='TextCanvas.Align'.Start
+                        AlignInContainer: =AlignInContainer.Stretch
+                        FillPortions: =1
+                        Font: =Font.Arial
+                        FontColor: =RGBA(255, 255, 255, 1)
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        PaddingLeft: =12
+                        Size: =15
+                        Text: ="S&C Project Management"
+                        VerticalAlign: =VerticalAlign.Middle
+                        Weight: ='TextCanvas.Weight'.Semibold
+                  - NavBadge:
+                      Control: Text@0.0.51
+                      Properties:
+                        Align: ='TextCanvas.Align'.End
+                        AlignInContainer: =AlignInContainer.Stretch
+                        Font: =Font.Arial
+                        FontColor: =RGBA(251, 191, 36, 1)
+                        FillPortions: =0
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        PaddingRight: =12
+                        Size: =11
+                        Text: ="BA View"
+                        VerticalAlign: =VerticalAlign.Middle
+                        Weight: ='TextCanvas.Weight'.Semibold
+                        Width: =80
+                  - NavUserName:
+                      Control: Text@0.0.51
+                      Properties:
+                        Align: ='TextCanvas.Align'.End
+                        AlignInContainer: =AlignInContainer.Stretch
+                        Font: =Font.Arial
+                        FontColor: =RGBA(255, 255, 255, 1)
+                        FillPortions: =0
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        PaddingRight: =8
+                        Size: =13
+                        Text: =User().FullName
+                        VerticalAlign: =VerticalAlign.Middle
+                        Width: =180
+                  - NavUserAvatar:
+                      Control: Avatar@1.0.40
+                      Properties:
+                        AlignInContainer: =AlignInContainer.Center
+                        BasePaletteColor: =RGBA(26, 110, 168, 1)
+                        FillPortions: =0
+                        Image: =User().Image
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        Size: =32
+                        Text: =User().FullName
+                        Width: =48
+            - YellowBar:
+                Control: Rectangle@2.3.0
+                Properties:
+                  AlignInContainer: =AlignInContainer.Stretch
+                  Fill: =RGBA(251, 191, 36, 1)
+                  FillPortions: =0
+                  Height: =4
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+            - BreadcrumbRow:
+                Control: GroupContainer@1.5.0
+                Variant: AutoLayout
+                Properties:
+                  AlignInContainer: =AlignInContainer.Stretch
+                  Fill: =RGBA(255, 255, 255, 1)
+                  FillPortions: =0
+                  Height: =40
+                  LayoutDirection: =LayoutDirection.Horizontal
+                  LayoutAlignItems: =LayoutAlignItems.Center
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  PaddingLeft: =24
+                Children:
+                  - BreadHome:
+                      Control: Classic/Button@2.2.0
+                      Properties:
+                        FontWeight: =FontWeight.Normal
+                        Height: =32
+                        OnSelect: =Navigate(HomeScreen, ScreenTransition.None)
+                        Text: ="Home"
+                        Width: =60
+                  - BreadSep:
+                      Control: Text@0.0.51
+                      Properties:
+                        FontColor: =RGBA(148, 163, 184, 1)
+                        Height: =32
+                        Text: =">"
+                        VerticalAlign: =VerticalAlign.Middle
+                        Width: =20
+                  - BreadCurrent:
+                      Control: Text@0.0.51
+                      Properties:
+                        Font: =Font.Arial
+                        FontColor: =RGBA(15, 23, 42, 1)
+                        Height: =32
+                        Size: =13
+                        Text: ="Change Requests"
+                        VerticalAlign: =VerticalAlign.Middle
+                        Weight: ='TextCanvas.Weight'.Semibold
+                        Width: =200
+            - ContentArea:
+                Control: GroupContainer@1.5.0
+                Variant: AutoLayout
+                Properties:
+                  AlignInContainer: =AlignInContainer.Stretch
+                  Fill: =RGBA(0, 0, 0, 0)
+                  LayoutDirection: =LayoutDirection.Vertical
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  PaddingLeft: =32
+                  PaddingRight: =32
+                  PaddingTop: =20
+                  PaddingBottom: =20
+                Children:
+                  - TableCard:
+                      Control: GroupContainer@1.5.0
+                      Variant: AutoLayout
+                      Properties:
+                        AlignInContainer: =AlignInContainer.Stretch
+                        Fill: =RGBA(255, 255, 255, 1)
+                        LayoutDirection: =LayoutDirection.Vertical
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                      Children:
+                        - ToolbarRow:
+                            Control: GroupContainer@1.5.0
+                            Variant: AutoLayout
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Stretch
+                              Fill: =RGBA(248, 250, 252, 1)
+                              FillPortions: =0
+                              Height: =56
+                              LayoutDirection: =LayoutDirection.Horizontal
+                              LayoutAlignItems: =LayoutAlignItems.Center
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              PaddingLeft: =16
+                              PaddingRight: =16
+                            Children:
+                              - SearchBox:
+                                  Control: TextInput@0.0.54
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Stretch
+                                    BorderColor: =RGBA(203, 213, 225, 1)
+                                    Fill: =RGBA(255, 255, 255, 1)
+                                    FillPortions: =0
+                                    Height: =36
+                                    HintText: ="Search by project, resource, org code…"
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                                    Size: =13
+                                    Width: =300
+                              - ToolbarMid:
+                                  Control: Rectangle@2.3.0
+                                  Properties:
+                                    Fill: =RGBA(0, 0, 0, 0)
+                                    FillPortions: =1
+                                    Height: =36
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                              - FilterLabel:
+                                  Control: Text@0.0.51
+                                  Properties:
+                                    FontColor: =RGBA(148, 163, 184, 1)
+                                    FillPortions: =0
+                                    Height: =36
+                                    Size: =13
+                                    Text: ="Filter:"
+                                    VerticalAlign: =VerticalAlign.Middle
+                                    Width: =48
+                              - StatusFilter:
+                                  Control: ComboBox@0.0.51
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Stretch
+                                    FillPortions: =0
+                                    Height: =36
+                                    Items: =["All Statuses", "First Request", "Pending", "Under Review", "Approved", "Rejected"]
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                                    SelectMultiple: =false
+                                    Width: =180
+                        - TableHeaderRow:
+                            Control: GroupContainer@1.5.0
+                            Variant: AutoLayout
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Stretch
+                              Fill: =RGBA(248, 250, 252, 1)
+                              FillPortions: =0
+                              Height: =40
+                              LayoutDirection: =LayoutDirection.Horizontal
+                              LayoutAlignItems: =LayoutAlignItems.Center
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              PaddingLeft: =24
+                            Children:
+                              - ThProject:
+                                  Control: Text@0.0.51
+                                  Properties:
+                                    Font: =Font.Arial
+                                    FontColor: =RGBA(100, 116, 139, 1)
+                                    FillPortions: =0
+                                    Height: =40
+                                    Size: =11
+                                    Text: ="PROJECT"
+                                    VerticalAlign: =VerticalAlign.Middle
+                                    Weight: ='TextCanvas.Weight'.Semibold
+                                    Width: =280
+                              - ThProponent:
+                                  Control: Text@0.0.51
+                                  Properties:
+                                    Font: =Font.Arial
+                                    FontColor: =RGBA(100, 116, 139, 1)
+                                    FillPortions: =0
+                                    Height: =40
+                                    Size: =11
+                                    Text: ="PROPONENT"
+                                    VerticalAlign: =VerticalAlign.Middle
+                                    Weight: ='TextCanvas.Weight'.Semibold
+                                    Width: =180
+                              - ThSubmittedBy:
+                                  Control: Text@0.0.51
+                                  Properties:
+                                    Font: =Font.Arial
+                                    FontColor: =RGBA(100, 116, 139, 1)
+                                    FillPortions: =0
+                                    Height: =40
+                                    Size: =11
+                                    Text: ="SUBMITTED BY"
+                                    VerticalAlign: =VerticalAlign.Middle
+                                    Weight: ='TextCanvas.Weight'.Semibold
+                                    Width: =200
+                              - ThDate:
+                                  Control: Text@0.0.51
+                                  Properties:
+                                    Font: =Font.Arial
+                                    FontColor: =RGBA(100, 116, 139, 1)
+                                    FillPortions: =0
+                                    Height: =40
+                                    Size: =11
+                                    Text: ="REQUESTED"
+                                    VerticalAlign: =VerticalAlign.Middle
+                                    Weight: ='TextCanvas.Weight'.Semibold
+                                    Width: =140
+                              - ThStatus:
+                                  Control: Text@0.0.51
+                                  Properties:
+                                    Font: =Font.Arial
+                                    FontColor: =RGBA(100, 116, 139, 1)
+                                    FillPortions: =0
+                                    Height: =40
+                                    Size: =11
+                                    Text: ="STATUS"
+                                    VerticalAlign: =VerticalAlign.Middle
+                                    Weight: ='TextCanvas.Weight'.Semibold
+                                    Width: =140
+                              - ThAction:
+                                  Control: Text@0.0.51
+                                  Properties:
+                                    Font: =Font.Arial
+                                    FontColor: =RGBA(100, 116, 139, 1)
+                                    FillPortions: =1
+                                    Height: =40
+                                    Size: =11
+                                    Text: =""
+                                    Width: =80
+                        - CRGallery:
+                            Control: Gallery@2.15.0
+                            Variant: galleryVertical
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Stretch
+                              BorderColor: =RGBA(0, 0, 0, 0)
+                              Fill: =RGBA(255, 255, 255, 1)
+                              Height: =560
+                              Items: =If(
+                                StatusFilter.Selected.Value = "All Statuses" Or IsBlank(StatusFilter.Selected.Value),
+                                Filter(colChangeRequests, SearchBox.Text = "" Or (projectName in SearchBox.Text) Or (projectNumber in SearchBox.Text) Or (submittedBy in SearchBox.Text)),
+                                Filter(colChangeRequests, status = StatusFilter.Selected.Value)
+                              )
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              TemplateSize: =68
+                            Children:
+                              - RowBg:
+                                  Control: Rectangle@2.3.0
+                                  Properties:
+                                    Fill: =RGBA(255, 255, 255, 1)
+                                    Height: =Parent.TemplateHeight
+                                    Width: =Parent.TemplateWidth
+                                    X: =0
+                                    Y: =0
+                              - RowDivider:
+                                  Control: Rectangle@2.3.0
+                                  Properties:
+                                    Fill: =RGBA(241, 245, 249, 1)
+                                    Height: =1
+                                    Width: =Parent.TemplateWidth
+                                    X: =0
+                                    Y: =Parent.TemplateHeight - 1
+                              - RowNumber:
+                                  Control: Text@0.0.51
+                                  Properties:
+                                    Font: =Font.Courier
+                                    FontColor: =RGBA(148, 163, 184, 1)
+                                    Height: =20
+                                    Size: =11
+                                    Text: =ThisItem.projectNumber
+                                    Weight: ='TextCanvas.Weight'.Semibold
+                                    Width: =280
+                                    X: =24
+                                    Y: =10
+                              - RowName:
+                                  Control: Text@0.0.51
+                                  Properties:
+                                    Font: =Font.Arial
+                                    FontColor: =RGBA(15, 23, 42, 1)
+                                    Height: =22
+                                    Overflow: =Overflow.Hidden
+                                    Size: =13
+                                    Text: =ThisItem.projectName
+                                    Weight: ='TextCanvas.Weight'.Semibold
+                                    Width: =256
+                                    X: =24
+                                    Y: =30
+                              - RowProponent:
+                                  Control: Text@0.0.51
+                                  Properties:
+                                    FontColor: =RGBA(71, 85, 105, 1)
+                                    Height: =64
+                                    Size: =13
+                                    Text: =LookUp(colProjects, number = ThisItem.projectNumber, hqProponent)
+                                    VerticalAlign: =VerticalAlign.Middle
+                                    Width: =180
+                                    X: =304
+                                    Y: =2
+                              - RowSubmittedBy:
+                                  Control: Text@0.0.51
+                                  Properties:
+                                    FontColor: =RGBA(71, 85, 105, 1)
+                                    Height: =64
+                                    Size: =13
+                                    Text: =ThisItem.submittedBy
+                                    VerticalAlign: =VerticalAlign.Middle
+                                    Width: =200
+                                    X: =484
+                                    Y: =2
+                              - RowDate:
+                                  Control: Text@0.0.51
+                                  Properties:
+                                    FontColor: =RGBA(100, 116, 139, 1)
+                                    Height: =64
+                                    Size: =13
+                                    Text: =ThisItem.date
+                                    VerticalAlign: =VerticalAlign.Middle
+                                    Width: =140
+                                    X: =684
+                                    Y: =2
+                              - StatusBadge:
+                                  Control: Text@0.0.51
+                                  Properties:
+                                    Align: ='TextCanvas.Align'.Center
+                                    BorderColor: =Switch(ThisItem.status,
+                                      "First Request", RGBA(209, 213, 219, 1),
+                                      "Approved", RGBA(167, 243, 208, 1),
+                                      "Pending", RGBA(191, 219, 254, 1),
+                                      "Under Review", RGBA(253, 230, 138, 1),
+                                      "Rejected", RGBA(254, 202, 202, 1),
+                                      RGBA(203, 213, 225, 1))
+                                    BorderStyle: =BorderStyle.Solid
+                                    BorderThickness: =1
+                                    Fill: =Switch(ThisItem.status,
+                                      "First Request", RGBA(243, 244, 246, 1),
+                                      "Approved", RGBA(209, 250, 229, 1),
+                                      "Pending", RGBA(219, 234, 254, 1),
+                                      "Under Review", RGBA(254, 243, 199, 1),
+                                      "Rejected", RGBA(254, 226, 226, 1),
+                                      RGBA(241, 245, 249, 1))
+                                    Font: =Font.Arial
+                                    FontColor: =Switch(ThisItem.status,
+                                      "First Request", RGBA(75, 85, 99, 1),
+                                      "Approved", RGBA(6, 95, 70, 1),
+                                      "Pending", RGBA(29, 78, 216, 1),
+                                      "Under Review", RGBA(146, 64, 14, 1),
+                                      "Rejected", RGBA(185, 28, 28, 1),
+                                      RGBA(100, 116, 139, 1))
+                                    Height: =26
+                                    Size: =11
+                                    Text: =ThisItem.status
+                                    VerticalAlign: =VerticalAlign.Middle
+                                    Weight: ='TextCanvas.Weight'.Semibold
+                                    Width: =120
+                                    X: =824
+                                    Y: =20
+                              - RowReviewLink:
+                                  Control: Text@0.0.51
+                                  Properties:
+                                    Align: ='TextCanvas.Align'.End
+                                    Font: =Font.Arial
+                                    FontColor: =RGBA(26, 110, 168, 1)
+                                    Height: =64
+                                    Size: =12
+                                    Text: ="Review >"
+                                    VerticalAlign: =VerticalAlign.Middle
+                                    Weight: ='TextCanvas.Weight'.Semibold
+                                    Width: =80
+                                    X: =967
+                                    Y: =2
+                              - RowBtn:
+                                  Control: Button@0.0.45
+                                  Properties:
+                                    Appearance: ='ButtonCanvas.Appearance'.Transparent
+                                    Height: =Parent.TemplateHeight
+                                    OnSelect: |-
+                                      =Set(varSelectedCR, ThisItem);
+                                      Navigate(ChangeRequestDetailScreen, ScreenTransition.Cover)
+                                    Text: =
+                                    Width: =Parent.TemplateWidth
