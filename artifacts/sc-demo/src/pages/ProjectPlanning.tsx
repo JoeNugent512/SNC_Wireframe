@@ -1073,10 +1073,49 @@ export default function ProjectPlanning() {
     setOutsourcingRows((rows) => rows.map((r) => r.id === id ? { ...r, resourceCode, resourceName } : r));
   }
 
-  const addSectionHeader = (title: string, dotColor: string, onAdd: () => void, addLabel: string) => (
+  /* ── bulk request helpers ────────────────────────────────────── */
+  function setBulkToMax<T extends QData & { id: number; requested: number }>(
+    setRows: React.Dispatch<React.SetStateAction<T[]>>
+  ) {
+    setRows((rows) => rows.map((r) => {
+      const maxR = openWindowMax(r);
+      return { ...r, requested: clampRequested(maxR, obligatedQ(r), maxR) };
+    }));
+  }
+
+  function setBulkToCommitments<T extends QData & { id: number; requested: number; openCommitment: number }>(
+    setRows: React.Dispatch<React.SetStateAction<T[]>>
+  ) {
+    setRows((rows) => rows.map((r) => {
+      const oblg = obligatedQ(r);
+      const maxR = openWindowMax(r);
+      return { ...r, requested: clampRequested(oblg + r.openCommitment, oblg, maxR) };
+    }));
+  }
+
+  const addSectionHeader = (
+    title: string,
+    dotColor: string,
+    onAdd: () => void,
+    addLabel: string,
+    bulkActions?: { label: string; tooltip: string; onClick: () => void }[]
+  ) => (
     <div className="flex items-center gap-2 px-4 py-2.5 border-b border-slate-200" style={{ backgroundColor: "#1a3557" }}>
       <div className="w-2 h-2 rounded-full" style={{ backgroundColor: dotColor }} />
       <span className="font-bold text-white text-sm tracking-wide flex-1">{title}</span>
+      {bulkActions?.map((a) => (
+        <button
+          key={a.label}
+          onClick={a.onClick}
+          title={a.tooltip}
+          className="text-xs font-semibold px-2.5 py-1 rounded transition-colors"
+          style={{ backgroundColor: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.75)", border: "1px solid rgba(255,255,255,0.18)" }}
+          onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.18)"; e.currentTarget.style.color = "#fff"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.08)"; e.currentTarget.style.color = "rgba(255,255,255,0.75)"; }}
+        >
+          {a.label}
+        </button>
+      ))}
       <button
         onClick={onAdd}
         className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded transition-colors"
@@ -1198,7 +1237,10 @@ export default function ProjectPlanning() {
             />
           )}
           <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-            {addSectionHeader("LABOR", "#60a5fa", () => setShowLaborPicker(true), "Add Labor")}
+            {addSectionHeader("LABOR", "#60a5fa", () => setShowLaborPicker(true), "Add Labor", [
+              { label: "Request Max",     tooltip: "Set every row's request to its maximum (obligated + current quarter)",       onClick: () => setBulkToMax(setLaborRows) },
+              { label: "Cover Committed", tooltip: "Set every row's request to obligated + open commitments",                    onClick: () => setBulkToCommitments(setLaborRows) },
+            ])}
             {tableWrap(
               <>
                 <thead>
@@ -1237,7 +1279,10 @@ export default function ProjectPlanning() {
             />
           )}
           <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-            {addSectionHeader("TRAVEL", "#a78bfa", () => setShowTravelPicker(true), "Add Travel")}
+            {addSectionHeader("TRAVEL", "#a78bfa", () => setShowTravelPicker(true), "Add Travel", [
+              { label: "Request Max",     tooltip: "Set every row's request to its maximum (obligated + current quarter)",       onClick: () => setBulkToMax(setTravelRows) },
+              { label: "Cover Committed", tooltip: "Set every row's request to obligated + open commitments",                    onClick: () => setBulkToCommitments(setTravelRows) },
+            ])}
             {tableWrap(
               <>
                 <thead><ColHeaders nameHeader="Organization" /></thead>
@@ -1276,7 +1321,10 @@ export default function ProjectPlanning() {
             />
           )}
           <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-            {addSectionHeader("CONTRACTING", "#34d399", () => setShowContractPicker(true), "Add Contract")}
+            {addSectionHeader("CONTRACTING", "#34d399", () => setShowContractPicker(true), "Add Contract", [
+              { label: "Request Max",     tooltip: "Set every row's request to its maximum (obligated + current quarter)",       onClick: () => setBulkToMax(setContractRows) },
+              { label: "Cover Committed", tooltip: "Set every row's request to obligated + open commitments",                    onClick: () => setBulkToCommitments(setContractRows) },
+            ])}
             {tableWrap(
               <>
                 <thead><ColHeaders nameHeader="Org / Contract Code" /></thead>
@@ -1321,7 +1369,10 @@ export default function ProjectPlanning() {
             />
           )}
           <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-            {addSectionHeader("OUTSOURCING & OTHER", "#f59e0b", () => setShowOutsourcingPicker(true), "Add Resource")}
+            {addSectionHeader("OUTSOURCING & OTHER", "#f59e0b", () => setShowOutsourcingPicker(true), "Add Resource", [
+              { label: "Request Max",     tooltip: "Set every row's request to its maximum (obligated + current quarter)",       onClick: () => setBulkToMax(setOutsourcingRows) },
+              { label: "Cover Committed", tooltip: "Set every row's request to obligated + open commitments",                    onClick: () => setBulkToCommitments(setOutsourcingRows) },
+            ])}
             {tableWrap(
               <>
                 <thead><ColHeaders nameHeader="Org / Resource Code" /></thead>
