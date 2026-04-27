@@ -28,6 +28,7 @@ const LABOR_OPTIONS = [
   { label: "USACE Tulsa District",     sub: "U719203" },
   { label: "USACE Little Rock District", sub: "U834512" },
   { label: "USACE Memphis District",   sub: "U920183" },
+  { label: "Placeholder",             sub: "— name / org code TBD" },
 ];
 
 const TRAVEL_OPTIONS = [
@@ -99,11 +100,12 @@ function CheckList({
         )}
         {filtered.map((opt) => {
           const checked = selected.has(opt.label);
+          const isPlaceholder = opt.label === "Placeholder";
           return (
             <li key={opt.label}>
               <button
                 onClick={() => onToggle(opt.label)}
-                className="w-full text-left px-3 py-2 hover:bg-slate-50 transition-colors border-b border-slate-100 last:border-none flex items-center gap-2.5"
+                className={`w-full text-left px-3 py-2 transition-colors border-b border-slate-100 last:border-none flex items-center gap-2.5 ${isPlaceholder ? "hover:bg-amber-50 border-t border-dashed border-slate-200" : "hover:bg-slate-50"}`}
               >
                 <div
                   className="flex-shrink-0 rounded flex items-center justify-center transition-colors"
@@ -116,7 +118,9 @@ function CheckList({
                   {checked && <Check size={10} color="#fff" strokeWidth={3} />}
                 </div>
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-slate-800 leading-tight truncate">{opt.label}</p>
+                  <p className={`text-sm leading-tight truncate ${isPlaceholder ? "italic text-slate-400 font-normal" : "font-medium text-slate-800"}`}>
+                    {opt.label}
+                  </p>
                   <p className="text-xs text-slate-400 leading-tight">{opt.sub}</p>
                 </div>
               </button>
