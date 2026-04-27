@@ -993,29 +993,40 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
       />
 
       {/* submit */}
-      <div className="flex flex-col items-center gap-1.5 pt-2 pb-4">
-        <button
-          disabled={leftToPlan < 0}
-          className="px-12 py-2.5 text-sm font-semibold rounded-lg shadow-sm transition-colors disabled:cursor-not-allowed"
-          style={
-            leftToPlan >= 0
-              ? { backgroundColor: "#1a3557", color: "#fff" }
-              : { backgroundColor: "#e2e8f0", color: "#94a3b8" }
-          }
-          onMouseEnter={(e) => {
-            if (leftToPlan >= 0) e.currentTarget.style.backgroundColor = "#16304d";
-          }}
-          onMouseLeave={(e) => {
-            if (leftToPlan >= 0) e.currentTarget.style.backgroundColor = "#1a3557";
-          }}
-          onClick={() => { if (leftToPlan >= 0) alert("Plan submitted successfully!"); }}
-        >
-          Submit Plan
-        </button>
-        {leftToPlan < 0 && (
-          <p className="text-xs text-slate-400">Plan exceeds budget — reduce planned amounts before submitting</p>
-        )}
-      </div>
+      {(() => {
+        const canSubmit = leftToPlan > 0 && leftToPlan < 50;
+        return (
+          <div className="flex flex-col items-center gap-1.5 pt-2 pb-4">
+            <button
+              disabled={!canSubmit}
+              className="px-12 py-2.5 text-sm font-semibold rounded-lg shadow-sm transition-colors disabled:cursor-not-allowed"
+              style={
+                canSubmit
+                  ? { backgroundColor: "#1a3557", color: "#fff" }
+                  : { backgroundColor: "#e2e8f0", color: "#94a3b8" }
+              }
+              onMouseEnter={(e) => {
+                if (canSubmit) e.currentTarget.style.backgroundColor = "#16304d";
+              }}
+              onMouseLeave={(e) => {
+                if (canSubmit) e.currentTarget.style.backgroundColor = "#1a3557";
+              }}
+              onClick={() => { if (canSubmit) alert("Plan submitted successfully!"); }}
+            >
+              Submit Plan
+            </button>
+            {leftToPlan < 0 && (
+              <p className="text-xs text-slate-400">Plan exceeds budget — reduce planned amounts before submitting</p>
+            )}
+            {leftToPlan === 0 && (
+              <p className="text-xs text-slate-400">Nothing has been planned yet</p>
+            )}
+            {leftToPlan >= 50 && (
+              <p className="text-xs text-slate-400">At least ${(leftToPlan - 49).toLocaleString()} more must be allocated before submitting</p>
+            )}
+          </div>
+        );
+      })()}
     </div>
   );
 }
