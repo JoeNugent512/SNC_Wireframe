@@ -81,6 +81,32 @@ function DescNotesCell({ initialDesc, disabled }: { initialDesc: string; disable
   );
 }
 
+function OrgCodeHeader({ orgCode }: { orgCode: string }) {
+  const [copied, setCopied] = useState(false);
+  const copy = () => {
+    navigator.clipboard.writeText(orgCode).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+  return (
+    <div className="flex items-center gap-2 px-4 py-1.5 bg-slate-100">
+      <span className="text-[11px] font-bold text-slate-500 uppercase tracking-widest font-mono">
+        {orgCode}
+      </span>
+      <button
+        onClick={copy}
+        className="flex items-center gap-1 text-[11px] font-medium text-slate-400 hover:text-slate-700 transition-colors"
+        title="Copy org code"
+      >
+        {copied
+          ? <><Check size={11} className="text-emerald-500" /><span className="text-emerald-600">Copied</span></>
+          : <><Copy size={11} /><span>Copy</span></>}
+      </button>
+    </div>
+  );
+}
+
 function BudgetChangesTable({ cr, disabled }: { cr: ChangeRequest; disabled: boolean }) {
   const firstReq = isFirstRequest(cr);
   const groups: { orgCode: string; items: CRLineItem[] }[] = [];
@@ -111,11 +137,8 @@ function BudgetChangesTable({ cr, disabled }: { cr: ChangeRequest; disabled: boo
 
       {groups.map((group, gi) => (
         <div key={group.orgCode} className={gi > 0 ? "border-t-2 border-slate-200" : ""}>
-          <div className="px-4 py-1.5 bg-slate-100">
-            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-widest font-mono">
-              {group.orgCode}
-            </span>
-          </div>
+          <OrgCodeHeader orgCode={group.orgCode} />
+
           {group.items.map((li, i) => {
             const displayFrom = firstReq ? 0 : li.from;
             const delta = firstReq ? li.to : (li.direction === "Increase" ? li.amount : -li.amount);
