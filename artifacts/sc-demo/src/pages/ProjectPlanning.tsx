@@ -933,7 +933,7 @@ function SubmitPreviewModal({
 
           {/* Budget breakdown */}
           <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-            <div className="px-5 py-3" style={{ backgroundColor: "#1a3557" }}>
+            <div className="px-5 py-3" style={{ backgroundColor: "#1a3557", borderBottom: "2px solid rgba(255,255,255,0.25)" }}>
               <p className="text-xs font-bold text-blue-200 uppercase tracking-widest">Budget Breakdown</p>
             </div>
 

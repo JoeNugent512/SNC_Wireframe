@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "eaQUuNluKvmVmrkyK5yQ-"
+uri = "file://artifacts/sc-demo/powerapps-yaml/HomeScreen.yaml"
+type = "unspecified"
+title = "HomeScreen.yaml — PowerApps Canvas"
