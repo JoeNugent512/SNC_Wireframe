@@ -1,0 +1,2044 @@
+Screens:
+  CREATE_EPMP:
+    Properties:
+      Fill: =RGBA(0, 0, 0, 1)
+      LoadingSpinnerColor: =RGBA(0, 120, 212, 1)
+    Children:
+      - Container1_1:
+          Control: GroupContainer@1.5.0
+          Variant: AutoLayout
+          Properties:
+            Height: =768
+            LayoutDirection: =LayoutDirection.Vertical
+            Width: =1366
+          Children:
+            - Container2_1:
+                Control: GroupContainer@1.5.0
+                Variant: AutoLayout
+                Properties:
+                  BorderColor: =RGBA(255, 193, 7, 1)
+                  BorderThickness: =3
+                  FillPortions: =0
+                  Height: =100
+                  LayoutDirection: =LayoutDirection.Horizontal
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                Children:
+                  - Image1_1:
+                      Control: Image@2.2.3
+                      Properties:
+                        AlignInContainer: =AlignInContainer.Center
+                        BorderColor: =RGBA(0, 0, 0, 0)
+                        BorderStyle: =BorderStyle.None
+                        BorderThickness: =2
+                        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                        DisabledFill: =RGBA(0, 0, 0, 0)
+                        FocusedBorderThickness: =4
+                        Height: =75
+                        HoverBorderColor: =RGBA(0, 0, 0, 0)
+                        HoverFill: =RGBA(0, 0, 0, 0)
+                        Image: ='usace logo'
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        PaddingLeft: =5
+                        PressedBorderColor: =RGBA(0, 0, 0, 0)
+                        PressedFill: =RGBA(0, 0, 0, 0)
+                  - TextCanvas1_1:
+                      Control: Text@0.0.51
+                      Properties:
+                        Align: ='TextCanvas.Align'.Start
+                        AlignInContainer: =AlignInContainer.Stretch
+                        BorderColor: =RGBA(255, 193, 7, 1)
+                        BorderStyle: =BorderStyle.Solid
+                        BorderThickness: =0
+                        FillPortions: =1
+                        Font: =Font.Arial
+                        FontColor: =RGBA(255, 193, 7, 1)
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        LayoutMinWidth: =700
+                        PaddingLeft: =10
+                        Size: =40
+                        Text: ="S&C EPMP >> Create New EPMP"
+                        VerticalAlign: =VerticalAlign.Middle
+                        Width: =(Parent.Width/2) - 100
+                  - TextCanvas2_1:
+                      Control: Text@0.0.51
+                      Properties:
+                        Align: ='TextCanvas.Align'.End
+                        AlignInContainer: =AlignInContainer.Stretch
+                        FillPortions: =1
+                        Font: =Font.Arial
+                        FontColor: =RGBA(255, 193, 7, 1)
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        Size: =40
+                        Text: '=User().FullName & " " '
+                        VerticalAlign: =VerticalAlign.Middle
+                  - Avatar1_1:
+                      Control: Avatar@1.0.40
+                      Properties:
+                        AlignInContainer: =AlignInContainer.Center
+                        Height: =90
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        Width: =90
+                  - Rectangle1_1:
+                      Control: Rectangle@2.3.0
+                      Properties:
+                        AlignInContainer: =AlignInContainer.Stretch
+                        BorderColor: =RGBA(0, 0, 0, 0)
+                        BorderStyle: =BorderStyle.None
+                        DisabledFill: =RGBA(0, 0, 0, 0)
+                        Fill: =RGBA(0, 0, 0, 0)
+                        FocusedBorderThickness: =4
+                        HoverFill: =RGBA(0, 0, 0, 0)
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        PressedFill: =RGBA(0, 0, 0, 0)
+                        Width: =10
+            - Container3_1:
+                Control: GroupContainer@1.5.0
+                Variant: AutoLayout
+                Properties:
+                  LayoutDirection: =LayoutDirection.Vertical
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  X: =40
+                  Y: =40
+                Children:
+                  - Rectangle3_2:
+                      Control: Rectangle@2.3.0
+                      Properties:
+                        AlignInContainer: =AlignInContainer.Stretch
+                        BorderColor: =RGBA(0, 0, 0, 0)
+                        BorderStyle: =BorderStyle.None
+                        BorderThickness: =2
+                        DisabledFill: =RGBA(0, 0, 0, 0)
+                        Fill: =RGBA(0, 0, 0, 0)
+                        FocusedBorderThickness: =4
+                        Height: =50
+                        HoverFill: =RGBA(0, 0, 0, 0)
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        PressedFill: =RGBA(0, 0, 0, 0)
+                  - Container4_1:
+                      Control: GroupContainer@1.5.0
+                      Variant: AutoLayout
+                      Properties:
+                        LayoutDirection: =LayoutDirection.Horizontal
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        X: =40
+                        Y: =40
+                      Children:
+                        - Rectangle4_2:
+                            Control: Rectangle@2.3.0
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Stretch
+                              BorderColor: =RGBA(0, 0, 0, 0)
+                              BorderStyle: =BorderStyle.None
+                              BorderThickness: =2
+                              DisabledFill: =RGBA(0, 0, 0, 0)
+                              Fill: =RGBA(0, 0, 0, 0)
+                              FocusedBorderThickness: =4
+                              HoverFill: =RGBA(0, 0, 0, 0)
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              PressedFill: =RGBA(0, 0, 0, 0)
+                              Width: =50
+                        - Container8:
+                            Control: GroupContainer@1.5.0
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              Fill: =RGBA(106, 122, 127, 1)
+                              LayoutDirection: =LayoutDirection.Vertical
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              PaddingBottom: =10
+                              PaddingLeft: =10
+                              PaddingRight: =10
+                              PaddingTop: =10
+                              RadiusBottomLeft: =20
+                              RadiusBottomRight: =20
+                              RadiusTopLeft: =20
+                              RadiusTopRight: =20
+                            Children:
+                              - Container9:
+                                  Control: GroupContainer@1.5.0
+                                  Variant: AutoLayout
+                                  Properties:
+                                    FillPortions: =0
+                                    Height: =550
+                                    LayoutDirection: =LayoutDirection.Vertical
+                                    LayoutMaxHeight: =
+                                    LayoutMaxWidth: =
+                                    LayoutOverflowY: =LayoutOverflow.Scroll
+                                  Children:
+                                    - Container11:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: AutoLayout
+                                        Properties:
+                                          DropShadow: =DropShadow.None
+                                          FillPortions: =0
+                                          Height: =65
+                                          LayoutDirection: =LayoutDirection.Horizontal
+                                          LayoutMaxHeight: =
+                                          LayoutMaxWidth: =
+                                        Children:
+                                          - Image3:
+                                              Control: Image@2.2.3
+                                              Properties:
+                                                BorderColor: =RGBA(0, 0, 0, 0)
+                                                BorderStyle: =BorderStyle.None
+                                                BorderThickness: =2
+                                                DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                                                DisabledFill: =RGBA(0, 0, 0, 0)
+                                                FocusedBorderThickness: =4
+                                                Height: =60
+                                                HoverBorderColor: =RGBA(0, 0, 0, 0)
+                                                HoverFill: =RGBA(0, 0, 0, 0)
+                                                Image: ='usace logo'
+                                                LayoutMaxHeight: =
+                                                LayoutMaxWidth: =
+                                                PressedBorderColor: =RGBA(0, 0, 0, 0)
+                                                PressedFill: =RGBA(0, 0, 0, 0)
+                                          - Container10:
+                                              Control: GroupContainer@1.5.0
+                                              Variant: AutoLayout
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Start
+                                                DropShadow: =DropShadow.None
+                                                Height: =65
+                                                LayoutDirection: =LayoutDirection.Vertical
+                                                LayoutMaxHeight: =
+                                                LayoutMaxWidth: =
+                                                LayoutMinHeight: =60
+                                              Children:
+                                                - TextCanvas4_1:
+                                                    Control: Text@0.0.51
+                                                    Properties:
+                                                      Align: ='TextCanvas.Align'.Center
+                                                      AlignInContainer: =AlignInContainer.Stretch
+                                                      Font: =Font.Arial
+                                                      FontColor: =RGBA(232, 232, 232, 1)
+                                                      Height: =20
+                                                      LayoutMaxHeight: =
+                                                      LayoutMaxWidth: =
+                                                      Size: =20
+                                                      Text: ="STANDARDS & CRITERIA PROGRAM"
+                                                      VerticalAlign: =VerticalAlign.Middle
+                                                - TextCanvas4_2:
+                                                    Control: Text@0.0.51
+                                                    Properties:
+                                                      Align: ='TextCanvas.Align'.Center
+                                                      AlignInContainer: =AlignInContainer.Stretch
+                                                      Font: =Font.Arial
+                                                      FontColor: =RGBA(232, 232, 232, 1)
+                                                      FontItalic: =true
+                                                      Height: =20
+                                                      LayoutMaxHeight: =
+                                                      LayoutMaxWidth: =
+                                                      Size: =15
+                                                      Text: ="Enterprise Project Management Plan"
+                                                      VerticalAlign: =VerticalAlign.Middle
+                                                - TextCanvas4_3:
+                                                    Control: Text@0.0.51
+                                                    Properties:
+                                                      Align: ='TextCanvas.Align'.Center
+                                                      AlignInContainer: =AlignInContainer.Stretch
+                                                      BorderColor: =RGBA(0, 0, 0, 1)
+                                                      BorderThickness: =0
+                                                      FontColor: =RGBA(232, 232, 232, 1)
+                                                      Height: =20
+                                                      LayoutMaxHeight: =
+                                                      LayoutMaxWidth: =
+                                                      Text: ="(EPMP)"
+                                                      VerticalAlign: =VerticalAlign.Middle
+                                                - Rectangle6:
+                                                    Control: Rectangle@2.3.0
+                                                    Properties:
+                                                      AlignInContainer: =AlignInContainer.Stretch
+                                                      BorderColor: =RGBA(0, 0, 0, 0)
+                                                      BorderStyle: =BorderStyle.None
+                                                      DisabledFill: =RGBA(0, 0, 0, 0)
+                                                      Fill: =RGBA(0, 0, 0, 1)
+                                                      FocusedBorderThickness: =4
+                                                      Height: =3
+                                                      HoverFill: =RGBA(0, 0, 0, 0)
+                                                      LayoutMaxHeight: =
+                                                      LayoutMaxWidth: =
+                                                      PressedFill: =RGBA(0, 0, 0, 0)
+                                                      Width: =400
+                                          - Container12:
+                                              Control: GroupContainer@1.5.0
+                                              Variant: AutoLayout
+                                              Properties:
+                                                DropShadow: =DropShadow.None
+                                                FillPortions: =0
+                                                LayoutDirection: =LayoutDirection.Vertical
+                                                LayoutMaxHeight: =
+                                                LayoutMaxWidth: =
+                                                LayoutMinHeight: =60
+                                                Width: =100
+                                              Children:
+                                                - TextCanvas5:
+                                                    Control: Text@0.0.51
+                                                    Properties:
+                                                      Align: ='TextCanvas.Align'.Center
+                                                      AlignInContainer: =AlignInContainer.Stretch
+                                                      FillPortions: =1
+                                                      Font: =Font.Arial
+                                                      LayoutMaxHeight: =
+                                                      LayoutMaxWidth: =
+                                                      LayoutMinHeight: =0
+                                                      PaddingTop: =5
+                                                      Size: =12
+                                                      Text: ="25T##"
+                                                      VerticalAlign: =VerticalAlign.Middle
+                                                - TextCanvas5_1:
+                                                    Control: Text@0.0.51
+                                                    Properties:
+                                                      Align: ='TextCanvas.Align'.Center
+                                                      AlignInContainer: =AlignInContainer.Center
+                                                      BorderColor: =RGBA(0, 0, 0, 1)
+                                                      BorderStyle: =BorderStyle.Solid
+                                                      BorderThickness: =1
+                                                      FillPortions: =1
+                                                      Font: =Font.Arial
+                                                      LayoutMaxHeight: =
+                                                      LayoutMaxWidth: =
+                                                      LayoutMinHeight: =0
+                                                      Size: =12
+                                                      Text: ="Charter"
+                                                      VerticalAlign: =VerticalAlign.Middle
+                                                      Width: =70
+                                                - TextCanvas5_2:
+                                                    Control: Text@0.0.51
+                                                    Properties:
+                                                      Align: ='TextCanvas.Align'.Center
+                                                      AlignInContainer: =AlignInContainer.Stretch
+                                                      FillPortions: =1
+                                                      Font: =Font.Arial
+                                                      LayoutMaxHeight: =
+                                                      LayoutMaxWidth: =
+                                                      LayoutMinHeight: =0
+                                                      Text: =""
+                                                      VerticalAlign: =VerticalAlign.Middle
+                                    - Rectangle7:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                          AlignInContainer: =AlignInContainer.Stretch
+                                          BorderColor: =RGBA(0, 0, 0, 0)
+                                          BorderStyle: =BorderStyle.None
+                                          DisabledFill: =RGBA(0, 0, 0, 0)
+                                          Fill: =RGBA(0, 0, 0, 0)
+                                          FocusedBorderThickness: =4
+                                          Height: =10
+                                          HoverFill: =RGBA(0, 0, 0, 0)
+                                          LayoutMaxHeight: =
+                                          LayoutMaxWidth: =
+                                          PressedFill: =RGBA(0, 0, 0, 0)
+                                    - Container13:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: AutoLayout
+                                        Properties:
+                                          DropShadow: =DropShadow.None
+                                          FillPortions: =0
+                                          Height: =50
+                                          LayoutDirection: =LayoutDirection.Horizontal
+                                          LayoutMaxHeight: =
+                                          LayoutMaxWidth: =
+                                          PaddingLeft: =10
+                                          PaddingRight: =10
+                                        Children:
+                                          - Rectangle7_28:
+                                              Control: Rectangle@2.3.0
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                BorderColor: =RGBA(0, 0, 0, 0)
+                                                BorderStyle: =BorderStyle.None
+                                                DisabledFill: =RGBA(0, 0, 0, 0)
+                                                Fill: =RGBA(0, 0, 0, 0)
+                                                FocusedBorderThickness: =4
+                                                Height: =10
+                                                HoverFill: =RGBA(0, 0, 0, 0)
+                                                LayoutMaxHeight: =
+                                                LayoutMaxWidth: =
+                                                LayoutMinHeight: =0
+                                                PressedFill: =RGBA(0, 0, 0, 0)
+                                                Width: =10
+                                          - TextCanvas6:
+                                              Control: Text@0.0.51
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                FillPortions: =1
+                                                Font: =Font.Arial
+                                                FontColor: =RGBA(232, 232, 232, 1)
+                                                LayoutMaxHeight: =
+                                                LayoutMaxWidth: =
+                                                LayoutMinWidth: =135
+                                                PaddingLeft: =10
+                                                Size: =20
+                                                Text: ="Project Title:"
+                                                VerticalAlign: =VerticalAlign.Middle
+                                                Weight: ='TextCanvas.Weight'.Bold
+                                          - TextInputCanvas1:
+                                              Control: TextInput@0.0.54
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                FillPortions: =7.5
+                                                LayoutMaxHeight: =
+                                                LayoutMaxWidth: =
+                                                LayoutMinWidth: =0
+                                                PaddingRight: =0
+                                          - Rectangle7_29:
+                                              Control: Rectangle@2.3.0
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                BorderColor: =RGBA(0, 0, 0, 0)
+                                                BorderStyle: =BorderStyle.None
+                                                DisabledFill: =RGBA(0, 0, 0, 0)
+                                                Fill: =RGBA(0, 0, 0, 0)
+                                                FocusedBorderThickness: =4
+                                                Height: =10
+                                                HoverFill: =RGBA(0, 0, 0, 0)
+                                                LayoutMaxHeight: =
+                                                LayoutMaxWidth: =
+                                                LayoutMinHeight: =0
+                                                PressedFill: =RGBA(0, 0, 0, 0)
+                                                Width: =10
+                                          - Icon1:
+                                              Control: Classic/Icon@2.5.0
+                                              Properties:
+                                                BorderColor: =RGBA(0, 0, 0, 0)
+                                                Color: =RGBA(214, 221, 224, 1)
+                                                DisabledBorderColor: =RGBA(245, 245, 245, 1)
+                                                DisabledColor: =RGBA(225, 223, 221, 1)
+                                                DisabledFill: =RGBA(0, 0, 0, 0)
+                                                FocusedBorderThickness: =4
+                                                Height: =50
+                                                HoverBorderColor: =RGBA(0, 0, 0, 0)
+                                                HoverColor: =RGBA(255, 0, 0, 1)
+                                                HoverFill: =RGBA(0, 0, 0, 0)
+                                                Icon: =Icon.Information
+                                                LayoutMaxHeight: =
+                                                LayoutMaxWidth: =
+                                                PaddingLeft: =5
+                                                PressedBorderColor: =RGBA(0, 0, 0, 0)
+                                                PressedColor: =RGBA(16, 110, 190, 1)
+                                                PressedFill: =RGBA(0, 0, 0, 0)
+                                                Tooltip: |-
+                                                  ="Provide a unique title for this effort
+                                                  (Please be brief but concise)"
+                                                Width: =32
+                                          - Rectangle7_30:
+                                              Control: Rectangle@2.3.0
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                BorderColor: =RGBA(0, 0, 0, 0)
+                                                BorderStyle: =BorderStyle.None
+                                                DisabledFill: =RGBA(0, 0, 0, 0)
+                                                Fill: =RGBA(0, 0, 0, 0)
+                                                FocusedBorderThickness: =4
+                                                Height: =10
+                                                HoverFill: =RGBA(0, 0, 0, 0)
+                                                LayoutMaxHeight: =
+                                                LayoutMaxWidth: =
+                                                LayoutMinHeight: =0
+                                                PressedFill: =RGBA(0, 0, 0, 0)
+                                                Width: =10
+                                    - Rectangle7_1:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                          AlignInContainer: =AlignInContainer.Stretch
+                                          BorderColor: =RGBA(0, 0, 0, 0)
+                                          BorderStyle: =BorderStyle.None
+                                          DisabledFill: =RGBA(0, 0, 0, 0)
+                                          Fill: =RGBA(0, 0, 0, 0)
+                                          FocusedBorderThickness: =4
+                                          Height: =10
+                                          HoverFill: =RGBA(0, 0, 0, 0)
+                                          LayoutMaxHeight: =
+                                          LayoutMaxWidth: =
+                                          PressedFill: =RGBA(0, 0, 0, 0)
+                                    - Container14:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: AutoLayout
+                                        Properties:
+                                          DropShadow: =DropShadow.None
+                                          FillPortions: =0
+                                          LayoutDirection: =LayoutDirection.Horizontal
+                                          LayoutMaxHeight: =
+                                          LayoutMaxWidth: =
+                                          PaddingLeft: =10
+                                        Children:
+                                          - Container15:
+                                              Control: GroupContainer@1.5.0
+                                              Variant: AutoLayout
+                                              Properties:
+                                                DropShadow: =DropShadow.None
+                                                LayoutDirection: =LayoutDirection.Vertical
+                                                LayoutMaxHeight: =
+                                                LayoutMaxWidth: =
+                                              Children:
+                                                - Container16:
+                                                    Control: GroupContainer@1.5.0
+                                                    Variant: AutoLayout
+                                                    Properties:
+                                                      FillPortions: =0
+                                                      Height: =50
+                                                      LayoutDirection: =LayoutDirection.Horizontal
+                                                      LayoutMaxHeight: =
+                                                      LayoutMaxWidth: =
+                                                    Children:
+                                                      - Rectangle7_16:
+                                                          Control: Rectangle@2.3.0
+                                                          Properties:
+                                                            AlignInContainer: =AlignInContainer.Stretch
+                                                            BorderColor: =RGBA(0, 0, 0, 0)
+                                                            BorderStyle: =BorderStyle.None
+                                                            DisabledFill: =RGBA(0, 0, 0, 0)
+                                                            Fill: =RGBA(0, 0, 0, 0)
+                                                            FocusedBorderThickness: =4
+                                                            Height: =10
+                                                            HoverFill: =RGBA(0, 0, 0, 0)
+                                                            LayoutMaxHeight: =
+                                                            LayoutMaxWidth: =
+                                                            LayoutMinHeight: =0
+                                                            PressedFill: =RGBA(0, 0, 0, 0)
+                                                            Width: =10
+                                                      - TextCanvas7:
+                                                          Control: Text@0.0.51
+                                                          Properties:
+                                                            AlignInContainer: =AlignInContainer.Stretch
+                                                            FillPortions: =1
+                                                            Font: =Font.Arial
+                                                            FontColor: =RGBA(232, 232, 232, 1)
+                                                            LayoutMaxHeight: =
+                                                            LayoutMaxWidth: =
+                                                            LayoutMinWidth: =0
+                                                            Size: =20
+                                                            Text: ="DWG/CoP:"
+                                                            VerticalAlign: =VerticalAlign.Middle
+                                                            Weight: ='TextCanvas.Weight'.Bold
+                                                      - ComboboxCanvas1:
+                                                          Control: ComboBox@0.0.51
+                                                          Properties:
+                                                            AlignInContainer: =AlignInContainer.Center
+                                                            FillPortions: =2.75
+                                                            Font: =Font.Arial
+                                                            Height: =40
+                                                            InputTextPlaceholder: ="Select DWG/CoP"
+                                                            Items: |+
+                                                              =["Architecture",
+                                                              "Aviation",
+                                                              "CAD/BIM",
+                                                              "Civil",
+                                                              "Climate Preparedness",
+                                                              "Comprehensive Plng",
+                                                              "Construction",
+                                                              "Contingency",
+                                                              "Control Systems",
+                                                              "Coordinating Panel",
+                                                              "Cost Engineering",
+                                                              "Dam Safety",
+                                                              "Design-Build",
+                                                              "Electrical",
+                                                              "Engineering Management",
+                                                              "ESEP",
+                                                              "Facility Space Plng",
+                                                              "Fire Protection",
+                                                              "Fuels",
+                                                              "Geospatial",
+                                                              "Geotechnical",
+                                                              "Hydrology",
+                                                              "Installation Resiliency",
+                                                              "Landscape Architecture",
+                                                              "Levee Safety",
+                                                              "Mechanical",
+                                                              "Medical",
+                                                              "Pavements / Airfields",
+                                                              "Security",
+                                                              "Specifications",
+                                                              "Structural",
+                                                              "Sustainability",
+                                                              "TCP",
+                                                              "Value Engineering",
+                                                              "Waterfront",
+                                                              "Other (not listed)",
+                                                              "Program Management",
+                                                              "N/A"]
+                                                            LayoutMaxHeight: =
+                                                            LayoutMaxWidth: =
+                                                            LayoutMinWidth: =0
+                                                          Children:
+                                                            - Value1:
+                                                                Control: ComboBoxDataField@1.5.0
+                                                                Variant: textualColumn
+                                                                IsLocked: true
+                                                                Properties:
+                                                                  FieldDisplayName: ="Value"
+                                                                  FieldName: ="Value"
+                                                                  FieldType: ="s"
+                                                                  Order: =1
+                                                      - Rectangle7_17:
+                                                          Control: Rectangle@2.3.0
+                                                          Properties:
+                                                            AlignInContainer: =AlignInContainer.Stretch
+                                                            BorderColor: =RGBA(0, 0, 0, 0)
+                                                            BorderStyle: =BorderStyle.None
+                                                            DisabledFill: =RGBA(0, 0, 0, 0)
+                                                            Fill: =RGBA(0, 0, 0, 0)
+                                                            FocusedBorderThickness: =4
+                                                            Height: =10
+                                                            HoverFill: =RGBA(0, 0, 0, 0)
+                                                            LayoutMaxHeight: =
+                                                            LayoutMaxWidth: =
+                                                            LayoutMinHeight: =0
+                                                            PressedFill: =RGBA(0, 0, 0, 0)
+                                                            Width: =10
+                                                      - Icon1_1:
+                                                          Control: Classic/Icon@2.5.0
+                                                          Properties:
+                                                            BorderColor: =RGBA(0, 0, 0, 0)
+                                                            Color: =RGBA(214, 221, 224, 1)
+                                                            DisabledBorderColor: =RGBA(245, 245, 245, 1)
+                                                            DisabledColor: =RGBA(225, 223, 221, 1)
+                                                            DisabledFill: =RGBA(0, 0, 0, 0)
+                                                            FocusedBorderThickness: =4
+                                                            Height: =50
+                                                            HoverBorderColor: =RGBA(0, 0, 0, 0)
+                                                            HoverColor: =RGBA(255, 0, 0, 1)
+                                                            HoverFill: =RGBA(0, 0, 0, 0)
+                                                            Icon: =Icon.Information
+                                                            LayoutMaxHeight: =
+                                                            LayoutMaxWidth: =
+                                                            PaddingLeft: =5
+                                                            PressedBorderColor: =RGBA(0, 0, 0, 0)
+                                                            PressedColor: =RGBA(16, 110, 190, 1)
+                                                            PressedFill: =RGBA(0, 0, 0, 0)
+                                                            Tooltip: ="Select the Discipline Working Group (DWG) OR Community of Practice (CoP) that is responsible for oversite of this project."
+                                                            Width: =32
+                                                      - Rectangle7_18:
+                                                          Control: Rectangle@2.3.0
+                                                          Properties:
+                                                            AlignInContainer: =AlignInContainer.Stretch
+                                                            BorderColor: =RGBA(0, 0, 0, 0)
+                                                            BorderStyle: =BorderStyle.None
+                                                            DisabledFill: =RGBA(0, 0, 0, 0)
+                                                            Fill: =RGBA(0, 0, 0, 0)
+                                                            FocusedBorderThickness: =4
+                                                            Height: =10
+                                                            HoverFill: =RGBA(0, 0, 0, 0)
+                                                            LayoutMaxHeight: =
+                                                            LayoutMaxWidth: =
+                                                            LayoutMinHeight: =0
+                                                            PressedFill: =RGBA(0, 0, 0, 0)
+                                                            Width: =10
+                                                - Container16_1:
+                                                    Control: GroupContainer@1.5.0
+                                                    Variant: AutoLayout
+                                                    Properties:
+                                                      FillPortions: =0
+                                                      Height: =50
+                                                      LayoutDirection: =LayoutDirection.Horizontal
+                                                      LayoutMaxHeight: =
+                                                      LayoutMaxWidth: =
+                                                    Children:
+                                                      - Rectangle7_19:
+                                                          Control: Rectangle@2.3.0
+                                                          Properties:
+                                                            AlignInContainer: =AlignInContainer.Stretch
+                                                            BorderColor: =RGBA(0, 0, 0, 0)
+                                                            BorderStyle: =BorderStyle.None
+                                                            DisabledFill: =RGBA(0, 0, 0, 0)
+                                                            Fill: =RGBA(0, 0, 0, 0)
+                                                            FocusedBorderThickness: =4
+                                                            Height: =10
+                                                            HoverFill: =RGBA(0, 0, 0, 0)
+                                                            LayoutMaxHeight: =
+                                                            LayoutMaxWidth: =
+                                                            LayoutMinHeight: =0
+                                                            PressedFill: =RGBA(0, 0, 0, 0)
+                                                            Width: =10
+                                                      - TextCanvas7_1:
+                                                          Control: Text@0.0.51
+                                                          Properties:
+                                                            AlignInContainer: =AlignInContainer.Stretch
+                                                            FillPortions: =1
+                                                            Font: =Font.Arial
+                                                            FontColor: =RGBA(232, 232, 232, 1)
+                                                            LayoutMaxHeight: =
+                                                            LayoutMaxWidth: =
+                                                            LayoutMinWidth: =0
+                                                            Size: =20
+                                                            Text: ="HQ Proponent:"
+                                                            VerticalAlign: =VerticalAlign.Middle
+                                                            Weight: ='TextCanvas.Weight'.Bold
+                                                      - ComboboxCanvas1_1:
+                                                          Control: ComboBox@0.0.51
+                                                          Properties:
+                                                            AlignInContainer: =AlignInContainer.Center
+                                                            FillPortions: =2.75
+                                                            Font: =Font.Arial
+                                                            Height: =40
+                                                            InputTextPlaceholder: ="Select the HQ Proponent"
+                                                            Items: =Filter(Distinct(lr, EmployeeName), Self.SearchText in Value)
+                                                            LayoutMaxHeight: =
+                                                            LayoutMaxWidth: =
+                                                            LayoutMinWidth: =0
+                                                          Children:
+                                                            - Value1_1:
+                                                                Control: ComboBoxDataField@1.5.0
+                                                                Variant: textualColumn
+                                                                IsLocked: true
+                                                                Properties:
+                                                                  FieldDisplayName: ="Value"
+                                                                  FieldName: ="Value"
+                                                                  FieldType: ="s"
+                                                                  Order: =1
+                                                      - Rectangle7_20:
+                                                          Control: Rectangle@2.3.0
+                                                          Properties:
+                                                            AlignInContainer: =AlignInContainer.Stretch
+                                                            BorderColor: =RGBA(0, 0, 0, 0)
+                                                            BorderStyle: =BorderStyle.None
+                                                            DisabledFill: =RGBA(0, 0, 0, 0)
+                                                            Fill: =RGBA(0, 0, 0, 0)
+                                                            FocusedBorderThickness: =4
+                                                            Height: =10
+                                                            HoverFill: =RGBA(0, 0, 0, 0)
+                                                            LayoutMaxHeight: =
+                                                            LayoutMaxWidth: =
+                                                            LayoutMinHeight: =0
+                                                            PressedFill: =RGBA(0, 0, 0, 0)
+                                                            Width: =10
+                                                      - Icon1_2:
+                                                          Control: Classic/Icon@2.5.0
+                                                          Properties:
+                                                            BorderColor: =RGBA(0, 0, 0, 0)
+                                                            Color: =RGBA(214, 221, 224, 1)
+                                                            DisabledBorderColor: =RGBA(245, 245, 245, 1)
+                                                            DisabledColor: =RGBA(225, 223, 221, 1)
+                                                            DisabledFill: =RGBA(0, 0, 0, 0)
+                                                            FocusedBorderThickness: =4
+                                                            Height: =50
+                                                            HoverBorderColor: =RGBA(0, 0, 0, 0)
+                                                            HoverColor: =RGBA(255, 0, 0, 1)
+                                                            HoverFill: =RGBA(0, 0, 0, 0)
+                                                            Icon: =Icon.Information
+                                                            LayoutMaxHeight: =
+                                                            LayoutMaxWidth: =
+                                                            PaddingLeft: =5
+                                                            PressedBorderColor: =RGBA(0, 0, 0, 0)
+                                                            PressedColor: =RGBA(16, 110, 190, 1)
+                                                            PressedFill: =RGBA(0, 0, 0, 0)
+                                                            Tooltip: ="Indicate the HQ Proponent that is responsible for this project."
+                                                            Width: =32
+                                                      - Rectangle7_21:
+                                                          Control: Rectangle@2.3.0
+                                                          Properties:
+                                                            AlignInContainer: =AlignInContainer.Stretch
+                                                            BorderColor: =RGBA(0, 0, 0, 0)
+                                                            BorderStyle: =BorderStyle.None
+                                                            DisabledFill: =RGBA(0, 0, 0, 0)
+                                                            Fill: =RGBA(0, 0, 0, 0)
+                                                            FocusedBorderThickness: =4
+                                                            Height: =10
+                                                            HoverFill: =RGBA(0, 0, 0, 0)
+                                                            LayoutMaxHeight: =
+                                                            LayoutMaxWidth: =
+                                                            LayoutMinHeight: =0
+                                                            PressedFill: =RGBA(0, 0, 0, 0)
+                                                            Width: =10
+                                                - Container16_2:
+                                                    Control: GroupContainer@1.5.0
+                                                    Variant: AutoLayout
+                                                    Properties:
+                                                      FillPortions: =0
+                                                      Height: =50
+                                                      LayoutDirection: =LayoutDirection.Horizontal
+                                                      LayoutMaxHeight: =
+                                                      LayoutMaxWidth: =
+                                                    Children:
+                                                      - Rectangle7_22:
+                                                          Control: Rectangle@2.3.0
+                                                          Properties:
+                                                            AlignInContainer: =AlignInContainer.Stretch
+                                                            BorderColor: =RGBA(0, 0, 0, 0)
+                                                            BorderStyle: =BorderStyle.None
+                                                            DisabledFill: =RGBA(0, 0, 0, 0)
+                                                            Fill: =RGBA(0, 0, 0, 0)
+                                                            FocusedBorderThickness: =4
+                                                            Height: =10
+                                                            HoverFill: =RGBA(0, 0, 0, 0)
+                                                            LayoutMaxHeight: =
+                                                            LayoutMaxWidth: =
+                                                            LayoutMinHeight: =0
+                                                            PressedFill: =RGBA(0, 0, 0, 0)
+                                                            Width: =10
+                                                      - TextCanvas7_2:
+                                                          Control: Text@0.0.51
+                                                          Properties:
+                                                            AlignInContainer: =AlignInContainer.Stretch
+                                                            FillPortions: =1
+                                                            Font: =Font.Arial
+                                                            FontColor: =RGBA(232, 232, 232, 1)
+                                                            LayoutMaxHeight: =
+                                                            LayoutMaxWidth: =
+                                                            LayoutMinWidth: =0
+                                                            Size: =20
+                                                            Text: ="Executive Org:"
+                                                            VerticalAlign: =VerticalAlign.Middle
+                                                            Weight: ='TextCanvas.Weight'.Bold
+                                                      - ComboboxCanvas1_2:
+                                                          Control: ComboBox@0.0.51
+                                                          Properties:
+                                                            AlignInContainer: =AlignInContainer.Center
+                                                            FillPortions: =2.75
+                                                            Font: =Font.Arial
+                                                            Height: =40
+                                                            InputTextPlaceholder: ="Select the Organization"
+                                                            Items: |-
+                                                              =["HQ E&C",
+                                                              "HQ Other",
+                                                              "HNC",
+                                                              "IWR",
+                                                              "ERDC",
+                                                              "LRB",
+                                                              "LRC",
+                                                              "LRE",
+                                                              "LRH",
+                                                              "LRL",
+                                                              "LRN",
+                                                              "LRP",
+                                                              "MVM",
+                                                              "MVN",
+                                                              "MVR",
+                                                              "MVS",
+                                                              "MVP",
+                                                              "MVK",
+                                                              "NAB",
+                                                              "NAU",
+                                                              "NAE",
+                                                              "NAN",
+                                                              "NAO",
+                                                              "NAP",
+                                                              "NWK",
+                                                              "NWO",
+                                                              "NWP",
+                                                              "NWS",
+                                                              "NWW",
+                                                              "POA",
+                                                              "POF",
+                                                              "POH",
+                                                              "POJ",
+                                                              "SAC",
+                                                              "SAJ",
+                                                              "SAM",
+                                                              "SAS",
+                                                              "SAW",
+                                                              "SPA",
+                                                              "SPL",
+                                                              "SPK",
+                                                              "SPF",
+                                                              "SWF",
+                                                              "SWG",
+                                                              "SWL",
+                                                              "SWT",
+                                                              "TAM",
+                                                              "TAA",
+                                                              "OTHER (Specify in comments)"]
+                                                            LayoutMaxHeight: =
+                                                            LayoutMaxWidth: =
+                                                            LayoutMinWidth: =0
+                                                          Children:
+                                                            - Value1_2:
+                                                                Control: ComboBoxDataField@1.5.0
+                                                                Variant: textualColumn
+                                                                IsLocked: true
+                                                                Properties:
+                                                                  FieldDisplayName: ="Value"
+                                                                  FieldName: ="Value"
+                                                                  FieldType: ="s"
+                                                                  Order: =1
+                                                      - Rectangle7_23:
+                                                          Control: Rectangle@2.3.0
+                                                          Properties:
+                                                            AlignInContainer: =AlignInContainer.Stretch
+                                                            BorderColor: =RGBA(0, 0, 0, 0)
+                                                            BorderStyle: =BorderStyle.None
+                                                            DisabledFill: =RGBA(0, 0, 0, 0)
+                                                            Fill: =RGBA(0, 0, 0, 0)
+                                                            FocusedBorderThickness: =4
+                                                            Height: =10
+                                                            HoverFill: =RGBA(0, 0, 0, 0)
+                                                            LayoutMaxHeight: =
+                                                            LayoutMaxWidth: =
+                                                            LayoutMinHeight: =0
+                                                            PressedFill: =RGBA(0, 0, 0, 0)
+                                                            Width: =10
+                                                      - Icon1_3:
+                                                          Control: Classic/Icon@2.5.0
+                                                          Properties:
+                                                            BorderColor: =RGBA(0, 0, 0, 0)
+                                                            Color: =RGBA(214, 221, 224, 1)
+                                                            DisabledBorderColor: =RGBA(245, 245, 245, 1)
+                                                            DisabledColor: =RGBA(225, 223, 221, 1)
+                                                            DisabledFill: =RGBA(0, 0, 0, 0)
+                                                            FocusedBorderThickness: =4
+                                                            Height: =50
+                                                            HoverBorderColor: =RGBA(0, 0, 0, 0)
+                                                            HoverColor: =RGBA(255, 0, 0, 1)
+                                                            HoverFill: =RGBA(0, 0, 0, 0)
+                                                            Icon: =Icon.Information
+                                                            LayoutMaxHeight: =
+                                                            LayoutMaxWidth: =
+                                                            PaddingLeft: =5
+                                                            PressedBorderColor: =RGBA(0, 0, 0, 0)
+                                                            PressedColor: =RGBA(16, 110, 190, 1)
+                                                            PressedFill: =RGBA(0, 0, 0, 0)
+                                                            Tooltip: |-
+                                                              ="Select the Organization Executing the Work 
+                                                              (Those who will be receiving funding.)"
+                                                            Width: =32
+                                                      - Rectangle7_24:
+                                                          Control: Rectangle@2.3.0
+                                                          Properties:
+                                                            AlignInContainer: =AlignInContainer.Stretch
+                                                            BorderColor: =RGBA(0, 0, 0, 0)
+                                                            BorderStyle: =BorderStyle.None
+                                                            DisabledFill: =RGBA(0, 0, 0, 0)
+                                                            Fill: =RGBA(0, 0, 0, 0)
+                                                            FocusedBorderThickness: =4
+                                                            Height: =10
+                                                            HoverFill: =RGBA(0, 0, 0, 0)
+                                                            LayoutMaxHeight: =
+                                                            LayoutMaxWidth: =
+                                                            LayoutMinHeight: =0
+                                                            PressedFill: =RGBA(0, 0, 0, 0)
+                                                            Width: =10
+                                                - Container16_3:
+                                                    Control: GroupContainer@1.5.0
+                                                    Variant: AutoLayout
+                                                    Properties:
+                                                      FillPortions: =0
+                                                      Height: =50
+                                                      LayoutDirection: =LayoutDirection.Horizontal
+                                                      LayoutMaxHeight: =
+                                                      LayoutMaxWidth: =
+                                                    Children:
+                                                      - Rectangle7_25:
+                                                          Control: Rectangle@2.3.0
+                                                          Properties:
+                                                            AlignInContainer: =AlignInContainer.Stretch
+                                                            BorderColor: =RGBA(0, 0, 0, 0)
+                                                            BorderStyle: =BorderStyle.None
+                                                            DisabledFill: =RGBA(0, 0, 0, 0)
+                                                            Fill: =RGBA(0, 0, 0, 0)
+                                                            FocusedBorderThickness: =4
+                                                            Height: =10
+                                                            HoverFill: =RGBA(0, 0, 0, 0)
+                                                            LayoutMaxHeight: =
+                                                            LayoutMaxWidth: =
+                                                            LayoutMinHeight: =0
+                                                            PressedFill: =RGBA(0, 0, 0, 0)
+                                                            Width: =10
+                                                      - TextCanvas7_3:
+                                                          Control: Text@0.0.51
+                                                          Properties:
+                                                            AlignInContainer: =AlignInContainer.Stretch
+                                                            FillPortions: =1
+                                                            Font: =Font.Arial
+                                                            FontColor: =RGBA(232, 232, 232, 1)
+                                                            LayoutMaxHeight: =
+                                                            LayoutMaxWidth: =
+                                                            LayoutMinWidth: =0
+                                                            Size: =20
+                                                            Text: ="Project Lead:"
+                                                            VerticalAlign: =VerticalAlign.Middle
+                                                            Weight: ='TextCanvas.Weight'.Bold
+                                                      - ComboboxCanvas1_3:
+                                                          Control: ComboBox@0.0.51
+                                                          Properties:
+                                                            AlignInContainer: =AlignInContainer.Center
+                                                            DefaultSelectedItems: =[UserCEFMSname]
+                                                            FillPortions: =2.75
+                                                            Font: =Font.Arial
+                                                            Height: =40
+                                                            InputTextPlaceholder: ="Select the Project Lead"
+                                                            Items: =Filter(Distinct(lr, EmployeeName), Self.SearchText in Value)
+                                                            LayoutMaxHeight: =
+                                                            LayoutMaxWidth: =
+                                                            LayoutMinHeight: =40
+                                                            LayoutMinWidth: =0
+                                                          Children:
+                                                            - Value1_3:
+                                                                Control: ComboBoxDataField@1.5.0
+                                                                Variant: textualColumn
+                                                                IsLocked: true
+                                                                Properties:
+                                                                  FieldDisplayName: ="Value"
+                                                                  FieldName: ="Value"
+                                                                  FieldType: ="s"
+                                                                  Order: =1
+                                                      - Rectangle7_26:
+                                                          Control: Rectangle@2.3.0
+                                                          Properties:
+                                                            AlignInContainer: =AlignInContainer.Stretch
+                                                            BorderColor: =RGBA(0, 0, 0, 0)
+                                                            BorderStyle: =BorderStyle.None
+                                                            DisabledFill: =RGBA(0, 0, 0, 0)
+                                                            Fill: =RGBA(0, 0, 0, 0)
+                                                            FocusedBorderThickness: =4
+                                                            Height: =10
+                                                            HoverFill: =RGBA(0, 0, 0, 0)
+                                                            LayoutMaxHeight: =
+                                                            LayoutMaxWidth: =
+                                                            LayoutMinHeight: =0
+                                                            PressedFill: =RGBA(0, 0, 0, 0)
+                                                            Width: =10
+                                                      - Icon1_4:
+                                                          Control: Classic/Icon@2.5.0
+                                                          Properties:
+                                                            BorderColor: =RGBA(0, 0, 0, 0)
+                                                            Color: =RGBA(214, 221, 224, 1)
+                                                            DisabledBorderColor: =RGBA(245, 245, 245, 1)
+                                                            DisabledColor: =RGBA(225, 223, 221, 1)
+                                                            DisabledFill: =RGBA(0, 0, 0, 0)
+                                                            FocusedBorderThickness: =4
+                                                            Height: =50
+                                                            HoverBorderColor: =RGBA(0, 0, 0, 0)
+                                                            HoverColor: =RGBA(255, 0, 0, 1)
+                                                            HoverFill: =RGBA(0, 0, 0, 0)
+                                                            Icon: =Icon.Information
+                                                            LayoutMaxHeight: =
+                                                            LayoutMaxWidth: =
+                                                            PaddingLeft: =5
+                                                            PressedBorderColor: =RGBA(0, 0, 0, 0)
+                                                            PressedColor: =RGBA(16, 110, 190, 1)
+                                                            PressedFill: =RGBA(0, 0, 0, 0)
+                                                            Tooltip: |-
+                                                              ="Enter the name of the primary Subject Matter Expert (SME) or field lead who will be leading the work effort. 
+                                                              (The person using the funds)"
+                                                            Width: =32
+                                                      - Rectangle7_27:
+                                                          Control: Rectangle@2.3.0
+                                                          Properties:
+                                                            AlignInContainer: =AlignInContainer.Stretch
+                                                            BorderColor: =RGBA(0, 0, 0, 0)
+                                                            BorderStyle: =BorderStyle.None
+                                                            DisabledFill: =RGBA(0, 0, 0, 0)
+                                                            Fill: =RGBA(0, 0, 0, 0)
+                                                            FocusedBorderThickness: =4
+                                                            Height: =10
+                                                            HoverFill: =RGBA(0, 0, 0, 0)
+                                                            LayoutMaxHeight: =
+                                                            LayoutMaxWidth: =
+                                                            LayoutMinHeight: =0
+                                                            PressedFill: =RGBA(0, 0, 0, 0)
+                                                            Width: =10
+                                          - Container15_1:
+                                              Control: GroupContainer@1.5.0
+                                              Variant: AutoLayout
+                                              Properties:
+                                                DropShadow: =DropShadow.None
+                                                LayoutDirection: =LayoutDirection.Vertical
+                                                LayoutMaxHeight: =
+                                                LayoutMaxWidth: =
+                                                PaddingLeft: =10
+                                              Children:
+                                                - Container16_4:
+                                                    Control: GroupContainer@1.5.0
+                                                    Variant: AutoLayout
+                                                    Properties:
+                                                      FillPortions: =0
+                                                      Height: =60
+                                                      LayoutDirection: =LayoutDirection.Horizontal
+                                                      LayoutMaxHeight: =
+                                                      LayoutMaxWidth: =
+                                                    Children:
+                                                      - Rectangle7_9:
+                                                          Control: Rectangle@2.3.0
+                                                          Properties:
+                                                            AlignInContainer: =AlignInContainer.Stretch
+                                                            BorderColor: =RGBA(0, 0, 0, 0)
+                                                            BorderStyle: =BorderStyle.None
+                                                            DisabledFill: =RGBA(0, 0, 0, 0)
+                                                            Fill: =RGBA(0, 0, 0, 0)
+                                                            FocusedBorderThickness: =4
+                                                            Height: =10
+                                                            HoverFill: =RGBA(0, 0, 0, 0)
+                                                            LayoutMaxHeight: =
+                                                            LayoutMaxWidth: =
+                                                            LayoutMinHeight: =0
+                                                            PressedFill: =RGBA(0, 0, 0, 0)
+                                                            Width: =10
+                                                      - TextCanvas7_4:
+                                                          Control: Text@0.0.51
+                                                          Properties:
+                                                            AlignInContainer: =AlignInContainer.Stretch
+                                                            FillPortions: =1
+                                                            Font: =Font.Arial
+                                                            FontColor: =RGBA(232, 232, 232, 1)
+                                                            LayoutMaxHeight: =
+                                                            LayoutMaxWidth: =
+                                                            LayoutMinWidth: =0
+                                                            Size: =20
+                                                            Text: ="Need S&C's contract Support:"
+                                                            VerticalAlign: =VerticalAlign.Middle
+                                                            Weight: ='TextCanvas.Weight'.Bold
+                                                      - ComboboxCanvas1_4:
+                                                          Control: ComboBox@0.0.51
+                                                          Properties:
+                                                            AlignInContainer: =AlignInContainer.Center
+                                                            FillPortions: =2
+                                                            Font: =Font.Arial
+                                                            Height: =40
+                                                            InputTextPlaceholder: ="Select Choice"
+                                                            Items: |
+                                                              =["Yes", 
+                                                              "No",
+                                                              "N/A"]
+                                                            LayoutMaxHeight: =
+                                                            LayoutMaxWidth: =
+                                                            LayoutMinWidth: =0
+                                                          Children:
+                                                            - Value1_4:
+                                                                Control: ComboBoxDataField@1.5.0
+                                                                Variant: textualColumn
+                                                                IsLocked: true
+                                                                Properties:
+                                                                  FieldDisplayName: ="Value"
+                                                                  FieldName: ="Value"
+                                                                  FieldType: ="s"
+                                                                  Order: =1
+                                                      - Rectangle7_4:
+                                                          Control: Rectangle@2.3.0
+                                                          Properties:
+                                                            AlignInContainer: =AlignInContainer.Stretch
+                                                            BorderColor: =RGBA(0, 0, 0, 0)
+                                                            BorderStyle: =BorderStyle.None
+                                                            DisabledFill: =RGBA(0, 0, 0, 0)
+                                                            Fill: =RGBA(0, 0, 0, 0)
+                                                            FocusedBorderThickness: =4
+                                                            Height: =10
+                                                            HoverFill: =RGBA(0, 0, 0, 0)
+                                                            LayoutMaxHeight: =
+                                                            LayoutMaxWidth: =
+                                                            LayoutMinHeight: =0
+                                                            PressedFill: =RGBA(0, 0, 0, 0)
+                                                            Width: =10
+                                                      - Icon1_5:
+                                                          Control: Classic/Icon@2.5.0
+                                                          Properties:
+                                                            BorderColor: =RGBA(0, 0, 0, 0)
+                                                            Color: =RGBA(214, 221, 224, 1)
+                                                            DisabledBorderColor: =RGBA(245, 245, 245, 1)
+                                                            DisabledColor: =RGBA(225, 223, 221, 1)
+                                                            DisabledFill: =RGBA(0, 0, 0, 0)
+                                                            FocusedBorderThickness: =4
+                                                            Height: =50
+                                                            HoverBorderColor: =RGBA(0, 0, 0, 0)
+                                                            HoverColor: =RGBA(255, 0, 0, 1)
+                                                            HoverFill: =RGBA(0, 0, 0, 0)
+                                                            Icon: =Icon.Information
+                                                            LayoutMaxHeight: =
+                                                            LayoutMaxWidth: =
+                                                            PaddingLeft: =5
+                                                            PressedBorderColor: =RGBA(0, 0, 0, 0)
+                                                            PressedColor: =RGBA(16, 110, 190, 1)
+                                                            PressedFill: =RGBA(0, 0, 0, 0)
+                                                            Tooltip: |-
+                                                              ="For projects planning to utilize an AE and do not have a method to aquire them, please select Yes. 
+                                                              If you do not need this support, select No."
+                                                            Width: =32
+                                                      - Rectangle7_15:
+                                                          Control: Rectangle@2.3.0
+                                                          Properties:
+                                                            AlignInContainer: =AlignInContainer.Stretch
+                                                            BorderColor: =RGBA(0, 0, 0, 0)
+                                                            BorderStyle: =BorderStyle.None
+                                                            DisabledFill: =RGBA(0, 0, 0, 0)
+                                                            Fill: =RGBA(0, 0, 0, 0)
+                                                            FocusedBorderThickness: =4
+                                                            Height: =10
+                                                            HoverFill: =RGBA(0, 0, 0, 0)
+                                                            LayoutMaxHeight: =
+                                                            LayoutMaxWidth: =
+                                                            LayoutMinHeight: =0
+                                                            PressedFill: =RGBA(0, 0, 0, 0)
+                                                            Width: =10
+                                                - Container16_5:
+                                                    Control: GroupContainer@1.5.0
+                                                    Variant: AutoLayout
+                                                    Properties:
+                                                      FillPortions: =0
+                                                      Height: =60
+                                                      LayoutDirection: =LayoutDirection.Horizontal
+                                                      LayoutMaxHeight: =
+                                                      LayoutMaxWidth: =
+                                                    Children:
+                                                      - Rectangle7_10:
+                                                          Control: Rectangle@2.3.0
+                                                          Properties:
+                                                            AlignInContainer: =AlignInContainer.Stretch
+                                                            BorderColor: =RGBA(0, 0, 0, 0)
+                                                            BorderStyle: =BorderStyle.None
+                                                            DisabledFill: =RGBA(0, 0, 0, 0)
+                                                            Fill: =RGBA(0, 0, 0, 0)
+                                                            FocusedBorderThickness: =4
+                                                            Height: =10
+                                                            HoverFill: =RGBA(0, 0, 0, 0)
+                                                            LayoutMaxHeight: =
+                                                            LayoutMaxWidth: =
+                                                            LayoutMinHeight: =0
+                                                            PressedFill: =RGBA(0, 0, 0, 0)
+                                                            Width: =10
+                                                      - TextCanvas7_5:
+                                                          Control: Text@0.0.51
+                                                          Properties:
+                                                            AlignInContainer: =AlignInContainer.Stretch
+                                                            FillPortions: =1
+                                                            Font: =Font.Arial
+                                                            FontColor: =RGBA(232, 232, 232, 1)
+                                                            LayoutMaxHeight: =
+                                                            LayoutMaxWidth: =
+                                                            LayoutMinWidth: =0
+                                                            Size: =20
+                                                            Text: ="Special Funding Type Project:"
+                                                            VerticalAlign: =VerticalAlign.Middle
+                                                            Weight: ='TextCanvas.Weight'.Bold
+                                                      - ComboboxCanvas1_5:
+                                                          Control: ComboBox@0.0.51
+                                                          Properties:
+                                                            AlignInContainer: =AlignInContainer.Center
+                                                            FillPortions: =2
+                                                            Font: =Font.Arial
+                                                            Height: =40
+                                                            InputTextPlaceholder: ="Select Project Type"
+                                                            Items: |
+                                                              =["Regular S&C",
+                                                              "Resiliency",
+                                                              "Hardening",
+                                                              "Don't Know"
+                                                              ]
+                                                            LayoutMaxHeight: =
+                                                            LayoutMaxWidth: =
+                                                            LayoutMinWidth: =0
+                                                          Children:
+                                                            - Value1_5:
+                                                                Control: ComboBoxDataField@1.5.0
+                                                                Variant: textualColumn
+                                                                IsLocked: true
+                                                                Properties:
+                                                                  FieldDisplayName: ="Value"
+                                                                  FieldName: ="Value"
+                                                                  FieldType: ="s"
+                                                                  Order: =1
+                                                      - Rectangle7_7:
+                                                          Control: Rectangle@2.3.0
+                                                          Properties:
+                                                            AlignInContainer: =AlignInContainer.Stretch
+                                                            BorderColor: =RGBA(0, 0, 0, 0)
+                                                            BorderStyle: =BorderStyle.None
+                                                            DisabledFill: =RGBA(0, 0, 0, 0)
+                                                            Fill: =RGBA(0, 0, 0, 0)
+                                                            FocusedBorderThickness: =4
+                                                            Height: =10
+                                                            HoverFill: =RGBA(0, 0, 0, 0)
+                                                            LayoutMaxHeight: =
+                                                            LayoutMaxWidth: =
+                                                            LayoutMinHeight: =0
+                                                            PressedFill: =RGBA(0, 0, 0, 0)
+                                                            Width: =10
+                                                      - Icon1_6:
+                                                          Control: Classic/Icon@2.5.0
+                                                          Properties:
+                                                            BorderColor: =RGBA(0, 0, 0, 0)
+                                                            Color: =RGBA(214, 221, 224, 1)
+                                                            DisabledBorderColor: =RGBA(245, 245, 245, 1)
+                                                            DisabledColor: =RGBA(225, 223, 221, 1)
+                                                            DisabledFill: =RGBA(0, 0, 0, 0)
+                                                            FocusedBorderThickness: =4
+                                                            Height: =50
+                                                            HoverBorderColor: =RGBA(0, 0, 0, 0)
+                                                            HoverColor: =RGBA(255, 0, 0, 1)
+                                                            HoverFill: =RGBA(0, 0, 0, 0)
+                                                            Icon: =Icon.Information
+                                                            LayoutMaxHeight: =
+                                                            LayoutMaxWidth: =
+                                                            PaddingLeft: =5
+                                                            PressedBorderColor: =RGBA(0, 0, 0, 0)
+                                                            PressedColor: =RGBA(16, 110, 190, 1)
+                                                            PressedFill: =RGBA(0, 0, 0, 0)
+                                                            Tooltip: |-
+                                                              ="Submitting: Select Resiliency or Hardening if the project addresses climate resilience or facility hardening through development of criteria, guidance, or studies and analysis. 
+                                                              Approved/Funded: The CP will provide final determination whether this is a Resiliency/Hardening Project or not. Once the project is approved, this field will be locked."
+                                                            Width: =32
+                                                      - Rectangle7_13:
+                                                          Control: Rectangle@2.3.0
+                                                          Properties:
+                                                            AlignInContainer: =AlignInContainer.Stretch
+                                                            BorderColor: =RGBA(0, 0, 0, 0)
+                                                            BorderStyle: =BorderStyle.None
+                                                            DisabledFill: =RGBA(0, 0, 0, 0)
+                                                            Fill: =RGBA(0, 0, 0, 0)
+                                                            FocusedBorderThickness: =4
+                                                            Height: =10
+                                                            HoverFill: =RGBA(0, 0, 0, 0)
+                                                            LayoutMaxHeight: =
+                                                            LayoutMaxWidth: =
+                                                            LayoutMinHeight: =0
+                                                            PressedFill: =RGBA(0, 0, 0, 0)
+                                                            Width: =10
+                                                - Container16_6:
+                                                    Control: GroupContainer@1.5.0
+                                                    Variant: AutoLayout
+                                                    Properties:
+                                                      FillPortions: =0
+                                                      Height: =60
+                                                      LayoutDirection: =LayoutDirection.Horizontal
+                                                      LayoutMaxHeight: =
+                                                      LayoutMaxWidth: =
+                                                    Children:
+                                                      - Rectangle7_11:
+                                                          Control: Rectangle@2.3.0
+                                                          Properties:
+                                                            AlignInContainer: =AlignInContainer.Stretch
+                                                            BorderColor: =RGBA(0, 0, 0, 0)
+                                                            BorderStyle: =BorderStyle.None
+                                                            DisabledFill: =RGBA(0, 0, 0, 0)
+                                                            Fill: =RGBA(0, 0, 0, 0)
+                                                            FocusedBorderThickness: =4
+                                                            Height: =10
+                                                            HoverFill: =RGBA(0, 0, 0, 0)
+                                                            LayoutMaxHeight: =
+                                                            LayoutMaxWidth: =
+                                                            LayoutMinHeight: =0
+                                                            PressedFill: =RGBA(0, 0, 0, 0)
+                                                            Width: =10
+                                                      - TextCanvas7_6:
+                                                          Control: Text@0.0.51
+                                                          Properties:
+                                                            AlignInContainer: =AlignInContainer.Stretch
+                                                            FillPortions: =1
+                                                            Font: =Font.Arial
+                                                            FontColor: =RGBA(232, 232, 232, 1)
+                                                            LayoutMaxHeight: =
+                                                            LayoutMaxWidth: =
+                                                            LayoutMinWidth: =0
+                                                            Size: =20
+                                                            Text: ="Project Budget at Submission:"
+                                                            VerticalAlign: =VerticalAlign.Middle
+                                                            Weight: ='TextCanvas.Weight'.Bold
+                                                      - NumberInput1:
+                                                          Control: NumberInput@2.9.12
+                                                          Properties:
+                                                            AccessibleLabel: ="Input Project Budget"
+                                                            AlignInContainer: =AlignInContainer.Center
+                                                            FillPortions: =2
+                                                            Height: =40
+                                                            LayoutMaxHeight: =
+                                                            LayoutMaxWidth: =
+                                                            Precision: ='NumberInput.Precision'.'2'
+                                                      - Rectangle7_8:
+                                                          Control: Rectangle@2.3.0
+                                                          Properties:
+                                                            AlignInContainer: =AlignInContainer.Stretch
+                                                            BorderColor: =RGBA(0, 0, 0, 0)
+                                                            BorderStyle: =BorderStyle.None
+                                                            DisabledFill: =RGBA(0, 0, 0, 0)
+                                                            Fill: =RGBA(0, 0, 0, 0)
+                                                            FocusedBorderThickness: =4
+                                                            Height: =10
+                                                            HoverFill: =RGBA(0, 0, 0, 0)
+                                                            LayoutMaxHeight: =
+                                                            LayoutMaxWidth: =
+                                                            LayoutMinHeight: =0
+                                                            PressedFill: =RGBA(0, 0, 0, 0)
+                                                            Width: =10
+                                                      - Icon1_7:
+                                                          Control: Classic/Icon@2.5.0
+                                                          Properties:
+                                                            BorderColor: =RGBA(0, 0, 0, 0)
+                                                            Color: =RGBA(214, 221, 224, 1)
+                                                            DisabledBorderColor: =RGBA(245, 245, 245, 1)
+                                                            DisabledColor: =RGBA(225, 223, 221, 1)
+                                                            DisabledFill: =RGBA(0, 0, 0, 0)
+                                                            FocusedBorderThickness: =4
+                                                            Height: =50
+                                                            HoverBorderColor: =RGBA(0, 0, 0, 0)
+                                                            HoverColor: =RGBA(255, 0, 0, 1)
+                                                            HoverFill: =RGBA(0, 0, 0, 0)
+                                                            Icon: =Icon.Information
+                                                            LayoutMaxHeight: =
+                                                            LayoutMaxWidth: =
+                                                            PaddingLeft: =5
+                                                            PressedBorderColor: =RGBA(0, 0, 0, 0)
+                                                            PressedColor: =RGBA(16, 110, 190, 1)
+                                                            PressedFill: =RGBA(0, 0, 0, 0)
+                                                            Tooltip: |-
+                                                              ="Provide the Project Estimate for the Project effort. Once the project is approved, this field will be locked.
+
+                                                              Tri-service Projects: Please use the Estimated Cost in CMS for this project. "
+                                                            Width: =32
+                                                      - Rectangle7_12:
+                                                          Control: Rectangle@2.3.0
+                                                          Properties:
+                                                            AlignInContainer: =AlignInContainer.Stretch
+                                                            BorderColor: =RGBA(0, 0, 0, 0)
+                                                            BorderStyle: =BorderStyle.None
+                                                            DisabledFill: =RGBA(0, 0, 0, 0)
+                                                            Fill: =RGBA(0, 0, 0, 0)
+                                                            FocusedBorderThickness: =4
+                                                            Height: =10
+                                                            HoverFill: =RGBA(0, 0, 0, 0)
+                                                            LayoutMaxHeight: =
+                                                            LayoutMaxWidth: =
+                                                            LayoutMinHeight: =0
+                                                            PressedFill: =RGBA(0, 0, 0, 0)
+                                                            Width: =10
+                                    - Rectangle7_2:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                          AlignInContainer: =AlignInContainer.Stretch
+                                          BorderColor: =RGBA(0, 0, 0, 0)
+                                          BorderStyle: =BorderStyle.None
+                                          DisabledFill: =RGBA(0, 0, 0, 0)
+                                          Fill: =RGBA(0, 0, 0, 0)
+                                          FocusedBorderThickness: =4
+                                          Height: =10
+                                          HoverFill: =RGBA(0, 0, 0, 0)
+                                          LayoutMaxHeight: =
+                                          LayoutMaxWidth: =
+                                          PressedFill: =RGBA(0, 0, 0, 0)
+                                    - Container7:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: AutoLayout
+                                        Properties:
+                                          DropShadow: =DropShadow.None
+                                          FillPortions: =0
+                                          Height: =52
+                                          LayoutDirection: =LayoutDirection.Vertical
+                                          LayoutMaxHeight: =
+                                          LayoutMaxWidth: =
+                                          LayoutMinHeight: =55
+                                        Children:
+                                          - Container17:
+                                              Control: GroupContainer@1.5.0
+                                              Variant: AutoLayout
+                                              Properties:
+                                                FillPortions: =0
+                                                Height: =50
+                                                LayoutDirection: =LayoutDirection.Horizontal
+                                                LayoutMaxHeight: =
+                                                LayoutMaxWidth: =
+                                              Children:
+                                                - TextCanvas4_4:
+                                                    Control: Text@0.0.51
+                                                    Properties:
+                                                      FontColor: =RGBA(232, 232, 232, 1)
+                                                      Height: =50
+                                                      LayoutMaxHeight: =
+                                                      LayoutMaxWidth: =
+                                                      PaddingLeft: =10
+                                                      Size: =20
+                                                      Text: ="CMS Information"
+                                                      VerticalAlign: =VerticalAlign.Middle
+                                                      Weight: ='TextCanvas.Weight'.Bold
+                                                      Width: =180
+                                                - TextCanvas4_12:
+                                                    Control: Text@0.0.51
+                                                    Properties:
+                                                      FontColor: =RGBA(232, 232, 232, 1)
+                                                      Height: =50
+                                                      LayoutMaxHeight: =
+                                                      LayoutMaxWidth: =
+                                                      PaddingLeft: =10
+                                                      Text: ="(Required for "
+                                                      VerticalAlign: =VerticalAlign.Middle
+                                                      Weight: ='TextCanvas.Weight'.Bold
+                                                      Width: =100
+                                                - TextCanvas4_13:
+                                                    Control: Text@0.0.51
+                                                    Properties:
+                                                      FontColor: =RGBA(232, 232, 232, 1)
+                                                      FontUnderline: =true
+                                                      Height: =50
+                                                      LayoutMaxHeight: =
+                                                      LayoutMaxWidth: =
+                                                      PaddingLeft: =2
+                                                      Text: ="ALL"
+                                                      VerticalAlign: =VerticalAlign.Middle
+                                                      Weight: ='TextCanvas.Weight'.Bold
+                                                      Width: =30
+                                                - TextCanvas4_14:
+                                                    Control: Text@0.0.51
+                                                    Properties:
+                                                      FillPortions: =1
+                                                      FontColor: =RGBA(232, 232, 232, 1)
+                                                      Height: =50
+                                                      LayoutMaxHeight: =
+                                                      LayoutMaxWidth: =
+                                                      PaddingLeft: =0
+                                                      Text: ="Tri-Service Projects)"
+                                                      VerticalAlign: =VerticalAlign.Middle
+                                                      Weight: ='TextCanvas.Weight'.Bold
+                                          - Rectangle6_1:
+                                              Control: Rectangle@2.3.0
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                BorderColor: =RGBA(0, 0, 0, 0)
+                                                BorderStyle: =BorderStyle.None
+                                                DisabledFill: =RGBA(0, 0, 0, 0)
+                                                Fill: =RGBA(0, 0, 0, 1)
+                                                FocusedBorderThickness: =4
+                                                Height: =3
+                                                HoverFill: =RGBA(0, 0, 0, 0)
+                                                LayoutMaxHeight: =
+                                                LayoutMaxWidth: =
+                                                PressedFill: =RGBA(0, 0, 0, 0)
+                                                Width: =400
+                                    - Rectangle7_3:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                          AlignInContainer: =AlignInContainer.Stretch
+                                          BorderColor: =RGBA(0, 0, 0, 0)
+                                          BorderStyle: =BorderStyle.None
+                                          DisabledFill: =RGBA(0, 0, 0, 0)
+                                          Fill: =RGBA(0, 0, 0, 0)
+                                          FocusedBorderThickness: =4
+                                          Height: =5
+                                          HoverFill: =RGBA(0, 0, 0, 0)
+                                          LayoutMaxHeight: =
+                                          LayoutMaxWidth: =
+                                          PressedFill: =RGBA(0, 0, 0, 0)
+                                    - Container18:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: AutoLayout
+                                        Properties:
+                                          DropShadow: =DropShadow.None
+                                          FillPortions: =0
+                                          Height: =150
+                                          LayoutDirection: =LayoutDirection.Vertical
+                                          LayoutMaxHeight: =
+                                          LayoutMaxWidth: =
+                                        Children:
+                                          - Container19:
+                                              Control: GroupContainer@1.5.0
+                                              Variant: AutoLayout
+                                              Properties:
+                                                FillPortions: =0
+                                                Height: =50
+                                                LayoutDirection: =LayoutDirection.Horizontal
+                                                LayoutMaxHeight: =
+                                                LayoutMaxWidth: =
+                                              Children:
+                                                - Rectangle7_31:
+                                                    Control: Rectangle@2.3.0
+                                                    Properties:
+                                                      AlignInContainer: =AlignInContainer.Stretch
+                                                      BorderColor: =RGBA(0, 0, 0, 0)
+                                                      BorderStyle: =BorderStyle.None
+                                                      DisabledFill: =RGBA(0, 0, 0, 0)
+                                                      Fill: =RGBA(0, 0, 0, 0)
+                                                      FocusedBorderThickness: =4
+                                                      Height: =10
+                                                      HoverFill: =RGBA(0, 0, 0, 0)
+                                                      LayoutMaxHeight: =
+                                                      LayoutMaxWidth: =
+                                                      LayoutMinHeight: =0
+                                                      PressedFill: =RGBA(0, 0, 0, 0)
+                                                      Width: =10
+                                                - TextCanvas8:
+                                                    Control: Text@0.0.51
+                                                    Properties:
+                                                      AlignInContainer: =AlignInContainer.Stretch
+                                                      FillPortions: =1
+                                                      Font: =Font.Arial
+                                                      FontColor: =RGBA(232, 232, 232, 1)
+                                                      LayoutMaxHeight: =
+                                                      LayoutMaxWidth: =
+                                                      LayoutMinWidth: =0
+                                                      PaddingLeft: =10
+                                                      Size: =20
+                                                      Text: ="Primary CMS Link:"
+                                                      VerticalAlign: =VerticalAlign.Middle
+                                                      Weight: ='TextCanvas.Weight'.Bold
+                                                - TextInputCanvas2:
+                                                    Control: TextInput@0.0.54
+                                                    Properties:
+                                                      AlignInContainer: =AlignInContainer.Center
+                                                      FillPortions: =5
+                                                      Height: =40
+                                                      LayoutMaxHeight: =
+                                                      LayoutMaxWidth: =
+                                                      LayoutMinWidth: =0
+                                                      Placeholder: ="https://cms.wbdg.org/revisions/nnnn"
+                                                - Rectangle7_32:
+                                                    Control: Rectangle@2.3.0
+                                                    Properties:
+                                                      AlignInContainer: =AlignInContainer.Stretch
+                                                      BorderColor: =RGBA(0, 0, 0, 0)
+                                                      BorderStyle: =BorderStyle.None
+                                                      DisabledFill: =RGBA(0, 0, 0, 0)
+                                                      Fill: =RGBA(0, 0, 0, 0)
+                                                      FocusedBorderThickness: =4
+                                                      Height: =10
+                                                      HoverFill: =RGBA(0, 0, 0, 0)
+                                                      LayoutMaxHeight: =
+                                                      LayoutMaxWidth: =
+                                                      LayoutMinHeight: =0
+                                                      PressedFill: =RGBA(0, 0, 0, 0)
+                                                      Width: =10
+                                                - Icon1_8:
+                                                    Control: Classic/Icon@2.5.0
+                                                    Properties:
+                                                      BorderColor: =RGBA(0, 0, 0, 0)
+                                                      Color: =RGBA(214, 221, 224, 1)
+                                                      DisabledBorderColor: =RGBA(245, 245, 245, 1)
+                                                      DisabledColor: =RGBA(225, 223, 221, 1)
+                                                      DisabledFill: =RGBA(0, 0, 0, 0)
+                                                      FocusedBorderThickness: =4
+                                                      Height: =50
+                                                      HoverBorderColor: =RGBA(0, 0, 0, 0)
+                                                      HoverColor: =RGBA(255, 0, 0, 1)
+                                                      HoverFill: =RGBA(0, 0, 0, 0)
+                                                      Icon: =Icon.Information
+                                                      LayoutMaxHeight: =
+                                                      LayoutMaxWidth: =
+                                                      PaddingLeft: =5
+                                                      PressedBorderColor: =RGBA(0, 0, 0, 0)
+                                                      PressedColor: =RGBA(16, 110, 190, 1)
+                                                      PressedFill: =RGBA(0, 0, 0, 0)
+                                                      Tooltip: |-
+                                                        ="Cut & Paste the CMS Project Link
+                                                        FORMAT: https://cms.wbdg.org/revisions/nnnn"
+                                                      Width: =32
+                                                - Rectangle7_33:
+                                                    Control: Rectangle@2.3.0
+                                                    Properties:
+                                                      AlignInContainer: =AlignInContainer.Stretch
+                                                      BorderColor: =RGBA(0, 0, 0, 0)
+                                                      BorderStyle: =BorderStyle.None
+                                                      DisabledFill: =RGBA(0, 0, 0, 0)
+                                                      Fill: =RGBA(0, 0, 0, 0)
+                                                      FocusedBorderThickness: =4
+                                                      Height: =10
+                                                      HoverFill: =RGBA(0, 0, 0, 0)
+                                                      LayoutMaxHeight: =
+                                                      LayoutMaxWidth: =
+                                                      LayoutMinHeight: =0
+                                                      PressedFill: =RGBA(0, 0, 0, 0)
+                                                      Width: =10
+                                          - Container19_1:
+                                              Control: GroupContainer@1.5.0
+                                              Variant: AutoLayout
+                                              Properties:
+                                                FillPortions: =0
+                                                Height: =50
+                                                LayoutDirection: =LayoutDirection.Horizontal
+                                                LayoutMaxHeight: =
+                                                LayoutMaxWidth: =
+                                              Children:
+                                                - Rectangle7_34:
+                                                    Control: Rectangle@2.3.0
+                                                    Properties:
+                                                      AlignInContainer: =AlignInContainer.Stretch
+                                                      BorderColor: =RGBA(0, 0, 0, 0)
+                                                      BorderStyle: =BorderStyle.None
+                                                      DisabledFill: =RGBA(0, 0, 0, 0)
+                                                      Fill: =RGBA(0, 0, 0, 0)
+                                                      FocusedBorderThickness: =4
+                                                      Height: =10
+                                                      HoverFill: =RGBA(0, 0, 0, 0)
+                                                      LayoutMaxHeight: =
+                                                      LayoutMaxWidth: =
+                                                      LayoutMinHeight: =0
+                                                      PressedFill: =RGBA(0, 0, 0, 0)
+                                                      Width: =10
+                                                - TextCanvas8_1:
+                                                    Control: Text@0.0.51
+                                                    Properties:
+                                                      AlignInContainer: =AlignInContainer.Stretch
+                                                      FillPortions: =1
+                                                      Font: =Font.Arial
+                                                      FontColor: =RGBA(232, 232, 232, 1)
+                                                      LayoutMaxHeight: =
+                                                      LayoutMaxWidth: =
+                                                      LayoutMinWidth: =0
+                                                      PaddingLeft: =10
+                                                      Size: =20
+                                                      Text: ="CMS Guest Link:"
+                                                      VerticalAlign: =VerticalAlign.Middle
+                                                      Weight: ='TextCanvas.Weight'.Bold
+                                                - TextInputCanvas2_1:
+                                                    Control: TextInput@0.0.54
+                                                    Properties:
+                                                      AlignInContainer: =AlignInContainer.Center
+                                                      FillPortions: =5
+                                                      Height: =40
+                                                      LayoutMaxHeight: =
+                                                      LayoutMaxWidth: =
+                                                      LayoutMinWidth: =0
+                                                      Placeholder: ="https://cms.wbdg.org/nnnn"
+                                                - Rectangle7_35:
+                                                    Control: Rectangle@2.3.0
+                                                    Properties:
+                                                      AlignInContainer: =AlignInContainer.Stretch
+                                                      BorderColor: =RGBA(0, 0, 0, 0)
+                                                      BorderStyle: =BorderStyle.None
+                                                      DisabledFill: =RGBA(0, 0, 0, 0)
+                                                      Fill: =RGBA(0, 0, 0, 0)
+                                                      FocusedBorderThickness: =4
+                                                      Height: =10
+                                                      HoverFill: =RGBA(0, 0, 0, 0)
+                                                      LayoutMaxHeight: =
+                                                      LayoutMaxWidth: =
+                                                      LayoutMinHeight: =0
+                                                      PressedFill: =RGBA(0, 0, 0, 0)
+                                                      Width: =10
+                                                - Icon1_9:
+                                                    Control: Classic/Icon@2.5.0
+                                                    Properties:
+                                                      BorderColor: =RGBA(0, 0, 0, 0)
+                                                      Color: =RGBA(214, 221, 224, 1)
+                                                      DisabledBorderColor: =RGBA(245, 245, 245, 1)
+                                                      DisabledColor: =RGBA(225, 223, 221, 1)
+                                                      DisabledFill: =RGBA(0, 0, 0, 0)
+                                                      FocusedBorderThickness: =4
+                                                      Height: =50
+                                                      HoverBorderColor: =RGBA(0, 0, 0, 0)
+                                                      HoverColor: =RGBA(255, 0, 0, 1)
+                                                      HoverFill: =RGBA(0, 0, 0, 0)
+                                                      Icon: =Icon.Information
+                                                      LayoutMaxHeight: =
+                                                      LayoutMaxWidth: =
+                                                      PaddingLeft: =5
+                                                      PressedBorderColor: =RGBA(0, 0, 0, 0)
+                                                      PressedColor: =RGBA(16, 110, 190, 1)
+                                                      PressedFill: =RGBA(0, 0, 0, 0)
+                                                      Tooltip: |-
+                                                        ="Cut & Paste the CMS project Guest Link. You can find this under the Project Title on the CMS Project Page.
+                                                        FORMAT: https://cms.wbdg.org/nnnn"
+                                                      Width: =32
+                                                - Rectangle7_36:
+                                                    Control: Rectangle@2.3.0
+                                                    Properties:
+                                                      AlignInContainer: =AlignInContainer.Stretch
+                                                      BorderColor: =RGBA(0, 0, 0, 0)
+                                                      BorderStyle: =BorderStyle.None
+                                                      DisabledFill: =RGBA(0, 0, 0, 0)
+                                                      Fill: =RGBA(0, 0, 0, 0)
+                                                      FocusedBorderThickness: =4
+                                                      Height: =10
+                                                      HoverFill: =RGBA(0, 0, 0, 0)
+                                                      LayoutMaxHeight: =
+                                                      LayoutMaxWidth: =
+                                                      LayoutMinHeight: =0
+                                                      PressedFill: =RGBA(0, 0, 0, 0)
+                                                      Width: =10
+                                          - Container19_2:
+                                              Control: GroupContainer@1.5.0
+                                              Variant: AutoLayout
+                                              Properties:
+                                                FillPortions: =0
+                                                Height: =50
+                                                LayoutDirection: =LayoutDirection.Horizontal
+                                                LayoutMaxHeight: =
+                                                LayoutMaxWidth: =
+                                                X: =40
+                                                Y: =40
+                                              Children:
+                                                - Rectangle7_37:
+                                                    Control: Rectangle@2.3.0
+                                                    Properties:
+                                                      AlignInContainer: =AlignInContainer.Stretch
+                                                      BorderColor: =RGBA(0, 0, 0, 0)
+                                                      BorderStyle: =BorderStyle.None
+                                                      DisabledFill: =RGBA(0, 0, 0, 0)
+                                                      Fill: =RGBA(0, 0, 0, 0)
+                                                      FocusedBorderThickness: =4
+                                                      Height: =10
+                                                      HoverFill: =RGBA(0, 0, 0, 0)
+                                                      LayoutMaxHeight: =
+                                                      LayoutMaxWidth: =
+                                                      LayoutMinHeight: =0
+                                                      PressedFill: =RGBA(0, 0, 0, 0)
+                                                      Width: =10
+                                                - TextCanvas8_2:
+                                                    Control: Text@0.0.51
+                                                    Properties:
+                                                      AlignInContainer: =AlignInContainer.Stretch
+                                                      FillPortions: =1
+                                                      Font: =Font.Arial
+                                                      FontColor: =RGBA(232, 232, 232, 1)
+                                                      LayoutMaxHeight: =
+                                                      LayoutMaxWidth: =
+                                                      LayoutMinWidth: =0
+                                                      PaddingLeft: =10
+                                                      Size: =20
+                                                      Text: ="Add'l CMS Links:"
+                                                      VerticalAlign: =VerticalAlign.Middle
+                                                      Weight: ='TextCanvas.Weight'.Bold
+                                                - TextInputCanvas2_2:
+                                                    Control: TextInput@0.0.54
+                                                    Properties:
+                                                      AlignInContainer: =AlignInContainer.Center
+                                                      FillPortions: =5
+                                                      Height: =40
+                                                      LayoutMaxHeight: =
+                                                      LayoutMaxWidth: =
+                                                      LayoutMinWidth: =0
+                                                      Placeholder: ="https://cms.wbdg.org/revision/nnnn"
+                                                - Rectangle7_38:
+                                                    Control: Rectangle@2.3.0
+                                                    Properties:
+                                                      AlignInContainer: =AlignInContainer.Stretch
+                                                      BorderColor: =RGBA(0, 0, 0, 0)
+                                                      BorderStyle: =BorderStyle.None
+                                                      DisabledFill: =RGBA(0, 0, 0, 0)
+                                                      Fill: =RGBA(0, 0, 0, 0)
+                                                      FocusedBorderThickness: =4
+                                                      Height: =10
+                                                      HoverFill: =RGBA(0, 0, 0, 0)
+                                                      LayoutMaxHeight: =
+                                                      LayoutMaxWidth: =
+                                                      LayoutMinHeight: =0
+                                                      PressedFill: =RGBA(0, 0, 0, 0)
+                                                      Width: =10
+                                                - Icon1_10:
+                                                    Control: Classic/Icon@2.5.0
+                                                    Properties:
+                                                      BorderColor: =RGBA(0, 0, 0, 0)
+                                                      Color: =RGBA(214, 221, 224, 1)
+                                                      DisabledBorderColor: =RGBA(245, 245, 245, 1)
+                                                      DisabledColor: =RGBA(225, 223, 221, 1)
+                                                      DisabledFill: =RGBA(0, 0, 0, 0)
+                                                      FocusedBorderThickness: =4
+                                                      Height: =50
+                                                      HoverBorderColor: =RGBA(0, 0, 0, 0)
+                                                      HoverColor: =RGBA(255, 0, 0, 1)
+                                                      HoverFill: =RGBA(0, 0, 0, 0)
+                                                      Icon: =Icon.Information
+                                                      LayoutMaxHeight: =
+                                                      LayoutMaxWidth: =
+                                                      PaddingLeft: =5
+                                                      PressedBorderColor: =RGBA(0, 0, 0, 0)
+                                                      PressedColor: =RGBA(16, 110, 190, 1)
+                                                      PressedFill: =RGBA(0, 0, 0, 0)
+                                                      Tooltip: |-
+                                                        ="If you have multiple CMS projects that are being covered by this S&C Project, cut & paste the additional CMS Project Link here.
+                                                        FORMAT: https://cms.wbdg.org/revision/nnnn"
+                                                      Width: =32
+                                                - Rectangle7_39:
+                                                    Control: Rectangle@2.3.0
+                                                    Properties:
+                                                      AlignInContainer: =AlignInContainer.Stretch
+                                                      BorderColor: =RGBA(0, 0, 0, 0)
+                                                      BorderStyle: =BorderStyle.None
+                                                      DisabledFill: =RGBA(0, 0, 0, 0)
+                                                      Fill: =RGBA(0, 0, 0, 0)
+                                                      FocusedBorderThickness: =4
+                                                      Height: =10
+                                                      HoverFill: =RGBA(0, 0, 0, 0)
+                                                      LayoutMaxHeight: =
+                                                      LayoutMaxWidth: =
+                                                      LayoutMinHeight: =0
+                                                      PressedFill: =RGBA(0, 0, 0, 0)
+                                                      Width: =10
+                                    - Rectangle7_5:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                          AlignInContainer: =AlignInContainer.Stretch
+                                          BorderColor: =RGBA(0, 0, 0, 0)
+                                          BorderStyle: =BorderStyle.None
+                                          DisabledFill: =RGBA(0, 0, 0, 0)
+                                          Fill: =RGBA(0, 0, 0, 0)
+                                          FocusedBorderThickness: =4
+                                          Height: =10
+                                          HoverFill: =RGBA(0, 0, 0, 0)
+                                          LayoutMaxHeight: =
+                                          LayoutMaxWidth: =
+                                          PressedFill: =RGBA(0, 0, 0, 0)
+                                    - Container7_1:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: AutoLayout
+                                        Properties:
+                                          FillPortions: =0
+                                          Height: =52
+                                          LayoutDirection: =LayoutDirection.Vertical
+                                          LayoutMaxHeight: =
+                                          LayoutMaxWidth: =
+                                          LayoutMinHeight: =55
+                                        Children:
+                                          - Container17_1:
+                                              Control: GroupContainer@1.5.0
+                                              Variant: AutoLayout
+                                              Properties:
+                                                FillPortions: =0
+                                                Height: =50
+                                                LayoutDirection: =LayoutDirection.Horizontal
+                                                LayoutMaxHeight: =
+                                                LayoutMaxWidth: =
+                                              Children:
+                                                - TextCanvas4_8:
+                                                    Control: Text@0.0.51
+                                                    Properties:
+                                                      FontColor: =RGBA(232, 232, 232, 1)
+                                                      Height: =50
+                                                      LayoutMaxHeight: =
+                                                      LayoutMaxWidth: =
+                                                      PaddingLeft: =10
+                                                      Size: =20
+                                                      Text: ="DELIVERABLES"
+                                                      VerticalAlign: =VerticalAlign.Middle
+                                                      Weight: ='TextCanvas.Weight'.Bold
+                                                      Width: =180
+                                                - TextCanvas4_7:
+                                                    Control: Text@0.0.51
+                                                    Properties:
+                                                      Align: ='TextCanvas.Align'.Start
+                                                      AlignInContainer: =AlignInContainer.Stretch
+                                                      FillPortions: =1
+                                                      FontColor: =RGBA(232, 232, 232, 1)
+                                                      Height: =50
+                                                      LayoutMaxHeight: =
+                                                      LayoutMaxWidth: =
+                                                      PaddingLeft: =0
+                                                      Text: ="i.e. what documents will be compleated/published as an outcome of this project?"
+                                                      VerticalAlign: =VerticalAlign.Middle
+                                                      Weight: ='TextCanvas.Weight'.Bold
+                                          - Rectangle6_2:
+                                              Control: Rectangle@2.3.0
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                BorderColor: =RGBA(0, 0, 0, 0)
+                                                BorderStyle: =BorderStyle.None
+                                                DisabledFill: =RGBA(0, 0, 0, 0)
+                                                Fill: =RGBA(0, 0, 0, 1)
+                                                FocusedBorderThickness: =4
+                                                Height: =3
+                                                HoverFill: =RGBA(0, 0, 0, 0)
+                                                LayoutMaxHeight: =
+                                                LayoutMaxWidth: =
+                                                PressedFill: =RGBA(0, 0, 0, 0)
+                                                Width: =400
+                                    - Rectangle7_6:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                          AlignInContainer: =AlignInContainer.Stretch
+                                          BorderColor: =RGBA(0, 0, 0, 0)
+                                          BorderStyle: =BorderStyle.None
+                                          DisabledFill: =RGBA(0, 0, 0, 0)
+                                          Fill: =RGBA(0, 0, 0, 0)
+                                          FocusedBorderThickness: =4
+                                          Height: =10
+                                          HoverFill: =RGBA(0, 0, 0, 0)
+                                          LayoutMaxHeight: =
+                                          LayoutMaxWidth: =
+                                          PressedFill: =RGBA(0, 0, 0, 0)
+                                    - Container20:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: AutoLayout
+                                        Properties:
+                                          DropShadow: =DropShadow.None
+                                          FillPortions: =0
+                                          Height: =150
+                                          LayoutDirection: =LayoutDirection.Vertical
+                                          LayoutMaxHeight: =
+                                          LayoutMaxWidth: =
+                                        Children:
+                                          - Container21:
+                                              Control: GroupContainer@1.5.0
+                                              Variant: AutoLayout
+                                              Properties:
+                                                FillPortions: =0
+                                                Height: =35
+                                                LayoutDirection: =LayoutDirection.Horizontal
+                                                LayoutMaxHeight: =
+                                                LayoutMaxWidth: =
+                                              Children:
+                                                - TextCanvas4:
+                                                    Control: Text@0.0.51
+                                                    Properties:
+                                                      AlignInContainer: =AlignInContainer.Stretch
+                                                      FillPortions: =1
+                                                      Font: =Font.Arial
+                                                      FontColor: =RGBA(232, 232, 232, 1)
+                                                      LayoutMaxHeight: =
+                                                      LayoutMaxWidth: =
+                                                      LayoutMinHeight: =0
+                                                      PaddingLeft: =10
+                                                      Size: =16
+                                                      Text: ="For ""Other"" documents with longer descriptions, put a lable here and complete description in the Description box in Project Justification"
+                                                      VerticalAlign: =VerticalAlign.Middle
+                                                      Weight: ='TextCanvas.Weight'.Bold
+                        - Rectangle4_3:
+                            Control: Rectangle@2.3.0
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Stretch
+                              BorderColor: =RGBA(0, 0, 0, 0)
+                              BorderStyle: =BorderStyle.None
+                              BorderThickness: =2
+                              DisabledFill: =RGBA(0, 0, 0, 0)
+                              Fill: =RGBA(0, 0, 0, 0)
+                              FocusedBorderThickness: =4
+                              HoverFill: =RGBA(0, 0, 0, 0)
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              PressedFill: =RGBA(0, 0, 0, 0)
+                              Width: =50
+                  - Rectangle3_3:
+                      Control: Rectangle@2.3.0
+                      Properties:
+                        AlignInContainer: =AlignInContainer.Stretch
+                        BorderColor: =RGBA(0, 0, 0, 0)
+                        BorderStyle: =BorderStyle.None
+                        BorderThickness: =2
+                        DisabledFill: =RGBA(0, 0, 0, 0)
+                        Fill: =RGBA(0, 0, 0, 0)
+                        FocusedBorderThickness: =4
+                        Height: =50
+                        HoverFill: =RGBA(0, 0, 0, 0)
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        PressedFill: =RGBA(0, 0, 0, 0)
+      - Icon2:
+          Control: Classic/Icon@2.5.0
+          Properties:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            Color: =RGBA(232, 232, 232, 1)
+            DisabledBorderColor: =RGBA(245, 245, 245, 1)
+            DisabledColor: =RGBA(225, 223, 221, 1)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =30
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(174, 208, 221, 1)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Icon: =Icon.BackArrow
+            OnSelect: =Navigate(Home);
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedColor: =RGBA(16, 110, 190, 1)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Width: =30
+            X: =12
+            Y: =726
+      - Rectangle7_14:
+          Control: Rectangle@2.3.0
+          Properties:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            Fill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =10
+            HoverFill: =RGBA(0, 0, 0, 0)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Width: =10
+            X: =612
+            Y: =20
