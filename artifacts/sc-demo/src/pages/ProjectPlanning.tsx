@@ -20,8 +20,8 @@ type QKey = keyof QData;
 
 const ALL_QKEYS: QKey[] = [
   "fy25q1","fy25q2","fy25q3","fy25q4",
-  "fy26q1","fy26q2","fy26q3",
-  // fy26q4 is excluded from QData — beyond the max request window
+  "fy26q1","fy26q2","fy26q3","fy26q4",
+  // fy26q4 is normally closed but can auto-open when near FY26 Q3 quarter-end
 ];
 
 interface FiscalWindowConfig {
@@ -149,7 +149,7 @@ const TRAVEL_OPTIONS = [
 /* ─── types ────────────────────────────────────────────────────── */
 type QData = {
   fy25q1: number; fy25q2: number; fy25q3: number; fy25q4: number;
-  fy26q1: number; fy26q2: number; fy26q3: number;
+  fy26q1: number; fy26q2: number; fy26q3: number; fy26q4: number;
 };
 
 type PlanRow = QData & {
@@ -204,7 +204,7 @@ function clampRequested(requested: number, obligated: number, max: number): numb
 }
 
 /* ─── empty row factories ───────────────────────────────────────── */
-const emptyQ = (): QData => ({ fy25q1: 0, fy25q2: 0, fy25q3: 0, fy25q4: 0, fy26q1: 0, fy26q2: 0, fy26q3: 0 });
+const emptyQ = (): QData => ({ fy25q1: 0, fy25q2: 0, fy25q3: 0, fy25q4: 0, fy26q1: 0, fy26q2: 0, fy26q3: 0, fy26q4: 0 });
 
 /* ─── color tokens ──────────────────────────────────────────────── */
 const AMBER_BG     = "#fffbeb";
@@ -270,7 +270,36 @@ function AmtDisplay({ value, bold }: { value: number; bold?: boolean }) {
   );
 }
 
-/* ─── quarterly panel ───────────────────────────────────────────── */
+/* ─── quarterly panel meta + window-driven rendering ────────────── */
+// Each QKey maps to FY label and quarter number for rendering
+const Q_META: Record<QKey, { fy: string; q: number; range: string }> = {
+  fy25q1: { fy: "FY25", q: 1, range: "Oct–Dec" },
+  fy25q2: { fy: "FY25", q: 2, range: "Jan–Mar" },
+  fy25q3: { fy: "FY25", q: 3, range: "Apr–Jun" },
+  fy25q4: { fy: "FY25", q: 4, range: "Jul–Sep" },
+  fy26q1: { fy: "FY26", q: 1, range: "Oct–Dec" },
+  fy26q2: { fy: "FY26", q: 2, range: "Jan–Mar" },
+  fy26q3: { fy: "FY26", q: 3, range: "Apr–Jun" },
+  fy26q4: { fy: "FY26", q: 4, range: "Jul–Sep" },
+};
+
+// Group ALL_QKEYS by FY for table rendering (order preserved)
+const FY_GROUPS = ALL_QKEYS.reduce<Record<string, QKey[]>>((acc, k) => {
+  const fy = Q_META[k].fy;
+  if (!acc[fy]) acc[fy] = [];
+  acc[fy].push(k);
+  return acc;
+}, {});
+const FY_LABELS = Object.keys(FY_GROUPS); // ["FY25", "FY26"]
+const QUARTER_NUMS = [1, 2, 3, 4];
+const Q_RANGES = ["Oct–Dec", "Jan–Mar", "Apr–Jun", "Jul–Sep"];
+
+// Stable lookups derived from PAST/OPEN arrays (re-computed once at module level)
+const PAST_SET = new Set<string>(PAST_QKEYS);
+const OPEN_SET = new Set<string>(OPEN_QKEYS);
+const qStatus = (k: string): "past" | "open" | "closed" =>
+  PAST_SET.has(k) ? "past" : OPEN_SET.has(k) ? "open" : "closed";
+
 function QuarterlyPanel({
   row, onUpdateQ,
 }: {
@@ -279,10 +308,15 @@ function QuarterlyPanel({
 }) {
   const pastStyle: React.CSSProperties = { backgroundColor: BLUE_BG, color: "#1e40af", fontWeight: 500 };
   const openStyle: React.CSSProperties = { backgroundColor: AMBER_BG };
-  const closedStyle: React.CSSProperties = { backgroundColor: "#f8fafc", color: "#cbd5e1", cursor: "not-allowed" };
+  const closedStyle: React.CSSProperties = {
+    backgroundColor: "#f8fafc", color: "#cbd5e1", cursor: "not-allowed",
+    textAlign: "right", fontSize: 12, paddingTop: 3, paddingBottom: 3, paddingRight: 6, borderRadius: 3,
+  };
 
-  const fy25Total = row.fy25q1 + row.fy25q2 + row.fy25q3 + row.fy25q4;
-  const fy26Total = row.fy26q1 + row.fy26q2 + row.fy26q3;
+  // Describe the open window in the subtitle
+  const openDesc = OPEN_QKEYS.length > 0
+    ? `Open: ${Q_META[OPEN_QKEYS[0]].fy} Q${Q_META[OPEN_QKEYS[0]].q}–${Q_META[OPEN_QKEYS[OPEN_QKEYS.length - 1]].fy} Q${Q_META[OPEN_QKEYS[OPEN_QKEYS.length - 1]].q}`
+    : "No open quarters";
 
   return (
     <div style={{ borderTop: "2px solid #1a6ea8", background: "linear-gradient(to bottom, #f0f4f8, #f8fafc)", padding: "0 0 12px 0" }}>
@@ -292,74 +326,77 @@ function QuarterlyPanel({
         </span>
         <span style={{ flex: 1 }} />
         <span style={{ fontSize: 10, color: "#93c5fd", opacity: 0.7 }}>
-          Past quarters (Q1-Q2) are obligated and locked &nbsp;·&nbsp; Q3 onward is editable
+          {PAST_QKEYS.length} past quarter{PAST_QKEYS.length !== 1 ? "s" : ""} obligated &amp; locked
+          &nbsp;·&nbsp; {openDesc}
         </span>
       </div>
       <div style={{ padding: "10px 16px 0" }}>
         <table style={{ borderCollapse: "collapse", fontSize: 12, width: "100%", tableLayout: "fixed" }}>
           <thead>
             <tr>
-              <th style={{ width: 60, textAlign: "left", color: "#475569", fontWeight: 700, paddingBottom: 6, textTransform: "uppercase", fontSize: 10, letterSpacing: "0.05em" }}>Year</th>
-              <th style={{ textAlign: "right", paddingBottom: 6, paddingRight: 6 }}>
-                <span style={{ fontSize: 10, fontWeight: 700, color: "#1e40af", textTransform: "uppercase" }}>Q1 Oct–Dec</span>
-                <br /><span style={{ fontSize: 9, color: "#64748b", fontWeight: 400 }}>past</span>
+              <th style={{ width: 60, textAlign: "left", color: "#475569", fontWeight: 700, paddingBottom: 6, textTransform: "uppercase", fontSize: 10, letterSpacing: "0.05em" }}>
+                Year
               </th>
-              <th style={{ textAlign: "right", paddingBottom: 6, paddingRight: 6 }}>
-                <span style={{ fontSize: 10, fontWeight: 700, color: "#1e40af", textTransform: "uppercase" }}>Q2 Jan–Mar</span>
-                <br /><span style={{ fontSize: 9, color: "#64748b", fontWeight: 400 }}>past</span>
-              </th>
-              <th style={{ textAlign: "right", paddingBottom: 6, paddingRight: 6 }}>
-                <span style={{ fontSize: 10, fontWeight: 700, color: "#78350f", textTransform: "uppercase" }}>Q3 Apr–Jun</span>
-                <br /><span style={{ fontSize: 9, color: "#92400e", fontWeight: 400 }}>current</span>
-              </th>
-              <th style={{ textAlign: "right", paddingBottom: 6, paddingRight: 6 }}>
-                <span style={{ fontSize: 10, fontWeight: 700, color: "#78350f", textTransform: "uppercase" }}>Q4 Jul–Sep</span>
-                <br /><span style={{ fontSize: 9, color: "#92400e", fontWeight: 400 }}>open</span>
-              </th>
+              {QUARTER_NUMS.map((qn) => {
+                // Use FY25 representative key to determine column-level status label
+                const repKey = `fy25q${qn}` as QKey;
+                const st = qStatus(repKey);
+                const labelColor = st === "past" ? "#1e40af" : st === "open" ? "#78350f" : "#94a3b8";
+                const subColor   = st === "past" ? "#64748b" : st === "open" ? "#92400e" : "#94a3b8";
+                return (
+                  <th key={qn} style={{ textAlign: "right", paddingBottom: 6, paddingRight: 6 }}>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: labelColor, textTransform: "uppercase" }}>
+                      Q{qn} {Q_RANGES[qn - 1]}
+                    </span>
+                    <br />
+                    <span style={{ fontSize: 9, color: subColor, fontWeight: 400 }}>
+                      {st}
+                    </span>
+                  </th>
+                );
+              })}
               <th style={{ width: 90, textAlign: "right", paddingBottom: 6, borderLeft: "1px solid #cbd5e1", paddingLeft: 8, paddingRight: 6 }}>
                 <span style={{ fontSize: 10, fontWeight: 700, color: "#1a6ea8", textTransform: "uppercase" }}>FY Total</span>
               </th>
             </tr>
           </thead>
           <tbody>
-            {/* FY25 */}
-            <tr style={{ borderTop: "1px solid #e2e8f0" }}>
-              <td style={{ paddingTop: 4, paddingBottom: 4, fontWeight: 700, color: "#1a3557", fontSize: 12 }}>FY25</td>
-              <td style={{ ...pastStyle, paddingTop: 3, paddingBottom: 3, paddingRight: 6, borderRadius: 3 }}>
-                <AmtDisplay value={row.fy25q1} />
-              </td>
-              <td style={{ ...pastStyle, paddingTop: 3, paddingBottom: 3, paddingRight: 6, borderRadius: 3 }}>
-                <AmtDisplay value={row.fy25q2} />
-              </td>
-              <td style={{ ...openStyle, paddingTop: 3, paddingBottom: 3, paddingRight: 6, borderRadius: 3 }}>
-                <AmtInput value={row.fy25q3} onChange={(v) => onUpdateQ(row.id, "fy25q3", v)} gold />
-              </td>
-              <td style={{ ...openStyle, paddingTop: 3, paddingBottom: 3, paddingRight: 6, borderRadius: 3 }}>
-                <AmtInput value={row.fy25q4} onChange={(v) => onUpdateQ(row.id, "fy25q4", v)} gold />
-              </td>
-              <td style={{ paddingTop: 3, paddingBottom: 3, borderLeft: "1px solid #cbd5e1", paddingLeft: 8, paddingRight: 6, textAlign: "right", fontWeight: 700, color: fy25Total === 0 ? "#94a3b8" : "#1a3557", fontSize: 12 }} className="tabular-nums">
-                {fy25Total === 0 ? "—" : fmt(fy25Total)}
-              </td>
-            </tr>
-            {/* FY26 */}
-            <tr style={{ borderTop: "1px solid #e2e8f0", background: "rgba(255,255,255,0.55)" }}>
-              <td style={{ paddingTop: 4, paddingBottom: 4, fontWeight: 700, color: "#1a3557", fontSize: 12 }}>FY26</td>
-              <td style={{ ...openStyle, paddingTop: 3, paddingBottom: 3, paddingRight: 6, borderRadius: 3 }}>
-                <AmtInput value={row.fy26q1} onChange={(v) => onUpdateQ(row.id, "fy26q1", v)} gold />
-              </td>
-              <td style={{ ...openStyle, paddingTop: 3, paddingBottom: 3, paddingRight: 6, borderRadius: 3 }}>
-                <AmtInput value={row.fy26q2} onChange={(v) => onUpdateQ(row.id, "fy26q2", v)} gold />
-              </td>
-              <td style={{ ...openStyle, paddingTop: 3, paddingBottom: 3, paddingRight: 6, borderRadius: 3 }}>
-                <AmtInput value={row.fy26q3} onChange={(v) => onUpdateQ(row.id, "fy26q3", v)} gold />
-              </td>
-              <td style={{ ...closedStyle, paddingTop: 3, paddingBottom: 3, paddingRight: 6, borderRadius: 3, textAlign: "right", fontSize: 12 }}>
-                — <span style={{ fontSize: 9 }}>closed</span>
-              </td>
-              <td style={{ paddingTop: 3, paddingBottom: 3, borderLeft: "1px solid #cbd5e1", paddingLeft: 8, paddingRight: 6, textAlign: "right", fontWeight: 700, color: fy26Total === 0 ? "#94a3b8" : "#1a3557", fontSize: 12 }} className="tabular-nums">
-                {fy26Total === 0 ? "—" : fmt(fy26Total)}
-              </td>
-            </tr>
+            {FY_LABELS.map((fy, fyIdx) => {
+              const fyKeys = FY_GROUPS[fy];
+              const fyTotal = fyKeys.reduce((s, k) => s + row[k], 0);
+              return (
+                <tr key={fy} style={{ borderTop: "1px solid #e2e8f0", background: fyIdx % 2 === 1 ? "rgba(255,255,255,0.55)" : undefined }}>
+                  <td style={{ paddingTop: 4, paddingBottom: 4, fontWeight: 700, color: "#1a3557", fontSize: 12 }}>{fy}</td>
+                  {QUARTER_NUMS.map((qn) => {
+                    const key = `${fy.toLowerCase()}q${qn}` as QKey;
+                    const st  = qStatus(key);
+                    const cellPad = { paddingTop: 3, paddingBottom: 3, paddingRight: 6, borderRadius: 3 };
+                    if (st === "past") {
+                      return (
+                        <td key={qn} style={{ ...pastStyle, ...cellPad }}>
+                          <AmtDisplay value={row[key]} />
+                        </td>
+                      );
+                    }
+                    if (st === "open") {
+                      return (
+                        <td key={qn} style={{ ...openStyle, ...cellPad }}>
+                          <AmtInput value={row[key]} onChange={(v) => onUpdateQ(row.id, key, v)} gold />
+                        </td>
+                      );
+                    }
+                    return (
+                      <td key={qn} style={closedStyle}>
+                        — <span style={{ fontSize: 9 }}>closed</span>
+                      </td>
+                    );
+                  })}
+                  <td style={{ paddingTop: 3, paddingBottom: 3, borderLeft: "1px solid #cbd5e1", paddingLeft: 8, paddingRight: 6, textAlign: "right", fontWeight: 700, color: fyTotal === 0 ? "#94a3b8" : "#1a3557", fontSize: 12 }} className="tabular-nums">
+                    {fyTotal === 0 ? "—" : fmt(fyTotal)}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -508,6 +545,7 @@ function PlanDataRow({
 /* ─── contract / outsourcing data row ──────────────────────────── */
 function ResourceDataRow<T extends QData & { id: number; org: string; orgCode: string; openCommitment: number; requested: number }>({
   row, line2, expanded, onToggle, onUpdateQ, onUpdateRequested, onDelete,
+  orgOptions, codeOptions, currentCode, onUpdateOrg, onUpdateCode,
 }: {
   row: T;
   line2: string;
@@ -516,13 +554,22 @@ function ResourceDataRow<T extends QData & { id: number; org: string; orgCode: s
   onUpdateQ: (id: number, field: keyof QData, val: number) => void;
   onUpdateRequested: (id: number, val: number) => void;
   onDelete: (id: number) => void;
+  orgOptions?:    { label: string; code: string }[];
+  codeOptions?:   { code: string; name: string }[];
+  currentCode?:   string;
+  onUpdateOrg?:   (id: number, org: string, orgCode: string) => void;
+  onUpdateCode?:  (id: number, code: string, name: string) => void;
 }) {
   const planned   = sumAll(row);
   const obligated = obligatedQ(row);
-  const remaining = plannedRem(row);   // = open-window sum
-  const maxReq    = openWindowMax(row); // ceiling for the request field
+  const remaining = plannedRem(row);
+  const maxReq    = openWindowMax(row);
   const canDelete = obligated === 0;
   const td = "px-3 py-2.5 text-right tabular-nums text-sm text-slate-800";
+  const selStyle: React.CSSProperties = {
+    fontSize: 12, border: "1px solid #e2e8f0", borderRadius: 4, padding: "1px 3px",
+    background: "white", color: "#1e293b", width: "100%", cursor: "pointer",
+  };
 
   return (
     <React.Fragment>
@@ -535,9 +582,40 @@ function ResourceDataRow<T extends QData & { id: number; org: string; orgCode: s
             >
               {expanded ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
             </button>
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-slate-800 leading-snug truncate">{row.org}</p>
-              <p className="text-xs text-slate-400 leading-snug truncate mt-0.5" title={line2}>{line2}</p>
+            <div className="min-w-0 flex-1">
+              {orgOptions ? (
+                <select
+                  value={row.orgCode}
+                  style={selStyle}
+                  onChange={(e) => {
+                    const opt = orgOptions.find((o) => o.code === e.target.value);
+                    if (opt) onUpdateOrg?.(row.id, opt.label, opt.code);
+                  }}
+                >
+                  {orgOptions.map((o) => (
+                    <option key={`${o.label}|${o.code}`} value={o.code}>{o.label} ({o.code})</option>
+                  ))}
+                </select>
+              ) : (
+                <p className="text-sm font-semibold text-slate-800 leading-snug truncate">{row.org}</p>
+              )}
+              {codeOptions ? (
+                <select
+                  value={currentCode ?? ""}
+                  style={{ ...selStyle, marginTop: 2, color: "#475569" }}
+                  onChange={(e) => {
+                    // use name as unique select value (codes can repeat in some lists)
+                    const opt = codeOptions.find((o) => o.name === e.target.value);
+                    if (opt) onUpdateCode?.(row.id, opt.code, opt.name);
+                  }}
+                >
+                  {codeOptions.map((o) => (
+                    <option key={`${o.code}|${o.name}`} value={o.name}>{o.code} — {o.name}</option>
+                  ))}
+                </select>
+              ) : (
+                <p className="text-xs text-slate-400 leading-snug truncate mt-0.5" title={line2}>{line2}</p>
+              )}
             </div>
           </div>
         </td>
@@ -788,53 +866,53 @@ function SectionWrapper({ title, dotColor, children }: { title: string; dotColor
 const INITIAL_LABOR: PlanRow[] = [
   { id: 1, label: "Nugent, Joseph Pat", sub: "U435310/CERL",
     fy25q1: 10000, fy25q2: 12000, fy25q3: 13000, fy25q4: 10000,
-    fy26q1: 12000, fy26q2: 12000, fy26q3: 11000,
-    openCommitment: 3500, requested: 58000 },   // open-window: 13+10+12+12+11 = 58K
+    fy26q1: 12000, fy26q2: 12000, fy26q3: 11000, fy26q4: 0,
+    openCommitment: 3500, requested: 58000 },
   { id: 2, label: "Chen, David", sub: "U719203/CERL",
     fy25q1: 8000, fy25q2: 8000, fy25q3: 8000, fy25q4: 8000,
-    fy26q1: 9000, fy26q2: 9000, fy26q3: 9000,
-    openCommitment: 2000, requested: 43000 },   // open-window: 8+8+9+9+9 = 43K
+    fy26q1: 9000, fy26q2: 9000, fy26q3: 9000, fy26q4: 0,
+    openCommitment: 2000, requested: 43000 },
   { id: 3, label: "Williams, Sandra K.", sub: "U920183/CERL",
     fy25q1: 6000, fy25q2: 7000, fy25q3: 7500, fy25q4: 6500,
-    fy26q1: 7000, fy26q2: 7000, fy26q3: 6000,
-    openCommitment: 2500, requested: 34000 },   // open-window: 7.5+6.5+7+7+6 = 34K
+    fy26q1: 7000, fy26q2: 7000, fy26q3: 6000, fy26q4: 0,
+    openCommitment: 2500, requested: 34000 },
 ];
 
 const INITIAL_TRAVEL: PlanRow[] = [
   { id: 4, label: "CERL", sub: "U435310",
     fy25q1: 3000, fy25q2: 3000, fy25q3: 4000, fy25q4: 3000,
-    fy26q1: 4000, fy26q2: 4000, fy26q3: 3000,
-    openCommitment: 800, requested: 18000 },    // open-window: 4+3+4+4+3 = 18K
+    fy26q1: 4000, fy26q2: 4000, fy26q3: 3000, fy26q4: 0,
+    openCommitment: 800, requested: 18000 },
   { id: 5, label: "ERDC Headquarters", sub: "U582094",
     fy25q1: 1500, fy25q2: 1500, fy25q3: 2000, fy25q4: 1500,
-    fy26q1: 2000, fy26q2: 2000, fy26q3: 1500,
-    openCommitment: 400, requested: 9000 },     // open-window: 2+1.5+2+2+1.5 = 9K
+    fy26q1: 2000, fy26q2: 2000, fy26q3: 1500, fy26q4: 0,
+    openCommitment: 400, requested: 9000 },
 ];
 
 const INITIAL_CONTRACT: ContractRow[] = [
   { id: 6, org: "ERDC", orgCode: "U582094",
     contractCode: "ITSFTMAINT", contractName: "Software maintenance or support",
     fy25q1: 0, fy25q2: 15000, fy25q3: 20000, fy25q4: 20000,
-    fy26q1: 18000, fy26q2: 18000, fy26q3: 17000,
-    openCommitment: 3000, requested: 93000 },   // open-window: 20+20+18+18+17 = 93K
+    fy26q1: 18000, fy26q2: 18000, fy26q3: 17000, fy26q4: 0,
+    openCommitment: 3000, requested: 93000 },
   { id: 7, org: "CERL", orgCode: "U435310",
     contractCode: "OTHCONSVC", contractName: "Private Sector contracts not otherwise classified",
     fy25q1: 25000, fy25q2: 25000, fy25q3: 25000, fy25q4: 25000,
-    fy26q1: 20000, fy26q2: 20000, fy26q3: 20000,
-    openCommitment: 5000, requested: 110000 },  // open-window: 25+25+20+20+20 = 110K
+    fy26q1: 20000, fy26q2: 20000, fy26q3: 20000, fy26q4: 0,
+    openCommitment: 5000, requested: 110000 },
 ];
 
 const INITIAL_OUTSOURCING: OutsourcingRow[] = [
   { id: 8, org: "ERDC", orgCode: "U582094",
     resourceCode: "WKBOTHCOE", resourceName: "Corps District (MIPR)",
     fy25q1: 10000, fy25q2: 10000, fy25q3: 10000, fy25q4: 10000,
-    fy26q1: 8000, fy26q2: 8000, fy26q3: 8000,
-    openCommitment: 1500, requested: 44000 },   // open-window: 10+10+8+8+8 = 44K
+    fy26q1: 8000, fy26q2: 8000, fy26q3: 8000, fy26q4: 0,
+    openCommitment: 1500, requested: 44000 },
   { id: 9, org: "CERL", orgCode: "U435310",
     resourceCode: "SHOP/FACIL", resourceName: "OrderTrak",
     fy25q1: 5000, fy25q2: 5000, fy25q3: 5000, fy25q4: 5000,
-    fy26q1: 4000, fy26q2: 4000, fy26q3: 4000,
-    openCommitment: 800, requested: 22000 },    // open-window: 5+5+4+4+4 = 22K
+    fy26q1: 4000, fy26q2: 4000, fy26q3: 4000, fy26q4: 0,
+    openCommitment: 800, requested: 22000 },
 ];
 
 /* ─── main page ─────────────────────────────────────────────────── */
@@ -892,6 +970,22 @@ export default function ProjectPlanning() {
     setRows: React.Dispatch<React.SetStateAction<T[]>>, id: number, val: number
   ) {
     setRows((rows) => rows.map((r) => r.id === id ? { ...r, requested: val } : r));
+  }
+
+  /* in-row org / code updaters for Contracting section */
+  function updateContractOrg(id: number, org: string, orgCode: string) {
+    setContractRows((rows) => rows.map((r) => r.id === id ? { ...r, org, orgCode } : r));
+  }
+  function updateContractCode(id: number, contractCode: string, contractName: string) {
+    setContractRows((rows) => rows.map((r) => r.id === id ? { ...r, contractCode, contractName } : r));
+  }
+
+  /* in-row org / code updaters for Outsourcing section */
+  function updateOutsourcingOrg(id: number, org: string, orgCode: string) {
+    setOutsourcingRows((rows) => rows.map((r) => r.id === id ? { ...r, org, orgCode } : r));
+  }
+  function updateOutsourcingCode(id: number, resourceCode: string, resourceName: string) {
+    setOutsourcingRows((rows) => rows.map((r) => r.id === id ? { ...r, resourceCode, resourceName } : r));
   }
 
   const addSectionHeader = (title: string, dotColor: string, onAdd: () => void, addLabel: string) => (
@@ -1092,6 +1186,11 @@ export default function ProjectPlanning() {
                       onUpdateQ={(id, f, v) => updateResourceQ(setContractRows, id, f, v)}
                       onUpdateRequested={(id, v) => updateResourceRequested(setContractRows, id, v)}
                       onDelete={(id) => setContractRows((rows) => rows.filter((r) => r.id !== id))}
+                      orgOptions={ORG_OPTIONS}
+                      codeOptions={CONTRACT_CODES}
+                      currentCode={row.contractName}
+                      onUpdateOrg={updateContractOrg}
+                      onUpdateCode={updateContractCode}
                     />
                   ))}
                   {contractRows.length === 0 && (
@@ -1132,6 +1231,11 @@ export default function ProjectPlanning() {
                       onUpdateQ={(id, f, v) => updateResourceQ(setOutsourcingRows, id, f, v)}
                       onUpdateRequested={(id, v) => updateResourceRequested(setOutsourcingRows, id, v)}
                       onDelete={(id) => setOutsourcingRows((rows) => rows.filter((r) => r.id !== id))}
+                      orgOptions={ORG_OPTIONS}
+                      codeOptions={OUTSOURCING_CODES}
+                      currentCode={row.resourceName}
+                      onUpdateOrg={updateOutsourcingOrg}
+                      onUpdateCode={updateOutsourcingCode}
                     />
                   ))}
                   {outsourcingRows.length === 0 && (
