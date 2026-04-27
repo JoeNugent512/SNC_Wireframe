@@ -368,11 +368,16 @@ function useFundingRows(initial: FundingRow[], defaultFYNum: number) {
     setRows((r) => r.filter((row) => row.id !== id));
 
   const zeroOutRow = (id: number) =>
-    setRows((r) => r.map((row) =>
-      row.id === id
-        ? { ...row, planned: 0, requested: 0, quarters: row.quarters.map((q) => ({ ...q, q1: 0, q2: 0, q3: 0, q4: 0 })) }
-        : row
-    ));
+    setRows((r) => r.map((row) => {
+      if (row.id !== id) return row;
+      const floor = row.obligated ?? 0;
+      return {
+        ...row,
+        planned:   Math.max(floor, 0),
+        requested: Math.max(floor, 0),
+        quarters: row.quarters.map((q) => ({ ...q, q1: 0, q2: 0, q3: 0, q4: 0 })),
+      };
+    }));
 
   const addRow = (label: string, description: string) =>
     setRows((r) => [...r, {
