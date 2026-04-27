@@ -354,7 +354,8 @@ Screens:
                                           FontColor: =RGBA(148, 163, 184, 1)
                                           Height: =16
                                           Size: =10
-                                          Text: ="Est. " & Text(ThisItem.estimatedBudget, "[$-en-US]$ #,##0") & "  ·  Received " & ThisItem.receivedDate & "  ·  Source: " & ThisItem.sourceRef
+                                          Text: |-
+                                            ="Est. " & Text(ThisItem.estimatedBudget, "[$-en-US]$ #,##0") & "  ·  Received " & ThisItem.receivedDate & "  ·  Source: " & ThisItem.sourceRef
                                           Width: =580
                                           X: =88
                                           Y: =74

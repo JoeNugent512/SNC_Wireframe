@@ -461,7 +461,8 @@ Screens:
                                           LayoutMaxHeight: =
                                           LayoutMaxWidth: =
                                           Size: =12
-                                          Text: ="Planned: " & Text(Sum(colLaborRows, planned), "[$-en-US]$ #,##0")
+                                          Text: |-
+                                            ="Planned: " & Text(Sum(colLaborRows, planned), "[$-en-US]$ #,##0")
                                           VerticalAlign: =VerticalAlign.Middle
                                           Width: =240
                               - AddLaborBtn:
@@ -838,7 +839,8 @@ Screens:
                                           LayoutMaxHeight: =
                                           LayoutMaxWidth: =
                                           Size: =12
-                                          Text: ="Planned: " & Text(Sum(colTravelRows, planned), "[$-en-US]$ #,##0")
+                                          Text: |-
+                                            ="Planned: " & Text(Sum(colTravelRows, planned), "[$-en-US]$ #,##0")
                                           VerticalAlign: =VerticalAlign.Middle
                                           Width: =240
                               - AddTravelBtn:
@@ -1058,7 +1060,8 @@ Screens:
                                           LayoutMaxHeight: =
                                           LayoutMaxWidth: =
                                           Size: =12
-                                          Text: ="Planned: " & Text(Sum(colMaterialRows, planned), "[$-en-US]$ #,##0")
+                                          Text: |-
+                                            ="Planned: " & Text(Sum(colMaterialRows, planned), "[$-en-US]$ #,##0")
                                           VerticalAlign: =VerticalAlign.Middle
                                           Width: =240
                               - AddMatBtn:
@@ -1219,7 +1222,8 @@ Screens:
                               LayoutMaxHeight: =
                               LayoutMaxWidth: =
                               Size: =12
-                              Text: ="Remaining: " & Text(varCurrentProject.budget - Sum(colLaborRows, planned) - Sum(colTravelRows, planned) - Sum(colMaterialRows, planned), "[$-en-US]$ #,##0")
+                              Text: |-
+                                ="Remaining: " & Text(varCurrentProject.budget - Sum(colLaborRows, planned) - Sum(colTravelRows, planned) - Sum(colMaterialRows, planned), "[$-en-US]$ #,##0")
                               VerticalAlign: =VerticalAlign.Middle
                               Width: =240
                   - PlanBodySpacer5:

@@ -868,7 +868,8 @@ Screens:
                                                 LayoutMaxHeight: =
                                                 LayoutMaxWidth: =
                                                 Size: =11
-                                                Text: ="Approved Budget: " & Text(varCurrentProject.budget, "[$-en-US]$ #,##0")
+                                                Text: |-
+                                                  ="Approved Budget: " & Text(varCurrentProject.budget, "[$-en-US]$ #,##0")
                                                 VerticalAlign: =VerticalAlign.Middle
                                                 Width: =260
                                     - SFundTableHead:
