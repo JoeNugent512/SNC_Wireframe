@@ -1,0 +1,56 @@
+// ===================================================
+// MIPR CODES
+ 
+ 
+MIPRCodes = Table(
+    { RESOURCE_CODE: "WKBOTHCOE", RESOURCE_NAME: "Corps District" },
+    { RESOURCE_CODE: "WKBOTHFED", RESOURCE_NAME: "DoD or other Federal Agency" }
+);
+ 
+// ===================================================
+// OTHER FACILITY CODES
+ 
+ 
+OtherCodes = Table(
+    { RESOURCE_CODE: "OTHFACSVCS", RESOURCE_NAME: "Editing (ITLEDITOR)",                                              BURDENED: false },
+    { RESOURCE_CODE: "OTHFACSVCS", RESOURCE_NAME: "Library Purchases (Periodicals, subscriptions etc.) (LIBRWASH)",  BURDENED: false },
+    { RESOURCE_CODE: "OTHFACSVCS", RESOURCE_NAME: "Paint Tests - Billings (PAINT-TST)",                               BURDENED: false },
+    { RESOURCE_CODE: "OTHFACSVCS", RESOURCE_NAME: "Paint Tests",                                          BURDENED: true  },
+    { RESOURCE_CODE: "OTHFACSVCS", RESOURCE_NAME: "Civil Funded Military Officers",                       BURDENED: true },
+    { RESOURCE_CODE: "OTHFACSVCS", RESOURCE_NAME: "CQAB Chemical Tests & Analysis",                       BURDENED: true },
+    { RESOURCE_CODE: "OTHFACSVCS", RESOURCE_NAME: "SMS Facility Account",                                 BURDENED: false },
+    { RESOURCE_CODE: "OTHFACSVCS", RESOURCE_NAME: "Other Facility Services (Vehicle maintence, fuel)",                              BURDENED: false },
+    { RESOURCE_CODE: "SHOP/FACIL", RESOURCE_NAME: "OrderTrak",                                            BURDENED: true },
+    { RESOURCE_CODE: "SHOP/FACIL", RESOURCE_NAME: "ERDC-CCE",                                             BURDENED: false },
+    { RESOURCE_CODE: "SHOP/FACIL", RESOURCE_NAME: "Printing",                                             BURDENED: true },
+    //{ RESOURCE_CODE: "SHOP/FACIL", RESOURCE_NAME: "Other Shop/Facility",                                  BURDENED: false }, //does not show up in actuals
+    { RESOURCE_CODE: "GSAVEH",     RESOURCE_NAME: "Government Vehicle",                                   BURDENED: true },
+    { RESOURCE_CODE: "TRANTHNGS",  RESOURCE_NAME: "Other Shipping (TRANTHNGS)",                                       BURDENED: true  },
+    { RESOURCE_CODE: "TRANTHNGS",  RESOURCE_NAME: "52E Shipping (NIGHTMAIL)",                                         BURDENED: false },
+    { RESOURCE_CODE: "GOVPURCH",   RESOURCE_NAME: "TESS (unburdened)",                                                 BURDENED: false },
+    { RESOURCE_CODE: "GOVPURCH",   RESOURCE_NAME: "TESS-S (burdened)",                                                 BURDENED: true },
+    { RESOURCE_CODE: "GOVPURCH",   RESOURCE_NAME: "Other Federal Agency Purchases (ex. Fee-For-Service)", BURDENED: true }
+);
+ 
+// ===================================================
+// CONTRACT RESOURCE CODES
+ 
+ 
+ContractCodes = Table(
+    { RESOURCE_CODE: "DFC-CONTR",  RESOURCE_NAME: "Direct Fund Cite Contract" },
+    { RESOURCE_CODE: "EQUIPMENT",  RESOURCE_NAME: "Durable property" },
+    { RESOURCE_CODE: "INTEREST",   RESOURCE_NAME: "INTEREST PAYMENTS AND DIVIDENDS" },
+    { RESOURCE_CODE: "ITCONTSVS",  RESOURCE_NAME: "IT Other Services (NON-GOV)" },
+    { RESOURCE_CODE: "ITEQUIPEXP", RESOURCE_NAME: "IT EQUIPMENT (Printers, scanners, hard drives, etc)" },
+    { RESOURCE_CODE: "ITSFTDEVL",  RESOURCE_NAME: "Software (Private Sector for software development)" },
+    { RESOURCE_CODE: "ITSFTMAINT", RESOURCE_NAME: "Software maintenance or support" },
+    { RESOURCE_CODE: "ITSFTWREXP", RESOURCE_NAME: "Custom/off the shelf Software licenses, updates/$25K threshold" },
+    { RESOURCE_CODE: "ITSOFTLEAS", RESOURCE_NAME: "ADP/telecommunication software leases" },
+    { RESOURCE_CODE: "O&MEQUIP",   RESOURCE_NAME: "Contracts for O&M, repair, storage replacement, parts for equipment" },
+    { RESOURCE_CODE: "OTHCONSVC",  RESOURCE_NAME: "Private Sector contracts not otherwise classified/UIUC Students)" },
+    { RESOURCE_CODE: "OTHFACSVCS", RESOURCE_NAME: "PRIVATE SECTOR CONTRACTUAL SERVICES NOT OTHERWISE CLASSIFIED" },
+    { RESOURCE_CODE: "OTHRENTAL",  RESOURCE_NAME: "Rental of Equipment (IT equip rental, cyliner rental, equipment rental)L" },
+    { RESOURCE_CODE: "R&D",        RESOURCE_NAME: "R&D contractual services including BAAs" },
+    { RESOURCE_CODE: "SUPMATRL",   RESOURCE_NAME: "COMMODITIES EXPENDED WITHIN ONE YR (OFC SUPL, PUBLICATIONS, FUEL, BLDG MATRL, PARTS, ETC.)" },
+    { RESOURCE_CODE: "TRANTHNGS",  RESOURCE_NAME: "shipping" }
+);
