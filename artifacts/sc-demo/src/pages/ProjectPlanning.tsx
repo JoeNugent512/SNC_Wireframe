@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useRef, useEffect } from "react";
 import { Link, useParams } from "wouter";
-import { ChevronRight, ChevronDown, Settings, Plus, Trash2, MinusCircle, X, Search, Check } from "lucide-react";
-import { MOCK_PROJECTS } from "@/lib/mockData";
+import { ChevronRight, ChevronDown, Settings, Plus, Trash2, MinusCircle, X, Search, Check, FolderOpen } from "lucide-react";
+import { MOCK_PROJECTS, Project } from "@/lib/mockData";
 import { Toaster } from "@/components/ui/toaster";
 import Layout from "@/components/Layout";
 
@@ -466,6 +466,7 @@ function FundingSection({
   pickerTitle, pickerOptions, pickerPlaceholder,
   showDetails, defaultFY,
   onUpdateQuarter, onSpreadFiscalYear, onSpreadAllYears, onSpreadQuarter, onAddFiscalYear, onRemoveFiscalYear,
+  justification, onJustificationChange,
 }: {
   title: string;
   columnHeader: string;
@@ -490,10 +491,11 @@ function FundingSection({
   onSpreadQuarter: (id: number, qKey: keyof Omit<YearQuarters, "fy">, total: number) => void;
   onAddFiscalYear: (id: number, fy: string) => void;
   onRemoveFiscalYear: (id: number, fy: string) => void;
+  justification: string;
+  onJustificationChange: (v: string) => void;
 }) {
   const [showPicker, setShowPicker] = useState(false);
   const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
-  const [justification, setJustification] = useState("");
   const [showJustification, setShowJustification] = useState(false);
   const toggleExpand = (id: number) =>
     setExpandedRows((prev) => { const next = new Set(prev); next.has(id) ? next.delete(id) : next.add(id); return next; });
@@ -796,6 +798,7 @@ function FundingSection({
                     {justification.trim() && !showJustification && (
                       <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-500 ml-0.5" />
                     )}
+
                   </button>
                 </div>
               </td>
@@ -817,7 +820,7 @@ function FundingSection({
           <div className="border-t border-amber-100 bg-amber-50 px-4 py-3">
             <textarea
               value={justification}
-              onChange={(e) => setJustification(e.target.value)}
+              onChange={(e) => onJustificationChange(e.target.value)}
               rows={3}
               autoFocus
               placeholder={`Enter justification for ${title} budget allocation…`}
@@ -836,13 +839,237 @@ function FundingSection({
   );
 }
 
+/* ─── submit preview modal ─────────────────────────────────────── */
+const TYPE_ORDER_MODAL = ["Labor", "Travel", "Contracting", "Materials & Other"] as const;
+type SectionType = typeof TYPE_ORDER_MODAL[number];
+
+function typeModalColor(type: SectionType) {
+  if (type === "Labor")             return { bg: "#eff6ff", border: "#bfdbfe", text: "#1e40af", dot: "#3b82f6" };
+  if (type === "Travel")            return { bg: "#f5f3ff", border: "#ddd6fe", text: "#5b21b6", dot: "#7c3aed" };
+  if (type === "Contracting")       return { bg: "#f0fdf4", border: "#bbf7d0", text: "#166534", dot: "#16a34a" };
+  return                              { bg: "#f8fafc", border: "#e2e8f0", text: "#475569", dot: "#94a3b8" };
+}
+
+interface ModalRow { label: string; sub: string; planned: number; requested: number; description: string; }
+interface ModalSection { type: SectionType; rows: ModalRow[]; justification: string; }
+interface OrgGroup { orgCode: string; sections: ModalSection[]; }
+
+function SubmitPreviewModal({
+  project, sections, matsSection,
+  allPlanned, repoJustification, onRepoJustificationChange,
+  onClose, onSubmit,
+}: {
+  project: Project;
+  sections: OrgGroup[];
+  matsSection: ModalSection | null;
+  allPlanned: number;
+  repoJustification: string;
+  onRepoJustificationChange: (v: string) => void;
+  onClose: () => void;
+  onSubmit: () => void;
+}) {
+  const freeBalance = project.budget - allPlanned;
+  const today = new Date().toISOString().slice(0, 10);
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto"
+      style={{ backgroundColor: "rgba(15,23,42,0.6)", padding: "40px 16px 60px" }}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden">
+        {/* Modal header bar */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-slate-50/70">
+          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Submit Plan — Preview</span>
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-200 text-slate-500 hover:text-slate-800 transition-colors">
+            <X size={16} />
+          </button>
+        </div>
+
+        <div className="p-6 space-y-6">
+          {/* Project header card — matching CR detail style */}
+          <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
+            <div className="flex items-start justify-between gap-6 flex-wrap">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <FolderOpen size={13} className="text-slate-400" />
+                  <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Budget Change Request</span>
+                </div>
+                <h2 className="text-xl font-bold text-slate-900 leading-snug">
+                  <span className="font-mono text-sm text-slate-400 mr-2">{project.number}</span>
+                  {project.name}
+                </h2>
+                <div className="flex items-center gap-3 mt-2 flex-wrap">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border bg-blue-100 text-blue-800 border-blue-200">Pending</span>
+                  <span className="text-sm text-slate-500">{project.pmName} · {today}</span>
+                  <span className="text-sm text-slate-500">Proponent: <strong className="text-slate-700 font-medium">{project.hqProponent || "—"}</strong></span>
+                </div>
+              </div>
+              <div className="flex items-stretch gap-px bg-slate-200 rounded-lg overflow-hidden border border-slate-200 self-start">
+                {([
+                  { label: "TOA",          value: project.budget, color: "text-slate-800" },
+                  { label: "Planned",      value: allPlanned,     color: "text-slate-800" },
+                  { label: "Free Balance", value: freeBalance,    color: freeBalance >= 0 ? "text-emerald-700" : "text-red-600" },
+                ] as const).map(({ label, value, color }) => (
+                  <div key={label} className="flex flex-col items-end px-4 py-3 bg-white gap-0.5 min-w-[110px]">
+                    <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider whitespace-nowrap">{label}</span>
+                    <span className={`text-sm font-bold tabular-nums ${color}`}>{fmt(value)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Project description */}
+          <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
+            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Project Description</p>
+            <p className="text-sm text-slate-700 leading-relaxed">{project.description}</p>
+          </div>
+
+          {/* Budget breakdown */}
+          <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+            <div className="px-5 py-3 border-b border-slate-200 bg-slate-50/60">
+              <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Budget Breakdown</p>
+            </div>
+
+            {sections.map((grp, gi) => (
+              <div key={grp.orgCode} className={gi > 0 ? "border-t-2 border-slate-200" : ""}>
+                {/* Org code header */}
+                <div className="flex items-center gap-2 px-5 py-2 bg-slate-100">
+                  <span className="text-[11px] font-bold text-slate-500 uppercase tracking-widest font-mono">{grp.orgCode}</span>
+                </div>
+
+                {grp.sections.map((sec) => {
+                  const colors = typeModalColor(sec.type);
+                  return (
+                    <div key={sec.type}>
+                      {/* Type sub-header */}
+                      <div className="flex items-center gap-2 px-5 py-1.5"
+                        style={{ backgroundColor: colors.bg, borderTop: `1px solid ${colors.border}`, borderBottom: `1px solid ${colors.border}` }}>
+                        <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: colors.dot }} />
+                        <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: colors.text }}>{sec.type}</span>
+                      </div>
+
+                      {/* Justification for this type */}
+                      {sec.justification.trim() && (
+                        <div className="px-5 py-2 border-b" style={{ backgroundColor: "#fffbeb", borderColor: "#fde68a" }}>
+                          <p className="text-[9px] font-bold text-amber-700 uppercase tracking-wider mb-0.5">Justification</p>
+                          <p className="text-xs text-amber-900 leading-relaxed">{sec.justification}</p>
+                        </div>
+                      )}
+
+                      {/* Column mini-header */}
+                      <div className="grid px-5 py-1 bg-slate-50/50 border-b border-slate-100"
+                        style={{ gridTemplateColumns: "1fr 96px 96px 1fr" }}>
+                        <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Person / Org</span>
+                        <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider text-right">Planned</span>
+                        <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider text-right">Requested</span>
+                        <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider pl-3">Description</span>
+                      </div>
+
+                      {/* Rows */}
+                      {sec.rows.map((row, ri) => (
+                        <div key={ri} className="grid px-5 py-2 border-b border-slate-100 items-center gap-2"
+                          style={{ gridTemplateColumns: "1fr 96px 96px 1fr" }}>
+                          <span className="text-sm text-slate-700 font-medium truncate">{row.label}</span>
+                          <span className="text-sm tabular-nums text-slate-600 text-right">{fmt(row.planned)}</span>
+                          <span className="text-sm tabular-nums font-semibold text-slate-800 text-right">{fmt(row.requested)}</span>
+                          <span className="text-xs text-slate-400 font-mono pl-3 truncate" title={row.description}>{row.description}</span>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
+
+            {/* Materials & Other — no org code grouping */}
+            {matsSection && matsSection.rows.length > 0 && (
+              <div className={sections.length > 0 ? "border-t-2 border-slate-200" : ""}>
+                {(() => { const colors = typeModalColor("Materials & Other"); return (
+                  <div className="flex items-center gap-2 px-5 py-1.5"
+                    style={{ backgroundColor: colors.bg, borderBottom: `1px solid ${colors.border}` }}>
+                    <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: colors.dot }} />
+                    <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: colors.text }}>Materials &amp; Other</span>
+                  </div>
+                ); })()}
+
+                {matsSection.justification.trim() && (
+                  <div className="px-5 py-2 border-b" style={{ backgroundColor: "#fffbeb", borderColor: "#fde68a" }}>
+                    <p className="text-[9px] font-bold text-amber-700 uppercase tracking-wider mb-0.5">Justification</p>
+                    <p className="text-xs text-amber-900 leading-relaxed">{matsSection.justification}</p>
+                  </div>
+                )}
+
+                <div className="grid px-5 py-1 bg-slate-50/50 border-b border-slate-100"
+                  style={{ gridTemplateColumns: "1fr 96px 96px 1fr" }}>
+                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Item</span>
+                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider text-right">Planned</span>
+                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider text-right">Requested</span>
+                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider pl-3">Description</span>
+                </div>
+
+                {matsSection.rows.map((row, ri) => (
+                  <div key={ri} className="grid px-5 py-2 border-b border-slate-100 items-center gap-2"
+                    style={{ gridTemplateColumns: "1fr 96px 96px 1fr" }}>
+                    <span className="text-sm text-slate-700 font-medium truncate">{row.label}</span>
+                    <span className="text-sm tabular-nums text-slate-600 text-right">{fmt(row.planned)}</span>
+                    <span className="text-sm tabular-nums font-semibold text-slate-800 text-right">{fmt(row.requested)}</span>
+                    <span className="text-xs text-slate-400 font-mono pl-3 truncate" title={row.description}>{row.description}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Repositioning justification */}
+          <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
+            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Repositioning Justification</p>
+            <p className="text-xs text-slate-400 mb-3">Explain the overall rationale for this budget change request.</p>
+            <textarea
+              value={repoJustification}
+              onChange={(e) => onRepoJustificationChange(e.target.value)}
+              rows={4}
+              placeholder="Describe why the reallocation is needed…"
+              className="w-full text-sm text-slate-700 border border-slate-200 rounded-lg px-3 py-2.5 resize-none focus:outline-none focus:ring-2 focus:ring-blue-200 bg-white placeholder-slate-300"
+            />
+          </div>
+
+          {/* Final submit */}
+          <div className="flex items-center justify-between pt-2">
+            <button onClick={onClose} className="text-sm text-slate-500 hover:text-slate-800 px-4 py-2 rounded-lg hover:bg-slate-100 transition-colors">
+              Cancel
+            </button>
+            <button
+              onClick={onSubmit}
+              className="px-8 py-2.5 text-sm font-semibold rounded-lg shadow-sm text-white transition-colors"
+              style={{ backgroundColor: "#1a3557" }}
+              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#16304d"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "#1a3557"; }}
+            >
+              Submit Change Request
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ─── main funding view ────────────────────────────────────────── */
-function FundingView({ budget, projectNumber }: { budget: number; projectNumber: string }) {
+function FundingView({ project }: { project: Project }) {
+  const budget = project.budget;
   const b      = budget;
-  const fy     = projectNumber.slice(0, 2);
+  const fy     = project.number.slice(0, 2);
   const fyNum  = parseInt(fy);
-  const num    = projectNumber;
+  const num    = project.number;
   const [showDetails, setShowDetails] = useState(false);
+  const [laborJust, setLaborJust]             = useState("");
+  const [travelJust, setTravelJust]           = useState("");
+  const [contractingJust, setContractingJust] = useState("");
+  const [matsJust, setMatsJust]               = useState("");
+  const [showModal, setShowModal]             = useState(false);
+  const [repoJustification, setRepoJustification] = useState("");
 
   const labor = useFundingRows([
     { id: 1, label: "Nugent, Joseph Pat", sub: "U435310",
@@ -904,6 +1131,45 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
 
   const allPlanned = [...labor.rows, ...travel.rows, ...mats.rows, ...contracting.rows].reduce((s, r) => s + r.planned, 0);
   const leftToPlan = budget - allPlanned;
+
+  /* build modal org-code groups */
+  const modalOrgGroups = useMemo((): OrgGroup[] => {
+    const orgMap = new Map<string, { type: SectionType; row: ModalRow }[]>();
+    const addRows = (rows: typeof labor.rows, type: SectionType) => {
+      for (const r of rows) {
+        const key = r.sub || "—";
+        if (!orgMap.has(key)) orgMap.set(key, []);
+        orgMap.get(key)!.push({ type, row: { label: r.label, sub: r.sub, planned: r.planned, requested: r.requested, description: r.description } });
+      }
+    };
+    addRows(labor.rows, "Labor");
+    addRows(travel.rows, "Travel");
+    addRows(contracting.rows, "Contracting");
+
+    const justMap: Record<SectionType, string> = {
+      "Labor": laborJust, "Travel": travelJust, "Contracting": contractingJust, "Materials & Other": matsJust,
+    };
+    return Array.from(orgMap.entries()).map(([orgCode, items]) => {
+      const typeMap = new Map<SectionType, ModalRow[]>();
+      for (const { type, row } of items) {
+        if (!typeMap.has(type)) typeMap.set(type, []);
+        typeMap.get(type)!.push(row);
+      }
+      const sections: ModalSection[] = (["Labor", "Travel", "Contracting"] as const)
+        .filter((t) => typeMap.has(t))
+        .map((t) => ({ type: t, rows: typeMap.get(t)!, justification: justMap[t] }));
+      return { orgCode, sections };
+    });
+  }, [labor.rows, travel.rows, contracting.rows, laborJust, travelJust, contractingJust]);
+
+  const modalMatsSection = useMemo((): ModalSection | null => {
+    if (mats.rows.length === 0) return null;
+    return {
+      type: "Materials & Other",
+      rows: mats.rows.map((r) => ({ label: r.label, sub: r.sub, planned: r.planned, requested: r.requested, description: r.description })),
+      justification: matsJust,
+    };
+  }, [mats.rows, matsJust]);
 
   return (
     <div className="space-y-5">
@@ -995,6 +1261,8 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
         onSpreadQuarter={labor.spreadQuarter}
         onAddFiscalYear={labor.addFiscalYear}
         onRemoveFiscalYear={labor.removeFiscalYear}
+        justification={laborJust}
+        onJustificationChange={setLaborJust}
       />
       <FundingSection
         title="Travel" columnHeader="Organization"
@@ -1017,6 +1285,8 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
         onSpreadQuarter={travel.spreadQuarter}
         onAddFiscalYear={travel.addFiscalYear}
         onRemoveFiscalYear={travel.removeFiscalYear}
+        justification={travelJust}
+        onJustificationChange={setTravelJust}
       />
       <FundingSection
         title="Contracting" columnHeader="Organization"
@@ -1039,6 +1309,8 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
         onSpreadQuarter={contracting.spreadQuarter}
         onAddFiscalYear={contracting.addFiscalYear}
         onRemoveFiscalYear={contracting.removeFiscalYear}
+        justification={contractingJust}
+        onJustificationChange={setContractingJust}
       />
       <FundingSection
         title="Materials & Other" columnHeader="Item"
@@ -1061,6 +1333,8 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
         onSpreadQuarter={mats.spreadQuarter}
         onAddFiscalYear={mats.addFiscalYear}
         onRemoveFiscalYear={mats.removeFiscalYear}
+        justification={matsJust}
+        onJustificationChange={setMatsJust}
       />
 
       {/* submit */}
@@ -1076,13 +1350,9 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
                   ? { backgroundColor: "#1a3557", color: "#fff" }
                   : { backgroundColor: "#e2e8f0", color: "#94a3b8" }
               }
-              onMouseEnter={(e) => {
-                if (canSubmit) e.currentTarget.style.backgroundColor = "#16304d";
-              }}
-              onMouseLeave={(e) => {
-                if (canSubmit) e.currentTarget.style.backgroundColor = "#1a3557";
-              }}
-              onClick={() => { if (canSubmit) alert("Plan submitted successfully!"); }}
+              onMouseEnter={(e) => { if (canSubmit) e.currentTarget.style.backgroundColor = "#16304d"; }}
+              onMouseLeave={(e) => { if (canSubmit) e.currentTarget.style.backgroundColor = "#1a3557"; }}
+              onClick={() => { if (canSubmit) setShowModal(true); }}
             >
               Submit Plan
             </button>
@@ -1098,6 +1368,23 @@ function FundingView({ budget, projectNumber }: { budget: number; projectNumber:
           </div>
         );
       })()}
+
+      {/* submit preview modal */}
+      {showModal && (
+        <SubmitPreviewModal
+          project={project}
+          sections={modalOrgGroups}
+          matsSection={modalMatsSection}
+          allPlanned={allPlanned}
+          repoJustification={repoJustification}
+          onRepoJustificationChange={setRepoJustification}
+          onClose={() => setShowModal(false)}
+          onSubmit={() => {
+            setShowModal(false);
+            alert("Change request submitted successfully!");
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -1136,7 +1423,7 @@ export default function ProjectPlanning() {
 
   return (
     <Layout breadcrumb={breadcrumb} headerActions={headerActions}>
-      <FundingView budget={project.budget} projectNumber={project.number} />
+      <FundingView project={project} />
       <Toaster />
     </Layout>
   );
