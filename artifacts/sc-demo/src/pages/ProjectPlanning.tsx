@@ -82,7 +82,7 @@ const PLAN_STATUS_LABEL = `FY${CFY} Q${CQ} — Plan Open`;
 
 /* ─── resource code tables ─────────────────────────────────────── */
 // ERDC Labs — sourced from labRates reference table
-const ORG_OPTIONS = [
+const ERDC_LABS = [
   { label: "GRL",         code: "U439000" }, // Geospatial Research Laboratory
   { label: "CHL",         code: "U430000" }, // Coastal & Hydraulics Lab
   { label: "EL",          code: "U433000" }, // Environmental Laboratory
@@ -94,6 +94,31 @@ const ORG_OPTIONS = [
   { label: "OTHER ERDC",  code: "U400000" }, // USA Engineer Research Dev Ctr
   { label: "HPC",         code: "U440000" }, // High Processing Computer
 ];
+
+// USACE Districts — for MIPRs and cross-district work
+const DISTRICT_OPTIONS = [
+  { label: "HQ USACE",   code: "W0100ER" }, // HQ Engineer & Construction
+  { label: "IWR",        code: "W4110ER" }, // Institute for Water Resources
+  { label: "LRB",        code: "W073ER0" }, // Buffalo District
+  { label: "LRC",        code: "W074ER0" }, // Chicago District
+  { label: "LRE",        code: "W075ER0" }, // Detroit District
+  { label: "MVM",        code: "W060ER0" }, // Memphis District
+  { label: "MVN",        code: "W912ER0" }, // New Orleans District
+  { label: "NAB",        code: "W912B00" }, // Baltimore District
+  { label: "NAP",        code: "W912BU0" }, // Philadelphia District
+  { label: "NWK",        code: "W912DQ0" }, // Kansas City District
+  { label: "POA",        code: "W911KB0" }, // Alaska District
+  { label: "SAC",        code: "W912PP0" }, // Sacramento District
+  { label: "SAJ",        code: "W912EP0" }, // Jacksonville District
+  { label: "SPA",        code: "W912P20" }, // South Pacific Division
+  { label: "SPL",        code: "W912PL0" }, // Los Angeles District
+  { label: "SWF",        code: "W912EQ0" }, // Fort Worth District
+  { label: "SWG",        code: "W912GV0" }, // Galveston District
+  { label: "TAM",        code: "W912TA0" }, // Transatlantic Division
+];
+
+// Combined flat list (used for lookups)
+const ORG_OPTIONS = [...ERDC_LABS, ...DISTRICT_OPTIONS];
 
 const CONTRACT_CODES = [
   { code: "DFC-CONTR",  name: "Direct Fund Cite Contract" },
@@ -848,9 +873,16 @@ function TwoStepAddModal({
               className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
             >
               <option value="">— Select org —</option>
-              {ORG_OPTIONS.map((o) => (
-                <option key={o.label} value={o.label}>{o.label} ({o.code})</option>
-              ))}
+              <optgroup label="ERDC Labs">
+                {ERDC_LABS.map((o) => (
+                  <option key={o.label} value={o.label}>{o.label} ({o.code})</option>
+                ))}
+              </optgroup>
+              <optgroup label="Districts">
+                {DISTRICT_OPTIONS.map((o) => (
+                  <option key={o.label} value={o.label}>{o.label} ({o.code})</option>
+                ))}
+              </optgroup>
             </select>
           </div>
 
@@ -1098,7 +1130,7 @@ export default function ProjectPlanning() {
     dotColor: string,
     onAdd: () => void,
     addLabel: string,
-    bulkActions?: { label: string; tooltip: string; onClick: () => void }[]
+    bulkActions?: { label: string; tooltip: string; onClick: () => void; enabled: boolean }[]
   ) => (
     <div className="flex items-center gap-2 px-4 py-2.5 border-b border-slate-200" style={{ backgroundColor: "#1a3557" }}>
       <div className="w-2 h-2 rounded-full" style={{ backgroundColor: dotColor }} />
@@ -1106,12 +1138,15 @@ export default function ProjectPlanning() {
       {bulkActions?.map((a) => (
         <button
           key={a.label}
-          onClick={a.onClick}
+          onClick={a.enabled ? a.onClick : undefined}
           title={a.tooltip}
           className="text-xs font-semibold px-2.5 py-1 rounded transition-colors"
-          style={{ backgroundColor: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.75)", border: "1px solid rgba(255,255,255,0.18)" }}
-          onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.18)"; e.currentTarget.style.color = "#fff"; }}
-          onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.08)"; e.currentTarget.style.color = "rgba(255,255,255,0.75)"; }}
+          style={a.enabled
+            ? { backgroundColor: "rgba(255,255,255,0.15)", color: "#fff", border: "1px solid rgba(255,255,255,0.3)", cursor: "pointer" }
+            : { backgroundColor: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.35)", border: "1px solid rgba(255,255,255,0.12)", cursor: "not-allowed" }
+          }
+          onMouseEnter={(e) => { if (a.enabled) { e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.28)"; } }}
+          onMouseLeave={(e) => { if (a.enabled) { e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.15)"; } }}
         >
           {a.label}
         </button>
@@ -1238,8 +1273,8 @@ export default function ProjectPlanning() {
           )}
           <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
             {addSectionHeader("LABOR", "#60a5fa", () => setShowLaborPicker(true), "Add Labor", [
-              { label: "Request Max",     tooltip: "Set every row's request to its maximum (obligated + current quarter)",       onClick: () => setBulkToMax(setLaborRows) },
-              { label: "Cover Committed", tooltip: "Set every row's request to obligated + open commitments",                    onClick: () => setBulkToCommitments(setLaborRows) },
+              { label: "Request Max",     tooltip: "Set every row's request to its maximum (obligated + current quarter)",    onClick: () => setBulkToMax(setLaborRows),         enabled: laborRows.length > 0 },
+              { label: "Cover Committed", tooltip: "Set every row's request to obligated + open commitments",                 onClick: () => setBulkToCommitments(setLaborRows), enabled: laborRows.length > 0 },
             ])}
             {tableWrap(
               <>
@@ -1280,8 +1315,8 @@ export default function ProjectPlanning() {
           )}
           <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
             {addSectionHeader("TRAVEL", "#a78bfa", () => setShowTravelPicker(true), "Add Travel", [
-              { label: "Request Max",     tooltip: "Set every row's request to its maximum (obligated + current quarter)",       onClick: () => setBulkToMax(setTravelRows) },
-              { label: "Cover Committed", tooltip: "Set every row's request to obligated + open commitments",                    onClick: () => setBulkToCommitments(setTravelRows) },
+              { label: "Request Max",     tooltip: "Set every row's request to its maximum (obligated + current quarter)",    onClick: () => setBulkToMax(setTravelRows),         enabled: travelRows.length > 0 },
+              { label: "Cover Committed", tooltip: "Set every row's request to obligated + open commitments",                 onClick: () => setBulkToCommitments(setTravelRows), enabled: travelRows.length > 0 },
             ])}
             {tableWrap(
               <>
@@ -1322,8 +1357,8 @@ export default function ProjectPlanning() {
           )}
           <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
             {addSectionHeader("CONTRACTING", "#34d399", () => setShowContractPicker(true), "Add Contract", [
-              { label: "Request Max",     tooltip: "Set every row's request to its maximum (obligated + current quarter)",       onClick: () => setBulkToMax(setContractRows) },
-              { label: "Cover Committed", tooltip: "Set every row's request to obligated + open commitments",                    onClick: () => setBulkToCommitments(setContractRows) },
+              { label: "Request Max",     tooltip: "Set every row's request to its maximum (obligated + current quarter)",    onClick: () => setBulkToMax(setContractRows),         enabled: contractRows.length > 0 },
+              { label: "Cover Committed", tooltip: "Set every row's request to obligated + open commitments",                 onClick: () => setBulkToCommitments(setContractRows), enabled: contractRows.length > 0 },
             ])}
             {tableWrap(
               <>
@@ -1370,8 +1405,8 @@ export default function ProjectPlanning() {
           )}
           <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
             {addSectionHeader("OUTSOURCING & OTHER", "#f59e0b", () => setShowOutsourcingPicker(true), "Add Resource", [
-              { label: "Request Max",     tooltip: "Set every row's request to its maximum (obligated + current quarter)",       onClick: () => setBulkToMax(setOutsourcingRows) },
-              { label: "Cover Committed", tooltip: "Set every row's request to obligated + open commitments",                    onClick: () => setBulkToCommitments(setOutsourcingRows) },
+              { label: "Request Max",     tooltip: "Set every row's request to its maximum (obligated + current quarter)",    onClick: () => setBulkToMax(setOutsourcingRows),         enabled: outsourcingRows.length > 0 },
+              { label: "Cover Committed", tooltip: "Set every row's request to obligated + open commitments",                 onClick: () => setBulkToCommitments(setOutsourcingRows), enabled: outsourcingRows.length > 0 },
             ])}
             {tableWrap(
               <>
