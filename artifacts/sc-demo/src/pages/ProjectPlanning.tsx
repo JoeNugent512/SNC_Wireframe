@@ -779,7 +779,26 @@ function FundingSection({
 
           <tfoot>
             <tr style={{ borderTop: "2px solid #94a3b8" }}>
-              <td className="px-3 py-2.5 text-xs text-slate-500 uppercase tracking-wide font-bold bg-slate-100">Total</td>
+              <td className="px-3 py-2 text-xs text-slate-500 uppercase tracking-wide font-bold bg-slate-100" style={{ verticalAlign: "top" }}>
+                <div className="flex flex-col gap-1.5 pt-0.5">
+                  <span>Total</span>
+                  <button
+                    onClick={() => setShowJustification((v) => !v)}
+                    className="flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded transition-colors border w-fit"
+                    style={
+                      showJustification || justification.trim()
+                        ? { backgroundColor: "#fef3c7", color: "#92400e", borderColor: "#fcd34d" }
+                        : { backgroundColor: "#f8fafc", color: "#64748b", borderColor: "#e2e8f0" }
+                    }
+                  >
+                    <span>{showJustification ? "▼" : "▶"}</span>
+                    Justification
+                    {justification.trim() && !showJustification && (
+                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-500 ml-0.5" />
+                    )}
+                  </button>
+                </div>
+              </td>
               <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-bold" style={{ backgroundColor: amberTotalBg, borderLeft: amberBorder }}>{fmt(totalPlanned)}</td>
               <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-bold" style={{ backgroundColor: amberTotalBg, borderLeft: amberInner }}>{fmt(totalRequested)}</td>
               <td className="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-bold bg-blue-100" style={{ borderLeft: "2px solid #64748b" }}>{fmt(totalCommitments)}</td>
@@ -791,28 +810,6 @@ function FundingSection({
             </tr>
           </tfoot>
         </table>
-        </div>
-
-        {/* justification toggle footer */}
-        <div className="border-t border-slate-100 flex items-center px-3 py-1.5 gap-2">
-          <button
-            onClick={() => setShowJustification((v) => !v)}
-            className="flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-md transition-colors border"
-            style={
-              showJustification || justification.trim()
-                ? { backgroundColor: "#fef3c7", color: "#92400e", borderColor: "#fcd34d" }
-                : { backgroundColor: "#f8fafc", color: "#64748b", borderColor: "#e2e8f0" }
-            }
-          >
-            <span>{showJustification ? "▼" : "▶"}</span>
-            Justification
-          </button>
-          {justification.trim() && !showJustification && (
-            <span className="text-[11px] text-amber-600 font-medium flex items-center gap-1">
-              <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-500" />
-              Justification added
-            </span>
-          )}
         </div>
 
         {/* collapsible justification panel — expands below the footer */}

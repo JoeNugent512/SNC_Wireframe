@@ -33,7 +33,7 @@ export interface SetupProject {
   hqProponent: string;
   executingOrg: string;
   projectLead: string;
-  needsContractSupport: "" | "Yes" | "No";
+  needsContractSupport: "" | "Yes" | "No" | "N/A";
   specialFundingType: string;
   budgetAtSubmission: number;
   startDate: string;

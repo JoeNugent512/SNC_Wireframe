@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useParams, useLocation } from "wouter";
-import { ChevronRight, CheckCircle2, AlertCircle, Save } from "lucide-react";
+import { ChevronRight, CheckCircle2, AlertCircle, Save, Info } from "lucide-react";
 import Layout from "@/components/Layout";
 import { PENDING_SETUP_PROJECTS, SetupProject } from "@/lib/mockData";
 import { useToast } from "@/hooks/use-toast";
@@ -9,6 +9,31 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Toaster } from "@/components/ui/toaster";
+
+const DWG_COP_OPTIONS = [
+  "Architecture","Aviation","CAD/BIM","Civil","Climate Preparedness",
+  "Comprehensive Plng","Construction","Contingency","Control Systems",
+  "Coordinating Panel","Cost Engineering","Dam Safety","Design-Build",
+  "Electrical","Engineering Management","ESEP","Facility Space Plng",
+  "Fire Protection","Fuels","Geospatial","Geotechnical","Hydrology",
+  "Installation Resiliency","Landscape Architecture","Levee Safety",
+  "Mechanical","Medical","Pavements / Airfields","Security","Specifications",
+  "Structural","Sustainability","TCP","Value Engineering","Waterfront",
+  "Other (not listed)","Program Management","N/A",
+];
+
+const EXECUTING_ORG_OPTIONS = [
+  "HQ E&C","HQ Other","HNC","IWR","ERDC",
+  "LRB","LRC","LRE","LRH","LRL","LRN","LRP",
+  "MVM","MVN","MVR","MVS","MVP","MVK",
+  "NAB","NAU","NAE","NAN","NAO","NAP",
+  "NWK","NWO","NWP","NWS","NWW",
+  "POA","POF","POH","POJ",
+  "SAC","SAJ","SAM","SAS","SAW",
+  "SPA","SPL","SPK","SPF",
+  "SWF","SWG","SWL","SWT",
+  "TAM","TAA","OTHER (Specify in comments)",
+];
 
 const REQUIRED_FIELDS: (keyof SetupProject)[] = [
   "pmName", "dwgCoP", "hqProponent", "executingOrg", "projectLead",
@@ -26,8 +51,8 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
-function FieldWrap({ label, filled, required = true, children }: {
-  label: string; filled: boolean; required?: boolean; children: React.ReactNode;
+function FieldWrap({ label, filled, required = true, tooltip, children }: {
+  label: string; filled: boolean; required?: boolean; tooltip?: string; children: React.ReactNode;
 }) {
   return (
     <div className="space-y-1.5">
@@ -35,6 +60,11 @@ function FieldWrap({ label, filled, required = true, children }: {
         <Label className={`text-xs font-semibold uppercase tracking-wider ${filled ? "text-slate-400" : "text-amber-600"}`}>
           {label}
         </Label>
+        {tooltip && (
+          <span title={tooltip} className="cursor-help text-slate-300 hover:text-slate-500 transition-colors">
+            <Info size={12} />
+          </span>
+        )}
         {required && !filled && (
           <span className="text-[10px] font-semibold text-amber-600 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded">Required</span>
         )}
@@ -179,16 +209,30 @@ export default function ProjectSetup() {
                 <FieldWrap label="Project Manager" filled={isFilled(form.pmName)}>
                   <Input className="border-0 ring-0 focus-visible:ring-0 text-sm h-9" value={form.pmName} onChange={(e) => set("pmName", e.target.value)} placeholder="Full name" />
                 </FieldWrap>
-                <FieldWrap label="DWG / CoP" filled={isFilled(form.dwgCoP)}>
-                  <Input className="border-0 ring-0 focus-visible:ring-0 text-sm h-9" value={form.dwgCoP} onChange={(e) => set("dwgCoP", e.target.value)} placeholder="e.g. Transportation" />
+                <FieldWrap label="DWG / CoP" filled={isFilled(form.dwgCoP)} tooltip="Select the Discipline Working Group (DWG) or Community of Practice (CoP) responsible for oversight of this project.">
+                  <Select value={form.dwgCoP} onValueChange={(v) => set("dwgCoP", v)}>
+                    <SelectTrigger className="border-0 ring-0 focus:ring-0 h-9 text-sm shadow-none">
+                      <SelectValue placeholder="Select DWG / CoP" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-60">
+                      {DWG_COP_OPTIONS.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
                 </FieldWrap>
-                <FieldWrap label="HQ Proponent" filled={isFilled(form.hqProponent)}>
+                <FieldWrap label="HQ Proponent" filled={isFilled(form.hqProponent)} tooltip="Indicate the HQ Proponent responsible for this project.">
                   <Input className="border-0 ring-0 focus-visible:ring-0 text-sm h-9" value={form.hqProponent} onChange={(e) => set("hqProponent", e.target.value)} placeholder="Full name" />
                 </FieldWrap>
-                <FieldWrap label="Executing Org" filled={isFilled(form.executingOrg)}>
-                  <Input className="border-0 ring-0 focus-visible:ring-0 text-sm h-9" value={form.executingOrg} onChange={(e) => set("executingOrg", e.target.value)} placeholder="e.g. ERDC" />
+                <FieldWrap label="Executing Org" filled={isFilled(form.executingOrg)} tooltip="Select the Organization Executing the Work (those who will be receiving funding).">
+                  <Select value={form.executingOrg} onValueChange={(v) => set("executingOrg", v)}>
+                    <SelectTrigger className="border-0 ring-0 focus:ring-0 h-9 text-sm shadow-none">
+                      <SelectValue placeholder="Select Organization" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-60">
+                      {EXECUTING_ORG_OPTIONS.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
                 </FieldWrap>
-                <FieldWrap label="Project Lead" filled={isFilled(form.projectLead)}>
+                <FieldWrap label="Project Lead" filled={isFilled(form.projectLead)} tooltip="Enter the name of the primary SME or field lead who will be leading the work effort (the person using the funds).">
                   <Input className="border-0 ring-0 focus-visible:ring-0 text-sm h-9" value={form.projectLead} onChange={(e) => set("projectLead", e.target.value)} placeholder="Full name" />
                 </FieldWrap>
               </div>
@@ -198,14 +242,15 @@ export default function ProjectSetup() {
             <div>
               <SectionLabel>Contract &amp; Funding Type</SectionLabel>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <FieldWrap label="Need S&C Contract Support?" filled={isFilled(form.needsContractSupport)}>
+                <FieldWrap label="Need S&C Contract Support?" filled={isFilled(form.needsContractSupport)} tooltip="For projects planning to utilize an AE and do not have a method to acquire them, select Yes. If you do not need this support, select No.">
                   <Select value={form.needsContractSupport} onValueChange={(v) => set("needsContractSupport", v)}>
                     <SelectTrigger className="border-0 ring-0 focus:ring-0 h-9 text-sm shadow-none">
-                      <SelectValue placeholder="Select Yes or No" />
+                      <SelectValue placeholder="Select Choice" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Yes">Yes</SelectItem>
                       <SelectItem value="No">No</SelectItem>
+                      <SelectItem value="N/A">N/A</SelectItem>
                     </SelectContent>
                   </Select>
                 </FieldWrap>
