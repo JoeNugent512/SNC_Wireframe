@@ -152,39 +152,39 @@ function FundingTable({ budget, projectNumber }: { budget: number; projectNumber
               </tr>
             </thead>
             <tbody>
-              {/* Labor */}
+              {/* Labor — row 0, even → white */}
               <tr style={{ borderBottom: "1px solid #fef9c3" }}>
-                <td className="px-4 py-2.5 text-slate-700 font-semibold bg-slate-50">Labor</td>
+                <td className="px-4 py-2.5 text-slate-700 font-semibold" style={{ backgroundColor: "#ffffff" }}>Labor</td>
                 {planLabor.map((v, i) => (
-                  <td key={i} className="px-3 py-2.5" style={{ backgroundColor: amberBg, borderLeft: amberBd }}>
+                  <td key={i} className="px-3 py-2.5" style={{ backgroundColor: "#fffbeb", borderLeft: amberBd }}>
                     <FyCell value={v} editable onChange={setVal(planLabor, setPlanLabor, i)} />
                   </td>
                 ))}
-                <td className="px-4 py-2.5 text-right font-semibold text-slate-700 bg-slate-50" style={{ borderLeft: "1px solid #e2e8f0" }}>{fmt(planLabor.reduce((s, v) => s + v, 0))}</td>
+                <td className="px-4 py-2.5 text-right font-semibold text-slate-700" style={{ backgroundColor: "#ffffff", borderLeft: "1px solid #e2e8f0" }}>{fmt(planLabor.reduce((s, v) => s + v, 0))}</td>
                 <td className="px-4 py-2.5 text-right font-semibold text-slate-700" style={{ backgroundColor: blueCellBg, borderLeft: blueBd }}>{fmt(totalPlanned)}</td>
                 <td className={`px-4 py-2.5 text-right font-semibold ${leftToPlan >= 0 ? "text-emerald-700" : "text-red-600"}`} style={{ backgroundColor: leftToPlan >= 0 ? "#ecfdf5" : "#fef2f2", borderLeft: blueBd }}>{fmt(leftToPlan)}</td>
               </tr>
-              {/* Travel */}
+              {/* Travel — row 1, odd → tinted */}
               <tr style={{ borderBottom: "1px solid #fef9c3" }}>
-                <td className="px-4 py-2.5 text-slate-700 font-semibold bg-slate-50">Travel</td>
+                <td className="px-4 py-2.5 text-slate-700 font-semibold" style={{ backgroundColor: "#edf2f8" }}>Travel</td>
                 {planTravel.map((v, i) => (
-                  <td key={i} className="px-3 py-2.5" style={{ backgroundColor: amberBg, borderLeft: amberBd }}>
+                  <td key={i} className="px-3 py-2.5" style={{ backgroundColor: "#fef3c7", borderLeft: amberBd }}>
                     <FyCell value={v} editable onChange={setVal(planTravel, setPlanTravel, i)} />
                   </td>
                 ))}
-                <td className="px-4 py-2.5 text-right font-semibold text-slate-700 bg-slate-50" style={{ borderLeft: "1px solid #e2e8f0" }}>{fmt(planTravel.reduce((s, v) => s + v, 0))}</td>
-                <td colSpan={2} className="bg-slate-50" style={{ borderLeft: blueBd }} />
+                <td className="px-4 py-2.5 text-right font-semibold text-slate-700" style={{ backgroundColor: "#edf2f8", borderLeft: "1px solid #e2e8f0" }}>{fmt(planTravel.reduce((s, v) => s + v, 0))}</td>
+                <td colSpan={2} style={{ backgroundColor: "#edf2f8", borderLeft: blueBd }} />
               </tr>
-              {/* Other */}
+              {/* Other — row 2, even → white */}
               <tr style={{ borderBottom: "1px solid #fef9c3" }}>
-                <td className="px-4 py-2.5 text-slate-700 font-semibold bg-slate-50">OutSource / Other</td>
+                <td className="px-4 py-2.5 text-slate-700 font-semibold" style={{ backgroundColor: "#ffffff" }}>OutSource / Other</td>
                 {planOther.map((v, i) => (
-                  <td key={i} className="px-3 py-2.5" style={{ backgroundColor: amberBg, borderLeft: amberBd }}>
+                  <td key={i} className="px-3 py-2.5" style={{ backgroundColor: "#fffbeb", borderLeft: amberBd }}>
                     <FyCell value={v} editable onChange={setVal(planOther, setPlanOther, i)} />
                   </td>
                 ))}
-                <td className="px-4 py-2.5 text-right font-semibold text-slate-700 bg-slate-50" style={{ borderLeft: "1px solid #e2e8f0" }}>{fmt(planOther.reduce((s, v) => s + v, 0))}</td>
-                <td colSpan={2} className="bg-slate-50" style={{ borderLeft: blueBd }} />
+                <td className="px-4 py-2.5 text-right font-semibold text-slate-700" style={{ backgroundColor: "#ffffff", borderLeft: "1px solid #e2e8f0" }}>{fmt(planOther.reduce((s, v) => s + v, 0))}</td>
+                <td colSpan={2} style={{ backgroundColor: "#ffffff", borderLeft: blueBd }} />
               </tr>
               {/* TOTAL row */}
               <tr style={{ borderTop: "2px solid #94a3b8" }}>
