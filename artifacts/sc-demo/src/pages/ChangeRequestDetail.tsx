@@ -48,12 +48,11 @@ function StatusBadge({ status }: { status: ChangeRequest["status"] }) {
   );
 }
 
-function DescNotesCell({ initialDesc, disabled }: { initialDesc: string; disabled: boolean }) {
-  const [text, setText] = useState(initialDesc);
+function DescNotesCell({ initialDesc }: { initialDesc: string }) {
   const [copied, setCopied] = useState(false);
 
   const copy = () => {
-    navigator.clipboard.writeText(text).then(() => {
+    navigator.clipboard.writeText(initialDesc).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     });
@@ -62,12 +61,10 @@ function DescNotesCell({ initialDesc, disabled }: { initialDesc: string; disable
   return (
     <div className="flex flex-col gap-1 min-w-0">
       <textarea
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        disabled={disabled}
+        value={initialDesc}
+        readOnly
         rows={2}
-        placeholder="Edit as needed, then copy to paste into CMS"
-        className="w-full text-xs font-mono text-slate-700 bg-slate-50 border border-slate-200 rounded px-2 py-1.5 resize-none focus:outline-none focus:ring-1 focus:ring-blue-200 leading-relaxed disabled:opacity-60 disabled:cursor-default"
+        className="w-full text-xs font-mono text-slate-700 bg-slate-50 border border-slate-200 rounded px-2 py-1.5 resize-none focus:outline-none leading-relaxed cursor-text select-all"
         style={{ minWidth: 200 }}
       />
       <button
@@ -308,7 +305,7 @@ function BudgetChangesTable({ cr, disabled }: { cr: ChangeRequest; disabled: boo
                             {fmt(li.to)}
                           </span>
                           <div style={{ width: 220 }} className="pl-3">
-                            <DescNotesCell initialDesc={buildLineDesc(cr, li)} disabled={disabled} />
+                            <DescNotesCell initialDesc={buildLineDesc(cr, li)} />
                           </div>
                         </div>
                         {isTravel && li.travelDetails && <TravelDetailPanel d={li.travelDetails} disabled={disabled} />}
