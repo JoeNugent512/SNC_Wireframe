@@ -252,7 +252,6 @@ function BudgetChangesTable({ cr, disabled }: { cr: ChangeRequest; disabled: boo
 
             {usedTypes.map((type) => {
               const typeItems = typeMap[type]!;
-              const justification = cr.typeJustifications?.[type];
               const dot = TYPE_DOT[type] ?? "#94a3b8";
 
               return (
@@ -266,14 +265,6 @@ function BudgetChangesTable({ cr, disabled }: { cr: ChangeRequest; disabled: boo
                     <span className="text-xs font-semibold text-slate-400 uppercase" style={{ width: 96, textAlign: "right" }}>Requested</span>
                     <span className="text-xs font-semibold text-slate-400 uppercase pl-3" style={{ width: 220 }}>Description</span>
                   </div>
-
-                  {/* Justification block */}
-                  {justification && (
-                    <div className="px-4 py-2.5 border-b" style={{ backgroundColor: "#fffbeb", borderColor: "#fde68a" }}>
-                      <p className="text-[10px] font-bold text-amber-700 uppercase tracking-wider mb-0.5">Justification</p>
-                      <p className="text-xs text-amber-900 leading-relaxed">{justification}</p>
-                    </div>
-                  )}
 
                   {/* Data rows */}
                   {typeItems.map((li, i) => {
