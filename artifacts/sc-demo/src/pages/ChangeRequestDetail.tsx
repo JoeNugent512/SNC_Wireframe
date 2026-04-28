@@ -14,21 +14,23 @@ const fmt = (n: number) =>
 const fmtDelta = (n: number) => (n > 0 ? "+" : "") + fmt(n);
 
 function CopyValue({ children, value, className = "", style }: { children: React.ReactNode; value: string; className?: string; style?: React.CSSProperties }) {
-  const [flash, setFlash] = useState(false);
-  const copy = () => {
-    navigator.clipboard.writeText(value).then(() => {
-      setFlash(true);
-      setTimeout(() => setFlash(false), 1200);
-    });
+  const [copied, setCopied] = useState(false);
+  const copy = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(value).then(() => setCopied(true));
   };
+  const icon = copied
+    ? <Check size={11} className="text-emerald-500 shrink-0" />
+    : <Copy size={11} className="text-slate-300 group-hover:text-slate-500 shrink-0 transition-colors" />;
   return (
     <span
       onClick={copy}
-      title="Click to copy"
-      className={`cursor-pointer select-none relative group ${className}`}
+      title={copied ? "Copied" : "Click to copy"}
+      className={`cursor-pointer select-none group ${className}`}
       style={style}
     >
-      {flash ? <span className="text-emerald-600 font-bold">✓</span> : children}
+      {children}
+      {icon}
     </span>
   );
 }
@@ -137,14 +139,14 @@ const detailFieldCls = "w-full border border-slate-200 rounded px-2.5 py-1.5 tex
 
 const roFieldCls = "w-full border border-slate-100 rounded px-2.5 py-1.5 text-sm text-slate-700 bg-slate-50 resize-none select-text cursor-text focus:outline-none";
 
-const roValueCls = "block w-full px-2.5 py-1.5 text-sm text-slate-700 bg-slate-50 border border-slate-100 rounded cursor-pointer hover:bg-slate-100 transition-colors leading-snug";
+const roValueCls = "w-full px-2.5 py-1.5 text-sm text-slate-700 bg-slate-50 border border-slate-100 rounded cursor-pointer hover:bg-slate-100 transition-colors leading-snug flex items-center justify-between gap-2";
 
 function DetailField({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <label className={detailLabelCls}>{label}</label>
-      <CopyValue value={value} className="block w-full">
-        <span className={roValueCls}>{value || <span className="text-slate-300 italic">—</span>}</span>
+      <CopyValue value={value} className={roValueCls}>
+        <span className="flex-1 min-w-0">{value || <span className="text-slate-300 italic">—</span>}</span>
       </CopyValue>
     </div>
   );
@@ -250,20 +252,20 @@ function BudgetChangesTable({ cr, disabled }: { cr: ChangeRequest; disabled: boo
                           style={{ backgroundColor: hasDetail ? "#f8fafc" : undefined }}
                         >
                           <div className="flex-1 min-w-0">
-                            <CopyValue value={li.resource} className="block">
-                              <p className="text-sm font-semibold text-slate-800 leading-snug truncate cursor-pointer hover:text-blue-700 transition-colors" title={li.resource}>{li.resource}</p>
+                            <CopyValue value={li.resource} className="inline-flex items-center gap-1 max-w-full">
+                              <span className="text-sm font-semibold text-slate-800 leading-snug truncate hover:text-blue-700 transition-colors" title={li.resource}>{li.resource}</span>
                             </CopyValue>
-                            <CopyValue value={li.orgCode} className="block">
-                              <p className="text-xs text-slate-400 cursor-pointer hover:text-slate-600 transition-colors">{li.orgCode}</p>
+                            <CopyValue value={li.orgCode} className="inline-flex items-center gap-1">
+                              <span className="text-xs text-slate-400 hover:text-slate-600 transition-colors">{li.orgCode}</span>
                             </CopyValue>
                           </div>
-                          <CopyValue value={fmt(displayFrom)} className="tabular-nums text-sm text-slate-500 hover:text-slate-800 transition-colors" style={{ width: 96, textAlign: "right", paddingTop: 2, display: "inline-block" }}>
+                          <CopyValue value={fmt(displayFrom)} className="tabular-nums text-sm text-slate-500 hover:text-slate-800 transition-colors inline-flex items-center justify-end gap-1" style={{ width: 96, paddingTop: 2 }}>
                             {fmt(displayFrom)}
                           </CopyValue>
-                          <CopyValue value={fmtDelta(delta)} className="tabular-nums text-sm font-semibold hover:opacity-70 transition-opacity" style={{ width: 84, textAlign: "right", paddingTop: 2, display: "inline-block", color: delta > 0 ? "#15803d" : delta < 0 ? "#b91c1c" : "#94a3b8" }}>
+                          <CopyValue value={fmtDelta(delta)} className="tabular-nums text-sm font-semibold hover:opacity-70 transition-opacity inline-flex items-center justify-end gap-1" style={{ width: 84, paddingTop: 2, color: delta > 0 ? "#15803d" : delta < 0 ? "#b91c1c" : "#94a3b8" }}>
                             {delta > 0 ? "+" : ""}{fmt(delta)}
                           </CopyValue>
-                          <CopyValue value={fmt(li.to)} className="tabular-nums text-sm font-medium text-slate-800 hover:text-slate-600 transition-colors" style={{ width: 96, textAlign: "right", paddingTop: 2, display: "inline-block" }}>
+                          <CopyValue value={fmt(li.to)} className="tabular-nums text-sm font-medium text-slate-800 hover:text-slate-600 transition-colors inline-flex items-center justify-end gap-1" style={{ width: 96, paddingTop: 2 }}>
                             {fmt(li.to)}
                           </CopyValue>
                           <div style={{ width: 220 }} className="pl-3">
