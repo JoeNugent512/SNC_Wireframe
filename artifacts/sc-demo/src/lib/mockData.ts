@@ -118,14 +118,29 @@ export const PENDING_SETUP_PROJECTS: SetupProject[] = [
   },
 ];
 
+export interface CRTravelDetails {
+  poc?: string;
+  travelers?: string;
+  dates?: string;
+  purpose?: string;
+}
+
+export interface CRResourceDetails {
+  pop?: string;
+  poc?: string;
+  purpose?: string;
+}
+
 export interface CRLineItem {
   direction: "Increase" | "Decrease";
-  type: "Labor" | "Travel" | "Materials";
+  type: "Labor" | "Travel" | "Materials" | "Contracting";
   orgCode: string;
   resource: string;
   amount: number;
   from: number;
   to: number;
+  travelDetails?: CRTravelDetails;
+  resourceDetails?: CRResourceDetails;
 }
 
 export interface ChangeRequest {
@@ -292,7 +307,8 @@ export const MOCK_CHANGE_REQUESTS: ChangeRequest[] = [
     status: "Pending",
     lineItems: [
       { direction: "Increase", type: "Labor",  orgCode: "U435310", resource: "Nugent, Joseph Pat",  amount: 22000, from: 215000, to: 237000 },
-      { direction: "Decrease", type: "Travel", orgCode: "U435310", resource: "CERL",                amount: 22000, from: 48000,  to: 26000  },
+      { direction: "Decrease", type: "Travel", orgCode: "U435310", resource: "CERL", amount: 22000, from: 48000, to: 26000,
+        travelDetails: { poc: "John Smith", travelers: "Nugent, Joseph Pat", dates: "12–14 Mar 2024", purpose: "Geotechnical site inspection; combined with scheduled survey to reduce trip count." } },
     ],
   },
   {
@@ -310,10 +326,12 @@ export const MOCK_CHANGE_REQUESTS: ChangeRequest[] = [
     },
     status: "Pending",
     lineItems: [
-      { direction: "Increase", type: "Labor",     orgCode: "U435310", resource: "U435310",              amount: 45000, from: 280000, to: 325000 },
-      { direction: "Decrease", type: "Travel",    orgCode: "U435310", resource: "USACE Chicago District", amount: 47000, from: 155000, to: 108000 },
+      { direction: "Increase", type: "Labor",  orgCode: "U435310", resource: "U435310", amount: 45000, from: 280000, to: 325000 },
+      { direction: "Decrease", type: "Travel", orgCode: "U435310", resource: "USACE Chicago District", amount: 47000, from: 155000, to: 108000,
+        travelDetails: { poc: "Sarah Jenkins", travelers: "Jenkins, Sarah; Okafor, Chioma", dates: "18–19 Feb 2024", purpose: "Equipment transport coordination; consolidated from 4 trips to 2 via single-carrier arrangement." } },
       { direction: "Increase", type: "Labor",     orgCode: "U719203", resource: "Chen, David",         amount: 15000, from: 195000, to: 210000 },
-      { direction: "Decrease", type: "Materials", orgCode: "U719203", resource: "Steel Fasteners",     amount: 13000, from: 45000,  to: 32000  },
+      { direction: "Decrease", type: "Materials", orgCode: "U719203", resource: "Steel Fasteners",     amount: 13000, from: 45000, to: 32000,
+        resourceDetails: { pop: "01 Jan 2024 – 30 Jun 2024", poc: "David Chen", purpose: "Steel fasteners sourced from local supplier at 22% lower unit cost; quantity and spec unchanged." } },
     ],
   },
   {
@@ -332,7 +350,8 @@ export const MOCK_CHANGE_REQUESTS: ChangeRequest[] = [
     lineItems: [
       { direction: "Increase", type: "Labor",  orgCode: "U601847", resource: "Park, Jennifer",            amount:  9000, from:  145000, to:  154000 },
       { direction: "Decrease", type: "Labor",  orgCode: "U601847", resource: "Okafor, Chioma",             amount:  7000, from:   98000, to:   91000 },
-      { direction: "Increase", type: "Travel", orgCode: "U601847", resource: "Cold Regions Research Lab",  amount:  2000, from:   12000, to:   14000 },
+      { direction: "Increase", type: "Travel", orgCode: "U601847", resource: "Cold Regions Research Lab", amount: 2000, from: 12000, to: 14000,
+        travelDetails: { poc: "Elena Rodriguez", travelers: "Rodriguez, Elena", dates: "05–06 Mar 2024", purpose: "Soil condition assessment requested by technical advisor prior to excavation phase start." } },
       { direction: "Decrease", type: "Labor",  orgCode: "U601847", resource: "Contractor Pool",            amount:  4000, from:  412000, to:  408000 },
     ],
   },
@@ -352,7 +371,8 @@ export const MOCK_CHANGE_REQUESTS: ChangeRequest[] = [
     lineItems: [
       { direction: "Increase", type: "Labor",     orgCode: "U920183", resource: "Rodriguez, Elena",    amount: 75000,  from: 1125000, to: 1200000 },
       { direction: "Increase", type: "Labor",     orgCode: "U582094", resource: "Thorne, Marcus",       amount: 25000,  from: 625000,  to: 650000  },
-      { direction: "Decrease", type: "Materials", orgCode: "U582094", resource: "Steel & Glass Panels", amount: 100000, from: 2850000, to: 2750000 },
+      { direction: "Decrease", type: "Materials", orgCode: "U582094", resource: "Steel & Glass Panels", amount: 100000, from: 2850000, to: 2750000,
+        resourceDetails: { pop: "15 Jan 2024 – 31 Oct 2024", poc: "Marcus Thorne", purpose: "Value-engineered composite panel replaces original steel/glass spec; equivalent structural rating at 35% lower cost per unit." } },
     ],
   },
   {

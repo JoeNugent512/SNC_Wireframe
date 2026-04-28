@@ -4,7 +4,7 @@ import {
   ChevronRight, FolderOpen, User, CheckCircle, XCircle, ArrowLeft, Copy, Check,
 } from "lucide-react";
 import Layout from "@/components/Layout";
-import { MOCK_CHANGE_REQUESTS, MOCK_PROJECTS, ChangeRequest, CRLineItem } from "@/lib/mockData";
+import { MOCK_CHANGE_REQUESTS, MOCK_PROJECTS, ChangeRequest, CRLineItem, CRTravelDetails, CRResourceDetails } from "@/lib/mockData";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 
@@ -107,11 +107,74 @@ function OrgCodeHeader({ orgCode }: { orgCode: string }) {
   );
 }
 
-const TYPE_ORDER: CRLineItem["type"][] = ["Labor", "Travel", "Contracting", "Materials & Other"];
+const TYPE_ORDER: CRLineItem["type"][] = ["Labor", "Travel", "Contracting", "Materials", "Materials & Other"];
 
 const TYPE_DOT: Record<string, string> = {
-  Labor: "#60a5fa", Travel: "#a78bfa", Contracting: "#34d399", "Materials & Other": "#f59e0b",
+  Labor: "#60a5fa", Travel: "#a78bfa", Contracting: "#34d399", Materials: "#f59e0b", "Materials & Other": "#f59e0b",
 };
+
+const fieldLabelCls = "block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5";
+const fieldValueCls = "text-xs text-slate-700 leading-relaxed";
+
+function TravelDetailPanel({ d }: { d: CRTravelDetails }) {
+  return (
+    <div className="px-6 py-3 border-b border-slate-100 bg-slate-50">
+      <div className="grid grid-cols-3 gap-x-6 gap-y-2 mb-2">
+        {d.poc && (
+          <div>
+            <p className={fieldLabelCls}>POC</p>
+            <p className={fieldValueCls}>{d.poc}</p>
+          </div>
+        )}
+        {d.travelers && (
+          <div>
+            <p className={fieldLabelCls}>Travelers</p>
+            <p className={fieldValueCls}>{d.travelers}</p>
+          </div>
+        )}
+        {d.dates && (
+          <div>
+            <p className={fieldLabelCls}>Dates of Travel</p>
+            <p className={fieldValueCls}>{d.dates}</p>
+          </div>
+        )}
+      </div>
+      {d.purpose && (
+        <div>
+          <p className={fieldLabelCls}>Purpose of Travel</p>
+          <p className={fieldValueCls}>{d.purpose}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ResourceDetailPanel({ d }: { d: CRResourceDetails }) {
+  return (
+    <div className="px-6 py-3 border-b border-slate-100 bg-slate-50">
+      <div className="grid grid-cols-2 gap-x-6 gap-y-2 mb-2">
+        {d.pop && (
+          <div>
+            <p className={fieldLabelCls}>Period of Performance (POP)</p>
+            <p className={fieldValueCls}>{d.pop}</p>
+          </div>
+        )}
+        {d.poc && (
+          <div>
+            <p className={fieldLabelCls}>POC</p>
+            <p className={fieldValueCls}>{d.poc}</p>
+          </div>
+        )}
+      </div>
+      {d.purpose && (
+        <div>
+          <p className={fieldLabelCls}>Purpose</p>
+          <p className={fieldValueCls}>{d.purpose}</p>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function BudgetChangesTable({ cr, disabled }: { cr: ChangeRequest; disabled: boolean }) {
   const firstReq = isFirstRequest(cr);
@@ -159,9 +222,9 @@ function BudgetChangesTable({ cr, disabled }: { cr: ChangeRequest; disabled: boo
                   <div className="px-4 py-1.5 flex items-center gap-2 border-b border-slate-100" style={{ backgroundColor: "#f1f5f9" }}>
                     <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: dot }} />
                     <span className="text-xs font-bold text-slate-600 uppercase tracking-wide flex-1">{type}</span>
-                    <span className="text-xs font-semibold text-slate-400 uppercase" style={{ width: 96, textAlign: "right" }}>Current</span>
-                    <span className="text-xs font-semibold text-slate-400 uppercase" style={{ width: 96, textAlign: "right" }}>Proposed</span>
+                    <span className="text-xs font-semibold text-slate-400 uppercase" style={{ width: 96, textAlign: "right" }}>Committed</span>
                     <span className="text-xs font-semibold text-slate-400 uppercase" style={{ width: 84, textAlign: "right" }}>Change</span>
+                    <span className="text-xs font-semibold text-slate-400 uppercase" style={{ width: 96, textAlign: "right" }}>Requested</span>
                     <span className="text-xs font-semibold text-slate-400 uppercase pl-3" style={{ width: 220 }}>Description</span>
                   </div>
 
@@ -177,29 +240,37 @@ function BudgetChangesTable({ cr, disabled }: { cr: ChangeRequest; disabled: boo
                   {typeItems.map((li, i) => {
                     const displayFrom = firstReq ? 0 : li.from;
                     const delta = firstReq ? li.to : (li.direction === "Increase" ? li.amount : -li.amount);
+                    const isTravel    = li.type === "Travel";
+                    const isResource  = li.type === "Materials" || li.type === "Contracting" || li.type === "Materials & Other";
+                    const hasDetail   = (isTravel && li.travelDetails) || (isResource && li.resourceDetails);
                     return (
-                      <div
-                        key={i}
-                        className="px-4 py-2.5 flex items-start gap-2 border-b border-slate-100 last:border-b-0"
-                      >
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-slate-800 leading-snug truncate" title={li.resource}>{li.resource}</p>
-                        </div>
-                        <span className="tabular-nums text-sm text-slate-500" style={{ width: 96, textAlign: "right", paddingTop: 2 }}>
-                          {fmt(displayFrom)}
-                        </span>
-                        <span className="tabular-nums text-sm font-medium text-slate-800" style={{ width: 96, textAlign: "right", paddingTop: 2 }}>
-                          {fmt(li.to)}
-                        </span>
-                        <span
-                          className="tabular-nums text-sm font-semibold"
-                          style={{ width: 84, textAlign: "right", paddingTop: 2, color: delta > 0 ? "#15803d" : delta < 0 ? "#b91c1c" : "#94a3b8" }}
+                      <div key={i}>
+                        <div
+                          className="px-4 py-2.5 flex items-start gap-2 border-b border-slate-100"
+                          style={{ backgroundColor: hasDetail ? "#f8fafc" : undefined }}
                         >
-                          {delta > 0 ? "+" : ""}{fmt(delta)}
-                        </span>
-                        <div style={{ width: 220 }} className="pl-3">
-                          <DescNotesCell initialDesc={buildLineDesc(cr, li)} disabled={disabled} />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-slate-800 leading-snug truncate" title={li.resource}>{li.resource}</p>
+                            <p className="text-xs text-slate-400">{li.orgCode}</p>
+                          </div>
+                          <span className="tabular-nums text-sm text-slate-500" style={{ width: 96, textAlign: "right", paddingTop: 2 }}>
+                            {fmt(displayFrom)}
+                          </span>
+                          <span
+                            className="tabular-nums text-sm font-semibold"
+                            style={{ width: 84, textAlign: "right", paddingTop: 2, color: delta > 0 ? "#15803d" : delta < 0 ? "#b91c1c" : "#94a3b8" }}
+                          >
+                            {delta > 0 ? "+" : ""}{fmt(delta)}
+                          </span>
+                          <span className="tabular-nums text-sm font-medium text-slate-800" style={{ width: 96, textAlign: "right", paddingTop: 2 }}>
+                            {fmt(li.to)}
+                          </span>
+                          <div style={{ width: 220 }} className="pl-3">
+                            <DescNotesCell initialDesc={buildLineDesc(cr, li)} disabled={disabled} />
+                          </div>
                         </div>
+                        {isTravel && li.travelDetails && <TravelDetailPanel d={li.travelDetails} />}
+                        {isResource && li.resourceDetails && <ResourceDetailPanel d={li.resourceDetails} />}
                       </div>
                     );
                   })}
@@ -213,14 +284,14 @@ function BudgetChangesTable({ cr, disabled }: { cr: ChangeRequest; disabled: boo
       {/* Net change footer */}
       <div className="px-4 py-2.5 flex items-center bg-slate-50 border-t-2 border-slate-200">
         <span className="flex-1" />
-        <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider" style={{ width: 96 + 96, textAlign: "right" }}>Net Change</span>
+        <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider" style={{ width: 96, textAlign: "right" }}>Net Change</span>
         <span
           className="tabular-nums text-sm font-bold"
           style={{ width: 84, textAlign: "right", color: net > 0 ? "#15803d" : net < 0 ? "#b91c1c" : "#475569" }}
         >
           {net === 0 ? "$0" : fmtDelta(net)}
         </span>
-        <span style={{ width: 220 + 12 }} />
+        <span style={{ width: 96 + 220 + 12 }} />
       </div>
     </div>
   );
