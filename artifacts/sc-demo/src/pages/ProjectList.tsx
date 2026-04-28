@@ -197,15 +197,16 @@ export default function ProjectList() {
                 </div>
               ) : (
                 <div className="space-y-1">
-                  {filteredProjects.map((project) => (
+                  {filteredProjects.map((project, i) => (
                     <button
                       key={project.id}
                       onClick={() => handleSelectProject(project.id)}
                       className={`w-full text-left p-4 rounded-lg transition-all border ${
                         selectedId === project.id
                           ? "bg-blue-50 border-blue-200 shadow-sm"
-                          : "bg-white border-transparent hover:border-slate-200 hover:bg-slate-50"
+                          : "border-transparent hover:border-slate-200 hover:bg-slate-100"
                       }`}
+                      style={selectedId !== project.id ? { backgroundColor: i % 2 === 1 ? "#edf2f8" : "#ffffff" } : undefined}
                       data-testid={`card-project-${project.id}`}
                     >
                       <div className="flex justify-between items-start mb-1">
