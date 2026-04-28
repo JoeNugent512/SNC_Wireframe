@@ -100,24 +100,24 @@ const ERDC_LABS = [
 
 // USACE Districts — for MIPRs and cross-district work
 const DISTRICT_OPTIONS = [
-  { label: "HQ USACE",   code: "W0100ER" }, // HQ Engineer & Construction
-  { label: "IWR",        code: "W4110ER" }, // Institute for Water Resources
-  { label: "LRB",        code: "W073ER0" }, // Buffalo District
-  { label: "LRC",        code: "W074ER0" }, // Chicago District
-  { label: "LRE",        code: "W075ER0" }, // Detroit District
-  { label: "MVM",        code: "W060ER0" }, // Memphis District
-  { label: "MVN",        code: "W912ER0" }, // New Orleans District
-  { label: "NAB",        code: "W912B00" }, // Baltimore District
-  { label: "NAP",        code: "W912BU0" }, // Philadelphia District
-  { label: "NWK",        code: "W912DQ0" }, // Kansas City District
-  { label: "POA",        code: "W911KB0" }, // Alaska District
-  { label: "SAC",        code: "W912PP0" }, // Sacramento District
-  { label: "SAJ",        code: "W912EP0" }, // Jacksonville District
-  { label: "SPA",        code: "W912P20" }, // South Pacific Division
-  { label: "SPL",        code: "W912PL0" }, // Los Angeles District
-  { label: "SWF",        code: "W912EQ0" }, // Fort Worth District
-  { label: "SWG",        code: "W912GV0" }, // Galveston District
-  { label: "TAM",        code: "W912TA0" }, // Transatlantic Division
+  { label: "HQ USACE",                        code: "W0100ER" },
+  { label: "Institute for Water Resources",    code: "W4110ER" },
+  { label: "Buffalo District",                 code: "W073ER0" },
+  { label: "Chicago District",                 code: "W074ER0" },
+  { label: "Detroit District",                 code: "W075ER0" },
+  { label: "Memphis District",                 code: "W060ER0" },
+  { label: "New Orleans District",             code: "W912ER0" },
+  { label: "Baltimore District",               code: "W912B00" },
+  { label: "Philadelphia District",            code: "W912BU0" },
+  { label: "Kansas City District",             code: "W912DQ0" },
+  { label: "Alaska District",                  code: "W911KB0" },
+  { label: "Sacramento District",              code: "W912PP0" },
+  { label: "Jacksonville District",            code: "W912EP0" },
+  { label: "South Pacific Division",           code: "W912P20" },
+  { label: "Los Angeles District",             code: "W912PL0" },
+  { label: "Fort Worth District",              code: "W912EQ0" },
+  { label: "Galveston District",               code: "W912GV0" },
+  { label: "Transatlantic Division",           code: "W912TA0" },
 ];
 
 // Combined flat list (used for lookups)
@@ -207,24 +207,24 @@ const LABOR_OPTIONS = [
   { label: "Reyes, Carlos",        sub: "U43400/ITL"   },
   { label: "Placeholder — TBD",    sub: "— name/org code pending" },
   // District personnel (name TBD — one slot per district)
-  { label: "HQ USACE Personnel — TBD",  sub: "W0100ER/HQ USACE" },
-  { label: "IWR Personnel — TBD",       sub: "W4110ER/IWR"      },
-  { label: "LRB Personnel — TBD",       sub: "W073ER0/LRB"      },
-  { label: "LRC Personnel — TBD",       sub: "W074ER0/LRC"      },
-  { label: "LRE Personnel — TBD",       sub: "W075ER0/LRE"      },
-  { label: "MVM Personnel — TBD",       sub: "W060ER0/MVM"      },
-  { label: "MVN Personnel — TBD",       sub: "W912ER0/MVN"      },
-  { label: "NAB Personnel — TBD",       sub: "W912B00/NAB"      },
-  { label: "NAP Personnel — TBD",       sub: "W912BU0/NAP"      },
-  { label: "NWK Personnel — TBD",       sub: "W912DQ0/NWK"      },
-  { label: "POA Personnel — TBD",       sub: "W911KB0/POA"      },
-  { label: "SAC Personnel — TBD",       sub: "W912PP0/SAC"      },
-  { label: "SAJ Personnel — TBD",       sub: "W912EP0/SAJ"      },
-  { label: "SPA Personnel — TBD",       sub: "W912P20/SPA"      },
-  { label: "SPL Personnel — TBD",       sub: "W912PL0/SPL"      },
-  { label: "SWF Personnel — TBD",       sub: "W912EQ0/SWF"      },
-  { label: "SWG Personnel — TBD",       sub: "W912GV0/SWG"      },
-  { label: "TAM Personnel — TBD",       sub: "W912TA0/TAM"      },
+  { label: "HQ USACE Personnel — TBD",                      sub: "W0100ER/HQ USACE"   },
+  { label: "Inst. for Water Resources Personnel — TBD",      sub: "W4110ER/IWR"        },
+  { label: "Buffalo District Personnel — TBD",               sub: "W073ER0/Buffalo"    },
+  { label: "Chicago District Personnel — TBD",               sub: "W074ER0/Chicago"    },
+  { label: "Detroit District Personnel — TBD",               sub: "W075ER0/Detroit"    },
+  { label: "Memphis District Personnel — TBD",               sub: "W060ER0/Memphis"    },
+  { label: "New Orleans District Personnel — TBD",           sub: "W912ER0/New Orleans"},
+  { label: "Baltimore District Personnel — TBD",             sub: "W912B00/Baltimore"  },
+  { label: "Philadelphia District Personnel — TBD",          sub: "W912BU0/Philadelphia"},
+  { label: "Kansas City District Personnel — TBD",           sub: "W912DQ0/Kansas City"},
+  { label: "Alaska District Personnel — TBD",                sub: "W911KB0/Alaska"     },
+  { label: "Sacramento District Personnel — TBD",            sub: "W912PP0/Sacramento" },
+  { label: "Jacksonville District Personnel — TBD",          sub: "W912EP0/Jacksonville"},
+  { label: "South Pacific Division Personnel — TBD",         sub: "W912P20/South Pacific"},
+  { label: "Los Angeles District Personnel — TBD",           sub: "W912PL0/Los Angeles"},
+  { label: "Fort Worth District Personnel — TBD",            sub: "W912EQ0/Fort Worth" },
+  { label: "Galveston District Personnel — TBD",             sub: "W912GV0/Galveston"  },
+  { label: "Transatlantic Division Personnel — TBD",         sub: "W912TA0/Transatlantic"},
 ];
 
 const TRAVEL_OPTIONS = [
@@ -239,24 +239,24 @@ const TRAVEL_OPTIONS = [
   { label: "OTHER ERDC",  sub: "U400000" },
   { label: "HPC",         sub: "U440000" },
   // Districts
-  { label: "HQ USACE",   sub: "W0100ER" },
-  { label: "IWR",        sub: "W4110ER" },
-  { label: "LRB",        sub: "W073ER0" },
-  { label: "LRC",        sub: "W074ER0" },
-  { label: "LRE",        sub: "W075ER0" },
-  { label: "MVM",        sub: "W060ER0" },
-  { label: "MVN",        sub: "W912ER0" },
-  { label: "NAB",        sub: "W912B00" },
-  { label: "NAP",        sub: "W912BU0" },
-  { label: "NWK",        sub: "W912DQ0" },
-  { label: "POA",        sub: "W911KB0" },
-  { label: "SAC",        sub: "W912PP0" },
-  { label: "SAJ",        sub: "W912EP0" },
-  { label: "SPA",        sub: "W912P20" },
-  { label: "SPL",        sub: "W912PL0" },
-  { label: "SWF",        sub: "W912EQ0" },
-  { label: "SWG",        sub: "W912GV0" },
-  { label: "TAM",        sub: "W912TA0" },
+  { label: "HQ USACE",                     sub: "W0100ER" },
+  { label: "Institute for Water Resources", sub: "W4110ER" },
+  { label: "Buffalo District",              sub: "W073ER0" },
+  { label: "Chicago District",              sub: "W074ER0" },
+  { label: "Detroit District",              sub: "W075ER0" },
+  { label: "Memphis District",              sub: "W060ER0" },
+  { label: "New Orleans District",          sub: "W912ER0" },
+  { label: "Baltimore District",            sub: "W912B00" },
+  { label: "Philadelphia District",         sub: "W912BU0" },
+  { label: "Kansas City District",          sub: "W912DQ0" },
+  { label: "Alaska District",               sub: "W911KB0" },
+  { label: "Sacramento District",           sub: "W912PP0" },
+  { label: "Jacksonville District",         sub: "W912EP0" },
+  { label: "South Pacific Division",        sub: "W912P20" },
+  { label: "Los Angeles District",          sub: "W912PL0" },
+  { label: "Fort Worth District",           sub: "W912EQ0" },
+  { label: "Galveston District",            sub: "W912GV0" },
+  { label: "Transatlantic Division",        sub: "W912TA0" },
 ];
 
 /* ─── types ────────────────────────────────────────────────────── */
