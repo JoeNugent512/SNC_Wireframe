@@ -1067,7 +1067,7 @@ type CREntry = {
   type:        "Labor" | "Travel" | "Contracting" | "Outsourcing";
   displayName: string;
   committed:   number; // obligatedQ
-  change:      number; // requested - committed
+  change:      number; // requested - obligated (uncommitted delta)
   requested:   number;
   isErdc:      boolean;
 };
@@ -1128,19 +1128,19 @@ function CreateRequestModal({
       const parts = r.sub.split("/");
       const orgCode = parts[0] ?? r.sub;
       return { rowId: r.id, orgCode, orgLabel: parts[1] ?? orgCode, type: "Labor" as const,
-        displayName: r.label, committed: obligatedQ(r), change: r.requested - sumAll(r), requested: r.requested, isErdc: isErdcCode(orgCode) };
+        displayName: r.label, committed: obligatedQ(r), change: r.requested - obligatedQ(r), requested: r.requested, isErdc: isErdcCode(orgCode) };
     }),
     ...travelRows.map((r) => ({
       rowId: r.id, orgCode: r.sub, orgLabel: r.label, type: "Travel" as const,
-      displayName: r.label, committed: obligatedQ(r), change: r.requested - sumAll(r), requested: r.requested, isErdc: isErdcCode(r.sub),
+      displayName: r.label, committed: obligatedQ(r), change: r.requested - obligatedQ(r), requested: r.requested, isErdc: isErdcCode(r.sub),
     })),
     ...contractRows.map((r) => ({
       rowId: r.id, orgCode: r.orgCode, orgLabel: r.org, type: "Contracting" as const,
-      displayName: `${r.contractCode} — ${r.contractName}`, committed: obligatedQ(r), change: r.requested - sumAll(r), requested: r.requested, isErdc: isErdcCode(r.orgCode),
+      displayName: `${r.contractCode} — ${r.contractName}`, committed: obligatedQ(r), change: r.requested - obligatedQ(r), requested: r.requested, isErdc: isErdcCode(r.orgCode),
     })),
     ...outsourcingRows.map((r) => ({
       rowId: r.id, orgCode: r.orgCode, orgLabel: r.org, type: "Outsourcing" as const,
-      displayName: `${r.resourceCode} — ${r.resourceName}`, committed: obligatedQ(r), change: r.requested - sumAll(r), requested: r.requested, isErdc: isErdcCode(r.orgCode),
+      displayName: `${r.resourceCode} — ${r.resourceName}`, committed: obligatedQ(r), change: r.requested - obligatedQ(r), requested: r.requested, isErdc: isErdcCode(r.orgCode),
     })),
   ];
 
