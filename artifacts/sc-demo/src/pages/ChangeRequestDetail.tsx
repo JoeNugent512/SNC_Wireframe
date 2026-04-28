@@ -113,65 +113,104 @@ const TYPE_DOT: Record<string, string> = {
   Labor: "#60a5fa", Travel: "#a78bfa", Contracting: "#34d399", Materials: "#f59e0b", "Materials & Other": "#f59e0b",
 };
 
-const fieldLabelCls = "block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5";
-const fieldValueCls = "text-xs text-slate-700 leading-relaxed";
+const detailLabelCls = "block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1";
+const detailFieldCls = "w-full border border-slate-200 rounded px-2.5 py-1.5 text-sm text-slate-700 bg-white focus:outline-none focus:ring-1 focus:ring-blue-300";
 
-function TravelDetailPanel({ d }: { d: CRTravelDetails }) {
+function TravelDetailPanel({ d, disabled }: { d: CRTravelDetails; disabled: boolean }) {
+  const [poc,       setPoc]       = useState(d.poc       ?? "");
+  const [travelers, setTravelers] = useState(d.travelers ?? "");
+  const [dates,     setDates]     = useState(d.dates     ?? "");
+  const [purpose,   setPurpose]   = useState(d.purpose   ?? "");
+
   return (
-    <div className="px-6 py-3 border-b border-slate-100 bg-slate-50">
-      <div className="grid grid-cols-3 gap-x-6 gap-y-2 mb-2">
-        {d.poc && (
-          <div>
-            <p className={fieldLabelCls}>POC</p>
-            <p className={fieldValueCls}>{d.poc}</p>
-          </div>
-        )}
-        {d.travelers && (
-          <div>
-            <p className={fieldLabelCls}>Travelers</p>
-            <p className={fieldValueCls}>{d.travelers}</p>
-          </div>
-        )}
-        {d.dates && (
-          <div>
-            <p className={fieldLabelCls}>Dates of Travel</p>
-            <p className={fieldValueCls}>{d.dates}</p>
-          </div>
-        )}
-      </div>
-      {d.purpose && (
+    <div className="px-6 py-4 border-b border-slate-100 bg-slate-50">
+      <div className="grid grid-cols-2 gap-3 mb-3">
         <div>
-          <p className={fieldLabelCls}>Purpose of Travel</p>
-          <p className={fieldValueCls}>{d.purpose}</p>
+          <label className={detailLabelCls}>POC</label>
+          <input
+            className={detailFieldCls}
+            placeholder="Point of contact name"
+            value={poc}
+            onChange={(e) => setPoc(e.target.value)}
+            disabled={disabled}
+          />
         </div>
-      )}
+        <div>
+          <label className={detailLabelCls}>Travelers</label>
+          <input
+            className={detailFieldCls}
+            placeholder="Names / number of travelers"
+            value={travelers}
+            onChange={(e) => setTravelers(e.target.value)}
+            disabled={disabled}
+          />
+        </div>
+        <div>
+          <label className={detailLabelCls}>Dates of Travel</label>
+          <input
+            className={detailFieldCls}
+            placeholder="e.g. 15–18 Jul 2026"
+            value={dates}
+            onChange={(e) => setDates(e.target.value)}
+            disabled={disabled}
+          />
+        </div>
+      </div>
+      <div>
+        <label className={detailLabelCls}>Purpose of Travel</label>
+        <textarea
+          className={detailFieldCls}
+          rows={2}
+          placeholder="Brief purpose statement"
+          value={purpose}
+          onChange={(e) => setPurpose(e.target.value)}
+          disabled={disabled}
+        />
+      </div>
     </div>
   );
 }
 
-function ResourceDetailPanel({ d }: { d: CRResourceDetails }) {
+function ResourceDetailPanel({ d, disabled }: { d: CRResourceDetails; disabled: boolean }) {
+  const [pop,     setPop]     = useState(d.pop     ?? "");
+  const [poc,     setPoc]     = useState(d.poc     ?? "");
+  const [purpose, setPurpose] = useState(d.purpose ?? "");
+
   return (
-    <div className="px-6 py-3 border-b border-slate-100 bg-slate-50">
-      <div className="grid grid-cols-2 gap-x-6 gap-y-2 mb-2">
-        {d.pop && (
-          <div>
-            <p className={fieldLabelCls}>Period of Performance (POP)</p>
-            <p className={fieldValueCls}>{d.pop}</p>
-          </div>
-        )}
-        {d.poc && (
-          <div>
-            <p className={fieldLabelCls}>POC</p>
-            <p className={fieldValueCls}>{d.poc}</p>
-          </div>
-        )}
-      </div>
-      {d.purpose && (
+    <div className="px-6 py-4 border-b border-slate-100 bg-slate-50">
+      <div className="grid grid-cols-2 gap-3 mb-3">
         <div>
-          <p className={fieldLabelCls}>Purpose</p>
-          <p className={fieldValueCls}>{d.purpose}</p>
+          <label className={detailLabelCls}>Period of Performance (POP)</label>
+          <input
+            className={detailFieldCls}
+            placeholder="e.g. 01 Jan 2024 – 30 Jun 2024"
+            value={pop}
+            onChange={(e) => setPop(e.target.value)}
+            disabled={disabled}
+          />
         </div>
-      )}
+        <div>
+          <label className={detailLabelCls}>POC</label>
+          <input
+            className={detailFieldCls}
+            placeholder="Point of contact name"
+            value={poc}
+            onChange={(e) => setPoc(e.target.value)}
+            disabled={disabled}
+          />
+        </div>
+      </div>
+      <div>
+        <label className={detailLabelCls}>Purpose</label>
+        <textarea
+          className={detailFieldCls}
+          rows={2}
+          placeholder="Brief purpose statement"
+          value={purpose}
+          onChange={(e) => setPurpose(e.target.value)}
+          disabled={disabled}
+        />
+      </div>
     </div>
   );
 }
@@ -269,8 +308,8 @@ function BudgetChangesTable({ cr, disabled }: { cr: ChangeRequest; disabled: boo
                             <DescNotesCell initialDesc={buildLineDesc(cr, li)} disabled={disabled} />
                           </div>
                         </div>
-                        {isTravel && li.travelDetails && <TravelDetailPanel d={li.travelDetails} />}
-                        {isResource && li.resourceDetails && <ResourceDetailPanel d={li.resourceDetails} />}
+                        {isTravel && li.travelDetails && <TravelDetailPanel d={li.travelDetails} disabled={disabled} />}
+                        {isResource && li.resourceDetails && <ResourceDetailPanel d={li.resourceDetails} disabled={disabled} />}
                       </div>
                     );
                   })}
