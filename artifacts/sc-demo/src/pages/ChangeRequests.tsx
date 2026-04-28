@@ -57,7 +57,7 @@ export default function ChangeRequests() {
             <div className="relative w-full sm:w-72">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
               <Input
-                placeholder="Search by project, resource, org code…"
+                placeholder="Search by project, resource, or org code"
                 className="pl-9 h-9 text-sm bg-white"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}

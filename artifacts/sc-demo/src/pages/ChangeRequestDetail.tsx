@@ -251,13 +251,17 @@ function BudgetChangesTable({ cr, disabled }: { cr: ChangeRequest; disabled: boo
                           className="px-4 py-2.5 flex items-start gap-2 border-b border-slate-100"
                           style={{ backgroundColor: hasDetail ? "#f8fafc" : undefined }}
                         >
-                          <div className="flex-1 min-w-0">
-                            <CopyValue value={li.resource} className="inline-flex items-center gap-1 max-w-full">
-                              <span className="text-sm font-semibold text-slate-800 leading-snug truncate hover:text-blue-700 transition-colors" title={li.resource}>{li.resource}</span>
-                            </CopyValue>
-                            <CopyValue value={li.orgCode} className="inline-flex items-center gap-1">
-                              <span className="text-xs text-slate-400 hover:text-slate-600 transition-colors">{li.orgCode}</span>
-                            </CopyValue>
+                          <div className="flex-1 min-w-0 flex flex-col gap-0.5">
+                            <div>
+                              <CopyValue value={li.resource} className="inline-flex items-center gap-1 max-w-full">
+                                <span className="text-sm font-semibold text-slate-800 leading-snug truncate hover:text-blue-700 transition-colors" title={li.resource}>{li.resource}</span>
+                              </CopyValue>
+                            </div>
+                            <div>
+                              <CopyValue value={li.orgCode} className="inline-flex items-center gap-1">
+                                <span className="text-xs text-slate-400 hover:text-slate-600 transition-colors">{li.orgCode}</span>
+                              </CopyValue>
+                            </div>
                           </div>
                           <CopyValue value={fmt(displayFrom)} className="tabular-nums text-sm text-slate-500 hover:text-slate-800 transition-colors inline-flex items-center justify-end gap-1" style={{ width: 96, paddingTop: 2 }}>
                             {fmt(displayFrom)}
@@ -357,9 +361,9 @@ export default function ChangeRequestDetail({ params }: { params?: { id?: string
       <ChevronRight size={14} className="text-slate-300" />
       <Link href="/change-requests" className="text-slate-400 hover:text-slate-700 transition-colors">Change Requests</Link>
       <ChevronRight size={14} className="text-slate-300" />
-      <span className="font-semibold text-slate-800">{cr.projectNumber}</span>
+      <span className="font-semibold text-slate-800">{cr.projectName}</span>
     </>}>
-      <div className="max-w-5xl mx-auto space-y-6 pb-16">
+      <div className="max-w-5xl mx-auto space-y-6 pb-28">
 
         {/* Back link + header */}
         <div>
@@ -424,13 +428,13 @@ export default function ChangeRequestDetail({ params }: { params?: { id?: string
           <BudgetChangesTable cr={cr} disabled={!isActionable} />
         </div>
 
-        {/* Decision + actions */}
+        {/* Decision + reason (inline section for context) */}
         {isActionable && (
           <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-6 space-y-4">
             <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Decision</h2>
             <div>
               <label className="block text-sm font-medium text-slate-600 mb-1.5">
-                Reason <span className="text-slate-400 font-normal">(optional)</span>
+                Reason <span className="text-slate-400 font-normal">(optional — will appear in notification)</span>
               </label>
               <textarea
                 rows={3}
@@ -440,7 +444,21 @@ export default function ChangeRequestDetail({ params }: { params?: { id?: string
                 className="w-full text-sm text-slate-700 border border-slate-200 rounded-lg px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white"
               />
             </div>
-            <div className="flex gap-3 justify-end">
+            <p className="text-xs text-slate-400">Use the action bar at the bottom of the screen to approve or reject.</p>
+          </div>
+        )}
+      </div>
+
+      {/* Sticky action bar — always visible at the bottom when actionable */}
+      {isActionable && (
+        <div className="fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-slate-200 shadow-[0_-4px_24px_rgba(0,0,0,0.07)]">
+          <div className="max-w-5xl mx-auto px-4 sm:px-8 py-3 flex items-center gap-4">
+            <div className="flex-1 min-w-0">
+              <p className="text-xs text-slate-400 truncate">
+                Reviewing: <span className="font-semibold text-slate-600">{cr.projectNumber} — {cr.projectName}</span>
+              </p>
+            </div>
+            <div className="flex items-center gap-3 flex-shrink-0">
               <button
                 onClick={() => handleAction("Reject")}
                 className="px-5 py-2 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg transition-colors flex items-center gap-1.5"
@@ -455,8 +473,8 @@ export default function ChangeRequestDetail({ params }: { params?: { id?: string
               </button>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
       <Toaster />
     </Layout>
   );

@@ -14,7 +14,7 @@ export default function Home() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Link href="/setup" className="group">
-            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-amber-300 transition-all cursor-pointer h-full flex flex-col justify-between" data-testid="action-new-project">
+            <div className="bg-amber-50/60 p-6 rounded-xl border border-amber-200 shadow-sm hover:shadow-md hover:border-amber-400 transition-all cursor-pointer h-full flex flex-col justify-between" data-testid="action-new-project">
               <div>
                 <div className="relative w-12 h-12 mb-4">
                   <div className="w-12 h-12 rounded-lg bg-amber-50 flex items-center justify-center group-hover:bg-amber-100 transition-colors">
@@ -62,7 +62,7 @@ export default function Home() {
                 <h3 className="text-lg font-semibold text-slate-900">Edit Budget Plan</h3>
                 <p className="text-sm text-slate-500 mt-2">Access existing projects to update labor, travel, and material allocations.</p>
               </div>
-              <div className="flex items-center text-slate-600 text-sm font-medium mt-6 group-hover:translate-x-1 transition-transform">
+              <div className="flex items-center text-primary text-sm font-medium mt-6 group-hover:translate-x-1 transition-transform">
                 Browse projects <ArrowRight size={16} className="ml-1" />
               </div>
             </div>

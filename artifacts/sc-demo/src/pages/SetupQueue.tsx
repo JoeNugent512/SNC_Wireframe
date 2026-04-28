@@ -58,7 +58,7 @@ export default function SetupQueue() {
             const missing = total - filled;
             return (
               <Link key={p.id} href={`/setup/${p.id}`}>
-                <div className="bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow-md hover:border-amber-300 transition-all cursor-pointer p-5 flex items-center gap-5">
+                <div className={`bg-white border rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer p-5 flex items-center gap-5 ${pct === 0 ? "border-red-200 hover:border-red-400" : "border-slate-200 hover:border-amber-300"}`}>
 
                   {/* Left: progress ring substitute — colored bar */}
                   <div className="flex-shrink-0 flex flex-col items-center gap-1 w-14">
@@ -79,7 +79,7 @@ export default function SetupQueue() {
                     <div className="flex items-center gap-2 mb-0.5">
                       <span className="font-mono text-xs font-semibold text-slate-500">{p.number}</span>
                       {missing > 0 && (
-                        <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded">
+                        <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded border ${pct === 0 ? "text-red-700 bg-red-50 border-red-200" : "text-amber-700 bg-amber-50 border-amber-200"}`}>
                           <AlertCircle size={10} /> {missing} field{missing !== 1 ? "s" : ""} missing
                         </span>
                       )}
@@ -89,7 +89,7 @@ export default function SetupQueue() {
                     <div className="flex items-center gap-4 mt-2 text-xs text-slate-400">
                       <span>Est. {fmt(p.estimatedBudget)}</span>
                       <span>Received {new Date(p.receivedDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
-                      <span title="Originating change request that triggered this project setup">Source: <span className="font-mono">{p.sourceRef}</span></span>
+                      <span title="Originating change request that triggered this project setup">From CR: <span className="font-mono">{p.sourceRef}</span></span>
                     </div>
                   </div>
 

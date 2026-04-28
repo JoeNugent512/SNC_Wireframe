@@ -50,15 +50,15 @@ export default function Layout({ children, title, roleBadge, breadcrumb, headerA
                 {getPageTitle()}
               </h1>
             )}
+          </div>
+
+          {/* Right: role badge + user badge + optional actions (far right) */}
+          <div className="flex items-center gap-2 flex-shrink-0">
             {roleBadge && (
               <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
                 {roleBadge}
               </span>
             )}
-          </div>
-
-          {/* Right: user badge + optional actions (far right) */}
-          <div className="flex items-center gap-2 flex-shrink-0">
             <div className="flex items-center gap-2 text-sm font-medium text-slate-600 bg-slate-100 px-3 py-1.5 rounded-full">
               <User size={15} className="text-slate-400" />
               <span>John Smith</span>
