@@ -133,7 +133,8 @@ export default function ProjectList() {
   const filteredProjects = MOCK_PROJECTS.filter(
     (p) =>
       p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.number.toLowerCase().includes(searchQuery.toLowerCase())
+      p.number.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const getStatusIcon = (status: Project["status"]) => {
