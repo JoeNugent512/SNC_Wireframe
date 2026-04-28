@@ -899,7 +899,7 @@ function AddRowModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ backgroundColor: "rgba(15,23,42,0.45)" }} onClick={onClose}>
-      <div className="bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col" style={{ width: 340, maxHeight: "70vh" }} onClick={(e) => e.stopPropagation()}>
+      <div className="bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col" style={{ width: 460, maxHeight: "70vh" }} onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between px-4 py-2.5" style={{ backgroundColor: "#1a3557" }}>
           <span className="text-white font-semibold text-xs tracking-wide uppercase">{title}</span>
           <button onClick={onClose} className="text-white/60 hover:text-white"><X size={15} /></button>
