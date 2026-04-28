@@ -106,21 +106,18 @@ function OrgCodeHeader({ orgCode }: { orgCode: string }) {
   );
 }
 
-const TYPE_ORDER: CRLineItem["type"][] = ["Labor", "Travel", "Contracting", "Materials", "Materials & Other"];
+const TYPE_ORDER: CRLineItem["type"][] = ["Labor", "Travel", "Contracting", "Materials"];
 
 const TYPE_DOT: Record<string, string> = {
-  Labor: "#60a5fa", Travel: "#a78bfa", Contracting: "#34d399", Materials: "#f59e0b", "Materials & Other": "#f59e0b",
+  Labor: "#60a5fa", Travel: "#a78bfa", Contracting: "#34d399", Materials: "#f59e0b",
 };
 
 const detailLabelCls = "block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1";
 const detailFieldCls = "w-full border border-slate-200 rounded px-2.5 py-1.5 text-sm text-slate-700 bg-white focus:outline-none focus:ring-1 focus:ring-blue-300";
 
-function TravelDetailPanel({ d, disabled }: { d: CRTravelDetails; disabled: boolean }) {
-  const [poc,       setPoc]       = useState(d.poc       ?? "");
-  const [travelers, setTravelers] = useState(d.travelers ?? "");
-  const [dates,     setDates]     = useState(d.dates     ?? "");
-  const [purpose,   setPurpose]   = useState(d.purpose   ?? "");
+const roFieldCls = "w-full border border-slate-200 rounded px-2.5 py-1.5 text-sm text-slate-700 bg-white select-text cursor-text focus:outline-none focus:ring-1 focus:ring-blue-200";
 
+function TravelDetailPanel({ d }: { d: CRTravelDetails }) {
   return (
     <div className="border-b border-slate-100 bg-slate-50">
       <div className="px-6 pt-3 pb-1">
@@ -130,56 +127,27 @@ function TravelDetailPanel({ d, disabled }: { d: CRTravelDetails; disabled: bool
         <div className="grid grid-cols-2 gap-3 mb-3">
           <div>
             <label className={detailLabelCls}>POC</label>
-            <input
-              className={detailFieldCls}
-              placeholder="Point of contact name"
-              value={poc}
-              onChange={(e) => setPoc(e.target.value)}
-              disabled={disabled}
-            />
+            <input className={roFieldCls} readOnly value={d.poc ?? ""} />
           </div>
           <div>
             <label className={detailLabelCls}>Travelers</label>
-            <input
-              className={detailFieldCls}
-              placeholder="Names / number of travelers"
-              value={travelers}
-              onChange={(e) => setTravelers(e.target.value)}
-              disabled={disabled}
-            />
+            <input className={roFieldCls} readOnly value={d.travelers ?? ""} />
           </div>
           <div>
             <label className={detailLabelCls}>Dates of Travel</label>
-            <input
-              className={detailFieldCls}
-              placeholder="e.g. 15–18 Jul 2026"
-              value={dates}
-              onChange={(e) => setDates(e.target.value)}
-              disabled={disabled}
-            />
+            <input className={roFieldCls} readOnly value={d.dates ?? ""} />
           </div>
         </div>
         <div>
           <label className={detailLabelCls}>Purpose of Travel</label>
-          <textarea
-            className={detailFieldCls}
-            rows={2}
-            placeholder="Brief purpose statement"
-            value={purpose}
-            onChange={(e) => setPurpose(e.target.value)}
-            disabled={disabled}
-          />
+          <textarea className={roFieldCls} readOnly rows={2} value={d.purpose ?? ""} />
         </div>
       </div>
     </div>
   );
 }
 
-function ResourceDetailPanel({ d, disabled, label = "Resource Details" }: { d: CRResourceDetails; disabled: boolean; label?: string }) {
-  const [pop,     setPop]     = useState(d.pop     ?? "");
-  const [poc,     setPoc]     = useState(d.poc     ?? "");
-  const [purpose, setPurpose] = useState(d.purpose ?? "");
-
+function ResourceDetailPanel({ d, label = "Resource Details" }: { d: CRResourceDetails; label?: string }) {
   return (
     <div className="border-b border-slate-100 bg-slate-50">
       <div className="px-6 pt-3 pb-1">
@@ -189,35 +157,16 @@ function ResourceDetailPanel({ d, disabled, label = "Resource Details" }: { d: C
         <div className="grid grid-cols-2 gap-3 mb-3">
           <div>
             <label className={detailLabelCls}>Period of Performance (POP)</label>
-            <input
-              className={detailFieldCls}
-              placeholder="e.g. 01 Jan 2024 – 30 Jun 2024"
-              value={pop}
-              onChange={(e) => setPop(e.target.value)}
-              disabled={disabled}
-            />
+            <input className={roFieldCls} readOnly value={d.pop ?? ""} />
           </div>
           <div>
             <label className={detailLabelCls}>POC</label>
-            <input
-              className={detailFieldCls}
-              placeholder="Point of contact name"
-              value={poc}
-              onChange={(e) => setPoc(e.target.value)}
-              disabled={disabled}
-            />
+            <input className={roFieldCls} readOnly value={d.poc ?? ""} />
           </div>
         </div>
         <div>
           <label className={detailLabelCls}>Purpose</label>
-          <textarea
-            className={detailFieldCls}
-            rows={2}
-            placeholder="Brief purpose statement"
-            value={purpose}
-            onChange={(e) => setPurpose(e.target.value)}
-            disabled={disabled}
-          />
+          <textarea className={roFieldCls} readOnly rows={2} value={d.purpose ?? ""} />
         </div>
       </div>
     </div>
@@ -280,7 +229,7 @@ function BudgetChangesTable({ cr, disabled }: { cr: ChangeRequest; disabled: boo
                     const displayFrom = firstReq ? 0 : li.from;
                     const delta = firstReq ? li.to : (li.direction === "Increase" ? li.amount : -li.amount);
                     const isTravel    = li.type === "Travel";
-                    const isResource  = li.type === "Materials" || li.type === "Contracting" || li.type === "Materials & Other";
+                    const isResource  = li.type === "Materials" || li.type === "Contracting";
                     const hasDetail   = (isTravel && li.travelDetails) || (isResource && li.resourceDetails);
                     return (
                       <div key={i}>
@@ -308,12 +257,11 @@ function BudgetChangesTable({ cr, disabled }: { cr: ChangeRequest; disabled: boo
                             <DescNotesCell initialDesc={buildLineDesc(cr, li)} />
                           </div>
                         </div>
-                        {isTravel && li.travelDetails && <TravelDetailPanel d={li.travelDetails} disabled={disabled} />}
+                        {isTravel && li.travelDetails && <TravelDetailPanel d={li.travelDetails} />}
                         {isResource && li.resourceDetails && (
                           <ResourceDetailPanel
                             d={li.resourceDetails}
-                            disabled={disabled}
-                            label={li.type === "Contracting" ? "Contracting Details" : li.type === "Materials & Other" ? "Materials & Other Details" : "Materials Details"}
+                            label={li.type === "Contracting" ? "Contracting Details" : "Materials Details"}
                           />
                         )}
                       </div>
