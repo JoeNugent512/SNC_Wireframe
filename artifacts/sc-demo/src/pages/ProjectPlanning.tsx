@@ -1789,7 +1789,7 @@ export default function ProjectPlanning() {
       <Link href="/projects" className="hover:text-blue-600 transition-colors text-slate-500">Projects</Link>
       <ChevronRight size={13} className="text-slate-300" />
       <span className="font-semibold text-slate-700">
-        <span className="font-mono text-slate-400 mr-1">{project.number}</span>{project.name}
+        <span className="font-mono text-slate-400 mr-1">[{project.number}]</span>{project.name}
       </span>
     </>
   );
