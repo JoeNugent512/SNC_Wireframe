@@ -1604,73 +1604,76 @@ export default function ProjectPlanning() {
   return (
     <Layout breadcrumb={breadcrumb} headerActions={headerActions}>
       <div className="min-h-screen" style={{ backgroundColor: "#f8fafc" }}>
-        {/* project info bar — sticky so Create Request is always reachable while scrolling */}
-        <div className="px-6 py-3 flex items-center gap-4 sticky z-20" style={{ backgroundColor: "#1a3557", top: 57 }}>
-          {/* LEFT: project name */}
-          <div className="flex-1 min-w-0">
-            <p className="text-xs font-mono" style={{ color: "rgba(255,255,255,0.5)" }}>{project.number}</p>
-            <p className="font-bold text-white truncate">{project.name}</p>
+        {/* sticky container: info bar + summary bubbles always visible */}
+        <div className="sticky z-20" style={{ top: 57 }}>
+          {/* info bar */}
+          <div className="px-6 py-3 flex items-center gap-4" style={{ backgroundColor: "#1a3557" }}>
+            {/* LEFT: Create Request button + hint */}
+            <div className="flex flex-col items-start gap-1 flex-shrink-0">
+              <button
+                disabled={!createEnabled}
+                onClick={() => createEnabled && setShowCreateRequest(true)}
+                className="text-xs font-bold px-3 py-1.5 rounded transition-colors"
+                style={createEnabled
+                  ? { backgroundColor: "#1a6ea8", color: "#fff", border: "1px solid #2d8fcf", cursor: "pointer" }
+                  : { backgroundColor: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.35)", border: "1px solid rgba(255,255,255,0.12)", cursor: "not-allowed" }
+                }
+                onMouseEnter={(e) => { if (createEnabled) e.currentTarget.style.backgroundColor = "#1e82c6"; }}
+                onMouseLeave={(e) => { if (createEnabled) e.currentTarget.style.backgroundColor = "#1a6ea8"; }}
+              >
+                Create Request
+              </button>
+              {!createEnabled && (
+                <p className="text-xs max-w-[180px]" style={{ color: "rgba(255,255,255,0.4)" }}>
+                  {leftToPlan < 0
+                    ? `Over budget by ${fmt(Math.abs(leftToPlan))}`
+                    : `Plan ${fmt(leftToPlan)} more to enable`}
+                </p>
+              )}
+            </div>
+
+            {/* CENTER: project number + name */}
+            <div className="flex-1 min-w-0 text-center">
+              <p className="text-xs font-mono" style={{ color: "rgba(255,255,255,0.5)" }}>{project.number}</p>
+              <p className="font-bold text-white truncate">{project.name}</p>
+            </div>
+
+            {/* RIGHT: POP + status badge */}
+            <div className="flex items-center gap-3 flex-shrink-0">
+              <div className="text-right">
+                <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "rgba(255,255,255,0.5)" }}>Project POP</p>
+                <p className="font-semibold text-sm text-white">{PLAN_WINDOW_LABEL}</p>
+              </div>
+              <div className="px-2 py-1 rounded text-xs font-semibold" style={{ backgroundColor: "rgba(167,243,208,0.2)", color: "#6ee7b7", border: "1px solid rgba(167,243,208,0.3)" }}>
+                {PLAN_STATUS_LABEL}
+              </div>
+            </div>
           </div>
 
-          {/* CENTER: Create Request button + hint */}
-          <div className="flex flex-col items-center gap-1 flex-shrink-0">
-            <button
-              disabled={!createEnabled}
-              onClick={() => createEnabled && setShowCreateRequest(true)}
-              className="text-xs font-bold px-3 py-1.5 rounded transition-colors"
-              style={createEnabled
-                ? { backgroundColor: "#1a6ea8", color: "#fff", border: "1px solid #2d8fcf", cursor: "pointer" }
-                : { backgroundColor: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.35)", border: "1px solid rgba(255,255,255,0.12)", cursor: "not-allowed" }
-              }
-              onMouseEnter={(e) => { if (createEnabled) e.currentTarget.style.backgroundColor = "#1e82c6"; }}
-              onMouseLeave={(e) => { if (createEnabled) e.currentTarget.style.backgroundColor = "#1a6ea8"; }}
-            >
-              Create Request
-            </button>
-            {!createEnabled && (
-              <p className="text-xs text-center" style={{ color: "rgba(255,255,255,0.4)" }}>
-                {leftToPlan < 0
-                  ? `Over budget by ${fmt(Math.abs(leftToPlan))} — reduce planned to enable Create Request`
-                  : `Plan ${fmt(leftToPlan)} more to enable Create Request`}
-              </p>
-            )}
-          </div>
-
-          {/* RIGHT: POP + status badge */}
-          <div className="flex items-center gap-3 flex-shrink-0 flex-1 justify-end">
-            <div className="text-right">
-              <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "rgba(255,255,255,0.5)" }}>Project POP</p>
-              <p className="font-semibold text-sm text-white">{PLAN_WINDOW_LABEL}</p>
-            </div>
-            <div className="px-2 py-1 rounded text-xs font-semibold" style={{ backgroundColor: "rgba(167,243,208,0.2)", color: "#6ee7b7", border: "1px solid rgba(167,243,208,0.3)" }}>
-              {PLAN_STATUS_LABEL}
-            </div>
-          </div>
-        </div>
-
-        {/* summary bubbles — TOA / PLANNED / LEFT TO PLAN */}
-        <div className="px-6 py-4 bg-white border-b border-slate-200">
-          <div className="flex gap-4">
-            <div className="flex-1 rounded-xl px-5 py-4" style={{ backgroundColor: "#1a3557" }}>
-              <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "rgba(255,255,255,0.5)" }}>TOA</p>
-              <p className="text-2xl font-bold text-white mt-0.5">{fmt(project.budget)}</p>
-              <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>Total Obligating Authority</p>
-            </div>
-            <div className="flex-1 rounded-xl px-5 py-4 border border-slate-200">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Planned</p>
-              <p className="text-2xl font-bold text-slate-800 mt-0.5">{fmt(totalPlanned)}</p>
-              <p className="text-xs text-slate-400 mt-1">Amount currently planned</p>
-            </div>
-            <div className="flex-1 rounded-xl px-5 py-4" style={
-              leftToPlan < 0   ? { backgroundColor: "#fef2f2", border: "1px solid #fca5a5" }
-              : leftToPlan === 0 ? { backgroundColor: "#f0fdf4", border: "1px solid #86efac" }
-              :                    { backgroundColor: "#fffbeb", border: "1px solid #fcd34d" }
-            }>
-              <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: leftToPlan < 0 ? "#991b1b" : leftToPlan === 0 ? "#15803d" : "#92400e" }}>Left to Plan</p>
-              <p className="text-2xl font-bold mt-0.5" style={{ color: leftToPlan < 0 ? "#dc2626" : leftToPlan === 0 ? "#16a34a" : "#b45309" }}>{fmt(leftToPlan)}</p>
-              <p className="text-xs mt-1" style={{ color: leftToPlan < 0 ? "#b91c1c" : leftToPlan === 0 ? "#15803d" : "#a16207" }}>
-                {leftToPlan < 0 ? "Over budget — reduce planned amounts" : leftToPlan === 0 ? "Fully allocated" : "Unallocated funds remaining"}
-              </p>
+          {/* summary bubbles — TOA / PLANNED / LEFT TO PLAN */}
+          <div className="px-6 py-4 bg-white border-b border-slate-200">
+            <div className="flex gap-4">
+              <div className="flex-1 rounded-xl px-5 py-4" style={{ backgroundColor: "#1a3557" }}>
+                <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "rgba(255,255,255,0.5)" }}>TOA</p>
+                <p className="text-2xl font-bold text-white mt-0.5">{fmt(project.budget)}</p>
+                <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>Total Obligating Authority</p>
+              </div>
+              <div className="flex-1 rounded-xl px-5 py-4 border border-slate-200">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Planned</p>
+                <p className="text-2xl font-bold text-slate-800 mt-0.5">{fmt(totalPlanned)}</p>
+                <p className="text-xs text-slate-400 mt-1">Amount currently planned</p>
+              </div>
+              <div className="flex-1 rounded-xl px-5 py-4" style={
+                leftToPlan < 0   ? { backgroundColor: "#fef2f2", border: "1px solid #fca5a5" }
+                : leftToPlan === 0 ? { backgroundColor: "#f0fdf4", border: "1px solid #86efac" }
+                :                    { backgroundColor: "#fffbeb", border: "1px solid #fcd34d" }
+              }>
+                <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: leftToPlan < 0 ? "#991b1b" : leftToPlan === 0 ? "#15803d" : "#92400e" }}>Left to Plan</p>
+                <p className="text-2xl font-bold mt-0.5" style={{ color: leftToPlan < 0 ? "#dc2626" : leftToPlan === 0 ? "#16a34a" : "#b45309" }}>{fmt(leftToPlan)}</p>
+                <p className="text-xs mt-1" style={{ color: leftToPlan < 0 ? "#b91c1c" : leftToPlan === 0 ? "#15803d" : "#a16207" }}>
+                  {leftToPlan < 0 ? "Over budget — reduce planned amounts" : leftToPlan === 0 ? "Fully allocated" : "Unallocated funds remaining"}
+                </p>
+              </div>
             </div>
           </div>
         </div>
