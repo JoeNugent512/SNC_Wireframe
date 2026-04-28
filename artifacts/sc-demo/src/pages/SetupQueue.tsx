@@ -53,12 +53,15 @@ export default function SetupQueue() {
 
         {/* Cards */}
         <div className="space-y-3">
-          {PENDING_SETUP_PROJECTS.map((p) => {
+          {PENDING_SETUP_PROJECTS.map((p, i) => {
             const { filled, total, pct } = completionOf(p);
             const missing = total - filled;
             return (
               <Link key={p.id} href={`/setup/${p.id}`}>
-                <div className={`bg-white border rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer p-5 flex items-center gap-5 ${pct === 0 ? "border-red-200 hover:border-red-400" : "border-slate-200 hover:border-amber-300"}`}>
+                <div
+                  className={`border rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer p-5 flex items-center gap-5 ${pct === 0 ? "border-red-200 hover:border-red-400" : "border-slate-200 hover:border-amber-300"}`}
+                  style={{ backgroundColor: i % 2 === 1 ? "#edf2f8" : "#ffffff" }}
+                >
 
                   {/* Left: progress ring substitute — colored bar */}
                   <div className="flex-shrink-0 flex flex-col items-center gap-1 w-14">

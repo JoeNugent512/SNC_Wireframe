@@ -249,7 +249,7 @@ function BudgetChangesTable({ cr, disabled }: { cr: ChangeRequest; disabled: boo
                       <div key={i}>
                         <div
                           className="px-4 py-2.5 flex items-start gap-2 border-b border-slate-100"
-                          style={{ backgroundColor: hasDetail ? "#f8fafc" : undefined }}
+                          style={{ backgroundColor: i % 2 === 1 ? "#edf2f8" : "#ffffff" }}
                         >
                           <div className="flex-1 min-w-0 flex flex-col gap-0.5">
                             <div>

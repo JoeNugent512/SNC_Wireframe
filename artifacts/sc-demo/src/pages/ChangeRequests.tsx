@@ -107,10 +107,11 @@ export default function ChangeRequests() {
                     </td>
                   </tr>
                 ) : (
-                  filteredCRs.map((cr) => (
+                  filteredCRs.map((cr, i) => (
                     <tr
                       key={cr.id}
-                      className="hover:bg-slate-50 transition-colors cursor-pointer"
+                      className="hover:bg-slate-100 transition-colors cursor-pointer"
+                      style={{ backgroundColor: i % 2 === 1 ? "#edf2f8" : "#ffffff" }}
                       onClick={() => navigate(`/change-requests/${cr.id}`)}
                     >
                       <td className="px-6 py-4">

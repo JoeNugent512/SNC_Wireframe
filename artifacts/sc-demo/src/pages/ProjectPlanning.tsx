@@ -648,7 +648,7 @@ function PlanDataRow({
           </div>
         </td>
         {/* Total Planned — gold, spread-fill editable (distributes delta across EDITABLE_QKEYS) */}
-        <td className="px-3 py-2" style={{ backgroundColor: AMBER_BG, borderLeft: AMBER_BORDER }}>
+        <td className="px-3 py-2" style={{ backgroundColor: isEven ? AMBER_TOTAL : AMBER_BG, borderLeft: AMBER_BORDER }}>
           <AmtInput
             value={planned}
             gold
@@ -661,19 +661,19 @@ function PlanDataRow({
           />
         </td>
         {/* Obligated — blue, read-only (PAST quarters sum) */}
-        <td className={td} style={{ backgroundColor: BLUE_BG, borderLeft: "2px solid #475569" }}>
+        <td className={td} style={{ backgroundColor: isEven ? BLUE_TOTAL : BLUE_BG, borderLeft: "2px solid #475569" }}>
           <AmtDisplay value={obligated} />
         </td>
         {/* Planned Remaining — blue, read-only (all EDITABLE quarters sum) */}
-        <td className={td} style={{ backgroundColor: BLUE_BG, borderLeft: BLUE_BORDER }}>
+        <td className={td} style={{ backgroundColor: isEven ? BLUE_TOTAL : BLUE_BG, borderLeft: BLUE_BORDER }}>
           <AmtDisplay value={remaining} />
         </td>
         {/* Open Commitment — blue, read-only */}
-        <td className={td} style={{ backgroundColor: BLUE_BG, borderLeft: BLUE_BORDER }}>
+        <td className={td} style={{ backgroundColor: isEven ? BLUE_TOTAL : BLUE_BG, borderLeft: BLUE_BORDER }}>
           <AmtDisplay value={row.openCommitment} />
         </td>
         {/* Request / Max — gold, editable; clamped to [obligated, openWindowMax] */}
-        <td className="px-3 py-2" style={{ backgroundColor: AMBER_BG, borderLeft: AMBER_BORDER }}>
+        <td className="px-3 py-2" style={{ backgroundColor: isEven ? AMBER_TOTAL : AMBER_BG, borderLeft: AMBER_BORDER }}>
           <div className="flex items-center gap-2" style={{ justifyContent: "flex-end" }}>
             <div style={{ flex: "0 0 130px" }}>
               <AmtInput
@@ -772,7 +772,7 @@ function ResourceDataRow<T extends QData & { id: number; org: string; orgCode: s
           </div>
         </td>
         {/* Total Planned — gold, spread-fill editable (distributes delta across EDITABLE_QKEYS) */}
-        <td className="px-3 py-2" style={{ backgroundColor: AMBER_BG, borderLeft: AMBER_BORDER }}>
+        <td className="px-3 py-2" style={{ backgroundColor: isEven ? AMBER_TOTAL : AMBER_BG, borderLeft: AMBER_BORDER }}>
           <AmtInput
             value={planned}
             gold
@@ -784,17 +784,17 @@ function ResourceDataRow<T extends QData & { id: number; org: string; orgCode: s
             }}
           />
         </td>
-        <td className={td} style={{ backgroundColor: BLUE_BG, borderLeft: "2px solid #475569" }}>
+        <td className={td} style={{ backgroundColor: isEven ? BLUE_TOTAL : BLUE_BG, borderLeft: "2px solid #475569" }}>
           <AmtDisplay value={obligated} />
         </td>
-        <td className={td} style={{ backgroundColor: BLUE_BG, borderLeft: BLUE_BORDER }}>
+        <td className={td} style={{ backgroundColor: isEven ? BLUE_TOTAL : BLUE_BG, borderLeft: BLUE_BORDER }}>
           <AmtDisplay value={remaining} />
         </td>
-        <td className={td} style={{ backgroundColor: BLUE_BG, borderLeft: BLUE_BORDER }}>
+        <td className={td} style={{ backgroundColor: isEven ? BLUE_TOTAL : BLUE_BG, borderLeft: BLUE_BORDER }}>
           <AmtDisplay value={row.openCommitment} />
         </td>
         {/* Request / Max — clamped to [obligated, openWindowMax (request window)] */}
-        <td className="px-3 py-2" style={{ backgroundColor: AMBER_BG, borderLeft: AMBER_BORDER }}>
+        <td className="px-3 py-2" style={{ backgroundColor: isEven ? AMBER_TOTAL : AMBER_BG, borderLeft: AMBER_BORDER }}>
           <div className="flex items-center gap-2" style={{ justifyContent: "flex-end" }}>
             <div style={{ flex: "0 0 130px" }}>
               <AmtInput
