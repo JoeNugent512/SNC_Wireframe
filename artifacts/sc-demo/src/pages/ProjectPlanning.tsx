@@ -193,6 +193,7 @@ const OUTSOURCING_CODES = [
 ];
 
 const LABOR_OPTIONS = [
+  // ERDC employees
   { label: "Nugent, Joseph Pat",   sub: "U435000/CERL" },
   { label: "Chen, David",          sub: "U435000/CERL" },
   { label: "Williams, Sandra K.",  sub: "U438000/GSL"  },
@@ -202,9 +203,29 @@ const LABOR_OPTIONS = [
   { label: "Okafor, Chioma",       sub: "U437000/CRRL" },
   { label: "Reyes, Carlos",        sub: "U43400/ITL"   },
   { label: "Placeholder — TBD",    sub: "— name/org code pending" },
+  // District personnel (name TBD — one slot per district)
+  { label: "HQ USACE Personnel — TBD",  sub: "W0100ER/HQ USACE" },
+  { label: "IWR Personnel — TBD",       sub: "W4110ER/IWR"      },
+  { label: "LRB Personnel — TBD",       sub: "W073ER0/LRB"      },
+  { label: "LRC Personnel — TBD",       sub: "W074ER0/LRC"      },
+  { label: "LRE Personnel — TBD",       sub: "W075ER0/LRE"      },
+  { label: "MVM Personnel — TBD",       sub: "W060ER0/MVM"      },
+  { label: "MVN Personnel — TBD",       sub: "W912ER0/MVN"      },
+  { label: "NAB Personnel — TBD",       sub: "W912B00/NAB"      },
+  { label: "NAP Personnel — TBD",       sub: "W912BU0/NAP"      },
+  { label: "NWK Personnel — TBD",       sub: "W912DQ0/NWK"      },
+  { label: "POA Personnel — TBD",       sub: "W911KB0/POA"      },
+  { label: "SAC Personnel — TBD",       sub: "W912PP0/SAC"      },
+  { label: "SAJ Personnel — TBD",       sub: "W912EP0/SAJ"      },
+  { label: "SPA Personnel — TBD",       sub: "W912P20/SPA"      },
+  { label: "SPL Personnel — TBD",       sub: "W912PL0/SPL"      },
+  { label: "SWF Personnel — TBD",       sub: "W912EQ0/SWF"      },
+  { label: "SWG Personnel — TBD",       sub: "W912GV0/SWG"      },
+  { label: "TAM Personnel — TBD",       sub: "W912TA0/TAM"      },
 ];
 
 const TRAVEL_OPTIONS = [
+  // ERDC labs
   { label: "CERL",        sub: "U435000" },
   { label: "CHL",         sub: "U430000" },
   { label: "EL",          sub: "U433000" },
@@ -214,6 +235,25 @@ const TRAVEL_OPTIONS = [
   { label: "CRRL",        sub: "U437000" },
   { label: "OTHER ERDC",  sub: "U400000" },
   { label: "HPC",         sub: "U440000" },
+  // Districts
+  { label: "HQ USACE",   sub: "W0100ER" },
+  { label: "IWR",        sub: "W4110ER" },
+  { label: "LRB",        sub: "W073ER0" },
+  { label: "LRC",        sub: "W074ER0" },
+  { label: "LRE",        sub: "W075ER0" },
+  { label: "MVM",        sub: "W060ER0" },
+  { label: "MVN",        sub: "W912ER0" },
+  { label: "NAB",        sub: "W912B00" },
+  { label: "NAP",        sub: "W912BU0" },
+  { label: "NWK",        sub: "W912DQ0" },
+  { label: "POA",        sub: "W911KB0" },
+  { label: "SAC",        sub: "W912PP0" },
+  { label: "SAJ",        sub: "W912EP0" },
+  { label: "SPA",        sub: "W912P20" },
+  { label: "SPL",        sub: "W912PL0" },
+  { label: "SWF",        sub: "W912EQ0" },
+  { label: "SWG",        sub: "W912GV0" },
+  { label: "TAM",        sub: "W912TA0" },
 ];
 
 /* ─── types ────────────────────────────────────────────────────── */
@@ -816,18 +856,43 @@ function TotalsRow({ rows }: { rows: (QData & { openCommitment: number; requeste
 
 /* ─── add-row picker (Labor / Travel) ───────────────────────────── */
 function AddRowModal({
-  title, options, existingLabels, onAdd, onClose,
+  title, options, sections, existingLabels, onAdd, onClose,
 }: {
   title: string;
-  options: { label: string; sub: string }[];
+  options?: { label: string; sub: string }[];
+  sections?: { heading: string; items: { label: string; sub: string }[] }[];
   existingLabels: Set<string>;
   onAdd: (items: { label: string; sub: string }[]) => void;
   onClose: () => void;
 }) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const avail = options.filter((o) => !existingLabels.has(o.label));
+
+  const allItems: { label: string; sub: string }[] = sections
+    ? sections.flatMap((s) => s.items)
+    : (options ?? []);
+  const avail = allItems.filter((o) => !existingLabels.has(o.label));
+  const availSet = new Set(avail.map((o) => o.label));
+
   const toggle = (label: string) =>
     setSelected((prev) => { const next = new Set(prev); next.has(label) ? next.delete(label) : next.add(label); return next; });
+
+  const renderItem = (opt: { label: string; sub: string }) => (
+    <li key={opt.label}>
+      <button
+        onClick={() => toggle(opt.label)}
+        className="w-full text-left px-3 py-2 flex items-center gap-2.5 border-b border-slate-100 hover:bg-slate-50 transition-colors"
+      >
+        <div className="flex-shrink-0 rounded flex items-center justify-center"
+          style={{ width: 16, height: 16, backgroundColor: selected.has(opt.label) ? "#1a3557" : "#fff", border: `2px solid ${selected.has(opt.label) ? "#1a3557" : "#cbd5e1"}` }}>
+          {selected.has(opt.label) && <span style={{ color: "#fff", fontSize: 9, fontWeight: 900 }}>✓</span>}
+        </div>
+        <div className="min-w-0">
+          <p className="text-sm font-medium text-slate-800 truncate">{opt.label}</p>
+          <p className="text-xs text-slate-400">{opt.sub}</p>
+        </div>
+      </button>
+    </li>
+  );
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ backgroundColor: "rgba(15,23,42,0.45)" }} onClick={onClose}>
@@ -836,24 +901,24 @@ function AddRowModal({
           <span className="text-white font-semibold text-xs tracking-wide uppercase">{title}</span>
           <button onClick={onClose} className="text-white/60 hover:text-white"><X size={15} /></button>
         </div>
-        <ul className="overflow-y-auto" style={{ maxHeight: 280 }}>
-          {avail.map((opt) => (
-            <li key={opt.label}>
-              <button
-                onClick={() => toggle(opt.label)}
-                className="w-full text-left px-3 py-2 flex items-center gap-2.5 border-b border-slate-100 hover:bg-slate-50 transition-colors"
-              >
-                <div className="flex-shrink-0 rounded flex items-center justify-center"
-                  style={{ width: 16, height: 16, backgroundColor: selected.has(opt.label) ? "#1a3557" : "#fff", border: `2px solid ${selected.has(opt.label) ? "#1a3557" : "#cbd5e1"}` }}>
-                  {selected.has(opt.label) && <span style={{ color: "#fff", fontSize: 9, fontWeight: 900 }}>✓</span>}
-                </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-medium text-slate-800 truncate">{opt.label}</p>
-                  <p className="text-xs text-slate-400">{opt.sub}</p>
-                </div>
-              </button>
-            </li>
-          ))}
+        <ul className="overflow-y-auto" style={{ maxHeight: 340 }}>
+          {sections ? (
+            sections.map((sec) => {
+              const secAvail = sec.items.filter((o) => availSet.has(o.label));
+              if (secAvail.length === 0) return null;
+              return (
+                <li key={sec.heading}>
+                  <div className="px-3 py-1.5 text-xs font-bold uppercase tracking-wider border-b border-slate-200"
+                    style={{ backgroundColor: "#f1f5f9", color: "#475569" }}>
+                    {sec.heading}
+                  </div>
+                  <ul>{secAvail.map(renderItem)}</ul>
+                </li>
+              );
+            })
+          ) : (
+            avail.map(renderItem)
+          )}
           {avail.length === 0 && <li className="px-4 py-6 text-center text-xs text-slate-400">All options already added</li>}
         </ul>
         <div className="px-4 py-3 border-t border-slate-200 flex items-center justify-between bg-slate-50">
@@ -1701,7 +1766,10 @@ export default function ProjectPlanning() {
           {showLaborPicker && (
             <AddRowModal
               title="Add Labor Resource"
-              options={LABOR_OPTIONS}
+              sections={[
+                { heading: "ERDC Personnel", items: LABOR_OPTIONS.filter((o) => o.sub.startsWith("U") || o.sub.startsWith("—")) },
+                { heading: "District Personnel", items: LABOR_OPTIONS.filter((o) => o.sub.startsWith("W")) },
+              ]}
               existingLabels={new Set(laborRows.map((r) => r.label))}
               onAdd={(items) => setLaborRows((rows) => [...rows, ...items.map(({ label, sub }) => ({
                 id: uid(), label, sub: sub ?? "", ...emptyQ(), openCommitment: 0, requested: 0,
@@ -1743,7 +1811,10 @@ export default function ProjectPlanning() {
           {showTravelPicker && (
             <AddRowModal
               title="Add Travel Resource"
-              options={TRAVEL_OPTIONS}
+              sections={[
+                { heading: "ERDC Labs", items: TRAVEL_OPTIONS.filter((o) => o.sub.startsWith("U")) },
+                { heading: "Districts", items: TRAVEL_OPTIONS.filter((o) => o.sub.startsWith("W")) },
+              ]}
               existingLabels={new Set(travelRows.map((r) => r.label))}
               onAdd={(items) => setTravelRows((rows) => [...rows, ...items.map(({ label, sub }) => ({
                 id: uid(), label, sub: sub ?? "", ...emptyQ(), openCommitment: 0, requested: 0,
