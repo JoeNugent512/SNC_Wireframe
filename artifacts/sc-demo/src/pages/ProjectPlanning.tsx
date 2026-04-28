@@ -1642,6 +1642,7 @@ export default function ProjectPlanning() {
   const [showContractPicker,    setShowContractPicker]    = useState(false);
   const [showOutsourcingPicker, setShowOutsourcingPicker] = useState(false);
   const [showCreateRequest,     setShowCreateRequest]     = useState(false);
+  const [copiedLtp,             setCopiedLtp]             = useState(false);
 
   const toggleSet = (set: Set<number>, id: number): Set<number> => {
     const next = new Set(set);
@@ -1863,15 +1864,29 @@ export default function ProjectPlanning() {
             <p className="text-2xl font-bold text-slate-800 mt-0.5">{fmt(totalPlanned)}</p>
             <p className="text-xs text-slate-400 mt-1">Amount currently planned</p>
           </div>
-          <div className="flex-1 rounded-xl px-5 py-4" style={
-            leftToPlan < 0   ? { backgroundColor: "#fef2f2", border: "1px solid #fca5a5" }
-            : leftToPlan === 0 ? { backgroundColor: "#f0fdf4", border: "1px solid #86efac" }
-            :                    { backgroundColor: "#fffbeb", border: "1px solid #fcd34d" }
-          }>
+          <div
+            className="flex-1 rounded-xl px-5 py-4 cursor-pointer select-none transition-opacity hover:opacity-80 active:opacity-60"
+            title="Click to copy amount to clipboard"
+            onClick={() => {
+              navigator.clipboard.writeText(fmt(leftToPlan)).then(() => {
+                setCopiedLtp(true);
+                setTimeout(() => setCopiedLtp(false), 2000);
+              });
+            }}
+            style={
+              leftToPlan < 0   ? { backgroundColor: "#fef2f2", border: "1px solid #fca5a5" }
+              : leftToPlan === 0 ? { backgroundColor: "#f0fdf4", border: "1px solid #86efac" }
+              :                    { backgroundColor: "#fffbeb", border: "1px solid #fcd34d" }
+            }
+          >
             <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: leftToPlan < 0 ? "#991b1b" : leftToPlan === 0 ? "#15803d" : "#92400e" }}>Left to Plan</p>
             <p className="text-2xl font-bold mt-0.5" style={{ color: leftToPlan < 0 ? "#dc2626" : leftToPlan === 0 ? "#16a34a" : "#b45309" }}>{fmt(leftToPlan)}</p>
             <p className="text-xs mt-1" style={{ color: leftToPlan < 0 ? "#b91c1c" : leftToPlan === 0 ? "#15803d" : "#a16207" }}>
-              {leftToPlan < 0 ? "Over budget — reduce planned amounts" : leftToPlan === 0 ? "Fully allocated" : "Unallocated funds remaining"}
+              {copiedLtp
+                ? "Copied to clipboard!"
+                : leftToPlan < 0 ? "Over budget — reduce planned amounts"
+                : leftToPlan === 0 ? "Fully allocated"
+                : "Click to copy · Unallocated funds remaining"}
             </p>
           </div>
         </div>
