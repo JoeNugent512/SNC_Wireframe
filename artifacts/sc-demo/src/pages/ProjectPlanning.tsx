@@ -139,12 +139,17 @@ const ERDC_OH_RATES: Record<string, number> = {
 const isErdcCode = (code: string) => code in ERDC_OH_RATES;
 
 // Flex-4 = 3% off the top; OH split on remaining 97%
-// Integer-dollar arithmetic; OH = floor(labBase * ohRate) so any rounding remainder routes to FRB
-const flex4Amount    = (req: number) => Math.round(req * 0.03);
+// All internal math in INTEGER CENTS to avoid floating-point drift; output converted back to dollars
+const _f4Cents   = (reqCents: number) => Math.round(reqCents * 0.03);
+const _lbCents   = (remCents: number, ohRate: number) => Math.floor(remCents / (1 + ohRate));
+const _ohCents   = (remCents: number, ohRate: number) => Math.floor(_lbCents(remCents, ohRate) * ohRate);
+const _frbCents  = (remCents: number, ohRate: number) => remCents - _lbCents(remCents, ohRate) - _ohCents(remCents, ohRate);
+
+const flex4Amount    = (req: number) => _f4Cents(Math.round(req * 100)) / 100;
 const flex4Remaining = (req: number) => req - flex4Amount(req);
-const labBase        = (rem: number, ohRate: number) => Math.floor(rem / (1 + ohRate));
-const ohAmount       = (rem: number, ohRate: number) => Math.floor(labBase(rem, ohRate) * ohRate);
-const frb            = (rem: number, ohRate: number) => rem - labBase(rem, ohRate) - ohAmount(rem, ohRate);
+const labBase        = (rem: number, ohRate: number) => _lbCents(Math.round(rem * 100), ohRate) / 100;
+const ohAmount       = (rem: number, ohRate: number) => _ohCents(Math.round(rem * 100), ohRate) / 100;
+const frb            = (rem: number, ohRate: number) => _frbCents(Math.round(rem * 100), ohRate) / 100;
 
 const CONTRACT_CODES = [
   { code: "DFC-CONTR",  name: "Direct Fund Cite Contract" },
@@ -1123,19 +1128,19 @@ function CreateRequestModal({
       const parts = r.sub.split("/");
       const orgCode = parts[0] ?? r.sub;
       return { rowId: r.id, orgCode, orgLabel: parts[1] ?? orgCode, type: "Labor" as const,
-        displayName: r.label, committed: obligatedQ(r), change: r.requested - obligatedQ(r), requested: r.requested, isErdc: isErdcCode(orgCode) };
+        displayName: r.label, committed: obligatedQ(r), change: r.requested - sumAll(r), requested: r.requested, isErdc: isErdcCode(orgCode) };
     }),
     ...travelRows.map((r) => ({
       rowId: r.id, orgCode: r.sub, orgLabel: r.label, type: "Travel" as const,
-      displayName: r.label, committed: obligatedQ(r), change: r.requested - obligatedQ(r), requested: r.requested, isErdc: isErdcCode(r.sub),
+      displayName: r.label, committed: obligatedQ(r), change: r.requested - sumAll(r), requested: r.requested, isErdc: isErdcCode(r.sub),
     })),
     ...contractRows.map((r) => ({
       rowId: r.id, orgCode: r.orgCode, orgLabel: r.org, type: "Contracting" as const,
-      displayName: `${r.contractCode} — ${r.contractName}`, committed: obligatedQ(r), change: r.requested - obligatedQ(r), requested: r.requested, isErdc: isErdcCode(r.orgCode),
+      displayName: `${r.contractCode} — ${r.contractName}`, committed: obligatedQ(r), change: r.requested - sumAll(r), requested: r.requested, isErdc: isErdcCode(r.orgCode),
     })),
     ...outsourcingRows.map((r) => ({
       rowId: r.id, orgCode: r.orgCode, orgLabel: r.org, type: "Outsourcing" as const,
-      displayName: `${r.resourceCode} — ${r.resourceName}`, committed: obligatedQ(r), change: r.requested - obligatedQ(r), requested: r.requested, isErdc: isErdcCode(r.orgCode),
+      displayName: `${r.resourceCode} — ${r.resourceName}`, committed: obligatedQ(r), change: r.requested - sumAll(r), requested: r.requested, isErdc: isErdcCode(r.orgCode),
     })),
   ];
 
