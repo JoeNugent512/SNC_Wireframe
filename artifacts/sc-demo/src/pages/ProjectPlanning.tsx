@@ -726,11 +726,12 @@ function PlanDataRow({
 
 /* ─── contract / outsourcing data row ──────────────────────────── */
 function ResourceDataRow<T extends QData & { id: number; org: string; orgCode: string; openCommitment: number; requested: number }>({
-  row, line2, expanded, onToggle, onUpdateQ, onUpdateRequested, onDelete,
+  row, line2, subCode, expanded, onToggle, onUpdateQ, onUpdateRequested, onDelete,
   orgOptions, codeOptions, currentCode, onUpdateOrg, onUpdateCode,
 }: {
   row: T;
   line2: string;
+  subCode?: string;
   expanded: boolean;
   onToggle: () => void;
   onUpdateQ: (id: number, field: keyof QData, val: number) => void;
@@ -762,7 +763,9 @@ function ResourceDataRow<T extends QData & { id: number; org: string; orgCode: s
             </button>
             <div className="min-w-0 flex-1">
               <p className="text-sm font-semibold text-slate-800 leading-snug truncate" title={line2}>{line2}</p>
-              <p className="text-xs text-slate-400 leading-snug truncate mt-0.5">{row.orgCode}</p>
+              <p className="text-xs text-slate-400 leading-snug truncate mt-0.5">
+                {row.orgCode}{subCode ? <span className="font-mono ml-1">· {subCode}</span> : null}
+              </p>
             </div>
           </div>
         </td>
@@ -1140,8 +1143,8 @@ type CREntry = {
   requested:   number;
   isErdc:      boolean;
 };
-type TravelForm   = { poc: string; travelers: string; dates: string; purpose: string };
-type ResourceForm = { pop: string; poc: string; purpose: string };
+type TravelForm   = { poc: string; travelers: string; pop: string; dates: string; purpose: string };
+type ResourceForm = { pop: string; poc: string; people: string; purpose: string };
 
 function Flex4Breakdown({ requested, orgCode }: { requested: number; orgCode: string }) {
   const ohRate = ERDC_OH_RATES[orgCode] ?? 0;
@@ -1245,14 +1248,16 @@ function buildCRNote(
     const lines = [base];
     if (tf.poc.trim())       lines.push(`POC: ${tf.poc.trim()}`);
     if (tf.travelers.trim()) lines.push(`TRAVELERS: ${tf.travelers.trim()}`);
+    if (tf.pop.trim())       lines.push(`POP: ${tf.pop.trim()}`);
     if (tf.dates.trim())     lines.push(`DATES: ${tf.dates.trim()}`);
     if (tf.purpose.trim())   lines.push(`PURPOSE: ${tf.purpose.trim()}`);
     return lines.join("\n");
   }
   if (entry.type === "Contracting" || entry.type === "Outsourcing") {
     const lines = [base];
-    if (rf.pop.trim())     lines.push(`POP: ${rf.pop.trim()}`);
     if (rf.poc.trim())     lines.push(`POC: ${rf.poc.trim()}`);
+    if (rf.people.trim())  lines.push(`PEOPLE: ${rf.people.trim()}`);
+    if (rf.pop.trim())     lines.push(`POP: ${rf.pop.trim()}`);
     if (rf.purpose.trim()) lines.push(`PURPOSE: ${rf.purpose.trim()}`);
     return lines.join("\n");
   }
@@ -1311,8 +1316,8 @@ function CreateRequestModal({
   const [resourceForms, setResourceForms] = useState<Record<number, ResourceForm>>({});
   const [popRanges,     setPopRanges]     = useState<Record<number, DateRangeVal>>({});
 
-  const getTF = (id: number): TravelForm   => travelForms[id]  ?? { poc: "", travelers: "", dates: "", purpose: "" };
-  const getRF = (id: number): ResourceForm => resourceForms[id] ?? { pop: "", poc: "", purpose: "" };
+  const getTF = (id: number): TravelForm   => travelForms[id]  ?? { poc: "", travelers: "", pop: "", dates: "", purpose: "" };
+  const getRF = (id: number): ResourceForm => resourceForms[id] ?? { pop: "", poc: "", people: "", purpose: "" };
 
   // Build a flat unified entry list
   const entries: CREntry[] = [
@@ -1337,17 +1342,18 @@ function CreateRequestModal({
   ];
 
   // Required-field completion tracking
-  // Travel: poc, travelers, dates, purpose (4 each)
-  // Contracting/Outsourcing: pop, poc, purpose (3 each)
+  // Travel: poc, travelers, pop, dates, purpose (5 each)
+  // Contracting/Outsourcing: pop, poc, people, purpose (4 each)
   const travelEntries    = entries.filter((e) => e.type === "Travel");
   const resourceEntries  = entries.filter((e) => e.type === "Contracting" || e.type === "Outsourcing");
-  const totalRequired    = travelEntries.length * 4 + resourceEntries.length * 3;
+  const totalRequired    = travelEntries.length * 5 + resourceEntries.length * 4;
   const filledCount = (() => {
     let n = 0;
     for (const e of travelEntries) {
       const f = getTF(e.rowId);
       if (f.poc.trim())       n++;
       if (f.travelers.trim()) n++;
+      if (f.pop.trim())       n++;
       if (f.dates.trim())     n++;
       if (f.purpose.trim())   n++;
     }
@@ -1355,6 +1361,7 @@ function CreateRequestModal({
       const f = getRF(e.rowId);
       if (f.pop.trim())     n++;
       if (f.poc.trim())     n++;
+      if (f.people.trim())  n++;
       if (f.purpose.trim()) n++;
     }
     return n;
@@ -1511,18 +1518,37 @@ function CreateRequestModal({
                               {isTravel && (
                                 <div className="px-6 py-4 border-b border-slate-100 bg-slate-50" onClick={(e) => e.stopPropagation()}>
                                   <div className="grid grid-cols-2 gap-3 mb-3">
-                                    {(["poc","travelers","dates"] as const).map((key) => {
-                                      const meta = { poc: { label: "POC", ph: "Point of contact name" }, travelers: { label: "Travelers", ph: "Names / number of travelers" }, dates: { label: "Dates of Travel", ph: "e.g. 15–18 Jul 2026" } }[key];
-                                      return (
-                                        <div key={key}>
-                                          <label className={labelCls}>{meta.label}</label>
-                                          <input className={fieldCls} placeholder={meta.ph}
-                                            value={getTF(entry.rowId)[key]}
-                                            onChange={(e) => setTravelForms((f) => ({ ...f, [entry.rowId]: { ...getTF(entry.rowId), [key]: e.target.value } }))}
-                                          />
-                                        </div>
-                                      );
-                                    })}
+                                    <div>
+                                      <label className={labelCls}>POC</label>
+                                      <input className={fieldCls} placeholder="Point of contact name"
+                                        value={getTF(entry.rowId).poc}
+                                        onChange={(e) => setTravelForms((f) => ({ ...f, [entry.rowId]: { ...getTF(entry.rowId), poc: e.target.value } }))}
+                                      />
+                                    </div>
+                                    <div>
+                                      <label className={labelCls}>Travelers</label>
+                                      <input className={fieldCls} placeholder="Names / number of travelers"
+                                        value={getTF(entry.rowId).travelers}
+                                        onChange={(e) => setTravelForms((f) => ({ ...f, [entry.rowId]: { ...getTF(entry.rowId), travelers: e.target.value } }))}
+                                      />
+                                    </div>
+                                    <div>
+                                      <label className={labelCls}>Period of Performance (POP)</label>
+                                      <PopDateRangePicker
+                                        value={popRanges[-(entry.rowId)] ?? {}}
+                                        onChange={(range, formatted) => {
+                                          setPopRanges((r) => ({ ...r, [-(entry.rowId)]: range }));
+                                          setTravelForms((f) => ({ ...f, [entry.rowId]: { ...getTF(entry.rowId), pop: formatted } }));
+                                        }}
+                                      />
+                                    </div>
+                                    <div>
+                                      <label className={labelCls}>Dates of Travel</label>
+                                      <input className={fieldCls} placeholder="e.g. 15–18 Jul 2026"
+                                        value={getTF(entry.rowId).dates}
+                                        onChange={(e) => setTravelForms((f) => ({ ...f, [entry.rowId]: { ...getTF(entry.rowId), dates: e.target.value } }))}
+                                      />
+                                    </div>
                                   </div>
                                   <div className="mb-3">
                                     <label className={labelCls}>Purpose of Travel</label>
@@ -1542,6 +1568,20 @@ function CreateRequestModal({
                                 <div className="px-6 py-4 border-b border-slate-100 bg-slate-50" onClick={(e) => e.stopPropagation()}>
                                   <div className="grid grid-cols-2 gap-3 mb-3">
                                     <div>
+                                      <label className={labelCls}>POC</label>
+                                      <input className={fieldCls} placeholder="Point of contact name"
+                                        value={getRF(entry.rowId).poc}
+                                        onChange={(e) => setResourceForms((f) => ({ ...f, [entry.rowId]: { ...getRF(entry.rowId), poc: e.target.value } }))}
+                                      />
+                                    </div>
+                                    <div>
+                                      <label className={labelCls}>People</label>
+                                      <input className={fieldCls} placeholder="Names / number of people"
+                                        value={getRF(entry.rowId).people}
+                                        onChange={(e) => setResourceForms((f) => ({ ...f, [entry.rowId]: { ...getRF(entry.rowId), people: e.target.value } }))}
+                                      />
+                                    </div>
+                                    <div className="col-span-2">
                                       <label className={labelCls}>Period of Performance (POP)</label>
                                       <PopDateRangePicker
                                         value={popRanges[entry.rowId] ?? {}}
@@ -1549,13 +1589,6 @@ function CreateRequestModal({
                                           setPopRanges((r) => ({ ...r, [entry.rowId]: range }));
                                           setResourceForms((f) => ({ ...f, [entry.rowId]: { ...getRF(entry.rowId), pop: formatted } }));
                                         }}
-                                      />
-                                    </div>
-                                    <div>
-                                      <label className={labelCls}>POC</label>
-                                      <input className={fieldCls} placeholder="Point of contact name"
-                                        value={getRF(entry.rowId).poc}
-                                        onChange={(e) => setResourceForms((f) => ({ ...f, [entry.rowId]: { ...getRF(entry.rowId), poc: e.target.value } }))}
                                       />
                                     </div>
                                   </div>
@@ -2024,12 +2057,13 @@ export default function ProjectPlanning() {
             ])}
             {tableWrap(
               <>
-                <thead><ColHeaders nameHeader="Org / Contract Code" /></thead>
+                <thead><ColHeaders nameHeader="Resource Code" /></thead>
                 <tbody>
                   {contractRows.map((row) => (
                     <ResourceDataRow
                       key={row.id} row={row}
-                      line2={`${row.contractCode} — ${row.contractName}`}
+                      line2={row.contractName}
+                      subCode={row.contractCode}
                       expanded={expandedContract.has(row.id)}
                       onToggle={() => setExpandedContract((s) => toggleSet(s, row.id))}
                       onUpdateQ={(id, f, v) => updateResourceQ(setContractRows, id, f, v)}
@@ -2072,12 +2106,13 @@ export default function ProjectPlanning() {
             ])}
             {tableWrap(
               <>
-                <thead><ColHeaders nameHeader="Org / Resource Code" /></thead>
+                <thead><ColHeaders nameHeader="Resource Code" /></thead>
                 <tbody>
                   {outsourcingRows.map((row) => (
                     <ResourceDataRow
                       key={row.id} row={row}
-                      line2={`${row.resourceCode} — ${row.resourceName}`}
+                      line2={row.resourceName}
+                      subCode={row.resourceCode}
                       expanded={expandedOutsourcing.has(row.id)}
                       onToggle={() => setExpandedOutsourcing((s) => toggleSet(s, row.id))}
                       onUpdateQ={(id, f, v) => updateResourceQ(setOutsourcingRows, id, f, v)}
