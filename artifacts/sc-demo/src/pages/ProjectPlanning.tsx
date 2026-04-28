@@ -1482,6 +1482,11 @@ function CreateRequestModal({
               }
               const usedTypes = TYPE_ORDER.filter((t) => typeMap[t]);
 
+              // Precompute global row start indices per type so stripe is continuous across type groups
+              const typeStartIdx: Partial<Record<CREntry["type"], number>> = {};
+              let _idx = 0;
+              usedTypes.forEach((t) => { typeStartIdx[t] = _idx; _idx += typeMap[t]!.length; });
+
               return (
                 <div key={orgCode} className="border-b border-slate-200 last:border-b-0">
                   {/* Org code header */}
@@ -1506,16 +1511,17 @@ function CreateRequestModal({
                           <span style={{ width: 28 }} />
                         </div>
 
-                        {typeEntries.map((entry) => {
+                        {typeEntries.map((entry, entryIdx) => {
                           const isTravel   = entry.type === "Travel";
                           const isResource = entry.type === "Contracting" || entry.type === "Outsourcing";
+                          const globalRow  = (typeStartIdx[type] ?? 0) + entryIdx;
 
                           return (
                             <React.Fragment key={entry.rowId}>
                               {/* Data row */}
                               <div
                                 className="px-4 py-2.5 flex items-center gap-2 border-b border-slate-100"
-                                style={{ backgroundColor: (isTravel || isResource) ? "#f8fafc" : undefined }}
+                                style={{ backgroundColor: globalRow % 2 === 1 ? "#edf2f8" : "#ffffff" }}
                               >
                                 <div className="flex-1 min-w-0">
                                   <p className="text-sm font-semibold text-slate-800 leading-snug truncate">{entry.displayName}</p>
