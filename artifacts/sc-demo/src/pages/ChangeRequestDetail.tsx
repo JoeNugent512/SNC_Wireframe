@@ -137,6 +137,19 @@ const detailFieldCls = "w-full border border-slate-200 rounded px-2.5 py-1.5 tex
 
 const roFieldCls = "w-full border border-slate-100 rounded px-2.5 py-1.5 text-sm text-slate-700 bg-slate-50 resize-none select-text cursor-text focus:outline-none";
 
+const roValueCls = "block w-full px-2.5 py-1.5 text-sm text-slate-700 bg-slate-50 border border-slate-100 rounded cursor-pointer hover:bg-slate-100 transition-colors leading-snug";
+
+function DetailField({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <label className={detailLabelCls}>{label}</label>
+      <CopyValue value={value} className="block w-full">
+        <span className={roValueCls}>{value || <span className="text-slate-300 italic">—</span>}</span>
+      </CopyValue>
+    </div>
+  );
+}
+
 function TravelDetailPanel({ d }: { d: CRTravelDetails }) {
   return (
     <div className="border-b border-slate-100 bg-slate-50">
@@ -145,23 +158,11 @@ function TravelDetailPanel({ d }: { d: CRTravelDetails }) {
       </div>
       <div className="px-6 pb-4">
         <div className="grid grid-cols-2 gap-3 mb-3">
-          <div>
-            <label className={detailLabelCls}>POC</label>
-            <input className={roFieldCls} readOnly value={d.poc ?? ""} />
-          </div>
-          <div>
-            <label className={detailLabelCls}>Travelers</label>
-            <input className={roFieldCls} readOnly value={d.travelers ?? ""} />
-          </div>
-          <div>
-            <label className={detailLabelCls}>Dates of Travel</label>
-            <input className={roFieldCls} readOnly value={d.dates ?? ""} />
-          </div>
+          <DetailField label="POC" value={d.poc ?? ""} />
+          <DetailField label="Travelers" value={d.travelers ?? ""} />
+          <DetailField label="Dates of Travel" value={d.dates ?? ""} />
         </div>
-        <div>
-          <label className={detailLabelCls}>Purpose of Travel</label>
-          <textarea className={roFieldCls} readOnly rows={2} value={d.purpose ?? ""} />
-        </div>
+        <DetailField label="Purpose of Travel" value={d.purpose ?? ""} />
       </div>
     </div>
   );
@@ -175,19 +176,10 @@ function ResourceDetailPanel({ d, label = "Resource Details" }: { d: CRResourceD
       </div>
       <div className="px-6 pb-4">
         <div className="grid grid-cols-2 gap-3 mb-3">
-          <div>
-            <label className={detailLabelCls}>Period of Performance (POP)</label>
-            <input className={roFieldCls} readOnly value={d.pop ?? ""} />
-          </div>
-          <div>
-            <label className={detailLabelCls}>POC</label>
-            <input className={roFieldCls} readOnly value={d.poc ?? ""} />
-          </div>
+          <DetailField label="Period of Performance (POP)" value={d.pop ?? ""} />
+          <DetailField label="POC" value={d.poc ?? ""} />
         </div>
-        <div>
-          <label className={detailLabelCls}>Purpose</label>
-          <textarea className={roFieldCls} readOnly rows={2} value={d.purpose ?? ""} />
-        </div>
+        <DetailField label="Purpose" value={d.purpose ?? ""} />
       </div>
     </div>
   );
@@ -258,8 +250,12 @@ function BudgetChangesTable({ cr, disabled }: { cr: ChangeRequest; disabled: boo
                           style={{ backgroundColor: hasDetail ? "#f8fafc" : undefined }}
                         >
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold text-slate-800 leading-snug truncate" title={li.resource}>{li.resource}</p>
-                            <p className="text-xs text-slate-400">{li.orgCode}</p>
+                            <CopyValue value={li.resource} className="block">
+                              <p className="text-sm font-semibold text-slate-800 leading-snug truncate cursor-pointer hover:text-blue-700 transition-colors" title={li.resource}>{li.resource}</p>
+                            </CopyValue>
+                            <CopyValue value={li.orgCode} className="block">
+                              <p className="text-xs text-slate-400 cursor-pointer hover:text-slate-600 transition-colors">{li.orgCode}</p>
+                            </CopyValue>
                           </div>
                           <CopyValue value={fmt(displayFrom)} className="tabular-nums text-sm text-slate-500 hover:text-slate-800 transition-colors" style={{ width: 96, textAlign: "right", paddingTop: 2, display: "inline-block" }}>
                             {fmt(displayFrom)}
