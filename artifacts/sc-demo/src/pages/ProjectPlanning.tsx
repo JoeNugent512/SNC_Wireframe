@@ -1141,6 +1141,32 @@ function CreateRequestModal({
     })),
   ];
 
+  // Required-field completion tracking
+  // Travel: poc, travelers, dates, purpose (4 each)
+  // Contracting/Outsourcing: pop, poc, purpose (3 each)
+  const travelEntries    = entries.filter((e) => e.type === "Travel");
+  const resourceEntries  = entries.filter((e) => e.type === "Contracting" || e.type === "Outsourcing");
+  const totalRequired    = travelEntries.length * 4 + resourceEntries.length * 3;
+  const filledCount = (() => {
+    let n = 0;
+    for (const e of travelEntries) {
+      const f = getTF(e.rowId);
+      if (f.poc.trim())       n++;
+      if (f.travelers.trim()) n++;
+      if (f.dates.trim())     n++;
+      if (f.purpose.trim())   n++;
+    }
+    for (const e of resourceEntries) {
+      const f = getRF(e.rowId);
+      if (f.pop.trim())     n++;
+      if (f.poc.trim())     n++;
+      if (f.purpose.trim()) n++;
+    }
+    return n;
+  })();
+  const remaining  = totalRequired - filledCount;
+  const canSubmit  = remaining === 0;
+
   // Group by orgCode preserving insertion order
   const orgOrder: string[] = [];
   const byOrg: Record<string, CREntry[]> = {};
@@ -1351,6 +1377,40 @@ function CreateRequestModal({
             })}
           </div>
           </div>
+        </div>
+
+        {/* Sticky submit footer */}
+        <div className="flex-shrink-0 border-t border-white/10 px-6 py-3 flex items-center justify-between gap-4" style={{ backgroundColor: "#1a3557" }}>
+          {/* Field completion counter */}
+          <div className="flex items-center gap-3">
+            {/* Progress bar */}
+            <div className="w-40 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: "rgba(255,255,255,0.15)" }}>
+              <div
+                className="h-full rounded-full transition-all duration-300"
+                style={{ width: `${totalRequired > 0 ? (filledCount / totalRequired) * 100 : 100}%`, backgroundColor: canSubmit ? "#4ade80" : "#60a5fa" }}
+              />
+            </div>
+            <p className="text-xs font-semibold" style={{ color: canSubmit ? "#4ade80" : "rgba(255,255,255,0.6)" }}>
+              {canSubmit
+                ? "All required fields complete"
+                : `${remaining} of ${totalRequired} required field${remaining === 1 ? "" : "s"} remaining`}
+            </p>
+          </div>
+
+          {/* Submit button */}
+          <button
+            disabled={!canSubmit}
+            onClick={() => { if (canSubmit) { alert("Request submitted (stub)."); onClose(); } }}
+            className="text-sm font-bold px-5 py-2 rounded transition-colors"
+            style={canSubmit
+              ? { backgroundColor: "#16a34a", color: "#fff", border: "1px solid #15803d", cursor: "pointer" }
+              : { backgroundColor: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.25)", border: "1px solid rgba(255,255,255,0.1)", cursor: "not-allowed" }
+            }
+            onMouseEnter={(e) => { if (canSubmit) e.currentTarget.style.backgroundColor = "#15803d"; }}
+            onMouseLeave={(e) => { if (canSubmit) e.currentTarget.style.backgroundColor = "#16a34a"; }}
+          >
+            Submit Request
+          </button>
         </div>
       </div>
     </div>
