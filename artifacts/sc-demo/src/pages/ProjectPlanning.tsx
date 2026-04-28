@@ -128,7 +128,7 @@ const ERDC_OH_RATES: Record<string, number> = {
   "U433000": 0.28, // EL
   "U435000": 0.28, // CERL
   "U438000": 0.28, // GSL
-  "U434000": 0.29, // ITL
+  "U43400":  0.29, // ITL
   "U4P0000": 0.00, // CTS
   "U437000": 0.39, // CRRL (note: labRates shows CRREL — same code)
   "U400000": 0.00, // OTHER ERDC
