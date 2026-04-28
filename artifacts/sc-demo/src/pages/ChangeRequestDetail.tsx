@@ -13,6 +13,26 @@ const fmt = (n: number) =>
 
 const fmtDelta = (n: number) => (n > 0 ? "+" : "") + fmt(n);
 
+function CopyValue({ children, value, className = "", style }: { children: React.ReactNode; value: string; className?: string; style?: React.CSSProperties }) {
+  const [flash, setFlash] = useState(false);
+  const copy = () => {
+    navigator.clipboard.writeText(value).then(() => {
+      setFlash(true);
+      setTimeout(() => setFlash(false), 1200);
+    });
+  };
+  return (
+    <span
+      onClick={copy}
+      title="Click to copy"
+      className={`cursor-pointer select-none relative group ${className}`}
+      style={style}
+    >
+      {flash ? <span className="text-emerald-600 font-bold">✓</span> : children}
+    </span>
+  );
+}
+
 const isFirstRequest = (cr: ChangeRequest) => cr.status === "First Request";
 
 function netChange(cr: ChangeRequest) {
@@ -115,7 +135,7 @@ const TYPE_DOT: Record<string, string> = {
 const detailLabelCls = "block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1";
 const detailFieldCls = "w-full border border-slate-200 rounded px-2.5 py-1.5 text-sm text-slate-700 bg-white focus:outline-none focus:ring-1 focus:ring-blue-300";
 
-const roFieldCls = "w-full border border-slate-200 rounded px-2.5 py-1.5 text-sm text-slate-700 bg-white select-text cursor-text focus:outline-none focus:ring-1 focus:ring-blue-200";
+const roFieldCls = "w-full border border-slate-100 rounded px-2.5 py-1.5 text-sm text-slate-700 bg-slate-50 resize-none select-text cursor-text focus:outline-none";
 
 function TravelDetailPanel({ d }: { d: CRTravelDetails }) {
   return (
@@ -241,18 +261,15 @@ function BudgetChangesTable({ cr, disabled }: { cr: ChangeRequest; disabled: boo
                             <p className="text-sm font-semibold text-slate-800 leading-snug truncate" title={li.resource}>{li.resource}</p>
                             <p className="text-xs text-slate-400">{li.orgCode}</p>
                           </div>
-                          <span className="tabular-nums text-sm text-slate-500" style={{ width: 96, textAlign: "right", paddingTop: 2 }}>
+                          <CopyValue value={fmt(displayFrom)} className="tabular-nums text-sm text-slate-500 hover:text-slate-800 transition-colors" style={{ width: 96, textAlign: "right", paddingTop: 2, display: "inline-block" }}>
                             {fmt(displayFrom)}
-                          </span>
-                          <span
-                            className="tabular-nums text-sm font-semibold"
-                            style={{ width: 84, textAlign: "right", paddingTop: 2, color: delta > 0 ? "#15803d" : delta < 0 ? "#b91c1c" : "#94a3b8" }}
-                          >
+                          </CopyValue>
+                          <CopyValue value={fmtDelta(delta)} className="tabular-nums text-sm font-semibold hover:opacity-70 transition-opacity" style={{ width: 84, textAlign: "right", paddingTop: 2, display: "inline-block", color: delta > 0 ? "#15803d" : delta < 0 ? "#b91c1c" : "#94a3b8" }}>
                             {delta > 0 ? "+" : ""}{fmt(delta)}
-                          </span>
-                          <span className="tabular-nums text-sm font-medium text-slate-800" style={{ width: 96, textAlign: "right", paddingTop: 2 }}>
+                          </CopyValue>
+                          <CopyValue value={fmt(li.to)} className="tabular-nums text-sm font-medium text-slate-800 hover:text-slate-600 transition-colors" style={{ width: 96, textAlign: "right", paddingTop: 2, display: "inline-block" }}>
                             {fmt(li.to)}
-                          </span>
+                          </CopyValue>
                           <div style={{ width: 220 }} className="pl-3">
                             <DescNotesCell initialDesc={buildLineDesc(cr, li)} />
                           </div>
