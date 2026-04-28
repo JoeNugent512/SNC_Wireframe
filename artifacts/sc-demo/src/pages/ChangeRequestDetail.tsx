@@ -446,12 +446,6 @@ export default function ChangeRequestDetail({ params }: { params?: { id?: string
           <BudgetChangesTable cr={cr} disabled={!isActionable} />
         </div>
 
-        {/* Justification */}
-        <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-6">
-          <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Justification</h2>
-          <p className="text-sm text-slate-700 leading-relaxed">{cr.justification}</p>
-        </div>
-
         {/* Decision + actions */}
         {isActionable && (
           <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-6 space-y-4">
