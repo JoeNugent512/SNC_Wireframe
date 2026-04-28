@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 import { Link, useParams } from "wouter";
-import { ChevronRight, ChevronDown, Settings, Plus, Trash2, X, MinusCircle, CalendarRange, Copy, Check } from "lucide-react";
+import { ChevronRight, ChevronDown, Settings, Plus, Trash2, X, MinusCircle, CalendarRange, Copy, Check, Info } from "lucide-react";
 import { MOCK_PROJECTS, Project } from "@/lib/mockData";
 import Layout from "@/components/Layout";
 import { Calendar } from "@/components/ui/calendar";
@@ -1385,6 +1385,22 @@ function CreateRequestModal({
   const fieldCls = "w-full border border-slate-200 rounded px-2.5 py-1.5 text-sm text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-300";
   const labelCls = "block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1";
 
+  /* Required-field label with tooltip info icon + filled/unfilled badge */
+  const ReqLabel = ({ label, filled, tooltip }: { label: string; filled: boolean; tooltip: string }) => (
+    <div className="flex items-center gap-1.5 mb-1">
+      <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: filled ? "#64748b" : "#b45309" }}>
+        {label}
+      </span>
+      <span title={tooltip} className="cursor-help" style={{ color: "#94a3b8", lineHeight: 1 }}>
+        <Info size={11} />
+      </span>
+      {filled
+        ? <Check size={12} className="text-emerald-500 ml-auto" />
+        : <span className="ml-auto text-[10px] font-semibold px-1.5 py-0.5 rounded" style={{ color: "#b45309", border: "1px solid #fcd34d", backgroundColor: "#fffbeb" }}>Required</span>
+      }
+    </div>
+  );
+
   return (
     <div
       className="fixed inset-0 z-50 flex flex-col"
@@ -1519,21 +1535,21 @@ function CreateRequestModal({
                                 <div className="px-6 py-4 border-b border-slate-100 bg-slate-50" onClick={(e) => e.stopPropagation()}>
                                   <div className="grid grid-cols-2 gap-3 mb-3">
                                     <div>
-                                      <label className={labelCls}>POC</label>
+                                      <ReqLabel label="POC" filled={!!getTF(entry.rowId).poc.trim()} tooltip="Point of Contact — the person responsible for coordinating this travel" />
                                       <input className={fieldCls} placeholder="Point of contact name"
                                         value={getTF(entry.rowId).poc}
                                         onChange={(e) => setTravelForms((f) => ({ ...f, [entry.rowId]: { ...getTF(entry.rowId), poc: e.target.value } }))}
                                       />
                                     </div>
                                     <div>
-                                      <label className={labelCls}>Travelers</label>
+                                      <ReqLabel label="Travelers" filled={!!getTF(entry.rowId).travelers.trim()} tooltip="Names or number of people traveling" />
                                       <input className={fieldCls} placeholder="Names / number of travelers"
                                         value={getTF(entry.rowId).travelers}
                                         onChange={(e) => setTravelForms((f) => ({ ...f, [entry.rowId]: { ...getTF(entry.rowId), travelers: e.target.value } }))}
                                       />
                                     </div>
                                     <div>
-                                      <label className={labelCls}>Period of Performance (POP)</label>
+                                      <ReqLabel label="Period of Performance (POP)" filled={!!getTF(entry.rowId).pop.trim()} tooltip="Overall period of performance for this travel authorization" />
                                       <PopDateRangePicker
                                         value={popRanges[-(entry.rowId)] ?? {}}
                                         onChange={(range, formatted) => {
@@ -1543,7 +1559,7 @@ function CreateRequestModal({
                                       />
                                     </div>
                                     <div>
-                                      <label className={labelCls}>Dates of Travel</label>
+                                      <ReqLabel label="Dates of Travel" filled={!!getTF(entry.rowId).dates.trim()} tooltip="Specific travel dates (e.g. 15–18 Jul 2026)" />
                                       <input className={fieldCls} placeholder="e.g. 15–18 Jul 2026"
                                         value={getTF(entry.rowId).dates}
                                         onChange={(e) => setTravelForms((f) => ({ ...f, [entry.rowId]: { ...getTF(entry.rowId), dates: e.target.value } }))}
@@ -1551,7 +1567,7 @@ function CreateRequestModal({
                                     </div>
                                   </div>
                                   <div className="mb-3">
-                                    <label className={labelCls}>Purpose of Travel</label>
+                                    <ReqLabel label="Purpose of Travel" filled={!!getTF(entry.rowId).purpose.trim()} tooltip="Brief justification for this travel request" />
                                     <textarea rows={2} className={fieldCls} placeholder="Brief purpose statement"
                                       value={getTF(entry.rowId).purpose}
                                       onChange={(e) => setTravelForms((f) => ({ ...f, [entry.rowId]: { ...getTF(entry.rowId), purpose: e.target.value } }))}
@@ -1568,21 +1584,21 @@ function CreateRequestModal({
                                 <div className="px-6 py-4 border-b border-slate-100 bg-slate-50" onClick={(e) => e.stopPropagation()}>
                                   <div className="grid grid-cols-2 gap-3 mb-3">
                                     <div>
-                                      <label className={labelCls}>POC</label>
+                                      <ReqLabel label="POC" filled={!!getRF(entry.rowId).poc.trim()} tooltip="Point of Contact — the person managing this contract or resource" />
                                       <input className={fieldCls} placeholder="Point of contact name"
                                         value={getRF(entry.rowId).poc}
                                         onChange={(e) => setResourceForms((f) => ({ ...f, [entry.rowId]: { ...getRF(entry.rowId), poc: e.target.value } }))}
                                       />
                                     </div>
                                     <div>
-                                      <label className={labelCls}>People</label>
+                                      <ReqLabel label="People" filled={!!getRF(entry.rowId).people.trim()} tooltip="Names or number of personnel involved with this resource" />
                                       <input className={fieldCls} placeholder="Names / number of people"
                                         value={getRF(entry.rowId).people}
                                         onChange={(e) => setResourceForms((f) => ({ ...f, [entry.rowId]: { ...getRF(entry.rowId), people: e.target.value } }))}
                                       />
                                     </div>
                                     <div className="col-span-2">
-                                      <label className={labelCls}>Period of Performance (POP)</label>
+                                      <ReqLabel label="Period of Performance (POP)" filled={!!getRF(entry.rowId).pop.trim()} tooltip="Contract or task order period of performance" />
                                       <PopDateRangePicker
                                         value={popRanges[entry.rowId] ?? {}}
                                         onChange={(range, formatted) => {
@@ -1593,7 +1609,7 @@ function CreateRequestModal({
                                     </div>
                                   </div>
                                   <div className="mb-3">
-                                    <label className={labelCls}>Purpose</label>
+                                    <ReqLabel label="Purpose" filled={!!getRF(entry.rowId).purpose.trim()} tooltip="Brief justification for this contract or resource request" />
                                     <textarea rows={2} className={fieldCls} placeholder="Brief purpose statement"
                                       value={getRF(entry.rowId).purpose}
                                       onChange={(e) => setResourceForms((f) => ({ ...f, [entry.rowId]: { ...getRF(entry.rowId), purpose: e.target.value } }))}
