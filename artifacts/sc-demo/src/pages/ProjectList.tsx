@@ -236,7 +236,10 @@ export default function ProjectList() {
                 <Briefcase size={48} className="mb-4 text-slate-200" strokeWidth={1} />
                 <h3 className="text-lg font-medium text-slate-600 mb-1">No Project Selected</h3>
                 <p className="text-sm max-w-xs">
-                  Select a project from the list to view its overview and management options.
+                  Select a project from the list on the left to view its details and open its budget plan.
+                </p>
+                <p className="text-xs text-slate-400 mt-2 max-w-xs">
+                  Projects appear here once set up via the Setup Queue.
                 </p>
               </div>
             ) : (

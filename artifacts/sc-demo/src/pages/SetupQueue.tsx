@@ -40,7 +40,13 @@ export default function SetupQueue() {
           <div>
             <h2 className="text-xl font-bold text-slate-900">Project Setup Queue</h2>
             <p className="text-sm text-slate-500 mt-0.5">
-              Projects recently picked up that require a BA to complete the EPMP charter data.
+              Projects recently picked up that require a BA to complete the{" "}
+              <span
+                className="underline decoration-dotted cursor-help"
+                title="EPMP (Engineering and Planning Management Process) charter data — project metadata required to activate S&C funding and establish the project in the system."
+              >
+                EPMP charter data
+              </span>.
             </p>
           </div>
         </div>
@@ -56,12 +62,12 @@ export default function SetupQueue() {
 
                   {/* Left: progress ring substitute — colored bar */}
                   <div className="flex-shrink-0 flex flex-col items-center gap-1 w-14">
-                    <span className={`text-lg font-bold ${pct === 100 ? "text-emerald-600" : pct >= 50 ? "text-amber-600" : "text-red-500"}`}>
+                    <span className={`text-lg font-bold ${pct === 100 ? "text-emerald-600" : pct >= 25 ? "text-amber-600" : "text-red-500"}`}>
                       {pct}%
                     </span>
                     <div className="w-14 h-1.5 bg-slate-100 rounded-full overflow-hidden">
                       <div
-                        className={`h-full rounded-full transition-all ${pct === 100 ? "bg-emerald-500" : pct >= 50 ? "bg-amber-400" : "bg-red-400"}`}
+                        className={`h-full rounded-full transition-all ${pct === 100 ? "bg-emerald-500" : pct >= 25 ? "bg-amber-400" : "bg-red-400"}`}
                         style={{ width: `${pct}%` }}
                       />
                     </div>
@@ -83,7 +89,7 @@ export default function SetupQueue() {
                     <div className="flex items-center gap-4 mt-2 text-xs text-slate-400">
                       <span>Est. {fmt(p.estimatedBudget)}</span>
                       <span>Received {new Date(p.receivedDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
-                      <span>Source: <span className="font-mono">{p.sourceRef}</span></span>
+                      <span title="Originating change request that triggered this project setup">Source: <span className="font-mono">{p.sourceRef}</span></span>
                     </div>
                   </div>
 

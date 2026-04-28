@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { PlusCircle, FileSpreadsheet, FolderEdit, ArrowRight } from "lucide-react";
+import { PlusCircle, FileSpreadsheet, FolderEdit, ArrowRight, AlertTriangle } from "lucide-react";
 import Layout from "@/components/Layout";
 import { PENDING_SETUP_PROJECTS } from "@/lib/mockData";
 
@@ -21,7 +21,10 @@ export default function Home() {
                     <PlusCircle className="text-amber-600" size={24} />
                   </div>
                   {PENDING_SETUP_PROJECTS.length > 0 && (
-                    <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-amber-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                    <span
+                      className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-amber-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center"
+                      title={`${PENDING_SETUP_PROJECTS.length} project${PENDING_SETUP_PROJECTS.length !== 1 ? "s" : ""} awaiting setup`}
+                    >
                       {PENDING_SETUP_PROJECTS.length}
                     </span>
                   )}
@@ -56,7 +59,7 @@ export default function Home() {
                 <div className="w-12 h-12 rounded-lg bg-slate-50 flex items-center justify-center mb-4 group-hover:bg-slate-100 transition-colors">
                   <FolderEdit className="text-slate-600" size={24} />
                 </div>
-                <h3 className="text-lg font-semibold text-slate-900">Edit Plan</h3>
+                <h3 className="text-lg font-semibold text-slate-900">Edit Budget Plan</h3>
                 <p className="text-sm text-slate-500 mt-2">Access existing projects to update labor, travel, and material allocations.</p>
               </div>
               <div className="flex items-center text-slate-600 text-sm font-medium mt-6 group-hover:translate-x-1 transition-transform">
@@ -67,13 +70,16 @@ export default function Home() {
         </div>
 
         <div className="pt-8">
-          <div className="bg-slate-800 rounded-xl p-6 text-white overflow-hidden relative">
+          <div className="bg-slate-800 rounded-xl overflow-hidden relative flex" style={{ borderLeft: "4px solid #f59e0b" }}>
             <div className="absolute -right-10 -top-10 w-40 h-40 bg-slate-700 rounded-full opacity-50 blur-3xl"></div>
-            <div className="relative z-10">
-              <h3 className="font-semibold text-lg mb-1">System Notice</h3>
-              <p className="text-slate-300 text-sm max-w-2xl">
-                End of month financial reconciliation begins in 3 days. Please ensure all active projects have their current month labor hours submitted and approved.
-              </p>
+            <div className="relative z-10 flex items-start gap-3 p-6">
+              <AlertTriangle size={18} className="text-amber-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <h3 className="font-semibold text-lg mb-1 text-white">System Notice</h3>
+                <p className="text-slate-300 text-sm max-w-2xl">
+                  End of month financial reconciliation begins in 3 days. Please ensure all active projects have their current month labor hours submitted and approved.
+                </p>
+              </div>
             </div>
           </div>
         </div>
