@@ -394,7 +394,10 @@ export default function ProjectList() {
                                 </thead>
                                 <tbody className="divide-y divide-slate-100">
                                   {milestones.map((m, i) => (
-                                    <tr key={i} className={m.status === "in-progress" ? "bg-blue-50/60" : "hover:bg-slate-50/60"}>
+                                    <tr key={i}
+                                      className={m.status === "in-progress" ? "bg-blue-50/60" : "hover:bg-slate-100"}
+                                      style={m.status !== "in-progress" ? { backgroundColor: i % 2 === 1 ? "#edf2f8" : "#ffffff" } : undefined}
+                                    >
                                       <td className="px-6 py-2.5">
                                         <div className="flex items-center gap-2.5">
                                           <div className={`w-2 h-2 rounded-full flex-shrink-0 ${statusDot[m.status]}`} />
