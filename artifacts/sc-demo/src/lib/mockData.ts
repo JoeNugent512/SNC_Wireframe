@@ -289,6 +289,28 @@ export const MOCK_PROJECTS: Project[] = [
     cmsGuestLink: "https://cms.wbdg.org/s/cE9xZ",
     additionalCmsLinks: "",
   },
+  {
+    id: "7",
+    number: "26D01",
+    name: "New Project",
+    description: "Demo project",
+    status: "Planning",
+    budget: 0,
+    startDate: "2026-01-01",
+    endDate: "2030-12-31",
+    pmName: "",
+    dwgCoP: "",
+    hqProponent: "",
+    executingOrg: "",
+    projectLead: "",
+    needsContractSupport: "",
+    specialFundingType: "",
+    budgetAtSubmission: 0,
+    actualObligation: 0,
+    primaryCmsLink: "",
+    cmsGuestLink: "",
+    additionalCmsLinks: "",
+  },
 ];
 
 export const MOCK_CHANGE_REQUESTS: ChangeRequest[] = [
