@@ -139,12 +139,12 @@ const ERDC_OH_RATES: Record<string, number> = {
 const isErdcCode = (code: string) => code in ERDC_OH_RATES;
 
 // Flex-4 = 3% off the top; OH split on remaining 97%
-// All arithmetic in whole dollars; any fractional penny in lab_base stays in OH (FRB = 0 for whole-dollar amounts)
-const flex4Amt      = (req: number) => Math.round(req * 0.03);
-const flex4Remain   = (req: number) => req - flex4Amt(req);
-const labBaseAmt    = (rem: number, ohRate: number) => Math.floor(rem / (1 + ohRate));
-const ohAmt         = (rem: number, ohRate: number) => rem - labBaseAmt(rem, ohRate);
-const frbAmt        = (rem: number, ohRate: number) => rem - labBaseAmt(rem, ohRate) - ohAmt(rem, ohRate);
+// Integer-dollar arithmetic; OH = floor(labBase * ohRate) so any rounding remainder routes to FRB
+const flex4Amount    = (req: number) => Math.round(req * 0.03);
+const flex4Remaining = (req: number) => req - flex4Amount(req);
+const labBase        = (rem: number, ohRate: number) => Math.floor(rem / (1 + ohRate));
+const ohAmount       = (rem: number, ohRate: number) => Math.floor(labBase(rem, ohRate) * ohRate);
+const frb            = (rem: number, ohRate: number) => rem - labBase(rem, ohRate) - ohAmount(rem, ohRate);
 
 const CONTRACT_CODES = [
   { code: "DFC-CONTR",  name: "Direct Fund Cite Contract" },
@@ -1071,11 +1071,11 @@ type ResourceForm = { pop: string; poc: string; purpose: string };
 
 function Flex4Breakdown({ requested, orgCode }: { requested: number; orgCode: string }) {
   const ohRate = ERDC_OH_RATES[orgCode] ?? 0;
-  const f4  = flex4Amt(requested);
-  const rem = flex4Remain(requested);
-  const lb  = labBaseAmt(rem, ohRate);
-  const oh  = ohAmt(rem, ohRate);
-  const frb = frbAmt(rem, ohRate);
+  const f4  = flex4Amount(requested);
+  const rem = flex4Remaining(requested);
+  const lb  = labBase(rem, ohRate);
+  const oh  = ohAmount(rem, ohRate);
+  const frbVal = frb(rem, ohRate);
   return (
     <div className="mt-3 rounded-lg border border-blue-100 bg-blue-50 px-3 py-2.5 text-xs" onClick={(e) => e.stopPropagation()}>
       <p className="font-bold text-blue-800 uppercase tracking-wide mb-2" style={{ fontSize: 10 }}>OH Rate / Flex-4 Breakdown</p>
@@ -1091,7 +1091,7 @@ function Flex4Breakdown({ requested, orgCode }: { requested: number; orgCode: st
         <span className="pl-4 text-blue-700">OH ({(ohRate * 100).toFixed(0)}%)</span>
         <span className="text-right font-mono font-semibold text-blue-800">{fmt(oh)}</span>
         <span className="pl-4 text-slate-400">FRB (rounding)</span>
-        <span className="text-right font-mono text-slate-400">{fmt(frb)}</span>
+        <span className="text-right font-mono text-slate-400">{fmt(frbVal)}</span>
       </div>
     </div>
   );
@@ -1157,13 +1157,12 @@ function CreateRequestModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto"
-      style={{ backgroundColor: "rgba(15,23,42,0.55)", paddingTop: 40, paddingBottom: 40 }}
+      className="fixed inset-0 z-50 flex flex-col"
+      style={{ backgroundColor: "#0f172a" }}
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col"
-        style={{ width: "100%", maxWidth: 840, margin: "0 16px" }}
+        className="flex flex-col h-full w-full"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -1172,9 +1171,10 @@ function CreateRequestModal({
           <button onClick={onClose} className="text-white/60 hover:text-white transition-colors"><X size={16} /></button>
         </div>
 
-        <div className="overflow-y-auto" style={{ maxHeight: "calc(90vh - 52px)" }}>
+        <div className="flex-1 overflow-y-auto">
+          <div className="max-w-4xl mx-auto px-4 py-4">
           {/* Project card */}
-          <div className="m-4 mb-3 border border-slate-200 rounded-lg overflow-hidden">
+          <div className="mb-3 border border-slate-200 rounded-lg overflow-hidden bg-white">
             <div className="px-4 py-1.5 border-b border-slate-100" style={{ backgroundColor: "#f8fafc" }}>
               <span className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Budget Change Request</span>
             </div>
@@ -1206,13 +1206,13 @@ function CreateRequestModal({
           </div>
 
           {/* Project description */}
-          <div className="mx-4 mb-3 border border-slate-200 rounded-lg p-4">
+          <div className="mb-3 border border-slate-200 rounded-lg p-4 bg-white">
             <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1">Project Description</p>
             <p className="text-sm text-slate-700 leading-relaxed">{project.description}</p>
           </div>
 
           {/* Budget Breakdown */}
-          <div className="mx-4 mb-4 border border-slate-200 rounded-lg overflow-hidden">
+          <div className="mb-4 border border-slate-200 rounded-lg overflow-hidden bg-white">
             <div className="px-4 py-2.5" style={{ backgroundColor: "#1a3557" }}>
               <span className="text-white font-bold text-xs tracking-widest uppercase">Budget Breakdown</span>
             </div>
@@ -1292,23 +1292,26 @@ function CreateRequestModal({
                               {/* Travel detail form */}
                               {isTravel && isExpanded && (
                                 <div className="px-6 py-4 border-b border-slate-100 bg-slate-50" onClick={(e) => e.stopPropagation()}>
-                                  <div className="grid grid-cols-2 gap-3">
-                                    {[
-                                      { key: "poc",      label: "POC",              placeholder: "Point of contact name"        },
-                                      { key: "travelers", label: "Travelers",        placeholder: "Names / number of travelers"  },
-                                      { key: "dates",    label: "Dates of Travel",  placeholder: "e.g. 15–18 Jul 2026"          },
-                                      { key: "purpose",  label: "Purpose of Travel", placeholder: "Brief purpose statement"     },
-                                    ].map(({ key, label, placeholder }) => (
-                                      <div key={key}>
-                                        <label className={labelCls}>{label}</label>
-                                        <input
-                                          className={fieldCls}
-                                          placeholder={placeholder}
-                                          value={(getTF(entry.rowId) as Record<string, string>)[key] ?? ""}
-                                          onChange={(e) => setTravelForms((f) => ({ ...f, [entry.rowId]: { ...getTF(entry.rowId), [key]: e.target.value } }))}
-                                        />
-                                      </div>
-                                    ))}
+                                  <div className="grid grid-cols-2 gap-3 mb-3">
+                                    {(["poc","travelers","dates"] as const).map((key) => {
+                                      const meta = { poc: { label: "POC", ph: "Point of contact name" }, travelers: { label: "Travelers", ph: "Names / number of travelers" }, dates: { label: "Dates of Travel", ph: "e.g. 15–18 Jul 2026" } }[key];
+                                      return (
+                                        <div key={key}>
+                                          <label className={labelCls}>{meta.label}</label>
+                                          <input className={fieldCls} placeholder={meta.ph}
+                                            value={getTF(entry.rowId)[key]}
+                                            onChange={(e) => setTravelForms((f) => ({ ...f, [entry.rowId]: { ...getTF(entry.rowId), [key]: e.target.value } }))}
+                                          />
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                  <div className="mb-3">
+                                    <label className={labelCls}>Purpose of Travel</label>
+                                    <textarea rows={2} className={fieldCls} placeholder="Brief purpose statement"
+                                      value={getTF(entry.rowId).purpose}
+                                      onChange={(e) => setTravelForms((f) => ({ ...f, [entry.rowId]: { ...getTF(entry.rowId), purpose: e.target.value } }))}
+                                    />
                                   </div>
                                   {entry.isErdc && entry.requested > 0 && (
                                     <Flex4Breakdown requested={entry.requested} orgCode={entry.orgCode} />
@@ -1319,22 +1322,26 @@ function CreateRequestModal({
                               {/* Contract / Outsourcing detail form */}
                               {isResource && isExpanded && (
                                 <div className="px-6 py-4 border-b border-slate-100 bg-slate-50" onClick={(e) => e.stopPropagation()}>
-                                  <div className="grid grid-cols-3 gap-3">
-                                    {[
-                                      { key: "pop",     label: "Period of Performance (POP)", placeholder: "e.g. 01 Oct 2026 – 30 Sep 2027" },
-                                      { key: "poc",     label: "POC",                          placeholder: "Point of contact name"          },
-                                      { key: "purpose", label: "Purpose",                       placeholder: "Brief purpose statement"        },
-                                    ].map(({ key, label, placeholder }) => (
-                                      <div key={key}>
-                                        <label className={labelCls}>{label}</label>
-                                        <input
-                                          className={fieldCls}
-                                          placeholder={placeholder}
-                                          value={(getRF(entry.rowId) as Record<string, string>)[key] ?? ""}
-                                          onChange={(e) => setResourceForms((f) => ({ ...f, [entry.rowId]: { ...getRF(entry.rowId), [key]: e.target.value } }))}
-                                        />
-                                      </div>
-                                    ))}
+                                  <div className="grid grid-cols-2 gap-3 mb-3">
+                                    {(["pop","poc"] as const).map((key) => {
+                                      const meta = { pop: { label: "Period of Performance (POP)", ph: "e.g. 01 Oct 2026 – 30 Sep 2027" }, poc: { label: "POC", ph: "Point of contact name" } }[key];
+                                      return (
+                                        <div key={key}>
+                                          <label className={labelCls}>{meta.label}</label>
+                                          <input className={fieldCls} placeholder={meta.ph}
+                                            value={getRF(entry.rowId)[key]}
+                                            onChange={(e) => setResourceForms((f) => ({ ...f, [entry.rowId]: { ...getRF(entry.rowId), [key]: e.target.value } }))}
+                                          />
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                  <div className="mb-3">
+                                    <label className={labelCls}>Purpose</label>
+                                    <textarea rows={2} className={fieldCls} placeholder="Brief purpose statement"
+                                      value={getRF(entry.rowId).purpose}
+                                      onChange={(e) => setResourceForms((f) => ({ ...f, [entry.rowId]: { ...getRF(entry.rowId), purpose: e.target.value } }))}
+                                    />
                                   </div>
                                   {entry.isErdc && entry.requested > 0 && (
                                     <Flex4Breakdown requested={entry.requested} orgCode={entry.orgCode} />
@@ -1350,6 +1357,7 @@ function CreateRequestModal({
                 </div>
               );
             })}
+          </div>
           </div>
         </div>
       </div>
@@ -1570,8 +1578,8 @@ export default function ProjectPlanning() {
               {!createEnabled && (
                 <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
                   {leftToPlan < 0
-                    ? `Over budget by ${fmt(Math.abs(leftToPlan))} — reduce to enable`
-                    : `Plan ${fmt(leftToPlan)} more to enable`}
+                    ? `Over budget by ${fmt(Math.abs(leftToPlan))} — reduce planned to enable Create Request`
+                    : `Plan ${fmt(leftToPlan)} more to enable Create Request`}
                 </p>
               )}
             </div>
