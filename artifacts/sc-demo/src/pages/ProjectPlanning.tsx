@@ -1525,7 +1525,7 @@ function CreateRequestModal({
             <p className="text-xs font-semibold" style={{ color: canSubmit ? "#4ade80" : "rgba(255,255,255,0.6)" }}>
               {canSubmit
                 ? "All required fields complete"
-                : `${remaining} of ${totalRequired} required field${remaining === 1 ? "" : "s"} remaining`}
+                : `${filledCount} of ${totalRequired} required field${totalRequired === 1 ? "" : "s"} complete`}
             </p>
           </div>
 
