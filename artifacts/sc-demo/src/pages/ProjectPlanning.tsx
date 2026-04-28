@@ -1189,18 +1189,24 @@ function CreateRequestModal({
       style={{ backgroundColor: "#0f172a" }}
       onClick={onClose}
     >
-      <div
-        className="flex flex-col h-full w-full"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="flex flex-col h-full w-full">
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-3 flex-shrink-0" style={{ backgroundColor: "#1a3557" }}>
-          <span className="text-white font-bold text-sm tracking-widest uppercase">Create Request — Preview</span>
+        <div
+          className="flex items-center justify-between px-5 py-3 flex-shrink-0"
+          style={{ backgroundColor: "#1a3557" }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="flex flex-col gap-0.5">
+            <span className="text-white/40 text-xs font-medium tracking-wide">
+              S&amp;C &rsaquo; Projects &rsaquo; {project.name} &rsaquo; Create Request
+            </span>
+            <span className="text-white font-bold text-sm tracking-widest uppercase">Create Request — Preview</span>
+          </div>
           <button onClick={onClose} className="text-white/60 hover:text-white transition-colors"><X size={16} /></button>
         </div>
 
         <div className="flex-1 overflow-y-auto">
-          <div className="max-w-4xl mx-auto px-4 py-4">
+          <div className="max-w-4xl mx-auto px-4 py-4" onClick={(e) => e.stopPropagation()}>
           {/* Project card */}
           <div className="mb-3 border border-slate-200 rounded-lg overflow-hidden bg-white">
             <div className="px-4 py-1.5 border-b border-slate-100" style={{ backgroundColor: "#f8fafc" }}>
@@ -1380,7 +1386,7 @@ function CreateRequestModal({
         </div>
 
         {/* Sticky submit footer */}
-        <div className="flex-shrink-0 border-t border-white/10 px-6 py-3 flex items-center justify-between gap-4" style={{ backgroundColor: "#1a3557" }}>
+        <div className="flex-shrink-0 border-t border-white/10 px-6 py-3 flex items-center justify-between gap-4" style={{ backgroundColor: "#1a3557" }} onClick={(e) => e.stopPropagation()}>
           {/* Field completion counter */}
           <div className="flex items-center gap-3">
             {/* Progress bar */}
