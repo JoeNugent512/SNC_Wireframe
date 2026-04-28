@@ -1113,14 +1113,11 @@ function CreateRequestModal({
   totalPlanned: number;
   onClose: () => void;
 }) {
-  const [travelForms,    setTravelForms]    = useState<Record<number, TravelForm>>({});
-  const [resourceForms,  setResourceForms]  = useState<Record<number, ResourceForm>>({});
-  const [expandedTravel, setExpandedTravel] = useState<Set<number>>(new Set());
-  const [expandedRes,    setExpandedRes]    = useState<Set<number>>(new Set());
+  const [travelForms,   setTravelForms]   = useState<Record<number, TravelForm>>({});
+  const [resourceForms, setResourceForms] = useState<Record<number, ResourceForm>>({});
 
-  const getTF  = (id: number): TravelForm   => travelForms[id]   ?? { poc: "", travelers: "", dates: "", purpose: "" };
-  const getRF  = (id: number): ResourceForm => resourceForms[id]  ?? { pop: "", poc: "", purpose: "" };
-  const togSet = (s: Set<number>, id: number) => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; };
+  const getTF = (id: number): TravelForm   => travelForms[id]  ?? { poc: "", travelers: "", dates: "", purpose: "" };
+  const getRF = (id: number): ResourceForm => resourceForms[id] ?? { pop: "", poc: "", purpose: "" };
 
   // Build a flat unified entry list
   const entries: CREntry[] = [
@@ -1260,21 +1257,13 @@ function CreateRequestModal({
                         {typeEntries.map((entry) => {
                           const isTravel   = entry.type === "Travel";
                           const isResource = entry.type === "Contracting" || entry.type === "Outsourcing";
-                          const expandable = isTravel || isResource;
-                          const isExpanded = isTravel ? expandedTravel.has(entry.rowId) : expandedRes.has(entry.rowId);
 
                           return (
                             <React.Fragment key={entry.rowId}>
-                              {/* Data row */}
+                              {/* Data row — non-labor rows always show forms below; no toggle */}
                               <div
-                                className="px-4 py-2.5 flex items-center gap-2 border-b border-slate-100 transition-colors"
-                                style={{ cursor: expandable ? "pointer" : "default", backgroundColor: isExpanded ? "#f8fafc" : undefined }}
-                                onMouseEnter={(e) => { if (expandable) e.currentTarget.style.backgroundColor = "#f8fafc"; }}
-                                onMouseLeave={(e) => { if (!isExpanded) e.currentTarget.style.backgroundColor = ""; }}
-                                onClick={() => {
-                                  if (isTravel)    setExpandedTravel((s) => togSet(s, entry.rowId));
-                                  else if (isResource) setExpandedRes((s) => togSet(s, entry.rowId));
-                                }}
+                                className="px-4 py-2.5 flex items-center gap-2 border-b border-slate-100"
+                                style={{ backgroundColor: (isTravel || isResource) ? "#f8fafc" : undefined }}
                               >
                                 <div className="flex-1 min-w-0">
                                   <p className="text-sm font-semibold text-slate-800 leading-snug truncate">{entry.displayName}</p>
@@ -1289,13 +1278,11 @@ function CreateRequestModal({
                                 <span className="tabular-nums text-sm font-bold text-slate-800" style={{ width: 100, textAlign: "right" }}>
                                   {entry.requested > 0 ? fmt(entry.requested) : "—"}
                                 </span>
-                                <span style={{ width: 28, display: "flex", alignItems: "center", justifyContent: "center", color: "#94a3b8" }}>
-                                  {expandable ? (isExpanded ? <ChevronDown size={13} /> : <ChevronRight size={13} />) : null}
-                                </span>
+                                <span style={{ width: 28 }} />
                               </div>
 
-                              {/* Travel detail form */}
-                              {isTravel && isExpanded && (
+                              {/* Travel detail form — always visible, required */}
+                              {isTravel && (
                                 <div className="px-6 py-4 border-b border-slate-100 bg-slate-50" onClick={(e) => e.stopPropagation()}>
                                   <div className="grid grid-cols-2 gap-3 mb-3">
                                     {(["poc","travelers","dates"] as const).map((key) => {
@@ -1324,8 +1311,8 @@ function CreateRequestModal({
                                 </div>
                               )}
 
-                              {/* Contract / Outsourcing detail form */}
-                              {isResource && isExpanded && (
+                              {/* Contract / Outsourcing detail form — always visible, required */}
+                              {isResource && (
                                 <div className="px-6 py-4 border-b border-slate-100 bg-slate-50" onClick={(e) => e.stopPropagation()}>
                                   <div className="grid grid-cols-2 gap-3 mb-3">
                                     {(["pop","poc"] as const).map((key) => {
@@ -1551,42 +1538,46 @@ export default function ProjectPlanning() {
   return (
     <Layout breadcrumb={breadcrumb} headerActions={headerActions}>
       <div className="min-h-screen" style={{ backgroundColor: "#f8fafc" }}>
-        {/* project info bar — no TOA here; TOA lives in the summary bubbles below */}
-        <div className="px-6 py-3 flex items-center gap-4" style={{ backgroundColor: "#1a3557" }}>
-          <div className="flex-1 min-w-0">
+        {/* project info bar — sticky so Create Request is always reachable while scrolling */}
+        <div className="px-6 py-3 flex items-center gap-4 sticky z-20" style={{ backgroundColor: "#1a3557", top: 57 }}>
+          {/* LEFT: Create Request button + hint */}
+          <div className="flex flex-col items-start gap-1 flex-shrink-0">
+            <button
+              disabled={!createEnabled}
+              onClick={() => createEnabled && setShowCreateRequest(true)}
+              className="text-xs font-bold px-3 py-1.5 rounded transition-colors"
+              style={createEnabled
+                ? { backgroundColor: "#1a6ea8", color: "#fff", border: "1px solid #2d8fcf", cursor: "pointer" }
+                : { backgroundColor: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.35)", border: "1px solid rgba(255,255,255,0.12)", cursor: "not-allowed" }
+              }
+              onMouseEnter={(e) => { if (createEnabled) e.currentTarget.style.backgroundColor = "#1e82c6"; }}
+              onMouseLeave={(e) => { if (createEnabled) e.currentTarget.style.backgroundColor = "#1a6ea8"; }}
+            >
+              Create Request
+            </button>
+            {!createEnabled && (
+              <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
+                {leftToPlan < 0
+                  ? `Over budget by ${fmt(Math.abs(leftToPlan))} — reduce planned to enable Create Request`
+                  : `Plan ${fmt(leftToPlan)} more to enable Create Request`}
+              </p>
+            )}
+          </div>
+
+          {/* CENTER: project name */}
+          <div className="flex-1 min-w-0 text-center">
             <p className="text-xs font-mono" style={{ color: "rgba(255,255,255,0.5)" }}>{project.number}</p>
             <p className="font-bold text-white truncate">{project.name}</p>
           </div>
-          <div className="flex items-center gap-4 flex-shrink-0">
+
+          {/* RIGHT: POP + status badge */}
+          <div className="flex items-center gap-3 flex-shrink-0">
             <div className="text-right">
               <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "rgba(255,255,255,0.5)" }}>Project POP</p>
               <p className="font-semibold text-sm text-white">{PLAN_WINDOW_LABEL}</p>
             </div>
-            <div className="text-right px-2 py-1 rounded text-xs font-semibold" style={{ backgroundColor: "rgba(167,243,208,0.2)", color: "#6ee7b7", border: "1px solid rgba(167,243,208,0.3)" }}>
+            <div className="px-2 py-1 rounded text-xs font-semibold" style={{ backgroundColor: "rgba(167,243,208,0.2)", color: "#6ee7b7", border: "1px solid rgba(167,243,208,0.3)" }}>
               {PLAN_STATUS_LABEL}
-            </div>
-            {/* Create Request button + hint */}
-            <div className="flex flex-col items-end gap-1">
-              <button
-                disabled={!createEnabled}
-                onClick={() => createEnabled && setShowCreateRequest(true)}
-                className="text-xs font-bold px-3 py-1.5 rounded transition-colors"
-                style={createEnabled
-                  ? { backgroundColor: "#1a6ea8", color: "#fff", border: "1px solid #2d8fcf", cursor: "pointer" }
-                  : { backgroundColor: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.35)", border: "1px solid rgba(255,255,255,0.12)", cursor: "not-allowed" }
-                }
-                onMouseEnter={(e) => { if (createEnabled) e.currentTarget.style.backgroundColor = "#1e82c6"; }}
-                onMouseLeave={(e) => { if (createEnabled) e.currentTarget.style.backgroundColor = "#1a6ea8"; }}
-              >
-                Create Request
-              </button>
-              {!createEnabled && (
-                <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
-                  {leftToPlan < 0
-                    ? `Over budget by ${fmt(Math.abs(leftToPlan))} — reduce planned to enable Create Request`
-                    : `Plan ${fmt(leftToPlan)} more to enable Create Request`}
-                </p>
-              )}
             </div>
           </div>
         </div>
@@ -1604,14 +1595,15 @@ export default function ProjectPlanning() {
               <p className="text-2xl font-bold text-slate-800 mt-0.5">{fmt(totalPlanned)}</p>
               <p className="text-xs text-slate-400 mt-1">Amount currently planned</p>
             </div>
-            <div className="flex-1 rounded-xl px-5 py-4" style={leftToPlan < 0
-              ? { backgroundColor: "#fef2f2", border: "1px solid #fca5a5" }
-              : { backgroundColor: "#fffbeb", border: "1px solid #fcd34d" }
+            <div className="flex-1 rounded-xl px-5 py-4" style={
+              leftToPlan < 0   ? { backgroundColor: "#fef2f2", border: "1px solid #fca5a5" }
+              : leftToPlan === 0 ? { backgroundColor: "#f0fdf4", border: "1px solid #86efac" }
+              :                    { backgroundColor: "#fffbeb", border: "1px solid #fcd34d" }
             }>
-              <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: leftToPlan < 0 ? "#991b1b" : "#92400e" }}>Left to Plan</p>
-              <p className="text-2xl font-bold mt-0.5" style={{ color: leftToPlan < 0 ? "#dc2626" : "#b45309" }}>{fmt(leftToPlan)}</p>
-              <p className="text-xs mt-1" style={{ color: leftToPlan < 0 ? "#b91c1c" : "#a16207" }}>
-                {leftToPlan < 0 ? "Over budget — reduce planned amounts" : "Unallocated funds remaining"}
+              <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: leftToPlan < 0 ? "#991b1b" : leftToPlan === 0 ? "#15803d" : "#92400e" }}>Left to Plan</p>
+              <p className="text-2xl font-bold mt-0.5" style={{ color: leftToPlan < 0 ? "#dc2626" : leftToPlan === 0 ? "#16a34a" : "#b45309" }}>{fmt(leftToPlan)}</p>
+              <p className="text-xs mt-1" style={{ color: leftToPlan < 0 ? "#b91c1c" : leftToPlan === 0 ? "#15803d" : "#a16207" }}>
+                {leftToPlan < 0 ? "Over budget — reduce planned amounts" : leftToPlan === 0 ? "Fully allocated" : "Unallocated funds remaining"}
               </p>
             </div>
           </div>
