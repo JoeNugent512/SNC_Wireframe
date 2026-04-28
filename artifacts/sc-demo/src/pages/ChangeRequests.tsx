@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { ChevronRight, Filter, FileText, Search } from "lucide-react";
 import Layout from "@/components/Layout";
 import { MOCK_CHANGE_REQUESTS, MOCK_PROJECTS, ChangeRequest } from "@/lib/mockData";
@@ -26,6 +26,7 @@ function StatusBadge({ status }: { status: ChangeRequest["status"] }) {
 }
 
 export default function ChangeRequests() {
+  const [, navigate] = useLocation();
   const [filterStatus, setFilterStatus] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -107,26 +108,21 @@ export default function ChangeRequests() {
                   </tr>
                 ) : (
                   filteredCRs.map((cr) => (
-                    <tr key={cr.id} className="hover:bg-slate-50 transition-colors">
+                    <tr
+                      key={cr.id}
+                      className="hover:bg-slate-50 transition-colors cursor-pointer"
+                      onClick={() => navigate(`/change-requests/${cr.id}`)}
+                    >
                       <td className="px-6 py-4">
-                        <Link href={`/change-requests/${cr.id}`} className="block">
-                          <div className="font-mono font-semibold text-xs text-slate-400">{cr.projectNumber}</div>
-                          <div className="font-medium text-slate-900 truncate max-w-[200px] hover:text-primary transition-colors">
-                            {cr.projectName}
-                          </div>
-                        </Link>
+                        <div className="font-mono font-semibold text-xs text-slate-400">{cr.projectNumber}</div>
+                        <div className="font-medium text-slate-900 truncate max-w-[200px]">{cr.projectName}</div>
                       </td>
                       <td className="px-6 py-4 text-slate-600 hidden lg:table-cell">{getProponent(cr.projectNumber)}</td>
                       <td className="px-6 py-4 text-slate-600 hidden md:table-cell">{cr.submittedBy}</td>
                       <td className="px-6 py-4 text-slate-500 hidden sm:table-cell">{cr.date}</td>
                       <td className="px-6 py-4"><StatusBadge status={cr.status} /></td>
                       <td className="px-6 py-4">
-                        <Link
-                          href={`/change-requests/${cr.id}`}
-                          className="text-xs font-medium text-primary hover:underline whitespace-nowrap"
-                        >
-                          Review &rarr;
-                        </Link>
+                        <span className="text-xs font-medium text-primary whitespace-nowrap">Review &rarr;</span>
                       </td>
                     </tr>
                   ))
