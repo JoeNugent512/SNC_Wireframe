@@ -632,7 +632,7 @@ function PlanDataRow({
   return (
     <React.Fragment>
       <tr style={{ borderBottom: expanded ? "none" : "1px solid #f1f5f9" }}>
-        <td className="px-2 py-2" style={{ backgroundColor: isEven ? "#f8fafc" : "#ffffff" }}>
+        <td className="px-2 py-2" style={{ backgroundColor: isEven ? "#edf2f8" : "#ffffff" }}>
           <div className="flex items-center gap-1.5">
             <button
               onClick={onToggle}
@@ -689,7 +689,7 @@ function PlanDataRow({
             </span>
           </div>
         </td>
-        <td style={{ padding: 0, textAlign: "center", verticalAlign: "middle", borderLeft: "1px solid #e2e8f0", backgroundColor: isEven ? "#f1f5f9" : "#f8fafc" }}>
+        <td style={{ padding: 0, textAlign: "center", verticalAlign: "middle", borderLeft: "1px solid #e2e8f0", backgroundColor: isEven ? "#e3ecf5" : "#f1f5f9" }}>
           {canDelete ? (
             <button
               onClick={() => onDelete(row.id)}
@@ -755,7 +755,7 @@ function ResourceDataRow<T extends QData & { id: number; org: string; orgCode: s
   return (
     <React.Fragment>
       <tr style={{ borderBottom: expanded ? "none" : "1px solid #f1f5f9" }}>
-        <td className="px-2 py-2" style={{ backgroundColor: isEven ? "#f8fafc" : "#ffffff" }}>
+        <td className="px-2 py-2" style={{ backgroundColor: isEven ? "#edf2f8" : "#ffffff" }}>
           <div className="flex items-center gap-1.5">
             <button
               onClick={onToggle}
@@ -810,7 +810,7 @@ function ResourceDataRow<T extends QData & { id: number; org: string; orgCode: s
             </span>
           </div>
         </td>
-        <td style={{ padding: 0, textAlign: "center", verticalAlign: "middle", borderLeft: "1px solid #e2e8f0", backgroundColor: isEven ? "#f1f5f9" : "#f8fafc" }}>
+        <td style={{ padding: 0, textAlign: "center", verticalAlign: "middle", borderLeft: "1px solid #e2e8f0", backgroundColor: isEven ? "#e3ecf5" : "#f1f5f9" }}>
           {canDelete ? (
             <button onClick={() => onDelete(row.id)} title="Remove row"
               className="rounded transition-colors text-slate-300 hover:text-red-400 hover:bg-red-50"
