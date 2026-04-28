@@ -1700,14 +1700,14 @@ export default function ProjectPlanning() {
           )}
         </div>
 
-        {/* RIGHT: POP + status badge */}
+        {/* RIGHT: status badge + POP */}
         <div className="flex items-center gap-3 flex-shrink-0 flex-1 justify-end">
+          <div className="px-2 py-1 rounded text-xs font-semibold" style={{ backgroundColor: "rgba(167,243,208,0.2)", color: "#6ee7b7", border: "1px solid rgba(167,243,208,0.3)" }}>
+            {PLAN_STATUS_LABEL}
+          </div>
           <div className="text-right">
             <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "rgba(255,255,255,0.5)" }}>Project POP</p>
             <p className="font-semibold text-sm text-white">{PLAN_WINDOW_LABEL}</p>
-          </div>
-          <div className="px-2 py-1 rounded text-xs font-semibold" style={{ backgroundColor: "rgba(167,243,208,0.2)", color: "#6ee7b7", border: "1px solid rgba(167,243,208,0.3)" }}>
-            {PLAN_STATUS_LABEL}
           </div>
         </div>
       </div>
