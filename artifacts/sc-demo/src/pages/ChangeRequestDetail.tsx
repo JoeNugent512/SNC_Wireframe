@@ -109,94 +109,100 @@ function OrgCodeHeader({ orgCode }: { orgCode: string }) {
 
 const TYPE_ORDER: CRLineItem["type"][] = ["Labor", "Travel", "Contracting", "Materials & Other"];
 
-function typeSectionColor(type: CRLineItem["type"]) {
-  if (type === "Labor")             return { bg: "#eff6ff", border: "#bfdbfe", text: "#1e40af", dot: "#3b82f6" };
-  if (type === "Travel")            return { bg: "#f5f3ff", border: "#ddd6fe", text: "#5b21b6", dot: "#7c3aed" };
-  if (type === "Contracting")       return { bg: "#f0fdf4", border: "#bbf7d0", text: "#166534", dot: "#16a34a" };
-  return                              { bg: "#f8fafc", border: "#e2e8f0", text: "#475569", dot: "#94a3b8" };
-}
+const TYPE_DOT: Record<string, string> = {
+  Labor: "#60a5fa", Travel: "#a78bfa", Contracting: "#34d399", "Materials & Other": "#f59e0b",
+};
 
 function BudgetChangesTable({ cr, disabled }: { cr: ChangeRequest; disabled: boolean }) {
   const firstReq = isFirstRequest(cr);
   const net = netChange(cr);
 
-  const typeGroups: { type: CRLineItem["type"]; items: CRLineItem[] }[] = TYPE_ORDER
-    .map((type) => ({ type, items: cr.lineItems.filter((li) => li.type === type) }))
-    .filter((g) => g.items.length > 0);
+  // Group by orgCode first, then type within each org — matches planning preview style
+  const orgOrder: string[] = [];
+  const byOrg: Record<string, CRLineItem[]> = {};
+  for (const li of cr.lineItems) {
+    if (!byOrg[li.orgCode]) { byOrg[li.orgCode] = []; orgOrder.push(li.orgCode); }
+    byOrg[li.orgCode].push(li);
+  }
 
   return (
-    <div className="rounded-lg border border-slate-200 overflow-hidden">
-      {/* Column header */}
-      <div
-        className="grid text-[11px] font-semibold text-slate-400 uppercase tracking-wider bg-slate-50 border-b border-slate-200 px-4 py-2.5"
-        style={{ gridTemplateColumns: "130px 1fr 96px 96px 84px 1fr" }}
-      >
-        <span>Resource</span>
-        <span>Org Code</span>
-        <span className="text-right">Current</span>
-        <span className="text-right">Proposed</span>
-        <span className="text-right">Change</span>
-        <span className="pl-2">Description / Notes</span>
+    <div className="border border-slate-200 rounded-lg overflow-hidden">
+      {/* Navy section header */}
+      <div className="px-4 py-2.5" style={{ backgroundColor: "#1a3557" }}>
+        <span className="text-white font-bold text-xs tracking-widest uppercase">Budget Changes</span>
       </div>
 
-      {typeGroups.map((group, gi) => {
-        const colors = typeSectionColor(group.type);
-        const justification = cr.typeJustifications?.[group.type];
-        return (
-          <div key={group.type} className={gi > 0 ? "border-t-2 border-slate-200" : ""}>
+      {orgOrder.map((orgCode) => {
+        const orgItems = byOrg[orgCode];
+        const typeMap: Partial<Record<CRLineItem["type"], CRLineItem[]>> = {};
+        for (const li of orgItems) {
+          if (!typeMap[li.type]) typeMap[li.type] = [];
+          typeMap[li.type]!.push(li);
+        }
+        const usedTypes = TYPE_ORDER.filter((t) => typeMap[t]);
 
-            {/* Type section header */}
-            <div
-              className="flex items-center gap-2 px-4 py-2"
-              style={{ backgroundColor: colors.bg, borderBottom: `1px solid ${colors.border}` }}
-            >
-              <span
-                className="w-2 h-2 rounded-full flex-shrink-0"
-                style={{ backgroundColor: colors.dot }}
-              />
-              <span
-                className="text-xs font-bold uppercase tracking-wider"
-                style={{ color: colors.text }}
-              >
-                {group.type}
-              </span>
+        return (
+          <div key={orgCode} className="border-b border-slate-200 last:border-b-0">
+            {/* Org code header */}
+            <div className="px-4 py-1.5 flex items-center gap-3" style={{ backgroundColor: "#1e3a5f" }}>
+              <span className="font-mono text-xs font-bold" style={{ color: "#93c5fd" }}>{orgCode}</span>
             </div>
 
-            {/* Justification block — immediately under type header */}
-            {justification && (
-              <div
-                className="px-4 py-2.5 border-b"
-                style={{ backgroundColor: "#fffbeb", borderColor: "#fde68a" }}
-              >
-                <p className="text-[10px] font-bold text-amber-700 uppercase tracking-wider mb-0.5">
-                  Justification
-                </p>
-                <p className="text-xs text-amber-900 leading-relaxed">{justification}</p>
-              </div>
-            )}
+            {usedTypes.map((type) => {
+              const typeItems = typeMap[type]!;
+              const justification = cr.typeJustifications?.[type];
+              const dot = TYPE_DOT[type] ?? "#94a3b8";
 
-            {/* Rows for this type */}
-            {group.items.map((li, i) => {
-              const displayFrom = firstReq ? 0 : li.from;
-              const delta = firstReq ? li.to : (li.direction === "Increase" ? li.amount : -li.amount);
               return (
-                <div
-                  key={i}
-                  className="grid items-start px-4 py-3 gap-3 border-t border-slate-100"
-                  style={{ gridTemplateColumns: "130px 1fr 96px 96px 84px 1fr" }}
-                >
-                  <span className="text-sm text-slate-700 font-medium leading-tight pt-0.5 truncate" title={li.resource}>
-                    {li.resource}
-                  </span>
-                  <span className="text-xs text-slate-400 font-mono pt-1 truncate">{li.orgCode}</span>
-                  <span className="text-sm tabular-nums text-slate-500 text-right pt-0.5">{fmt(displayFrom)}</span>
-                  <span className="text-sm tabular-nums font-medium text-slate-800 text-right pt-0.5">{fmt(li.to)}</span>
-                  <span className={`text-sm tabular-nums font-semibold text-right pt-0.5 ${delta > 0 ? "text-emerald-700" : "text-red-600"}`}>
-                    {delta > 0 ? "+" : ""}{fmt(delta)}
-                  </span>
-                  <div className="pl-2">
-                    <DescNotesCell initialDesc={buildLineDesc(cr, li)} disabled={disabled} />
+                <div key={type}>
+                  {/* Type sub-header with column labels */}
+                  <div className="px-4 py-1.5 flex items-center gap-2 border-b border-slate-100" style={{ backgroundColor: "#f1f5f9" }}>
+                    <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: dot }} />
+                    <span className="text-xs font-bold text-slate-600 uppercase tracking-wide flex-1">{type}</span>
+                    <span className="text-xs font-semibold text-slate-400 uppercase" style={{ width: 96, textAlign: "right" }}>Current</span>
+                    <span className="text-xs font-semibold text-slate-400 uppercase" style={{ width: 96, textAlign: "right" }}>Proposed</span>
+                    <span className="text-xs font-semibold text-slate-400 uppercase" style={{ width: 84, textAlign: "right" }}>Change</span>
+                    <span className="text-xs font-semibold text-slate-400 uppercase pl-3" style={{ width: 220 }}>Description</span>
                   </div>
+
+                  {/* Justification block */}
+                  {justification && (
+                    <div className="px-4 py-2.5 border-b" style={{ backgroundColor: "#fffbeb", borderColor: "#fde68a" }}>
+                      <p className="text-[10px] font-bold text-amber-700 uppercase tracking-wider mb-0.5">Justification</p>
+                      <p className="text-xs text-amber-900 leading-relaxed">{justification}</p>
+                    </div>
+                  )}
+
+                  {/* Data rows */}
+                  {typeItems.map((li, i) => {
+                    const displayFrom = firstReq ? 0 : li.from;
+                    const delta = firstReq ? li.to : (li.direction === "Increase" ? li.amount : -li.amount);
+                    return (
+                      <div
+                        key={i}
+                        className="px-4 py-2.5 flex items-start gap-2 border-b border-slate-100 last:border-b-0"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-slate-800 leading-snug truncate" title={li.resource}>{li.resource}</p>
+                        </div>
+                        <span className="tabular-nums text-sm text-slate-500" style={{ width: 96, textAlign: "right", paddingTop: 2 }}>
+                          {fmt(displayFrom)}
+                        </span>
+                        <span className="tabular-nums text-sm font-medium text-slate-800" style={{ width: 96, textAlign: "right", paddingTop: 2 }}>
+                          {fmt(li.to)}
+                        </span>
+                        <span
+                          className="tabular-nums text-sm font-semibold"
+                          style={{ width: 84, textAlign: "right", paddingTop: 2, color: delta > 0 ? "#15803d" : delta < 0 ? "#b91c1c" : "#94a3b8" }}
+                        >
+                          {delta > 0 ? "+" : ""}{fmt(delta)}
+                        </span>
+                        <div style={{ width: 220 }} className="pl-3">
+                          <DescNotesCell initialDesc={buildLineDesc(cr, li)} disabled={disabled} />
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               );
             })}
@@ -205,17 +211,16 @@ function BudgetChangesTable({ cr, disabled }: { cr: ChangeRequest; disabled: boo
       })}
 
       {/* Net change footer */}
-      <div
-        className="grid items-center px-4 py-2.5 bg-slate-50 border-t-2 border-slate-200"
-        style={{ gridTemplateColumns: "130px 1fr 96px 96px 84px 1fr" }}
-      >
-        <span className="col-span-4 text-[11px] font-semibold text-slate-400 uppercase tracking-wider text-right">
-          Net Change
-        </span>
-        <span className={`text-sm font-bold tabular-nums text-right ${net > 0 ? "text-emerald-700" : net < 0 ? "text-red-600" : "text-slate-500"}`}>
+      <div className="px-4 py-2.5 flex items-center bg-slate-50 border-t-2 border-slate-200">
+        <span className="flex-1" />
+        <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider" style={{ width: 96 + 96, textAlign: "right" }}>Net Change</span>
+        <span
+          className="tabular-nums text-sm font-bold"
+          style={{ width: 84, textAlign: "right", color: net > 0 ? "#15803d" : net < 0 ? "#b91c1c" : "#475569" }}
+        >
           {net === 0 ? "$0" : fmtDelta(net)}
         </span>
-        <span />
+        <span style={{ width: 220 + 12 }} />
       </div>
     </div>
   );
@@ -336,8 +341,7 @@ export default function ChangeRequestDetail({ params }: { params?: { id?: string
         </div>
 
         {/* Budget changes */}
-        <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-6">
-          <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4">Budget Changes</h2>
+        <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
           <BudgetChangesTable cr={cr} disabled={!isActionable} />
         </div>
 
