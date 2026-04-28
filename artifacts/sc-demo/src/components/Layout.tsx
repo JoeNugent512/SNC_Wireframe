@@ -9,9 +9,10 @@ interface LayoutProps {
   roleBadge?: string;
   breadcrumb?: ReactNode;
   headerActions?: ReactNode;
+  stickyBanner?: ReactNode;
 }
 
-export default function Layout({ children, title, roleBadge, breadcrumb, headerActions }: LayoutProps) {
+export default function Layout({ children, title, roleBadge, breadcrumb, headerActions, stickyBanner }: LayoutProps) {
   const [location] = useLocation();
 
   const getPageTitle = () => {
@@ -68,6 +69,15 @@ export default function Layout({ children, title, roleBadge, breadcrumb, headerA
           </div>
         </div>
       </header>
+
+      {/* Optional sticky sub-header — rendered as a sibling of <main> so it is
+          never inside the overflow-x-hidden scroll context. Sticks at top: 56px
+          (directly below the 56px nav header). z-20 keeps it above page content. */}
+      {stickyBanner && (
+        <div className="sticky z-20 w-full" style={{ top: 56 }}>
+          {stickyBanner}
+        </div>
+      )}
 
       <main className="flex-1 w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 overflow-x-hidden">
         <AnimatePresence mode="wait">
