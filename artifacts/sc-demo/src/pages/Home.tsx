@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { PlusCircle, FileSpreadsheet, FolderEdit, ArrowRight, AlertTriangle, BarChart2, Clock, FolderPlus, Wallet } from "lucide-react";
+import { PlusCircle, FileSpreadsheet, FolderEdit, ArrowRight, AlertTriangle } from "lucide-react";
 import Layout from "@/components/Layout";
 import { PENDING_SETUP_PROJECTS, MOCK_PROJECTS, MOCK_CHANGE_REQUESTS } from "@/lib/mockData";
 
@@ -8,6 +8,7 @@ const fmt = (v: number) =>
 
 export default function Home() {
   const activeProjectCount = MOCK_PROJECTS.filter((p) => p.status === "Active").length;
+  const totalProjectCount  = MOCK_PROJECTS.length;
   const pendingRequestCount = MOCK_CHANGE_REQUESTS.filter((cr) =>
     ["Pending", "First Request", "Under Review"].includes(cr.status)
   ).length;
@@ -15,45 +16,6 @@ export default function Home() {
   const portfolioValue = MOCK_PROJECTS
     .filter((p) => p.status !== "Complete")
     .reduce((sum, p) => sum + p.budget, 0);
-
-  const stats = [
-    {
-      label: "Active Projects",
-      value: activeProjectCount,
-      icon: BarChart2,
-      accent: "#1a3557",
-      bg: "#f0f4f9",
-      border: "#c1cfe0",
-      href: "/projects",
-    },
-    {
-      label: "Requests Pending",
-      value: pendingRequestCount,
-      icon: Clock,
-      accent: "#92400e",
-      bg: "#fffbeb",
-      border: "#fcd34d",
-      href: "/change-requests",
-    },
-    {
-      label: "Awaiting Setup",
-      value: setupQueueCount,
-      icon: FolderPlus,
-      accent: "#92400e",
-      bg: "#fffbeb",
-      border: "#fcd34d",
-      href: "/setup",
-    },
-    {
-      label: "Portfolio Value",
-      value: fmt(portfolioValue),
-      icon: Wallet,
-      accent: "#1a6ea8",
-      bg: "#eff6ff",
-      border: "#bfdbfe",
-      href: "/projects",
-    },
-  ];
 
   return (
     <Layout title="Dashboard">
@@ -63,27 +25,8 @@ export default function Home() {
           <p className="text-slate-500 mt-1">Here is your quick access panel for today.</p>
         </div>
 
-        {/* Summary stats row */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {stats.map(({ label, value, icon: Icon, accent, bg, border, href }) => (
-            <Link key={label} href={href}>
-              <div
-                className="flex items-center gap-3 rounded-lg px-4 py-3.5 cursor-pointer transition-shadow hover:shadow-md"
-                style={{ backgroundColor: bg, border: `1px solid ${border}`, borderLeft: `3px solid ${accent}` }}
-              >
-                <Icon size={18} style={{ color: accent, flexShrink: 0 }} />
-                <div className="min-w-0">
-                  <p className="text-[10px] font-semibold uppercase tracking-widest leading-none mb-1.5" style={{ color: accent }}>
-                    {label}
-                  </p>
-                  <p className="text-2xl font-bold leading-none text-slate-900">{value}</p>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Set Up New Project */}
           <Link href="/setup" className="group">
             <div className="bg-amber-50/60 p-6 rounded-xl border border-amber-200 shadow-sm hover:shadow-md hover:border-amber-400 transition-all cursor-pointer h-full flex flex-col justify-between" data-testid="action-new-project">
               <div>
@@ -91,17 +34,21 @@ export default function Home() {
                   <div className="w-12 h-12 rounded-lg bg-amber-50 flex items-center justify-center group-hover:bg-amber-100 transition-colors">
                     <PlusCircle className="text-amber-600" size={24} />
                   </div>
-                  {PENDING_SETUP_PROJECTS.length > 0 && (
+                  {setupQueueCount > 0 && (
                     <span
                       className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-amber-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center"
-                      title={`${PENDING_SETUP_PROJECTS.length} project${PENDING_SETUP_PROJECTS.length !== 1 ? "s" : ""} awaiting setup`}
+                      title={`${setupQueueCount} project${setupQueueCount !== 1 ? "s" : ""} awaiting setup`}
                     >
-                      {PENDING_SETUP_PROJECTS.length}
+                      {setupQueueCount}
                     </span>
                   )}
                 </div>
                 <h3 className="text-lg font-semibold text-slate-900">Set Up New Project</h3>
                 <p className="text-sm text-slate-500 mt-2">Complete EPMP charter data for newly picked-up projects awaiting BA setup.</p>
+                <div className="mt-4 flex items-center gap-2">
+                  <span className="text-2xl font-bold text-amber-700">{setupQueueCount}</span>
+                  <span className="text-sm text-amber-700/80">project{setupQueueCount !== 1 ? "s" : ""} in queue</span>
+                </div>
               </div>
               <div className="flex items-center text-amber-600 text-sm font-medium mt-6 group-hover:translate-x-1 transition-transform">
                 View setup queue <ArrowRight size={16} className="ml-1" />
@@ -109,6 +56,7 @@ export default function Home() {
             </div>
           </Link>
 
+          {/* Process Funding Request */}
           <Link href="/change-requests" className="group">
             <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-primary/30 transition-all cursor-pointer h-full flex flex-col justify-between" data-testid="action-process-funding">
               <div>
@@ -117,6 +65,10 @@ export default function Home() {
                 </div>
                 <h3 className="text-lg font-semibold text-slate-900">Process Funding Request</h3>
                 <p className="text-sm text-slate-500 mt-2">Review, approve, or reject pending change requests and budget reallocations.</p>
+                <div className="mt-4 flex items-center gap-2">
+                  <span className="text-2xl font-bold text-indigo-700">{pendingRequestCount}</span>
+                  <span className="text-sm text-indigo-700/80">request{pendingRequestCount !== 1 ? "s" : ""} pending review</span>
+                </div>
               </div>
               <div className="flex items-center text-indigo-600 text-sm font-medium mt-6 group-hover:translate-x-1 transition-transform">
                 View requests <ArrowRight size={16} className="ml-1" />
@@ -124,6 +76,7 @@ export default function Home() {
             </div>
           </Link>
 
+          {/* Edit Budget Plan */}
           <Link href="/projects" className="group">
             <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-primary/30 transition-all cursor-pointer h-full flex flex-col justify-between" data-testid="action-edit-plan">
               <div>
@@ -132,6 +85,17 @@ export default function Home() {
                 </div>
                 <h3 className="text-lg font-semibold text-slate-900">Edit Budget Plan</h3>
                 <p className="text-sm text-slate-500 mt-2">Access existing projects to update labor, travel, and material allocations.</p>
+                <div className="mt-4 flex items-baseline gap-3">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-2xl font-bold text-slate-800">{activeProjectCount}</span>
+                    <span className="text-sm text-slate-500">active</span>
+                  </div>
+                  <span className="text-slate-300">·</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-lg font-semibold text-slate-400">{fmt(portfolioValue)}</span>
+                    <span className="text-sm text-slate-400">portfolio</span>
+                  </div>
+                </div>
               </div>
               <div className="flex items-center text-primary text-sm font-medium mt-6 group-hover:translate-x-1 transition-transform">
                 Browse projects <ArrowRight size={16} className="ml-1" />
