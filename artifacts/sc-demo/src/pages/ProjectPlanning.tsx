@@ -438,9 +438,9 @@ function QuarterlyPanel({
   row: QData & { id: number };
   onUpdateQ: (id: number, field: keyof QData, val: number) => void;
 }) {
-  const pastStyle: React.CSSProperties = { backgroundColor: BLUE_BG, color: "#1e40af", fontWeight: 500 };
-  const editStyle: React.CSSProperties = { backgroundColor: AMBER_BG };
-  const cellPad: React.CSSProperties   = { paddingTop: 3, paddingBottom: 3, paddingRight: 6, borderRadius: 3 };
+  const pastStyle  = (even: boolean): React.CSSProperties => ({ backgroundColor: even ? BLUE_BG  : BLUE_TOTAL,  color: "#1e40af", fontWeight: 500 });
+  const editStyle  = (even: boolean): React.CSSProperties => ({ backgroundColor: even ? AMBER_BG : AMBER_TOTAL });
+  const cellPad: React.CSSProperties = { paddingTop: 3, paddingBottom: 3, paddingRight: 6, borderRadius: 3 };
 
   return (
     <div style={{ borderTop: "2px solid #1a6ea8", background: "linear-gradient(to bottom, #f0f4f8, #f8fafc)", padding: "0 0 12px 0" }}>
@@ -484,27 +484,28 @@ function QuarterlyPanel({
               const fyTotal = fyKeys.reduce((s, k) => s + row[k], 0);
               const hasEditable = fyKeys.some((k) => qStatus(k) === "editable");
               const editableInFY = fyKeys.filter((k) => qStatus(k) === "editable");
+              const even = fyIdx % 2 === 0;
               return (
-                <tr key={fy} style={{ borderTop: "1px solid #e2e8f0", background: fyIdx % 2 === 1 ? "rgba(255,255,255,0.55)" : undefined }}>
+                <tr key={fy} style={{ borderTop: "1px solid #e2e8f0" }}>
                   <td style={{ paddingTop: 4, paddingBottom: 4, fontWeight: 700, color: "#1a3557", fontSize: 12 }}>{fy}</td>
                   {QUARTER_NUMS.map((qn) => {
                     const key = `${fy.toLowerCase()}q${qn}` as QKey;
                     const st  = qStatus(key);
                     if (st === "past") {
                       return (
-                        <td key={qn} style={{ ...pastStyle, ...cellPad }}>
+                        <td key={qn} style={{ ...pastStyle(even), ...cellPad }}>
                           <AmtDisplay value={row[key]} />
                         </td>
                       );
                     }
                     return (
-                      <td key={qn} style={{ ...editStyle, ...cellPad }}>
+                      <td key={qn} style={{ ...editStyle(even), ...cellPad }}>
                         <AmtInput value={row[key]} onChange={(v) => onUpdateQ(row.id, key, v)} gold />
                       </td>
                     );
                   })}
                   {/* FY Total — editable if year has any editable quarters; spread-fills across them */}
-                  <td style={{ paddingTop: 2, paddingBottom: 2, borderLeft: "1px solid #cbd5e1", paddingLeft: 6, paddingRight: 6, backgroundColor: hasEditable ? AMBER_TOTAL : BLUE_TOTAL }}>
+                  <td style={{ paddingTop: 2, paddingBottom: 2, borderLeft: "1px solid #cbd5e1", paddingLeft: 6, paddingRight: 6, backgroundColor: hasEditable ? (even ? AMBER_BG : AMBER_TOTAL) : (even ? BLUE_BG : BLUE_TOTAL) }}>
                     {hasEditable ? (
                       <AmtInput
                         value={fyTotal}
