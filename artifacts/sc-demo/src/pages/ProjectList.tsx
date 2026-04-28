@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import {
   ChevronRight, Briefcase, Search, Activity,
-  PauseCircle, CheckCircle2, Clock, FileSpreadsheet, Loader2
+  PauseCircle, CheckCircle2, Clock, FileSpreadsheet, Loader2, ArrowLeft
 } from "lucide-react";
 import Layout from "@/components/Layout";
 import { MOCK_PROJECTS, Project } from "@/lib/mockData";
@@ -98,13 +98,22 @@ export default function ProjectList() {
   const [progress, setProgress] = useState(0);
   const [activeTab, setActiveTab] = useState<Tab>("charter");
   const [searchQuery, setSearchQuery] = useState("");
+  const [mobileShowDetail, setMobileShowDetail] = useState(false);
 
   const handleSelectProject = (id: string) => {
-    if (id === selectedId) return;
+    if (id === selectedId) {
+      setMobileShowDetail(true);
+      return;
+    }
     setSelectedId(id);
     setDetailReady(false);
     setProgress(0);
     setActiveTab("charter");
+    setMobileShowDetail(true);
+  };
+
+  const handleMobileBack = () => {
+    setMobileShowDetail(false);
   };
 
   // Animate progress bar inside the button, flip ready at 100%
@@ -172,11 +181,11 @@ export default function ProjectList() {
       <ChevronRight size={14} className="text-slate-300" />
       <span className="font-semibold text-slate-800">Project List</span>
     </>}>
-      <div className="flex flex-col h-[calc(100vh-10rem)]">
+      <div className="flex flex-col lg:h-[calc(100vh-10rem)]">
 
-        <div className="flex flex-col lg:flex-row gap-6 h-full min-h-0">
+        <div className="flex flex-col lg:flex-row gap-6 lg:h-full lg:min-h-0">
           {/* ── LEFT PANEL ── */}
-          <div className="w-full lg:w-5/12 flex flex-col bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm flex-shrink-0">
+          <div className={`w-full lg:w-5/12 flex-col bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm flex-shrink-0 ${mobileShowDetail ? "hidden lg:flex" : "flex"}`}>
             <div className="p-4 border-b border-slate-100 bg-slate-50/50">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
@@ -232,7 +241,7 @@ export default function ProjectList() {
           </div>
 
           {/* ── RIGHT PANEL ── */}
-          <div className="w-full lg:w-7/12 flex flex-col bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+          <div className={`w-full lg:w-7/12 flex-col bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm ${mobileShowDetail ? "flex" : "hidden lg:flex"}`}>
             {!selectedProject ? (
               <div className="flex-1 flex flex-col items-center justify-center p-8 text-slate-400 text-center">
                 <Briefcase size={48} className="mb-4 text-slate-200" strokeWidth={1} />
@@ -245,7 +254,16 @@ export default function ProjectList() {
                 </p>
               </div>
             ) : (
-              <div className="flex flex-col h-full">
+              <div className="flex flex-col h-full min-h-[calc(100dvh-8rem)] lg:min-h-0">
+
+                {/* ── Mobile back button ── */}
+                <button
+                  onClick={handleMobileBack}
+                  className="lg:hidden flex items-center gap-1.5 px-4 py-2.5 border-b border-slate-100 text-sm font-medium text-primary hover:bg-slate-50 transition-colors text-left"
+                >
+                  <ArrowLeft size={16} />
+                  Back to project list
+                </button>
 
                 {/* ── Header (instant) ── */}
                 <div className="px-6 pt-5 pb-4 border-b border-slate-100">
