@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 import { Link, useParams } from "wouter";
-import { ChevronRight, ChevronDown, Settings, Plus, Trash2, X, MinusCircle, CalendarRange } from "lucide-react";
+import { ChevronRight, ChevronDown, Settings, Plus, Trash2, X, MinusCircle, CalendarRange, Copy, Check } from "lucide-react";
 import { MOCK_PROJECTS, Project } from "@/lib/mockData";
 import Layout from "@/components/Layout";
 import { Calendar } from "@/components/ui/calendar";
@@ -1220,6 +1220,81 @@ function PopDateRangePicker({
   );
 }
 
+// ── CreateRequestModal helpers ────────────────────────────────────────────────
+
+function crTypeSectionColor(type: string) {
+  if (type === "Labor")       return { bg: "#eff6ff", border: "#bfdbfe", text: "#1e40af", dot: "#3b82f6" };
+  if (type === "Travel")      return { bg: "#f5f3ff", border: "#ddd6fe", text: "#5b21b6", dot: "#7c3aed" };
+  if (type === "Contracting") return { bg: "#f0fdf4", border: "#bbf7d0", text: "#166534", dot: "#16a34a" };
+  return                        { bg: "#fff7ed", border: "#fed7aa", text: "#92400e", dot: "#f59e0b" };
+}
+
+function buildCRNote(
+  entry: { type: string; displayName: string; orgLabel: string },
+  projectNumber: string,
+  tf: TravelForm,
+  rf: ResourceForm,
+): string {
+  const fy = `FY${CFY}`;
+  const typePart = entry.type.toUpperCase();
+  let resource = entry.displayName.split("—")[0]?.trim().toUpperCase() ?? entry.displayName.toUpperCase();
+  if (entry.type === "Travel") resource = entry.orgLabel.toUpperCase();
+  const base = `${fy}/SANDC ${typePart} FUNDS FOR ${projectNumber}/${resource}/`;
+  if (entry.type === "Travel") {
+    const lines = [base];
+    if (tf.poc.trim())       lines.push(`POC: ${tf.poc.trim()}`);
+    if (tf.travelers.trim()) lines.push(`TRAVELERS: ${tf.travelers.trim()}`);
+    if (tf.dates.trim())     lines.push(`DATES: ${tf.dates.trim()}`);
+    if (tf.purpose.trim())   lines.push(`PURPOSE: ${tf.purpose.trim()}`);
+    return lines.join("\n");
+  }
+  if (entry.type === "Contracting" || entry.type === "Outsourcing") {
+    const lines = [base];
+    if (rf.pop.trim())     lines.push(`POP: ${rf.pop.trim()}`);
+    if (rf.poc.trim())     lines.push(`POC: ${rf.poc.trim()}`);
+    if (rf.purpose.trim()) lines.push(`PURPOSE: ${rf.purpose.trim()}`);
+    return lines.join("\n");
+  }
+  return base;
+}
+
+function CRNoteCell({ noteText }: { noteText: string }) {
+  const [text, setText] = useState(noteText);
+  const [copied, setCopied] = useState(false);
+
+  React.useEffect(() => { setText(noteText); }, [noteText]);
+
+  const copy = () => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
+  const rows = Math.max(2, text.split("\n").length);
+
+  return (
+    <div className="flex flex-col gap-1 min-w-0">
+      <textarea
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        rows={rows}
+        className="w-full text-xs font-mono text-slate-700 bg-slate-50 border border-slate-200 rounded px-2 py-1.5 resize-none focus:outline-none focus:ring-1 focus:ring-blue-200 leading-relaxed"
+      />
+      <button
+        onClick={copy}
+        className="self-start flex items-center gap-1 text-[11px] font-medium text-slate-400 hover:text-slate-700 transition-colors"
+      >
+        {copied
+          ? <><Check size={11} className="text-emerald-500" /> Copied</>
+          : <><Copy size={11} /> Copy</>}
+      </button>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 function CreateRequestModal({
   project, laborRows, travelRows, contractRows, outsourcingRows, totalPlanned, onClose,
 }: {
@@ -1324,124 +1399,135 @@ function CreateRequestModal({
           <button onClick={onClose} className="text-white/60 hover:text-white transition-colors"><X size={16} /></button>
         </div>
 
-        <div className="flex-1 overflow-y-auto">
-          <div className="max-w-4xl mx-auto px-4 py-4" onClick={(e) => e.stopPropagation()}>
-          {/* Project card */}
-          <div className="mb-3 border border-slate-200 rounded-lg overflow-hidden bg-white">
-            <div className="px-4 py-1.5 border-b border-slate-100" style={{ backgroundColor: "#f8fafc" }}>
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Budget Change Request</span>
-            </div>
-            <div className="p-4 flex items-start gap-4 flex-wrap">
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-mono text-slate-400 mb-0.5">{project.number}</p>
-                <p className="text-xl font-bold text-slate-800 leading-tight">{project.name}</p>
-                <div className="flex items-center flex-wrap gap-3 mt-2">
-                  <span className="text-xs font-semibold px-2 py-0.5 rounded" style={{ backgroundColor: "#fef9c3", color: "#854d0e", border: "1px solid #fde047" }}>Pending</span>
-                  <span className="text-xs text-slate-500">{project.pmName} · 2026-04-27</span>
-                  <span className="text-xs text-slate-500">Proponent: <span className="font-semibold text-slate-700">{project.hqProponent}</span></span>
+        {/* ── Scrollable content — Change Request Detail layout ── */}
+        <div className="flex-1 overflow-y-auto bg-slate-50">
+          <div className="max-w-5xl mx-auto px-4 py-5 space-y-4" onClick={(e) => e.stopPropagation()}>
+
+            {/* Project header card */}
+            <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
+              <div className="flex items-start justify-between gap-6 flex-wrap">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Budget Change Request</span>
+                  </div>
+                  <h1 className="text-xl font-bold text-slate-900 leading-snug">
+                    <span className="font-mono text-sm text-slate-400 mr-2">{project.number}</span>
+                    {project.name}
+                  </h1>
+                  <div className="flex items-center gap-3 mt-2.5 flex-wrap">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border bg-blue-100 text-blue-800 border-blue-200">Pending</span>
+                    <span className="text-sm text-slate-500">{project.pmName} &middot; 2026-04-28</span>
+                    <span className="text-sm text-slate-500">Proponent: <strong className="font-medium text-slate-700">{project.hqProponent}</strong></span>
+                  </div>
                 </div>
-              </div>
-              <div className="flex-shrink-0 border border-slate-200 rounded-lg overflow-hidden">
-                <div className="grid divide-x divide-slate-200" style={{ gridTemplateColumns: "repeat(3, minmax(90px, 1fr))" }}>
-                  {[
-                    { label: "TOA",          val: project.budget, color: "#1e293b" },
-                    { label: "Planned",      val: totalPlanned,   color: "#1e293b" },
-                    { label: "Free Balance", val: freeBalance,    color: freeBalance >= 0 ? "#16a34a" : "#dc2626" },
-                  ].map((c) => (
-                    <div key={c.label} className="px-3 py-2 text-right">
-                      <p className="text-xs text-slate-400 uppercase tracking-wide font-semibold whitespace-nowrap">{c.label}</p>
-                      <p className="font-bold tabular-nums text-sm" style={{ color: c.color }}>{fmt(c.val)}</p>
+                <div className="flex items-stretch gap-px bg-slate-200 rounded-lg overflow-hidden border border-slate-200 self-start">
+                  {([
+                    { label: "TOA",          value: project.budget, color: "text-slate-800" },
+                    { label: "Planned",      value: totalPlanned,   color: "text-slate-800" },
+                    { label: "Free Balance", value: freeBalance,    color: freeBalance >= 0 ? "text-emerald-700" : "text-red-600" },
+                  ] as const).map(({ label, value, color }) => (
+                    <div key={label} className="flex flex-col items-end px-4 py-3 bg-white gap-0.5 min-w-[110px]">
+                      <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider whitespace-nowrap">{label}</span>
+                      <span className={`text-base font-bold tabular-nums ${color}`}>{fmt(value)}</span>
                     </div>
                   ))}
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Project description */}
-          <div className="mb-3 border border-slate-200 rounded-lg p-4 bg-white">
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1">Project Description</p>
-            <p className="text-sm text-slate-700 leading-relaxed">{project.description}</p>
-          </div>
-
-          {/* Budget Breakdown */}
-          <div className="mb-4 border border-slate-200 rounded-lg overflow-hidden bg-white">
-            <div className="px-4 py-2.5" style={{ backgroundColor: "#1a3557" }}>
-              <span className="text-white font-bold text-xs tracking-widest uppercase">Budget Breakdown</span>
+            {/* Project Overview */}
+            <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
+              <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Project Overview</h2>
+              <p className="text-sm text-slate-600 leading-relaxed">{project.description}</p>
             </div>
 
-            {orgOrder.map((orgCode) => {
-              const orgEntries = byOrg[orgCode];
-              const orgLabel   = orgEntries[0].orgLabel;
-              // sub-group by type, preserving TYPE_ORDER
-              const typeMap: Partial<Record<CREntry["type"], CREntry[]>> = {};
-              for (const e of orgEntries) {
-                if (!typeMap[e.type]) typeMap[e.type] = [];
-                typeMap[e.type]!.push(e);
-              }
-              const usedTypes = TYPE_ORDER.filter((t) => typeMap[t]);
+            {/* Budget Changes */}
+            <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
+              <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4">Budget Changes</h2>
 
-              return (
-                <div key={orgCode} className="border-b border-slate-200 last:border-b-0">
-                  {/* Org code header */}
-                  <div className="px-4 py-1.5 flex items-center gap-3" style={{ backgroundColor: "#1e3a5f" }}>
-                    <span className="font-mono text-xs font-bold" style={{ color: "#93c5fd" }}>{orgCode}</span>
-                    {orgLabel && orgLabel !== orgCode && (
-                      <span className="text-xs" style={{ color: "#94a3b8" }}>· {orgLabel}</span>
-                    )}
-                  </div>
+              <div className="rounded-lg border border-slate-200 overflow-hidden">
+                {/* Column header */}
+                <div
+                  className="grid text-[11px] font-semibold text-slate-400 uppercase tracking-wider bg-slate-50 border-b border-slate-200 px-4 py-2.5"
+                  style={{ gridTemplateColumns: "1fr 130px 90px 90px 90px 220px" }}
+                >
+                  <span>Resource</span>
+                  <span>Org Code</span>
+                  <span className="text-right">Committed</span>
+                  <span className="text-right">Change</span>
+                  <span className="text-right">Requested</span>
+                  <span className="pl-2">Description / Notes</span>
+                </div>
 
-                  {usedTypes.map((type) => {
-                    const typeEntries = typeMap[type]!;
+                {/* Type groups — same order/style as Change Request Detail */}
+                {TYPE_ORDER
+                  .filter((t) => entries.some((e) => e.type === t))
+                  .map((type, gi) => {
+                    const typeEntries = entries.filter((e) => e.type === type);
+                    const colors = crTypeSectionColor(type);
                     return (
-                      <div key={type}>
-                        {/* Type sub-header with column labels */}
-                        <div className="px-4 py-1.5 flex items-center gap-2 border-b border-slate-100" style={{ backgroundColor: "#f1f5f9" }}>
-                          <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: TYPE_DOT[type] }} />
-                          <span className="text-xs font-bold text-slate-600 uppercase tracking-wide flex-1">{type}</span>
-                          <span className="text-xs font-semibold text-slate-400 uppercase" style={{ width: 100, textAlign: "right" }}>Committed</span>
-                          <span className="text-xs font-semibold text-slate-400 uppercase" style={{ width: 100, textAlign: "right" }}>Change</span>
-                          <span className="text-xs font-semibold text-slate-400 uppercase" style={{ width: 100, textAlign: "right" }}>Requested</span>
-                          <span style={{ width: 28 }} />
+                      <div key={type} className={gi > 0 ? "border-t-2 border-slate-200" : ""}>
+
+                        {/* Type section header */}
+                        <div
+                          className="flex items-center gap-2 px-4 py-2"
+                          style={{ backgroundColor: colors.bg, borderBottom: `1px solid ${colors.border}` }}
+                        >
+                          <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: colors.dot }} />
+                          <span className="text-xs font-bold uppercase tracking-wider" style={{ color: colors.text }}>{type}</span>
                         </div>
 
+                        {/* Rows */}
                         {typeEntries.map((entry) => {
                           const isTravel   = entry.type === "Travel";
                           const isResource = entry.type === "Contracting" || entry.type === "Outsourcing";
+                          const noteText   = buildCRNote(entry, project.number, getTF(entry.rowId), getRF(entry.rowId));
 
                           return (
                             <React.Fragment key={entry.rowId}>
-                              {/* Data row — non-labor rows always show forms below; no toggle */}
+                              {/* Main data row */}
                               <div
-                                className="px-4 py-2.5 flex items-center gap-2 border-b border-slate-100"
-                                style={{ backgroundColor: (isTravel || isResource) ? "#f8fafc" : undefined }}
+                                className="grid items-start px-4 py-3 gap-3 border-t border-slate-100"
+                                style={{ gridTemplateColumns: "1fr 130px 90px 90px 90px 220px" }}
                               >
-                                <div className="flex-1 min-w-0">
-                                  <p className="text-sm font-semibold text-slate-800 leading-snug truncate">{entry.displayName}</p>
-                                  <p className="text-xs text-slate-400">{entry.orgCode}</p>
+                                <div className="min-w-0">
+                                  <p className="text-sm font-medium text-slate-700 leading-tight truncate">{entry.displayName}</p>
                                 </div>
-                                <span className="tabular-nums text-sm text-slate-600" style={{ width: 100, textAlign: "right" }}>
+                                <span className="text-xs text-slate-400 font-mono pt-0.5 truncate">{entry.orgCode}</span>
+                                <span className="text-sm tabular-nums text-slate-500 text-right pt-0.5">
                                   {entry.committed > 0 ? fmt(entry.committed) : "—"}
                                 </span>
-                                <span className="tabular-nums text-sm font-semibold" style={{ width: 100, textAlign: "right", color: entry.change > 0 ? "#15803d" : entry.change < 0 ? "#b91c1c" : "#94a3b8" }}>
+                                <span
+                                  className="text-sm tabular-nums font-semibold text-right pt-0.5"
+                                  style={{ color: entry.change > 0 ? "#15803d" : entry.change < 0 ? "#b91c1c" : "#94a3b8" }}
+                                >
                                   {entry.change === 0 ? "—" : `${entry.change > 0 ? "+" : ""}${fmt(entry.change)}`}
                                 </span>
-                                <span className="tabular-nums text-sm font-bold text-slate-800" style={{ width: 100, textAlign: "right" }}>
+                                <span className="text-sm tabular-nums font-bold text-slate-800 text-right pt-0.5">
                                   {entry.requested > 0 ? fmt(entry.requested) : "—"}
                                 </span>
-                                <span style={{ width: 28 }} />
+                                <div className="pl-2">
+                                  <CRNoteCell noteText={noteText} />
+                                </div>
                               </div>
 
-                              {/* Travel detail form — always visible, required */}
+                              {/* Travel detail form */}
                               {isTravel && (
-                                <div className="px-6 py-4 border-b border-slate-100 bg-slate-50" onClick={(e) => e.stopPropagation()}>
-                                  <div className="grid grid-cols-2 gap-3 mb-3">
-                                    {(["poc","travelers","dates"] as const).map((key) => {
-                                      const meta = { poc: { label: "POC", ph: "Point of contact name" }, travelers: { label: "Travelers", ph: "Names / number of travelers" }, dates: { label: "Dates of Travel", ph: "e.g. 15–18 Jul 2026" } }[key];
+                                <div className="px-6 py-4 border-t border-slate-100 bg-slate-50" onClick={(e) => e.stopPropagation()}>
+                                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Travel Details</p>
+                                  <div className="grid grid-cols-3 gap-3 mb-3">
+                                    {(["poc", "travelers", "dates"] as const).map((key) => {
+                                      const meta = {
+                                        poc:       { label: "POC",             ph: "Point of contact name" },
+                                        travelers: { label: "Travelers",       ph: "Names / number of travelers" },
+                                        dates:     { label: "Dates of Travel", ph: "e.g. 15–18 Jul 2026" },
+                                      }[key];
                                       return (
                                         <div key={key}>
                                           <label className={labelCls}>{meta.label}</label>
-                                          <input className={fieldCls} placeholder={meta.ph}
+                                          <input
+                                            className={fieldCls}
+                                            placeholder={meta.ph}
                                             value={getTF(entry.rowId)[key]}
                                             onChange={(e) => setTravelForms((f) => ({ ...f, [entry.rowId]: { ...getTF(entry.rowId), [key]: e.target.value } }))}
                                           />
@@ -1451,7 +1537,10 @@ function CreateRequestModal({
                                   </div>
                                   <div className="mb-3">
                                     <label className={labelCls}>Purpose of Travel</label>
-                                    <textarea rows={2} className={fieldCls} placeholder="Brief purpose statement"
+                                    <textarea
+                                      rows={2}
+                                      className={fieldCls}
+                                      placeholder="Brief purpose statement"
                                       value={getTF(entry.rowId).purpose}
                                       onChange={(e) => setTravelForms((f) => ({ ...f, [entry.rowId]: { ...getTF(entry.rowId), purpose: e.target.value } }))}
                                     />
@@ -1462,11 +1551,11 @@ function CreateRequestModal({
                                 </div>
                               )}
 
-                              {/* Contract / Outsourcing detail form — always visible, required */}
+                              {/* Contracting / Outsourcing detail form */}
                               {isResource && (
-                                <div className="px-6 py-4 border-b border-slate-100 bg-slate-50" onClick={(e) => e.stopPropagation()}>
+                                <div className="px-6 py-4 border-t border-slate-100 bg-slate-50" onClick={(e) => e.stopPropagation()}>
+                                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Contract Details</p>
                                   <div className="grid grid-cols-2 gap-3 mb-3">
-                                    {/* POP — date range picker */}
                                     <div>
                                       <label className={labelCls}>Period of Performance (POP)</label>
                                       <PopDateRangePicker
@@ -1477,10 +1566,11 @@ function CreateRequestModal({
                                         }}
                                       />
                                     </div>
-                                    {/* POC — plain text */}
                                     <div>
                                       <label className={labelCls}>POC</label>
-                                      <input className={fieldCls} placeholder="Point of contact name"
+                                      <input
+                                        className={fieldCls}
+                                        placeholder="Point of contact name"
                                         value={getRF(entry.rowId).poc}
                                         onChange={(e) => setResourceForms((f) => ({ ...f, [entry.rowId]: { ...getRF(entry.rowId), poc: e.target.value } }))}
                                       />
@@ -1488,7 +1578,10 @@ function CreateRequestModal({
                                   </div>
                                   <div className="mb-3">
                                     <label className={labelCls}>Purpose</label>
-                                    <textarea rows={2} className={fieldCls} placeholder="Brief purpose statement"
+                                    <textarea
+                                      rows={2}
+                                      className={fieldCls}
+                                      placeholder="Brief purpose statement"
                                       value={getRF(entry.rowId).purpose}
                                       onChange={(e) => setResourceForms((f) => ({ ...f, [entry.rowId]: { ...getRF(entry.rowId), purpose: e.target.value } }))}
                                     />
@@ -1504,10 +1597,28 @@ function CreateRequestModal({
                       </div>
                     );
                   })}
-                </div>
-              );
-            })}
-          </div>
+
+                {/* Net change footer */}
+                {(() => {
+                  const netChg = entries.reduce((sum, e) => sum + e.change, 0);
+                  return (
+                    <div
+                      className="grid items-center px-4 py-2.5 bg-slate-50 border-t-2 border-slate-200"
+                      style={{ gridTemplateColumns: "1fr 130px 90px 90px 90px 220px" }}
+                    >
+                      <span className="col-span-4 text-[11px] font-semibold text-slate-400 uppercase tracking-wider text-right">
+                        Net Change
+                      </span>
+                      <span className={`text-sm font-bold tabular-nums text-right ${netChg > 0 ? "text-emerald-700" : netChg < 0 ? "text-red-600" : "text-slate-500"}`}>
+                        {netChg === 0 ? "$0" : `${netChg > 0 ? "+" : ""}${fmt(netChg)}`}
+                      </span>
+                      <span />
+                    </div>
+                  );
+                })()}
+              </div>
+            </div>
+
           </div>
         </div>
 
