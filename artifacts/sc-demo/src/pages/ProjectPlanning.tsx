@@ -611,9 +611,10 @@ function ColHeaders({ nameHeader }: { nameHeader: string }) {
 
 /* ─── single data row (Labor / Travel) ─────────────────────────── */
 function PlanDataRow({
-  row, expanded, onToggle, onUpdateQ, onUpdateRequested, onDelete,
+  row, isEven, expanded, onToggle, onUpdateQ, onUpdateRequested, onDelete,
 }: {
   row: PlanRow;
+  isEven?: boolean;
   expanded: boolean;
   onToggle: () => void;
   onUpdateQ: (id: number, field: keyof QData, val: number) => void;
@@ -631,7 +632,7 @@ function PlanDataRow({
   return (
     <React.Fragment>
       <tr style={{ borderBottom: expanded ? "none" : "1px solid #f1f5f9" }}>
-        <td className="px-2 py-2 bg-white">
+        <td className="px-2 py-2" style={{ backgroundColor: isEven ? "#f8fafc" : "#ffffff" }}>
           <div className="flex items-center gap-1.5">
             <button
               onClick={onToggle}
@@ -688,7 +689,7 @@ function PlanDataRow({
             </span>
           </div>
         </td>
-        <td style={{ padding: 0, textAlign: "center", verticalAlign: "middle", borderLeft: "1px solid #e2e8f0", backgroundColor: "#f8fafc" }}>
+        <td style={{ padding: 0, textAlign: "center", verticalAlign: "middle", borderLeft: "1px solid #e2e8f0", backgroundColor: isEven ? "#f1f5f9" : "#f8fafc" }}>
           {canDelete ? (
             <button
               onClick={() => onDelete(row.id)}
@@ -726,12 +727,13 @@ function PlanDataRow({
 
 /* ─── contract / outsourcing data row ──────────────────────────── */
 function ResourceDataRow<T extends QData & { id: number; org: string; orgCode: string; openCommitment: number; requested: number }>({
-  row, line2, subCode, expanded, onToggle, onUpdateQ, onUpdateRequested, onDelete,
+  row, line2, subCode, isEven, expanded, onToggle, onUpdateQ, onUpdateRequested, onDelete,
   orgOptions, codeOptions, currentCode, onUpdateOrg, onUpdateCode,
 }: {
   row: T;
   line2: string;
   subCode?: string;
+  isEven?: boolean;
   expanded: boolean;
   onToggle: () => void;
   onUpdateQ: (id: number, field: keyof QData, val: number) => void;
@@ -753,7 +755,7 @@ function ResourceDataRow<T extends QData & { id: number; org: string; orgCode: s
   return (
     <React.Fragment>
       <tr style={{ borderBottom: expanded ? "none" : "1px solid #f1f5f9" }}>
-        <td className="px-2 py-2 bg-white">
+        <td className="px-2 py-2" style={{ backgroundColor: isEven ? "#f8fafc" : "#ffffff" }}>
           <div className="flex items-center gap-1.5">
             <button
               onClick={onToggle}
@@ -808,7 +810,7 @@ function ResourceDataRow<T extends QData & { id: number; org: string; orgCode: s
             </span>
           </div>
         </td>
-        <td style={{ padding: 0, textAlign: "center", verticalAlign: "middle", borderLeft: "1px solid #e2e8f0", backgroundColor: "#f8fafc" }}>
+        <td style={{ padding: 0, textAlign: "center", verticalAlign: "middle", borderLeft: "1px solid #e2e8f0", backgroundColor: isEven ? "#f1f5f9" : "#f8fafc" }}>
           {canDelete ? (
             <button onClick={() => onDelete(row.id)} title="Remove row"
               className="rounded transition-colors text-slate-300 hover:text-red-400 hover:bg-red-50"
@@ -1990,9 +1992,9 @@ export default function ProjectPlanning() {
                   <ColHeaders nameHeader="Employee / Org Code" />
                 </thead>
                 <tbody>
-                  {laborRows.map((row) => (
+                  {laborRows.map((row, i) => (
                     <PlanDataRow
-                      key={row.id} row={row}
+                      key={row.id} row={row} isEven={i % 2 === 1}
                       expanded={expandedLabor.has(row.id)}
                       onToggle={() => setExpandedLabor((s) => toggleSet(s, row.id))}
                       onUpdateQ={(id, f, v) => updatePlanQ(setLaborRows, id, f, v)}
@@ -2033,9 +2035,9 @@ export default function ProjectPlanning() {
               <>
                 <thead><ColHeaders nameHeader="Organization" /></thead>
                 <tbody>
-                  {travelRows.map((row) => (
+                  {travelRows.map((row, i) => (
                     <PlanDataRow
-                      key={row.id} row={row}
+                      key={row.id} row={row} isEven={i % 2 === 1}
                       expanded={expandedTravel.has(row.id)}
                       onToggle={() => setExpandedTravel((s) => toggleSet(s, row.id))}
                       onUpdateQ={(id, f, v) => updatePlanQ(setTravelRows, id, f, v)}
@@ -2075,9 +2077,9 @@ export default function ProjectPlanning() {
               <>
                 <thead><ColHeaders nameHeader="Resource Code" /></thead>
                 <tbody>
-                  {contractRows.map((row) => (
+                  {contractRows.map((row, i) => (
                     <ResourceDataRow
-                      key={row.id} row={row}
+                      key={row.id} row={row} isEven={i % 2 === 1}
                       line2={row.contractName}
                       subCode={row.contractCode}
                       expanded={expandedContract.has(row.id)}
@@ -2124,9 +2126,9 @@ export default function ProjectPlanning() {
               <>
                 <thead><ColHeaders nameHeader="Resource Code" /></thead>
                 <tbody>
-                  {outsourcingRows.map((row) => (
+                  {outsourcingRows.map((row, i) => (
                     <ResourceDataRow
-                      key={row.id} row={row}
+                      key={row.id} row={row} isEven={i % 2 === 1}
                       line2={row.resourceName}
                       subCode={row.resourceCode}
                       expanded={expandedOutsourcing.has(row.id)}
