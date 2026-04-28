@@ -335,8 +335,7 @@ function ScheduleTab({ startDate, endDate }: { startDate: string; endDate: strin
           <tbody className="divide-y divide-slate-100">
             {milestones.map((m, i) => (
               <tr key={i}
-                className={m.status === "in-progress" ? "bg-blue-50/60" : "hover:bg-slate-100"}
-                style={m.status !== "in-progress" ? { backgroundColor: i % 2 === 1 ? "#edf2f8" : "#ffffff" } : undefined}
+                style={{ backgroundColor: m.status === "in-progress" ? "#dbeafe99" : i % 2 === 1 ? "#edf2f8" : "#ffffff" }}
               >
                 <td className="px-6 py-2.5">
                   <div className="flex items-center gap-2.5">
