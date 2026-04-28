@@ -1540,8 +1540,14 @@ export default function ProjectPlanning() {
       <div className="min-h-screen" style={{ backgroundColor: "#f8fafc" }}>
         {/* project info bar — sticky so Create Request is always reachable while scrolling */}
         <div className="px-6 py-3 flex items-center gap-4 sticky z-20" style={{ backgroundColor: "#1a3557", top: 57 }}>
-          {/* LEFT: Create Request button + hint */}
-          <div className="flex flex-col items-start gap-1 flex-shrink-0">
+          {/* LEFT: project name */}
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-mono" style={{ color: "rgba(255,255,255,0.5)" }}>{project.number}</p>
+            <p className="font-bold text-white truncate">{project.name}</p>
+          </div>
+
+          {/* CENTER: Create Request button + hint */}
+          <div className="flex flex-col items-center gap-1 flex-shrink-0">
             <button
               disabled={!createEnabled}
               onClick={() => createEnabled && setShowCreateRequest(true)}
@@ -1556,7 +1562,7 @@ export default function ProjectPlanning() {
               Create Request
             </button>
             {!createEnabled && (
-              <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
+              <p className="text-xs text-center" style={{ color: "rgba(255,255,255,0.4)" }}>
                 {leftToPlan < 0
                   ? `Over budget by ${fmt(Math.abs(leftToPlan))} — reduce planned to enable Create Request`
                   : `Plan ${fmt(leftToPlan)} more to enable Create Request`}
@@ -1564,14 +1570,8 @@ export default function ProjectPlanning() {
             )}
           </div>
 
-          {/* CENTER: project name */}
-          <div className="flex-1 min-w-0 text-center">
-            <p className="text-xs font-mono" style={{ color: "rgba(255,255,255,0.5)" }}>{project.number}</p>
-            <p className="font-bold text-white truncate">{project.name}</p>
-          </div>
-
           {/* RIGHT: POP + status badge */}
-          <div className="flex items-center gap-3 flex-shrink-0">
+          <div className="flex items-center gap-3 flex-shrink-0 flex-1 justify-end">
             <div className="text-right">
               <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "rgba(255,255,255,0.5)" }}>Project POP</p>
               <p className="font-semibold text-sm text-white">{PLAN_WINDOW_LABEL}</p>
