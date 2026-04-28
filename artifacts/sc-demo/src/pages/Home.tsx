@@ -53,8 +53,18 @@ export default function Home() {
           <Link href="/change-requests" className="group">
             <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-primary/30 transition-all cursor-pointer h-full flex flex-col justify-between" data-testid="action-process-funding">
               <div>
-                <div className="w-12 h-12 rounded-lg bg-indigo-50 flex items-center justify-center mb-4 group-hover:bg-indigo-100 transition-colors">
-                  <FileSpreadsheet className="text-indigo-600" size={24} />
+                <div className="relative w-12 h-12 mb-4">
+                  <div className="w-12 h-12 rounded-lg bg-indigo-50 flex items-center justify-center group-hover:bg-indigo-100 transition-colors">
+                    <FileSpreadsheet className="text-indigo-600" size={24} />
+                  </div>
+                  {pendingRequestCount > 0 && (
+                    <span
+                      className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-indigo-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center"
+                      title={`${pendingRequestCount} request${pendingRequestCount !== 1 ? "s" : ""} pending review`}
+                    >
+                      {pendingRequestCount}
+                    </span>
+                  )}
                 </div>
                 <h3 className="text-lg font-semibold text-slate-900">Process Funding Request</h3>
                 <p className="text-sm text-slate-500 mt-2">Review, approve, or reject pending change requests and budget reallocations.</p>
