@@ -1,8 +1,11 @@
 import React, { useState, useRef } from "react";
 import { Link, useParams } from "wouter";
-import { ChevronRight, ChevronDown, Settings, Plus, Trash2, X, MinusCircle } from "lucide-react";
+import { ChevronRight, ChevronDown, Settings, Plus, Trash2, X, MinusCircle, CalendarRange } from "lucide-react";
 import { MOCK_PROJECTS, Project } from "@/lib/mockData";
 import Layout from "@/components/Layout";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { format } from "date-fns";
 
 /* ─── helpers ─────────────────────────────────────────────────── */
 const fmt = (n: number) =>
@@ -1167,6 +1170,56 @@ function Flex4Breakdown({ requested, orgCode }: { requested: number; orgCode: st
   );
 }
 
+/* ─── POP date-range picker ─────────────────────────────────── */
+type DateRangeVal = { from?: Date; to?: Date };
+
+const FIELD_CLS = "w-full border border-slate-200 rounded px-2.5 py-1.5 text-sm text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-300";
+
+function formatDateRange(r: DateRangeVal): string {
+  if (!r.from) return "";
+  const start = format(r.from, "dd MMM yyyy");
+  const end   = r.to ? format(r.to, "dd MMM yyyy") : "…";
+  return `${start} – ${end}`;
+}
+
+function PopDateRangePicker({
+  value, onChange,
+}: {
+  value: DateRangeVal;
+  onChange: (range: DateRangeVal, formatted: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const display = formatDateRange(value);
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          className={`${FIELD_CLS} flex items-center gap-2 text-left cursor-pointer`}
+          style={!display ? { color: "#94a3b8" } : {}}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <CalendarRange size={13} className="flex-shrink-0 text-slate-400" />
+          <span className="truncate">{display || "e.g. 01 Oct 2026 – 30 Sep 2027"}</span>
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0" align="start" style={{ zIndex: 9999 }} onClick={(e) => e.stopPropagation()}>
+        <Calendar
+          mode="range"
+          selected={value as { from: Date; to?: Date }}
+          onSelect={(range) => {
+            const r: DateRangeVal = range ?? {};
+            onChange(r, formatDateRange(r));
+            if (r.from && r.to) setOpen(false);
+          }}
+          numberOfMonths={2}
+          captionLayout="dropdown"
+        />
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 function CreateRequestModal({
   project, laborRows, travelRows, contractRows, outsourcingRows, totalPlanned, onClose,
 }: {
@@ -1180,6 +1233,7 @@ function CreateRequestModal({
 }) {
   const [travelForms,   setTravelForms]   = useState<Record<number, TravelForm>>({});
   const [resourceForms, setResourceForms] = useState<Record<number, ResourceForm>>({});
+  const [popRanges,     setPopRanges]     = useState<Record<number, DateRangeVal>>({});
 
   const getTF = (id: number): TravelForm   => travelForms[id]  ?? { poc: "", travelers: "", dates: "", purpose: "" };
   const getRF = (id: number): ResourceForm => resourceForms[id] ?? { pop: "", poc: "", purpose: "" };
@@ -1412,18 +1466,25 @@ function CreateRequestModal({
                               {isResource && (
                                 <div className="px-6 py-4 border-b border-slate-100 bg-slate-50" onClick={(e) => e.stopPropagation()}>
                                   <div className="grid grid-cols-2 gap-3 mb-3">
-                                    {(["pop","poc"] as const).map((key) => {
-                                      const meta = { pop: { label: "Period of Performance (POP)", ph: "e.g. 01 Oct 2026 – 30 Sep 2027" }, poc: { label: "POC", ph: "Point of contact name" } }[key];
-                                      return (
-                                        <div key={key}>
-                                          <label className={labelCls}>{meta.label}</label>
-                                          <input className={fieldCls} placeholder={meta.ph}
-                                            value={getRF(entry.rowId)[key]}
-                                            onChange={(e) => setResourceForms((f) => ({ ...f, [entry.rowId]: { ...getRF(entry.rowId), [key]: e.target.value } }))}
-                                          />
-                                        </div>
-                                      );
-                                    })}
+                                    {/* POP — date range picker */}
+                                    <div>
+                                      <label className={labelCls}>Period of Performance (POP)</label>
+                                      <PopDateRangePicker
+                                        value={popRanges[entry.rowId] ?? {}}
+                                        onChange={(range, formatted) => {
+                                          setPopRanges((r) => ({ ...r, [entry.rowId]: range }));
+                                          setResourceForms((f) => ({ ...f, [entry.rowId]: { ...getRF(entry.rowId), pop: formatted } }));
+                                        }}
+                                      />
+                                    </div>
+                                    {/* POC — plain text */}
+                                    <div>
+                                      <label className={labelCls}>POC</label>
+                                      <input className={fieldCls} placeholder="Point of contact name"
+                                        value={getRF(entry.rowId).poc}
+                                        onChange={(e) => setResourceForms((f) => ({ ...f, [entry.rowId]: { ...getRF(entry.rowId), poc: e.target.value } }))}
+                                      />
+                                    </div>
                                   </div>
                                   <div className="mb-3">
                                     <label className={labelCls}>Purpose</label>
