@@ -1685,10 +1685,11 @@ export default function ProjectPlanning() {
   const { id } = useParams<{ id: string }>();
   const project = MOCK_PROJECTS.find((p) => p.id === id) ?? MOCK_PROJECTS[0];
 
-  const [laborRows,      setLaborRows]      = useState<PlanRow[]>(INITIAL_LABOR);
-  const [travelRows,     setTravelRows]     = useState<PlanRow[]>(INITIAL_TRAVEL);
-  const [contractRows,   setContractRows]   = useState<ContractRow[]>(INITIAL_CONTRACT);
-  const [outsourcingRows, setOutsourcingRows] = useState<OutsourcingRow[]>(INITIAL_OUTSOURCING);
+  const isBlankProject = id === "7";
+  const [laborRows,      setLaborRows]      = useState<PlanRow[]>(() => isBlankProject ? [] : INITIAL_LABOR);
+  const [travelRows,     setTravelRows]     = useState<PlanRow[]>(() => isBlankProject ? [] : INITIAL_TRAVEL);
+  const [contractRows,   setContractRows]   = useState<ContractRow[]>(() => isBlankProject ? [] : INITIAL_CONTRACT);
+  const [outsourcingRows, setOutsourcingRows] = useState<OutsourcingRow[]>(() => isBlankProject ? [] : INITIAL_OUTSOURCING);
 
   const [expandedLabor,      setExpandedLabor]      = useState<Set<number>>(new Set());
   const [expandedTravel,     setExpandedTravel]     = useState<Set<number>>(new Set());
