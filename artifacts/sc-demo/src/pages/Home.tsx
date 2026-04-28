@@ -3,19 +3,12 @@ import { PlusCircle, FileSpreadsheet, FolderEdit, ArrowRight, AlertTriangle } fr
 import Layout from "@/components/Layout";
 import { PENDING_SETUP_PROJECTS, MOCK_PROJECTS, MOCK_CHANGE_REQUESTS } from "@/lib/mockData";
 
-const fmt = (v: number) =>
-  v >= 1_000_000 ? `$${(v / 1_000_000).toFixed(1)}M` : `$${(v / 1_000).toFixed(0)}K`;
-
 export default function Home() {
-  const activeProjectCount = MOCK_PROJECTS.filter((p) => p.status === "Active").length;
-  const totalProjectCount  = MOCK_PROJECTS.length;
+  const activeProjectCount  = MOCK_PROJECTS.filter((p) => p.status === "Active").length;
   const pendingRequestCount = MOCK_CHANGE_REQUESTS.filter((cr) =>
     ["Pending", "First Request", "Under Review"].includes(cr.status)
   ).length;
   const setupQueueCount = PENDING_SETUP_PROJECTS.length;
-  const portfolioValue = MOCK_PROJECTS
-    .filter((p) => p.status !== "Complete")
-    .reduce((sum, p) => sum + p.budget, 0);
 
   return (
     <Layout title="Dashboard">
@@ -85,16 +78,9 @@ export default function Home() {
                 </div>
                 <h3 className="text-lg font-semibold text-slate-900">Edit Budget Plan</h3>
                 <p className="text-sm text-slate-500 mt-2">Access existing projects to update labor, travel, and material allocations.</p>
-                <div className="mt-4 flex items-baseline gap-3">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-2xl font-bold text-slate-800">{activeProjectCount}</span>
-                    <span className="text-sm text-slate-500">active</span>
-                  </div>
-                  <span className="text-slate-300">·</span>
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-lg font-semibold text-slate-400">{fmt(portfolioValue)}</span>
-                    <span className="text-sm text-slate-400">portfolio</span>
-                  </div>
+                <div className="mt-4 flex items-center gap-2">
+                  <span className="text-2xl font-bold text-slate-800">{activeProjectCount}</span>
+                  <span className="text-sm text-slate-500">active project{activeProjectCount !== 1 ? "s" : ""}</span>
                 </div>
               </div>
               <div className="flex items-center text-primary text-sm font-medium mt-6 group-hover:translate-x-1 transition-transform">
