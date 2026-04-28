@@ -1,15 +1,86 @@
 import { Link } from "wouter";
-import { PlusCircle, FileSpreadsheet, FolderEdit, ArrowRight, AlertTriangle } from "lucide-react";
+import { PlusCircle, FileSpreadsheet, FolderEdit, ArrowRight, AlertTriangle, BarChart2, Clock, FolderPlus, Wallet } from "lucide-react";
 import Layout from "@/components/Layout";
-import { PENDING_SETUP_PROJECTS } from "@/lib/mockData";
+import { PENDING_SETUP_PROJECTS, MOCK_PROJECTS, MOCK_CHANGE_REQUESTS } from "@/lib/mockData";
+
+const fmt = (v: number) =>
+  v >= 1_000_000 ? `$${(v / 1_000_000).toFixed(1)}M` : `$${(v / 1_000).toFixed(0)}K`;
 
 export default function Home() {
+  const activeProjectCount = MOCK_PROJECTS.filter((p) => p.status === "Active").length;
+  const pendingRequestCount = MOCK_CHANGE_REQUESTS.filter((cr) =>
+    ["Pending", "First Request", "Under Review"].includes(cr.status)
+  ).length;
+  const setupQueueCount = PENDING_SETUP_PROJECTS.length;
+  const portfolioValue = MOCK_PROJECTS
+    .filter((p) => p.status !== "Complete")
+    .reduce((sum, p) => sum + p.budget, 0);
+
+  const stats = [
+    {
+      label: "Active Projects",
+      value: activeProjectCount,
+      icon: BarChart2,
+      accent: "#1a3557",
+      bg: "#f0f4f9",
+      border: "#c1cfe0",
+      href: "/projects",
+    },
+    {
+      label: "Requests Pending",
+      value: pendingRequestCount,
+      icon: Clock,
+      accent: "#92400e",
+      bg: "#fffbeb",
+      border: "#fcd34d",
+      href: "/change-requests",
+    },
+    {
+      label: "Awaiting Setup",
+      value: setupQueueCount,
+      icon: FolderPlus,
+      accent: "#92400e",
+      bg: "#fffbeb",
+      border: "#fcd34d",
+      href: "/setup",
+    },
+    {
+      label: "Portfolio Value",
+      value: fmt(portfolioValue),
+      icon: Wallet,
+      accent: "#1a6ea8",
+      bg: "#eff6ff",
+      border: "#bfdbfe",
+      href: "/projects",
+    },
+  ];
+
   return (
     <Layout title="Dashboard">
       <div className="max-w-4xl mx-auto space-y-8">
         <div>
           <h2 className="text-2xl font-bold tracking-tight text-slate-900">Welcome back, John.</h2>
           <p className="text-slate-500 mt-1">Here is your quick access panel for today.</p>
+        </div>
+
+        {/* Summary stats row */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {stats.map(({ label, value, icon: Icon, accent, bg, border, href }) => (
+            <Link key={label} href={href}>
+              <div
+                className="flex items-center gap-3 rounded-lg px-4 py-3.5 cursor-pointer transition-shadow hover:shadow-md"
+                style={{ backgroundColor: bg, border: `1px solid ${border}`, borderLeft: `3px solid ${accent}` }}
+              >
+                <Icon size={18} style={{ color: accent, flexShrink: 0 }} />
+                <div className="min-w-0">
+                  <p className="text-[10px] font-semibold uppercase tracking-widest leading-none mb-1.5" style={{ color: accent }}>
+                    {label}
+                  </p>
+                  <p className="text-2xl font-bold leading-none text-slate-900">{value}</p>
+                </div>
+              </div>
+            </Link>
+          ))}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
