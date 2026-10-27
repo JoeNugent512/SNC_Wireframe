@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>S&C Project Planning — 25A01</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f8fafc; }
+  .mono { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; }
+  table { border-collapse: collapse; table-layout: fixed; font-size: 13px; width: 100%; }
+  th, td { padding: 0; }
+  input[type=text] { outline: none; background: transparent; border: none; width: 100%; }
+  .editable:hover { text-decoration: underline dotted; cursor: pointer; }
+  .section-table colgroup col:first-child { width: 180px; }
+  .section-table colgroup col:nth-child(2),
+  .section-table colgroup col:nth-child(3),
+  .section-table colgroup col:nth-child(4),
+  .section-table colgroup col:nth-child(5) { width: 108px; }
+  .section-table colgroup col:nth-child(6) { width: 98px; }
+  .section-table colgroup col:nth-child(8) { width: 95px; }
+  .section-table colgroup col:nth-child(9) { width: 44px; }
+  @media print { body { background: white; } .no-print { display: none; } }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- nav -->
+<header class="bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between sticky top-0 z-10 shadow-sm">
+  <div class="flex items-center gap-3">
+    <div class="w-9 h-9 rounded-lg flex items-center justify-center text-white font-bold text-sm" style="background:#1a3557">S&C</div>
+    <div class="flex items-center gap-1.5 text-sm text-slate-500">
+      <span class="cursor-pointer hover:text-slate-700">Home</span>
+      <span class="text-slate-300">›</span>
+      <span class="cursor-pointer hover:text-slate-700">Project List</span>
+      <span class="text-slate-300">›</span>
+      <span class="font-semibold text-slate-800">25A01</span>
+    </div>
+  </div>
+  <div class="flex items-center gap-3 text-sm text-slate-600">
+    <span>⚙</span>
+    <span class="font-medium">John Smith</span>
+    <span class="text-slate-400">|</span>
+    <span class="text-slate-500">Project Manager</span>
+  </div>
+</header>
+
+<!-- page tabs -->
+<div class="bg-white border-b border-slate-200 px-6 flex gap-0 text-sm no-print">
+  <a href="#" class="px-4 py-3 font-semibold border-b-2 text-blue-700" style="border-color:#1a3557">Planning</a>
+  <a href="#" class="px-4 py-3 text-slate-500 hover:text-slate-700">Settings</a>
+  <a href="#" class="px-4 py-3 text-slate-500 hover:text-slate-700">Change Requests</a>
+</div>
+
+<main class="max-w-7xl mx-auto px-6 py-6 space-y-5">
+
+  <!-- summary cards -->
+  <div class="grid grid-cols-3 gap-4">
+    <div class="rounded-2xl px-6 py-5 shadow-md" style="background:#1a3557">
+      <p class="text-xs font-semibold uppercase tracking-widest mb-1" style="color:#93c5fd">TOA</p>
+      <p class="text-3xl font-bold text-white tabular-nums leading-none">$2,400,000</p>
+      <p class="text-xs mt-1" style="color:#93c5fd">Total Obligating Authority</p>
+    </div>
+    <div class="rounded-2xl px-6 py-5 shadow-sm border border-slate-200 bg-white" id="planned-card">
+      <p class="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-1">Planned</p>
+      <p class="text-3xl font-bold text-slate-900 tabular-nums leading-none" id="total-planned-display">$624,000</p>
+      <p class="text-xs text-slate-400 mt-1">Amount currently planned</p>
+    </div>
+    <div class="rounded-2xl px-6 py-5 shadow-sm border bg-amber-50 border-amber-300" id="left-card">
+      <p class="text-xs font-semibold uppercase tracking-widest mb-1 text-amber-600">Left to Plan</p>
+      <p class="text-3xl font-bold tabular-nums leading-none text-amber-700" id="left-display">$1,776,000</p>
+      <p class="text-xs mt-1 text-amber-500">Unallocated funds remaining</p>
+    </div>
+  </div>
+
+  <!-- LABOR -->
+  <div id="labor-section" class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+    <div class="flex items-center justify-between px-4 py-2.5" style="background:#1a3557">
+      <span class="font-bold text-white text-sm tracking-wide">Labor</span>
+      <button onclick="addLaborRow()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white no-print" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25)">+ Add Labor</button>
+    </div>
+    <table class="section-table">
+      <colgroup><col/><col/><col/><col/><col/><col/><col/><col/><col/></colgroup>
+      <thead>
+        <tr style="border-bottom:2px solid #cbd5e1;border-top:1px solid #e2e8f0">
+          <th class="px-3 py-3 text-left text-xs font-bold text-slate-600 uppercase tracking-wider align-bottom" style="background:#f1f5f9">Employee / Org Code</th>
+          <th class="px-3 py-3 text-right text-xs font-bold uppercase tracking-wide leading-snug align-bottom" style="background:#fef3c7;color:#78350f;border-left:1px solid #fcd34d">Total<br>Planned</th>
+          <th class="px-3 py-3 text-right text-xs font-bold uppercase tracking-wide leading-snug align-bottom" style="background:#fef3c7;color:#78350f;border-left:1px solid #e9a825">Total<br>Requested</th>
+          <th class="px-3 py-3 text-center text-xs font-semibold text-white uppercase tracking-wide leading-snug align-bottom" style="background:#1a6ea8;border-left:2px solid #475569">Total<br>Commitments</th>
+          <th class="px-3 py-3 text-center text-xs font-semibold text-white uppercase tracking-wide leading-snug align-bottom" style="background:#1a6ea8;border-left:1px solid #bfdbfe">Open<br>Commitments</th>
+          <th class="px-3 py-3 text-center text-xs font-semibold text-white uppercase tracking-wide leading-snug align-bottom" style="background:#1a6ea8;border-left:1px solid #bfdbfe">Obligated</th>
+          <th class="px-3 py-3 text-left text-xs font-bold text-slate-600 uppercase tracking-wider align-bottom" style="background:#f1f5f9;border-left:1px solid #e2e8f0">Description</th>
+          <th class="px-3 py-3 text-left text-xs font-bold uppercase tracking-wider align-bottom" style="background:#fef3c7;color:#78350f;border-left:1px solid #fcd34d">Notes</th>
+          <th class="py-3 bg-slate-100" style="border-left:1px solid #e2e8f0"></th>
+        </tr>
+      </thead>
+      <tbody id="labor-body"></tbody>
+      <tfoot id="labor-foot"></tfoot>
+    </table>
+  </div>
+
+  <!-- TRAVEL -->
+  <div id="travel-section" class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+    <div class="flex items-center justify-between px-4 py-2.5" style="background:#1a3557">
+      <span class="font-bold text-white text-sm tracking-wide">Travel</span>
+      <button onclick="addTravelRow()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white no-print" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25)">+ Add Travel</button>
+    </div>
+    <table class="section-table">
+      <colgroup><col/><col/><col/><col/><col/><col/><col/><col/><col/></colgroup>
+      <thead>
+        <tr style="border-bottom:2px solid #cbd5e1;border-top:1px solid #e2e8f0">
+          <th class="px-3 py-3 text-left text-xs font-bold text-slate-600 uppercase tracking-wider align-bottom" style="background:#f1f5f9">Organization</th>
+          <th class="px-3 py-3 text-right text-xs font-bold uppercase tracking-wide leading-snug align-bottom" style="background:#fef3c7;color:#78350f;border-left:1px solid #fcd34d">Total<br>Planned</th>
+          <th class="px-3 py-3 text-right text-xs font-bold uppercase tracking-wide leading-snug align-bottom" style="background:#fef3c7;color:#78350f;border-left:1px solid #e9a825">Total<br>Requested</th>
+          <th class="px-3 py-3 text-center text-xs font-semibold text-white uppercase tracking-wide leading-snug align-bottom" style="background:#1a6ea8;border-left:2px solid #475569">Total<br>Commitments</th>
+          <th class="px-3 py-3 text-center text-xs font-semibold text-white uppercase tracking-wide leading-snug align-bottom" style="background:#1a6ea8;border-left:1px solid #bfdbfe">Open<br>Commitments</th>
+          <th class="px-3 py-3 text-center text-xs font-semibold text-white uppercase tracking-wide leading-snug align-bottom" style="background:#1a6ea8;border-left:1px solid #bfdbfe">Obligated</th>
+          <th class="px-3 py-3 text-left text-xs font-bold text-slate-600 uppercase tracking-wider align-bottom" style="background:#f1f5f9;border-left:1px solid #e2e8f0">Description</th>
+          <th class="px-3 py-3 text-left text-xs font-bold uppercase tracking-wider align-bottom" style="background:#fef3c7;color:#78350f;border-left:1px solid #fcd34d">Notes</th>
+          <th class="py-3 bg-slate-100" style="border-left:1px solid #e2e8f0"></th>
+        </tr>
+      </thead>
+      <tbody id="travel-body"></tbody>
+      <tfoot id="travel-foot"></tfoot>
+    </table>
+  </div>
+
+  <!-- MATERIALS -->
+  <div id="mats-section" class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+    <div class="flex items-center justify-between px-4 py-2.5" style="background:#1a3557">
+      <span class="font-bold text-white text-sm tracking-wide">Materials &amp; Other</span>
+      <button onclick="addMatsRow()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white no-print" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25)">+ Add Item</button>
+    </div>
+    <table class="section-table">
+      <colgroup><col/><col/><col/><col/><col/><col/><col/><col/><col/></colgroup>
+      <thead>
+        <tr style="border-bottom:2px solid #cbd5e1;border-top:1px solid #e2e8f0">
+          <th class="px-3 py-3 text-left text-xs font-bold text-slate-600 uppercase tracking-wider align-bottom" style="background:#f1f5f9">Item</th>
+          <th class="px-3 py-3 text-right text-xs font-bold uppercase tracking-wide leading-snug align-bottom" style="background:#fef3c7;color:#78350f;border-left:1px solid #fcd34d">Total<br>Planned</th>
+          <th class="px-3 py-3 text-right text-xs font-bold uppercase tracking-wide leading-snug align-bottom" style="background:#fef3c7;color:#78350f;border-left:1px solid #e9a825">Total<br>Requested</th>
+          <th class="px-3 py-3 text-center text-xs font-semibold text-white uppercase tracking-wide leading-snug align-bottom" style="background:#1a6ea8;border-left:2px solid #475569">Total<br>Commitments</th>
+          <th class="px-3 py-3 text-center text-xs font-semibold text-white uppercase tracking-wide leading-snug align-bottom" style="background:#1a6ea8;border-left:1px solid #bfdbfe">Open<br>Commitments</th>
+          <th class="px-3 py-3 text-center text-xs font-semibold text-white uppercase tracking-wide leading-snug align-bottom" style="background:#1a6ea8;border-left:1px solid #bfdbfe">Obligated</th>
+          <th class="px-3 py-3 text-left text-xs font-bold text-slate-600 uppercase tracking-wider align-bottom" style="background:#f1f5f9;border-left:1px solid #e2e8f0">Description</th>
+          <th class="px-3 py-3 text-left text-xs font-bold uppercase tracking-wider align-bottom" style="background:#fef3c7;color:#78350f;border-left:1px solid #fcd34d">Notes</th>
+          <th class="py-3 bg-slate-100" style="border-left:1px solid #e2e8f0"></th>
+        </tr>
+      </thead>
+      <tbody id="mats-body"></tbody>
+      <tfoot id="mats-foot"></tfoot>
+    </table>
+  </div>
+
+  <!-- submit -->
+  <div class="flex flex-col items-center gap-1.5 pt-2 pb-4">
+    <button id="submit-btn" class="px-12 py-2.5 text-sm font-semibold rounded-lg shadow-sm" style="background:#e2e8f0;color:#94a3b8;cursor:not-allowed">Submit Plan</button>
+    <p id="submit-hint" class="text-xs text-slate-400">Allocate remaining funds before submitting</p>
+  </div>
+
+</main>
+
+<script>
+const TOA = 2400000;
+const fmt = (n) => new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(n);
+
+let uidCtr = 200;
+const uid = () => ++uidCtr;
+
+const laborData = [
+  { id:1, label:'Nugent, Joseph Pat', sub:'U435310', planned:216000, requested:10800, totalCommitments:10800, openCommitments:6480, obligated:4320, description:'FY25/SANDC LABOR FUNDS FOR 25A01/CEFMS/', notes:'notes' },
+  { id:2, label:'USACE Chicago District', sub:'U435310', planned:120000, requested:114000, totalCommitments:114000, openCommitments:60000, obligated:54000, description:'FY25/SANDC LABOR FUNDS FOR 25A01/U435310/', notes:'notes' },
+  { id:3, label:'Chen, David', sub:'U719203', planned:84000, requested:84000, totalCommitments:50400, openCommitments:25200, obligated:25200, description:'FY25/SANDC LABOR FUNDS FOR 25A01/Chen D/', notes:'' },
+];
+
+const travelData = [
+  { id:10, label:'CERL', sub:'U435310', planned:48000, requested:48000, totalCommitments:48000, openCommitments:28320, obligated:19680, description:'FY25/SANDC TRAVEL FOR 25A01/CERL/', notes:'' },
+  { id:11, label:'Vicksburg District', sub:'U834512', planned:31200, requested:31200, totalCommitments:31200, openCommitments:15600, obligated:0, description:'FY25/SANDC TRAVEL FOR 25A01/Vicksburg District/', notes:'' },
+];
+
+const matsData = [
+  { id:20, label:'Concrete (500 units)', sub:'', planned:74400, requested:74400, totalCommitments:74400, openCommitments:39432, obligated:34968, description:'FY25/SANDC MATL FOR 25A01/Concrete/500 units', notes:'' },
+  { id:21, label:'Steel Rebar (2000 ft)', sub:'', planned:50400, requested:49392, totalCommitments:49392, openCommitments:24696, obligated:0, description:'FY25/SANDC MATL FOR 25A01/Rebar/2000 units', notes:'' },
+];
+
+function rowTr(row, section) {
+  const hasObl = row.obligated > 0;
+  return `
+  <tr data-id="${row.id}" data-section="${section}" style="border-bottom:1px solid #fef9c3">
+    <td class="px-3 py-2" style="background:#f8fafc">
+      <p class="text-sm font-semibold text-slate-800 leading-snug">${row.label}</p>
+      ${row.sub ? `<p class="text-xs text-slate-400 leading-snug mt-0.5">${row.sub}</p>` : ''}
+    </td>
+    <td class="px-3 py-2.5" style="background:#fffbeb;border-left:1px solid #fcd34d">
+      <button class="w-full text-right text-sm text-slate-800 tabular-nums editable" onclick="editAmount(this,'${section}',${row.id},'planned')">${row.planned === 0 ? '—' : fmt(row.planned)}</button>
+    </td>
+    <td class="px-3 py-2.5" style="background:#fffbeb;border-left:1px solid #e9a825">
+      <button class="w-full text-right text-sm text-slate-800 tabular-nums editable" onclick="editAmount(this,'${section}',${row.id},'requested')">${row.requested === 0 ? '—' : fmt(row.requested)}</button>
+    </td>
+    <td class="px-3 py-2.5 text-right tabular-nums text-slate-800" style="background:#eff6ff;border-left:2px solid #64748b">${fmt(row.totalCommitments)}</td>
+    <td class="px-3 py-2.5 text-right tabular-nums text-slate-800" style="background:#eff6ff;border-left:1px solid #bfdbfe">${fmt(row.openCommitments)}</td>
+    <td class="px-3 py-2.5 text-right tabular-nums text-slate-800" style="background:#eff6ff;border-left:1px solid #bfdbfe">${fmt(row.obligated)}</td>
+    <td class="px-3 py-2.5 text-xs text-slate-500 mono" style="border-left:1px solid #e2e8f0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;max-width:0" title="${row.description}">${row.description}</td>
+    <td class="px-3 py-2.5" style="background:#fffbeb;border-left:1px solid #fcd34d">
+      <input type="text" value="${row.notes}" placeholder="notes" class="text-sm text-slate-700" style="background:transparent;border:none;outline:none;width:100%" onchange="updateNote('${section}',${row.id},this.value)" />
+    </td>
+    <td class="px-2 py-2.5 text-center bg-slate-50 no-print" style="border-left:1px solid #e2e8f0">
+      ${hasObl
+        ? `<button onclick="zeroRow('${section}',${row.id})" title="Zero out" style="color:#f59e0b;font-size:18px;line-height:1;background:none;border:none;cursor:pointer">⊖</button>`
+        : `<button onclick="deleteRow('${section}',${row.id})" title="Delete" style="color:#ef4444;font-size:16px;background:none;border:none;cursor:pointer">🗑</button>`
+      }
+    </td>
+  </tr>`;
+}
+
+function footTr(rows) {
+  const tp = rows.reduce((s,r)=>s+r.planned,0);
+  const tr2 = rows.reduce((s,r)=>s+r.requested,0);
+  const tc = rows.reduce((s,r)=>s+r.totalCommitments,0);
+  const to2 = rows.reduce((s,r)=>s+r.openCommitments,0);
+  const ob = rows.reduce((s,r)=>s+r.obligated,0);
+  return `<tr style="border-top:2px solid #94a3b8">
+    <td class="px-3 py-2.5 text-xs text-slate-500 uppercase tracking-wide font-bold" style="background:#f1f5f9">Total</td>
+    <td class="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-bold" style="background:#fef3c7;border-left:1px solid #fcd34d">${fmt(tp)}</td>
+    <td class="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-bold" style="background:#fef3c7;border-left:1px solid #e9a825">${fmt(tr2)}</td>
+    <td class="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-bold" style="background:#dbeafe;border-left:2px solid #64748b">${fmt(tc)}</td>
+    <td class="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-bold" style="background:#dbeafe;border-left:1px solid #bfdbfe">${fmt(to2)}</td>
+    <td class="px-3 py-2.5 text-right text-sm text-slate-800 tabular-nums font-bold" style="background:#dbeafe;border-left:1px solid #bfdbfe">${fmt(ob)}</td>
+    <td style="background:white;border-left:1px solid #e2e8f0"></td>
+    <td style="background:#fef3c7;border-left:1px solid #fcd34d"></td>
+    <td style="background:#f8fafc;border-left:1px solid #e2e8f0"></td>
+  </tr>`;
+}
+
+function render() {
+  document.getElementById('labor-body').innerHTML  = laborData.map(r=>rowTr(r,'labor')).join('');
+  document.getElementById('travel-body').innerHTML = travelData.map(r=>rowTr(r,'travel')).join('');
+  document.getElementById('mats-body').innerHTML   = matsData.map(r=>rowTr(r,'mats')).join('');
+  document.getElementById('labor-foot').innerHTML  = footTr(laborData);
+  document.getElementById('travel-foot').innerHTML = footTr(travelData);
+  document.getElementById('mats-foot').innerHTML   = footTr(matsData);
+
+  const allPlanned = [...laborData,...travelData,...matsData].reduce((s,r)=>s+r.planned,0);
+  const left = TOA - allPlanned;
+  document.getElementById('total-planned-display').textContent = fmt(allPlanned);
+  document.getElementById('left-display').textContent = fmt(Math.abs(left));
+
+  const leftCard = document.getElementById('left-card');
+  const leftLabel = leftCard.querySelector('p:first-child');
+  const leftAmt   = leftCard.querySelector('p:nth-child(2)');
+  const leftSub   = leftCard.querySelector('p:last-child');
+  if (left < 0) {
+    leftCard.style.background='#fef2f2'; leftCard.style.borderColor='#fecaca';
+    leftLabel.style.color='#ef4444'; leftAmt.style.color='#dc2626'; leftSub.style.color='#fca5a5';
+    leftLabel.textContent='Over Budget'; leftSub.textContent='Plan exceeds TOA';
+  } else if (left <= 50) {
+    leftCard.style.background='#f0fdf4'; leftCard.style.borderColor='#a7f3d0';
+    leftLabel.style.color='#059669'; leftAmt.style.color='#047857'; leftSub.style.color='#6ee7b7';
+    leftLabel.textContent='Left to Plan'; leftSub.textContent='Remaining to allocate';
+  } else {
+    leftCard.style.background='#fffbeb'; leftCard.style.borderColor='#fca34d';
+    leftLabel.style.color='#d97706'; leftAmt.style.color='#b45309'; leftSub.style.color='#fbbf24';
+    leftLabel.textContent='Left to Plan'; leftSub.textContent='Unallocated funds remaining';
+  }
+
+  const btn = document.getElementById('submit-btn');
+  const hint = document.getElementById('submit-hint');
+  if (left >= 0 && left <= 50) {
+    btn.style.background='#1a3557'; btn.style.color='#fff'; btn.style.cursor='pointer';
+    hint.textContent='';
+  } else {
+    btn.style.background='#e2e8f0'; btn.style.color='#94a3b8'; btn.style.cursor='not-allowed';
+    hint.textContent = left < 0 ? 'Plan exceeds budget — reduce amounts before submitting' : 'Allocate remaining funds before submitting';
+  }
+}
+
+function getData(section) {
+  return section==='labor' ? laborData : section==='travel' ? travelData : matsData;
+}
+
+function editAmount(btn, section, id, field) {
+  const data = getData(section);
+  const row = data.find(r=>r.id===id);
+  const td = btn.parentElement;
+  const cur = row[field];
+  const input = document.createElement('input');
+  input.type='text'; input.value=cur;
+  input.className='w-full text-right text-sm border border-amber-400 rounded px-1 tabular-nums';
+  input.style.background='white';
+  td.replaceChild(input, btn);
+  input.focus(); input.select();
+  const commit = () => { row[field]=parseInt(input.value.replace(/[^0-9]/g,''))||0; render(); };
+  input.addEventListener('blur', commit);
+  input.addEventListener('keydown', e=>{ if(e.key==='Enter') commit(); if(e.key==='Escape') render(); });
+}
+
+function updateNote(section, id, val) {
+  const row = getData(section).find(r=>r.id===id);
+  if (row) row.notes=val;
+}
+
+function deleteRow(section, id) {
+  const arr = getData(section);
+  const idx = arr.findIndex(r=>r.id===id);
+  if (idx>-1) { arr.splice(idx,1); render(); }
+}
+
+function zeroRow(section, id) {
+  const row = getData(section).find(r=>r.id===id);
+  if (row) { row.planned=0; row.requested=0; render(); }
+}
+
+function addLaborRow() {
+  const label = prompt('Employee name or org code:');
+  if (!label) return;
+  const sub = prompt('Org code (leave blank if label is the code):') || '';
+  laborData.push({ id:uid(), label, sub, planned:0, requested:0, totalCommitments:0, openCommitments:0, obligated:0, description:`FY25/SANDC LABOR FUNDS FOR 25A01/${label}/`, notes:'' });
+  render();
+}
+
+function addTravelRow() {
+  const label = prompt('Organization name:');
+  if (!label) return;
+  const sub = prompt('Org code:') || '';
+  travelData.push({ id:uid(), label, sub, planned:0, requested:0, totalCommitments:0, openCommitments:0, obligated:0, description:`FY25/SANDC TRAVEL FOR 25A01/${label}/`, notes:'' });
+  render();
+}
+
+function addMatsRow() {
+  const label = prompt('Item description:');
+  if (!label) return;
+  matsData.push({ id:uid(), label, sub:'', planned:0, requested:0, totalCommitments:0, openCommitments:0, obligated:0, description:`FY25/SANDC MATL FOR 25A01/${label}`, notes:'' });
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
