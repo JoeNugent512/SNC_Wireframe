@@ -1,14 +1,17 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Link, useParams } from "wouter";
 import { ChevronRight, ArrowLeft, FileText, DollarSign, CalendarDays, ExternalLink } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import Layout from "@/components/Layout";
+import { fundingCurrency, type ProjectFunding, type ProjectScheduleSeed } from "@/lib/projectFunding";
 import { MOCK_PROJECTS } from "@/lib/mockData";
+import { useUser } from "@/lib/userContext";
 import { Label } from "@/components/ui/label";
+import { CURRENT_FY, CURRENT_FY_NUMBER } from "@/lib/fiscalYear";
 
 type Tab = "charter" | "funding" | "schedule";
 
-const fmt = (n: number) =>
-  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
+const fmt = fundingCurrency;
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
@@ -56,18 +59,17 @@ function ContractSupportBadge({ value }: { value: "" | "Yes" | "No" | "N/A" }) {
 /* ── Fiscal-Year Funding Plan (Settings > Funding tab) ──────────── */
 
 
-function FyCell({ value, editable, onChange }: { value: number; editable?: boolean; onChange?: (v: number) => void }) {
+function FyCell({ value, onChange }: { value: number; onChange?: (v: number) => void }) {
   const [editing, setEditing] = useState(false);
   const [raw, setRaw] = useState("");
   const display = value === 0 ? "—" : fmt(value);
-  if (!editable) return <span className="tabular-nums">{display}</span>;
   if (editing) {
     return (
       <input autoFocus type="text" value={raw}
-        onChange={(e) => setRaw(e.target.value.replace(/[^0-9]/g, ""))}
-        onBlur={() => { onChange?.(parseInt(raw) || 0); setEditing(false); }}
+        onChange={(e) => setRaw(e.target.value.replace(/[^0-9.]/g, ""))}
+        onBlur={() => { onChange?.(parseFloat(raw) || 0); setEditing(false); }}
         onKeyDown={(e) => {
-          if (e.key === "Enter") { onChange?.(parseInt(raw) || 0); setEditing(false); }
+          if (e.key === "Enter") { onChange?.(parseFloat(raw) || 0); setEditing(false); }
           if (e.key === "Escape") setEditing(false);
         }}
         className="w-full text-right text-sm border border-amber-400 rounded px-1 py-0.5 focus:outline-none focus:ring-1 focus:ring-amber-300 tabular-nums bg-white"
@@ -76,23 +78,27 @@ function FyCell({ value, editable, onChange }: { value: number; editable?: boole
     );
   }
   return (
-    <button onClick={() => { setRaw(String(value)); setEditing(true); }}
+    <button disabled={!onChange} onClick={() => { setRaw(String(value)); setEditing(true); }}
       className="w-full text-right text-sm text-slate-800 tabular-nums hover:underline decoration-dotted underline-offset-2 focus:outline-none">
       {display}
     </button>
   );
 }
 
-function FundingTable({ budget, projectNumber }: { budget: number; projectNumber: string }) {
+function FundingTable({ budget, editable = true, funding }: { budget: number; editable?: boolean; funding?: ProjectFunding }) {
+  const { toast } = useToast();
   const b = budget;
-  const baseYear = parseInt(projectNumber.slice(0, 2), 10); // e.g. 25
-  const years = [baseYear - 2, baseYear - 1, baseYear].map((y) => `FY${String(y).padStart(2, "0")}`);
-  // e.g. ["FY23","FY24","FY25"]
+  const yearNumbers = funding?.years.map(fy => Number(fy.slice(2))) ?? Array.from({ length: 3 }, (_, i) => CURRENT_FY_NUMBER + i);
+  const years = yearNumbers.map((year) => `FY${String(year).padStart(2, "0")}`);
 
-  /* PLAN rows: [FY-2, FY-1, FY] — editable */
-  const [planLabor,   setPlanLabor]   = useState([Math.round(b * 0.10), Math.round(b * 0.30), Math.round(b * 0.27)]);
-  const [planTravel,  setPlanTravel]  = useState([Math.round(b * 0.00), Math.round(b * 0.02), Math.round(b * 0.01)]);
-  const [planOther,   setPlanOther]   = useState([Math.round(b * 0.00), Math.round(b * 0.10), Math.round(b * 0.20)]);
+  /* PLAN rows: current FY through the next two FYs — interactive, gated at Save */
+  const initLabor  = funding ? years.map(fy => funding.annual[fy]?.Labor.plan ?? 0) : [Math.round(b * 0.10), Math.round(b * 0.30), Math.round(b * 0.27)];
+  const initTravel = funding ? years.map(fy => funding.annual[fy]?.Travel.plan ?? 0) : [Math.round(b * 0.00), Math.round(b * 0.02), Math.round(b * 0.01)];
+  const initOther  = funding ? years.map(fy => funding.annual[fy]?.["Outsourcing & Other"].plan ?? 0) : [Math.round(b * 0.00), Math.round(b * 0.10), Math.round(b * 0.20)];
+  const initialRef = useRef({ labor: initLabor, travel: initTravel, other: initOther });
+  const [planLabor,   setPlanLabor]   = useState(initLabor);
+  const [planTravel,  setPlanTravel]  = useState(initTravel);
+  const [planOther,   setPlanOther]   = useState(initOther);
 
   const approvedBudget = budget;
 
@@ -100,19 +106,27 @@ function FundingTable({ budget, projectNumber }: { budget: number; projectNumber
   const totalPlanned = planTotals.reduce((s, v) => s + v, 0);
   const leftToPlan = approvedBudget - totalPlanned;
 
-  /* STATUS rows: Plan/Com/Obl for each category — read-only */
+  /* STATUS rows are read-only; future years retain plan amounts but show no accrued Com/Obl. */
+  const observedAmount = (value: number, index: number, rate: number) =>
+    yearNumbers[index] > CURRENT_FY_NUMBER ? 0 : Math.round(value * rate);
   const status = {
-    labor:  { plan: planLabor, com: planLabor.map((v) => Math.round(v * 0.95)), obl: planLabor.map((v) => Math.round(v * 0.80)) },
-    travel: { plan: planTravel, com: planTravel.map((v) => Math.round(v * 1.00)), obl: planTravel.map((v) => Math.round(v * 0.90)) },
-    other:  { plan: planOther, com: planOther.map((v, i) => i < years.length - 1 ? Math.round(v * 0.98) : Math.round(v * 0.60)), obl: planOther.map((v, i) => i < years.length - 1 ? Math.round(v * 0.95) : Math.round(v * 0.40)) },
+    labor:  { plan: planLabor, com: planLabor.map((v, i) => observedAmount(v, i, 0.95)), obl: planLabor.map((v, i) => observedAmount(v, i, 0.80)) },
+    travel: { plan: planTravel, com: planTravel.map((v, i) => observedAmount(v, i, 1.00)), obl: planTravel.map((v, i) => observedAmount(v, i, 0.90)) },
+    other:  { plan: planOther, com: planOther.map((v, i) => observedAmount(v, i, i < years.length - 1 ? 0.98 : 0.60)), obl: planOther.map((v, i) => observedAmount(v, i, i < years.length - 1 ? 0.95 : 0.40)) },
   };
+  if (funding) {
+    for (const [key, category] of [["labor", "Labor"], ["travel", "Travel"], ["other", "Outsourcing & Other"]] as const) {
+      status[key].com = years.map(fy => funding.annual[fy]?.[category].committed ?? 0);
+      status[key].obl = years.map(fy => funding.annual[fy]?.[category].obligated ?? 0);
+    }
+  }
   const totalStatus = {
     plan: years.map((_, i) => status.labor.plan[i] + status.travel.plan[i] + status.other.plan[i]),
     com:  years.map((_, i) => status.labor.com[i]  + status.travel.com[i]  + status.other.com[i]),
     obl:  years.map((_, i) => status.labor.obl[i]  + status.travel.obl[i]  + status.other.obl[i]),
   };
-  const atc  = years.map((_, i) => totalStatus.com[i] - totalStatus.obl[i]);
-  const auob = years.map((_, i) => totalStatus.plan[i] - totalStatus.com[i]);
+  const atc  = years.map((_, i) => funding ? totalStatus.plan[i] - totalStatus.com[i] - totalStatus.obl[i] : totalStatus.com[i] - totalStatus.obl[i]);
+  const auob = years.map((_, i) => funding ? totalStatus.plan[i] - totalStatus.com[i] - totalStatus.obl[i] : totalStatus.plan[i] - totalStatus.com[i]);
 
   const thBase = "px-4 py-2.5 text-xs font-semibold uppercase tracking-wide";
   const navyBg = { backgroundColor: "#1a3557" };
@@ -121,7 +135,7 @@ function FundingTable({ budget, projectNumber }: { budget: number; projectNumber
   const blueCellBg = "#eff6ff";
   const blueBd = "1px solid #bfdbfe";
 
-  const setVal = (arr: number[], setArr: (a: number[]) => void, i: number) => (v: number) => {
+  const setVal = (arr: number[], setArr: (a: number[]) => void, i: number) => funding && yearNumbers[i] < CURRENT_FY_NUMBER ? undefined : (v: number) => {
     const next = [...arr]; next[i] = v; setArr(next);
   };
 
@@ -142,8 +156,9 @@ function FundingTable({ budget, projectNumber }: { budget: number; projectNumber
               <tr style={{ borderBottom: "1px solid #e2e8f0" }}>
                 <th className={`${thBase} text-left text-slate-500 bg-slate-50`} style={{ minWidth: 120 }}>Category</th>
                 {years.map((fy) => (
-                  <th key={fy} className={`${thBase} text-right`} style={{ backgroundColor: amberBg, color: "#92400e", borderLeft: amberBd, width: 110 }}>
+                  <th key={fy} className={`${thBase} text-right`} style={{ backgroundColor: fy === CURRENT_FY ? "#fef3c7" : amberBg, color: "#92400e", borderLeft: amberBd, width: 110 }}>
                     {fy}
+                    {fy === CURRENT_FY && <span className="block text-[10px] font-medium normal-case">Current FY</span>}
                   </th>
                 ))}
                 <th className={`${thBase} text-right text-slate-600 bg-slate-100`} style={{ borderLeft: "1px solid #e2e8f0", width: 110 }}>Total</th>
@@ -157,7 +172,7 @@ function FundingTable({ budget, projectNumber }: { budget: number; projectNumber
                 <td className="px-4 py-2.5 text-slate-700 font-semibold" style={{ backgroundColor: "#ffffff" }}>Labor</td>
                 {planLabor.map((v, i) => (
                   <td key={i} className="px-3 py-2.5" style={{ backgroundColor: "#fffbeb", borderLeft: amberBd }}>
-                    <FyCell value={v} editable onChange={setVal(planLabor, setPlanLabor, i)} />
+                    <FyCell value={v} onChange={setVal(planLabor, setPlanLabor, i)} />
                   </td>
                 ))}
                 <td className="px-4 py-2.5 text-right font-semibold text-slate-700" style={{ backgroundColor: "#ffffff", borderLeft: "1px solid #e2e8f0" }}>{fmt(planLabor.reduce((s, v) => s + v, 0))}</td>
@@ -169,7 +184,7 @@ function FundingTable({ budget, projectNumber }: { budget: number; projectNumber
                 <td className="px-4 py-2.5 text-slate-700 font-semibold" style={{ backgroundColor: "#edf2f8" }}>Travel</td>
                 {planTravel.map((v, i) => (
                   <td key={i} className="px-3 py-2.5" style={{ backgroundColor: "#fef3c7", borderLeft: amberBd }}>
-                    <FyCell value={v} editable onChange={setVal(planTravel, setPlanTravel, i)} />
+                    <FyCell value={v} onChange={setVal(planTravel, setPlanTravel, i)} />
                   </td>
                 ))}
                 <td className="px-4 py-2.5 text-right font-semibold text-slate-700" style={{ backgroundColor: "#edf2f8", borderLeft: "1px solid #e2e8f0" }}>{fmt(planTravel.reduce((s, v) => s + v, 0))}</td>
@@ -180,7 +195,7 @@ function FundingTable({ budget, projectNumber }: { budget: number; projectNumber
                 <td className="px-4 py-2.5 text-slate-700 font-semibold" style={{ backgroundColor: "#ffffff" }}>OutSource / Other</td>
                 {planOther.map((v, i) => (
                   <td key={i} className="px-3 py-2.5" style={{ backgroundColor: "#fffbeb", borderLeft: amberBd }}>
-                    <FyCell value={v} editable onChange={setVal(planOther, setPlanOther, i)} />
+                    <FyCell value={v} onChange={setVal(planOther, setPlanOther, i)} />
                   </td>
                 ))}
                 <td className="px-4 py-2.5 text-right font-semibold text-slate-700" style={{ backgroundColor: "#ffffff", borderLeft: "1px solid #e2e8f0" }}>{fmt(planOther.reduce((s, v) => s + v, 0))}</td>
@@ -200,11 +215,35 @@ function FundingTable({ budget, projectNumber }: { budget: number; projectNumber
         </div>
       </div>
 
+      {/* ── Save Changes ──────────────────────────────────────────── */}
+      <div className="flex justify-end">
+        <button
+          onClick={() => {
+            if (!editable) {
+              toast({ title: "You do not have edit access to this project.", variant: "destructive" });
+              setPlanLabor([...initialRef.current.labor]);
+              setPlanTravel([...initialRef.current.travel]);
+              setPlanOther([...initialRef.current.other]);
+              return;
+            }
+            toast({ title: "Funding plan saved." });
+          }}
+          title={!editable ? "Read-only for your role" : "Save funding plan changes"}
+          className={`flex items-center gap-2 font-medium py-2 px-6 rounded-lg shadow-sm transition-colors text-sm ${
+            editable
+              ? "bg-[#1a3557] hover:bg-[#1a6ea8] text-white"
+              : "bg-slate-300 text-slate-400 cursor-not-allowed"
+          }`}
+        >
+          Save Changes
+        </button>
+      </div>
+
       {/* ── PROJECT FUNDING STATUS ──────────────────────────────── */}
       <div className="rounded-xl overflow-hidden border border-slate-200 shadow-sm">
         <div className="px-5 py-3 flex items-center justify-between" style={navyBg}>
           <span className="text-white font-bold tracking-wide text-sm">Project Funding Status</span>
-          <span className="text-xs text-blue-300">Import Macro last run: 14 Nov 2025 · It's now {new Date().toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}</span>
+          <span className="text-xs text-blue-300">Import Macro last run: 14 Nov 2025 · It's now {new Date().toLocaleDateString("en-US",{timeZone:"UTC",month:"short",day:"numeric",year:"numeric"})}</span>
         </div>
 
         <div className="overflow-x-auto">
@@ -214,7 +253,10 @@ function FundingTable({ budget, projectNumber }: { budget: number; projectNumber
                 <th className={`${thBase} text-left text-slate-500 bg-slate-50`} style={{ minWidth: 100 }}>Category</th>
                 <th className={`${thBase} text-left text-slate-500 bg-slate-50`} style={{ width: 50, borderLeft: "1px solid #e2e8f0" }}></th>
                 {years.map((fy) => (
-                  <th key={fy} className={`${thBase} text-right text-white`} style={{ backgroundColor: "#1a6ea8", borderLeft: blueBd, width: 120 }}>{fy}</th>
+                  <th key={fy} className={`${thBase} text-right text-white`} style={{ backgroundColor: "#1a6ea8", borderLeft: blueBd, width: 120 }}>
+                    {fy}
+                    {fy === CURRENT_FY && <span className="block text-[10px] font-medium normal-case text-blue-100">Current FY</span>}
+                  </th>
                 ))}
                 <th className={`${thBase} text-right text-white`} style={{ backgroundColor: "#1a3557", borderLeft: "1px solid #1e4a7a", width: 110 }}>Totals</th>
               </tr>
@@ -281,8 +323,11 @@ function FundingTable({ budget, projectNumber }: { budget: number; projectNumber
   );
 }
 
-function ScheduleTab({ startDate, endDate }: { startDate: string; endDate: string }) {
-  const milestones = [
+function ScheduleTab({ startDate, endDate, schedule }: { startDate: string; endDate: string; schedule?: ProjectScheduleSeed }) {
+  const milestones = schedule ? schedule.milestones.map(m => ({
+    name: m.label, pct: m.pct, required: m.required, planned: m.planned, actual: m.actual || null,
+    status: m.actual ? "complete" : "upcoming",
+  })) : [
     { name: "Awarded / Started",                pct: 0,   required: true,  planned: startDate,    actual: startDate,    status: "complete"    },
     { name: "Kickoff Meeting",                  pct: 1,   required: false, planned: "2024-02-01", actual: "2024-02-03", status: "complete"    },
     { name: "Outline / Concept Review",         pct: 10,  required: false, planned: "2024-04-01", actual: "2024-04-08", status: "complete"    },
@@ -299,9 +344,9 @@ function ScheduleTab({ startDate, endDate }: { startDate: string; endDate: strin
     { name: "Complete",                         pct: 100, required: true,  planned: endDate,       actual: null,         status: "upcoming"    },
   ];
 
-  const overallPct = 35;
+  const overallPct = schedule?.percentComplete ?? 35;
   const fmtDate = (d: string | null) =>
-    d ? new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "";
+    d ? new Date(d).toLocaleDateString("en-US", { timeZone: "UTC", month: "short", day: "numeric", year: "numeric" }) : "";
   const statusDot: Record<string, string> = {
     "complete":    "bg-emerald-500",
     "in-progress": "bg-blue-500 ring-2 ring-blue-200",
@@ -376,10 +421,12 @@ function ScheduleTab({ startDate, endDate }: { startDate: string; endDate: strin
 
 export default function ProjectSettings() {
   const params = useParams();
+  const { user } = useUser();
   const [activeTab, setActiveTab] = useState<Tab>("charter");
 
   const projectId = params.id;
   const project = MOCK_PROJECTS.find((p) => p.id === projectId);
+  const canEdit = project ? user.canEdit(project) : false;
 
   if (!project) {
     return (
@@ -463,11 +510,10 @@ export default function ProjectSettings() {
               <div>
                 <SectionLabel>Team</SectionLabel>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  <ReadonlyField label="Project Manager" value={project.pmName} />
-                  <ReadonlyField label="DWG / CoP" value={project.dwgCoP} />
                   <ReadonlyField label="HQ Proponent" value={project.hqProponent} />
-                  <ReadonlyField label="Executing Org" value={project.executingOrg} />
+                  <ReadonlyField label="DWG / CoP" value={project.dwgCoP} />
                   <ReadonlyField label="Project Lead" value={project.projectLead} />
+                  <ReadonlyField label="Executing Org" value={project.executingOrg} />
                 </div>
               </div>
 
@@ -508,29 +554,20 @@ export default function ProjectSettings() {
                 </div>
               </div>
 
-              <div>
-                <SectionLabel>CMS Information</SectionLabel>
-                <p className="text-xs text-slate-400 mb-3">Required for ALL Tri-Service Projects</p>
-                <div className="space-y-4">
-                  <ReadonlyField label="Primary CMS Link"     value={project.primaryCmsLink}     url />
-                  <ReadonlyField label="CMS Guest Link"       value={project.cmsGuestLink}       url />
-                  <ReadonlyField label="Additional CMS Links" value={project.additionalCmsLinks} url />
-                </div>
-              </div>
             </div>
           )}
 
           {/* ── FUNDING TAB ── */}
           {activeTab === "funding" && (
             <div className="p-6 animate-in fade-in duration-200">
-              <FundingTable budget={project.budget} projectNumber={project.number} />
+              <FundingTable budget={project.budget} funding={project.funding} editable={canEdit} />
             </div>
           )}
 
           {/* ── SCHEDULE TAB ── */}
           {activeTab === "schedule" && (
             <div className="animate-in fade-in duration-200">
-              <ScheduleTab startDate={project.startDate} endDate={project.endDate} />
+              <ScheduleTab startDate={project.startDate} endDate={project.endDate} schedule={project.schedule} />
             </div>
           )}
 

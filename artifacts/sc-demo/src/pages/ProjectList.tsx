@@ -5,8 +5,11 @@ import {
   PauseCircle, CheckCircle2, Clock, FileSpreadsheet, Loader2, ArrowLeft
 } from "lucide-react";
 import Layout from "@/components/Layout";
+import { fundingCurrency, fundingTotal, type ProjectFunding } from "@/lib/projectFunding";
 import { MOCK_PROJECTS, Project } from "@/lib/mockData";
+import { useUser } from "@/lib/userContext";
 import { Input } from "@/components/ui/input";
+import { CURRENT_FY } from "@/lib/fiscalYear";
 
 const DETAIL_LOAD_MS = 2000;
 
@@ -15,19 +18,19 @@ type Tab = "charter" | "funding" | "schedule";
 // Generate FY funding rows for a project (mock split across 5 fiscal years)
 function getFundingData(budget: number) {
   const split = [0.1, 0.2, 0.35, 0.25, 0.1];
-  const years = ["FY23", "FY24", "FY25", "FY26", "FY27"];
+  const years = ["FY25", "FY26", "FY27", "FY28", "FY29"];
   const laborPct   = 0.55;
   const travelPct  = 0.15;
   const otherPct   = 0.30;
   return { years, split, laborPct, travelPct, otherPct, budget };
 }
 
-function FundingTable({ budget }: { budget: number }) {
+function FundingTable({ budget, funding }: { budget: number; funding?: ProjectFunding }) {
   const { years, split, laborPct, travelPct, otherPct } = getFundingData(budget);
 
   const fmt = (n: number) =>
     n === 0 ? "—" :
-    new Intl.NumberFormat("en-US", {
+    funding ? fundingCurrency(n) : new Intl.NumberFormat("en-US", {
       style: "currency", currency: "USD", maximumFractionDigits: 0,
     }).format(n);
 
@@ -46,8 +49,9 @@ function FundingTable({ budget }: { budget: number }) {
               Project Overview
             </th>
             {years.map((fy) => (
-              <th key={fy} className="border border-slate-300 bg-[#2a6496] text-white font-semibold px-2 py-2 text-center">
+              <th key={fy} className={`border border-slate-300 text-white font-semibold px-2 py-2 text-center ${fy === CURRENT_FY ? "bg-amber-600" : "bg-[#2a6496]"}`}>
                 {fy}
+                {fy === CURRENT_FY && <span className="block text-[10px] font-medium">Current FY</span>}
               </th>
             ))}
             <th className="border border-slate-300 bg-[#1a3557] text-white font-semibold px-2 py-2 text-center">
@@ -57,7 +61,11 @@ function FundingTable({ budget }: { budget: number }) {
         </thead>
         <tbody>
           {rows.map((row, ri) => {
-            const rowBudget = budget * row.pct;
+            const category = row.label === "Outsourced / Other" ? "Outsourcing & Other" : row.label as "Labor" | "Travel";
+            const values = years.map((fy, i) => funding
+              ? funding.annual[fy]?.[category]?.plan ?? 0
+              : budget * row.pct * split[i]);
+            const rowBudget = funding ? values.reduce((sum, value) => sum + value, 0) : budget * row.pct;
             return (
               <tr key={row.label} className={ri % 2 === 0 ? "bg-slate-50" : "bg-white"}>
                 <td className="border border-slate-200 px-3 py-2 font-medium text-slate-700">
@@ -65,7 +73,7 @@ function FundingTable({ budget }: { budget: number }) {
                 </td>
                 {split.map((s, i) => (
                   <td key={i} className="border border-slate-200 px-2 py-2 text-right text-slate-600">
-                    {fmt(rowBudget * s)}
+                    {fmt(values[i])}
                   </td>
                 ))}
                 <td className="border border-slate-200 px-2 py-2 text-right font-semibold text-slate-800">
@@ -79,7 +87,7 @@ function FundingTable({ budget }: { budget: number }) {
             <td className="border border-slate-300 px-3 py-2 text-slate-800">Total</td>
             {split.map((s, i) => (
               <td key={i} className="border border-slate-300 px-2 py-2 text-right text-slate-800">
-                {fmt(budget * s)}
+                {fmt(funding ? fundingTotal(funding, years[i], "plan") : budget * s)}
               </td>
             ))}
             <td className="border border-slate-300 px-2 py-2 text-right text-slate-900 font-bold">
@@ -93,12 +101,22 @@ function FundingTable({ budget }: { budget: number }) {
 }
 
 export default function ProjectList() {
+  const { user } = useUser();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [detailReady, setDetailReady] = useState(false);
   const [progress, setProgress] = useState(0);
   const [activeTab, setActiveTab] = useState<Tab>("charter");
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileShowDetail, setMobileShowDetail] = useState(false);
+
+  const defaultMyOnly = user.role === "Project Lead" || user.role === "Proponent";
+  const [showMyOnly, setShowMyOnly] = useState(defaultMyOnly);
+
+  useEffect(() => {
+    setShowMyOnly(user.role === "Project Lead" || user.role === "Proponent");
+    setSelectedId(null);
+    setMobileShowDetail(false);
+  }, [user.name]);
 
   const handleSelectProject = (id: string) => {
     if (id === selectedId) {
@@ -139,12 +157,40 @@ export default function ProjectList() {
     ? MOCK_PROJECTS.find((p) => p.id === selectedId) ?? null
     : null;
 
-  const filteredProjects = MOCK_PROJECTS.filter(
-    (p) =>
-      p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.number.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.description.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const myProjects = showMyOnly
+    ? user.role === "Project Lead"
+      ? MOCK_PROJECTS.filter((p) => p.projectLead === user.name)
+      : user.role === "Proponent"
+      ? MOCK_PROJECTS.filter((p) => p.hqProponent === user.name)
+      : MOCK_PROJECTS
+    : MOCK_PROJECTS;
+
+  const q = searchQuery.toLowerCase();
+  const filteredProjects = q
+    ? myProjects.filter((p) =>
+        [
+          p.name,
+          p.number,
+          p.description,
+          p.status,
+          p.pmName,
+          p.dwgCoP,
+          p.hqProponent,
+          p.executingOrg,
+          p.projectLead,
+          p.needsContractSupport,
+          p.specialFundingType,
+          p.primaryCmsLink,
+          p.cmsGuestLink,
+          p.startDate,
+          p.endDate,
+          String(p.budget),
+          String(p.actualObligation),
+        ]
+          .filter(Boolean)
+          .some((field) => field.toLowerCase().includes(q))
+      )
+    : myProjects;
 
   const getStatusIcon = (status: Project["status"]) => {
     switch (status) {
@@ -186,8 +232,8 @@ export default function ProjectList() {
         <div className="flex flex-col lg:flex-row gap-6 lg:h-full lg:min-h-0">
           {/* ── LEFT PANEL ── */}
           <div className={`w-full lg:w-5/12 flex-col bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm flex-shrink-0 ${mobileShowDetail ? "hidden lg:flex" : "flex"}`}>
-            <div className="p-4 border-b border-slate-100 bg-slate-50/50">
-              <div className="relative">
+            <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row gap-2 sm:items-center">
+              <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                 <Input
                   placeholder="Search projects..."
@@ -196,6 +242,22 @@ export default function ProjectList() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   data-testid="input-search-projects"
                 />
+              </div>
+              <div className="flex items-center gap-0.5 bg-slate-200 rounded-lg p-0.5 flex-shrink-0 self-start sm:self-auto">
+                <button
+                  onClick={() => setShowMyOnly(true)}
+                  className={`text-xs font-semibold px-3 py-1.5 rounded-md transition-colors ${showMyOnly ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
+                  data-testid="btn-my-projects"
+                >
+                  My Projects
+                </button>
+                <button
+                  onClick={() => setShowMyOnly(false)}
+                  className={`text-xs font-semibold px-3 py-1.5 rounded-md transition-colors ${!showMyOnly ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
+                  data-testid="btn-all-projects"
+                >
+                  All Projects
+                </button>
               </div>
             </div>
 
@@ -332,13 +394,13 @@ export default function ProjectList() {
                         <div className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5">
                           <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5">Start Date</div>
                           <div className="text-sm font-semibold text-slate-800">
-                            {new Date(selectedProject.startDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                            {new Date(selectedProject.startDate).toLocaleDateString("en-US", { timeZone: "UTC", month: "short", day: "numeric", year: "numeric" })}
                           </div>
                         </div>
                         <div className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5">
                           <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5">End Date</div>
                           <div className="text-sm font-semibold text-slate-800">
-                            {new Date(selectedProject.endDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                            {new Date(selectedProject.endDate).toLocaleDateString("en-US", { timeZone: "UTC", month: "short", day: "numeric", year: "numeric" })}
                           </div>
                         </div>
                       </div>
@@ -349,7 +411,7 @@ export default function ProjectList() {
                   {activeTab === "funding" && (
                     <div className="p-6 animate-in fade-in duration-200">
                       {detailReady ? (
-                        <FundingTable budget={selectedProject.budget} />
+                        <FundingTable budget={selectedProject.budget} funding={selectedProject.funding} />
                       ) : (
                         <div className="flex flex-col items-center justify-center py-16 text-slate-400 gap-3">
                           <Loader2 size={28} className="animate-spin text-primary/60" />
@@ -363,7 +425,10 @@ export default function ProjectList() {
                   {activeTab === "schedule" && (
                     <div className="animate-in fade-in duration-200">
                       {detailReady ? (() => {
-                        const milestones = [
+                        const milestones = selectedProject.schedule ? selectedProject.schedule.milestones.map(m => ({
+                          name: m.label, pct: m.pct, required: m.required, planned: m.planned, actual: m.actual || null,
+                          status: m.actual ? "complete" : "upcoming",
+                        })) : [
                           { name: "Awarded / Started",               pct: 0,   required: true,  planned: selectedProject.startDate, actual: selectedProject.startDate, status: "complete" },
                           { name: "Kickoff Meeting",                 pct: 1,   required: false, planned: "2024-02-01", actual: "2024-02-03",  status: "complete" },
                           { name: "Outline / Concept Review",        pct: 10,  required: false, planned: "2024-04-01", actual: "2024-04-08",  status: "complete" },
@@ -379,8 +444,8 @@ export default function ProjectList() {
                           { name: "DWG Comments Resolved",           pct: 99,  required: false, planned: "2025-10-31", actual: null,          status: "upcoming" },
                           { name: "Complete",                        pct: 100, required: true,  planned: selectedProject.endDate, actual: null, status: "upcoming" },
                         ];
-                        const overallPct = 35;
-                        const fmtDate = (d: string | null) => d ? new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "";
+                        const overallPct = selectedProject.schedule?.percentComplete ?? 35;
+                        const fmtDate = (d: string | null) => d ? new Date(d).toLocaleDateString("en-US", { timeZone: "UTC", month: "short", day: "numeric", year: "numeric" }) : "";
                         const statusDot: Record<string, string> = {
                           "complete":    "bg-emerald-500",
                           "in-progress": "bg-blue-500 ring-2 ring-blue-200",

@@ -1,3 +1,6 @@
+import type { ProjectFunding, ProjectScheduleSeed } from "./projectFunding";
+import { BOILER_PROJECT, BOILER_SETUP, BOILER_REQUEST } from "./electricBoilersDemo";
+
 export interface Project {
   id: string;
   number: string;
@@ -20,6 +23,13 @@ export interface Project {
   primaryCmsLink: string;
   cmsGuestLink: string;
   additionalCmsLinks: string;
+  /** When true the planning dashboard shows all-zero / no-data state */
+  noData?: boolean;
+  /** Total approved 5-year planning budget (overrides budget for Left to Plan calc) */
+  planningBudget?: number;
+  costNotes?: string;
+  funding?: ProjectFunding;
+  schedule?: ProjectScheduleSeed;
 }
 
 export interface SetupProject {
@@ -34,6 +44,7 @@ export interface SetupProject {
   executingOrg: string;
   projectLead: string;
   needsContractSupport: "" | "Yes" | "No" | "N/A";
+  contractSupportOrganization?: string;
   specialFundingType: string;
   budgetAtSubmission: number;
   startDate: string;
@@ -44,9 +55,15 @@ export interface SetupProject {
   sourceRef: string;
   submittedBy: string;
   receivedDate: string;
+  linkedProjectId?: string;
+  costNotes?: string;
+  actualObligation?: number;
+  schedule?: ProjectScheduleSeed;
+  deliverables?: { id: string; type: string; numDesc: string }[];
 }
 
 export const PENDING_SETUP_PROJECTS: SetupProject[] = [
+  BOILER_SETUP,
   {
     id: "setup-1",
     number: "26A05",
@@ -118,8 +135,18 @@ export const PENDING_SETUP_PROJECTS: SetupProject[] = [
   },
 ];
 
+export interface FinancialPocContact {
+  laboratory?: string;
+  officeLocation?: string;
+  jobTitle?: string;
+  jobDescription?: string;
+  email?: string;
+  phone?: string;
+}
+
 export interface CRTravelDetails {
   poc?: string;
+  pocContact?: FinancialPocContact;
   travelers?: string;
   dates?: string;
   purpose?: string;
@@ -128,6 +155,7 @@ export interface CRTravelDetails {
 export interface CRResourceDetails {
   pop?: string;
   poc?: string;
+  pocContact?: FinancialPocContact;
   purpose?: string;
 }
 
@@ -136,6 +164,7 @@ export interface CRLineItem {
   type: "Labor" | "Travel" | "Materials" | "Contracting";
   orgCode: string;
   resource: string;
+  laborCode?: string;
   amount: number;
   from: number;
   to: number;
@@ -152,11 +181,17 @@ export interface ChangeRequest {
   date: string;
   justification: string;
   typeJustifications?: Partial<Record<string, string>>;
-  status: "First Request" | "Pending" | "Approved" | "Under Review" | "Rejected";
+  status: "Pending Approval" | "Approved" | "Complete - Partial" | "Complete" | "Archived";
+  requestNumber?: string;
   lineItems: CRLineItem[];
+  requestFY?: string;
+  requestQuarter?: string;
+  resourceCategory?: string;
+  requestType?: "Increase" | "Decrease" | "Transfer";
 }
 
 export const MOCK_PROJECTS: Project[] = [
+  BOILER_PROJECT,
   {
     id: "1",
     number: "25A01",
@@ -164,6 +199,7 @@ export const MOCK_PROJECTS: Project[] = [
     description: "Adding 2 lanes to the northbound and southbound sections of Highway 45.",
     status: "Active",
     budget: 2400000,
+    planningBudget: 9750000,
     startDate: "2024-01-15",
     endDate: "2025-06-30",
     pmName: "John Smith",
@@ -310,6 +346,7 @@ export const MOCK_PROJECTS: Project[] = [
     primaryCmsLink: "",
     cmsGuestLink: "",
     additionalCmsLinks: "",
+    noData: true,
   },
 ];
 
@@ -321,16 +358,29 @@ export const MOCK_CHANGE_REQUESTS: ChangeRequest[] = [
     projectDescription: "Adding 2 lanes to the northbound and southbound sections of Highway 45.",
     submittedBy: "John Smith",
     date: "2024-02-10",
-    justification: "Labor reallocation needed after geotechnical scope expanded. Nugent picked up additional survey tasks; offsetting by reducing planned site visits that can be combined into fewer trips.",
+    justification: "Initial funding for Nugent's geotechnical survey work and CERL travel. Site visits are combined into fewer trips to reduce travel costs.",
     typeJustifications: {
-      Labor:  "Nugent took on additional geotechnical survey tasks beyond original scope agreement. Rate increase approved by PM on 2024-02-08.",
+      Labor:  "Funding for Nugent's geotechnical survey tasks under the approved project scope.",
       Travel: "Two previously separate site visits consolidated into a single trip to reduce per-diem and mileage costs.",
     },
-    status: "Pending",
+    status: "Pending Approval",
     lineItems: [
-      { direction: "Increase", type: "Labor",  orgCode: "U435310", resource: "Nugent, Joseph Pat",  amount: 22000, from: 215000, to: 237000 },
-      { direction: "Decrease", type: "Travel", orgCode: "U435310", resource: "CERL", amount: 22000, from: 48000, to: 26000,
-        travelDetails: { poc: "John Smith", travelers: "Nugent, Joseph Pat", dates: "12–14 Mar 2024", purpose: "Geotechnical site inspection; combined with scheduled survey to reduce trip count." } },
+      { direction: "Increase", type: "Labor",  orgCode: "U435310", resource: "Nugent, Joseph Pat", laborCode: "812430", amount: 237000, from: 0, to: 237000 },
+      { direction: "Increase", type: "Travel", orgCode: "U435310", resource: "CERL", amount: 26000, from: 0, to: 26000,
+        travelDetails: {
+          poc: "John Smith",
+          pocContact: {
+            laboratory: "CERL — Construction Engineering Research Laboratory",
+            officeLocation: "Champaign, IL — Building 2, Room 214 (demo office)",
+            jobTitle: "Project Financial Coordinator",
+            jobDescription: "Coordinates project funding, labor allocations, and travel budgets.",
+            email: "john.smith@example.org",
+            phone: "217-555-0146",
+          },
+          travelers: "Nugent, Joseph Pat",
+          dates: "12–14 Mar 2024",
+          purpose: "Geotechnical site inspection; combined with scheduled survey to reduce trip count.",
+        } },
     ],
   },
   {
@@ -340,18 +390,29 @@ export const MOCK_CHANGE_REQUESTS: ChangeRequest[] = [
     projectDescription: "Structural reinforcement and resurfacing of the downtown suspension bridge.",
     submittedBy: "Sarah Jenkins",
     date: "2024-01-25",
-    justification: "Additional org-code labor is required for the extended environmental compliance phase. Equipment transport trips have been consolidated and steel fasteners sourced locally, freeing those funds.",
+    justification: "Additional U435310 labor is required for the extended environmental compliance phase. U719203 labor hours are reduced, equipment transport trips consolidated, and steel fasteners sourced locally, freeing those funds.",
     typeJustifications: {
-      Labor:     "Environmental compliance phase extended by 6 weeks per regulatory review outcome dated 2024-01-20. Additional org-code hours required.",
+      Labor:     "Environmental compliance phase extended by 6 weeks. Increase U435310 labor by $45,000 and reduce U719203 labor by $15,000 after consolidating survey tasks.",
       Travel:    "Equipment transport consolidated; single-carrier arrangement reduces trips from 4 to 2.",
       Materials: "Steel fasteners sourced from local supplier at 22% lower unit cost; quantity unchanged.",
     },
-    status: "Pending",
+    status: "Pending Approval",
     lineItems: [
       { direction: "Increase", type: "Labor",  orgCode: "U435310", resource: "U435310", amount: 45000, from: 280000, to: 325000 },
       { direction: "Decrease", type: "Travel", orgCode: "U435310", resource: "USACE Chicago District", amount: 47000, from: 155000, to: 108000,
-        travelDetails: { poc: "Sarah Jenkins", travelers: "Jenkins, Sarah; Okafor, Chioma", dates: "18–19 Feb 2024", purpose: "Equipment transport coordination; consolidated from 4 trips to 2 via single-carrier arrangement." } },
-      { direction: "Increase", type: "Labor",     orgCode: "U719203", resource: "Chen, David",         amount: 15000, from: 195000, to: 210000 },
+        travelDetails: {
+          poc: "Sarah Jenkins",
+          pocContact: {
+            laboratory: "CERL — Construction Engineering Research Laboratory",
+            jobDescription: "Financial coordinator — funding requests and travel budget coordination",
+            email: "sarah.jenkins@example.org",
+            phone: "202-555-0142",
+          },
+          travelers: "Jenkins, Sarah; Okafor, Chioma",
+          dates: "18–19 Feb 2024",
+          purpose: "Equipment transport coordination; consolidated from 4 trips to 2 via single-carrier arrangement.",
+        } },
+      { direction: "Decrease", type: "Labor",     orgCode: "U719203", resource: "Chen, David", laborCode: "862041", amount: 15000, from: 225000, to: 210000 },
       { direction: "Decrease", type: "Materials", orgCode: "U719203", resource: "Steel Fasteners",     amount: 13000, from: 45000, to: 32000,
         resourceDetails: { pop: "01 Jan 2024 – 30 Jun 2024", poc: "David Chen", purpose: "Steel fasteners sourced from local supplier at 22% lower unit cost; quantity and spec unchanged." } },
     ],
@@ -368,13 +429,13 @@ export const MOCK_CHANGE_REQUESTS: ChangeRequest[] = [
       Labor:  "Park, Jennifer added for excavation coordination per field director request 2024-01-30. Offset by scope reduction for Okafor and Contractor Pool.",
       Travel: "Cold Regions Research Lab site visit added at request of technical advisor to assess soil conditions.",
     },
-    status: "First Request",
+    status: "Approved",
     lineItems: [
       { direction: "Increase", type: "Labor",  orgCode: "U601847", resource: "Park, Jennifer",            amount:  9000, from:  145000, to:  154000 },
-      { direction: "Decrease", type: "Labor",  orgCode: "U601847", resource: "Okafor, Chioma",             amount:  7000, from:   98000, to:   91000 },
+      { direction: "Decrease", type: "Labor",  orgCode: "U601847", resource: "Okafor, Chioma", laborCode: "873082", amount: 7000, from: 98000, to: 91000 },
       { direction: "Increase", type: "Travel", orgCode: "U601847", resource: "Cold Regions Research Lab", amount: 2000, from: 12000, to: 14000,
         travelDetails: { poc: "Elena Rodriguez", travelers: "Rodriguez, Elena", dates: "05–06 Mar 2024", purpose: "Soil condition assessment requested by technical advisor prior to excavation phase start." } },
-      { direction: "Decrease", type: "Labor",  orgCode: "U601847", resource: "Contractor Pool",            amount:  4000, from:  412000, to:  408000 },
+      { direction: "Decrease", type: "Labor",  orgCode: "U601847", resource: "Contractor Pool", laborCode: "873083", amount: 4000, from: 412000, to: 408000 },
     ],
   },
   {
@@ -389,7 +450,7 @@ export const MOCK_CHANGE_REQUESTS: ChangeRequest[] = [
       Labor:     "Senior systems integration expertise required across all 7 checkpoint lanes; Rodriguez and Thorne are sole qualified resources on contract.",
       Materials: "Value-engineered composite panel selected over original steel/glass spec; equivalent structural rating at 35% lower cost per unit.",
     },
-    status: "Pending",
+    status: "Complete",
     lineItems: [
       { direction: "Increase", type: "Labor",     orgCode: "U920183", resource: "Rodriguez, Elena",    amount: 75000,  from: 1125000, to: 1200000 },
       { direction: "Increase", type: "Labor",     orgCode: "U582094", resource: "Thorne, Marcus",       amount: 25000,  from: 625000,  to: 650000  },
@@ -405,11 +466,12 @@ export const MOCK_CHANGE_REQUESTS: ChangeRequest[] = [
     submittedBy: "David Chen",
     date: "2024-02-12",
     justification: "Chen, David absorbing additional feasibility tasks as Torres' scope is reduced. Pacific Ocean Division trip consolidated with ERDC visit, freeing those funds back into labor.",
-    status: "First Request",
+    status: "Archived",
     lineItems: [
       { direction: "Increase", type: "Labor",  orgCode: "U334567", resource: "Chen, David",             amount: 4500, from:  84000, to:  88500 },
-      { direction: "Decrease", type: "Labor",  orgCode: "U334567", resource: "Torres, Miguel A.",        amount: 3000, from:  62000, to:  59000 },
+      { direction: "Decrease", type: "Labor",  orgCode: "U334567", resource: "Torres, Miguel A.", laborCode: "894105", amount: 3000, from: 62000, to: 59000 },
       { direction: "Decrease", type: "Travel", orgCode: "U334567", resource: "Pacific Ocean Division",   amount: 1500, from:  18000, to:  16500 },
     ],
   },
+  BOILER_REQUEST,
 ];

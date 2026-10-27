@@ -2,14 +2,22 @@ import React, { useState, useRef } from "react";
 import { Link, useParams } from "wouter";
 import { ChevronRight, ChevronDown, Settings, Plus, Trash2, X, MinusCircle, CalendarRange, Copy, Check, Info } from "lucide-react";
 import { MOCK_PROJECTS, Project } from "@/lib/mockData";
+import { useUser } from "@/lib/userContext";
+import { useToast } from "@/hooks/use-toast";
+import { Toaster } from "@/components/ui/toaster";
 import Layout from "@/components/Layout";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { format } from "date-fns";
+import { CURRENT_FISCAL_PERIOD, CURRENT_FY_NUMBER, CURRENT_QUARTER, getFiscalQuarters, getDaysUntilFiscalQuarterEnd } from "@/lib/fiscalYear";
 
 /* ─── helpers ─────────────────────────────────────────────────── */
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
+
+const currentFYQuarters = getFiscalQuarters(CURRENT_FISCAL_PERIOD.year);
+const POP_RANGE_EXAMPLE =
+  `01 Oct ${currentFYQuarters[0].start.getUTCFullYear()} – 30 Sep ${currentFYQuarters[3].end.getUTCFullYear()}`;
 
 let _uid = 100;
 const uid = () => ++_uid;
@@ -33,27 +41,42 @@ const ALL_QKEYS: QKey[] = [
 interface FiscalWindowConfig {
   currentFY:        number; // 2-digit FY, e.g. 25 = FY25
   currentQ:         number; // 1-4
-  requestMaxFY:     number; // last FY in the open FUNDING REQUEST window
-  requestMaxQ:      number; // last quarter in the open request window
+  requestMaxFY:     number; // policy end FY in the open FUNDING REQUEST window
+  requestMaxQ:      number; // policy end quarter in the open request window
   planHorizonFY:    number; // last FY in the planning grid (full project span)
   nearQtrEndDays:   number; // threshold to auto-open next request quarter
   daysUntilQtrEnd:  number; // days until current quarter closes
 }
 
-// Demo snapshot: FY26 Q3 is current; past = FY25 Q1–Q4 + FY26 Q1–Q2 (6 quarters)
-// Request window = FY26 Q3 – FY28 Q2 (8 quarters, ~80k ceiling for Nugent)
+const daysUntilCurrentQuarterEnd = getDaysUntilFiscalQuarterEnd(CURRENT_FISCAL_PERIOD);
+
+// The FY28 Q2 request-window end is an explicit demo policy; keep it fixed as the current quarter moves.
 const FISCAL_CONFIG: FiscalWindowConfig = {
-  currentFY:       26,
-  currentQ:        3,
+  currentFY:       CURRENT_FY_NUMBER,
+  currentQ:        CURRENT_QUARTER,
   requestMaxFY:    28,
   requestMaxQ:     2,
   planHorizonFY:   29,
   nearQtrEndDays:  30,
-  daysUntilQtrEnd: 64,
+  daysUntilQtrEnd: daysUntilCurrentQuarterEnd,
 };
 
-function buildQWindow(cfg: FiscalWindowConfig): { past: QKey[]; requestWindow: QKey[] } {
+function nextFiscalQuarter(fy: number, quarter: number): { fy: number; quarter: number } {
+  return quarter === 4 ? { fy: fy + 1, quarter: 1 } : { fy, quarter: quarter + 1 };
+}
+
+function buildQWindow(cfg: FiscalWindowConfig): {
+  past: QKey[];
+  requestWindow: QKey[];
+  requestEndFY: number;
+  requestEndQ: number;
+} {
   const autoOpenNext = cfg.daysUntilQtrEnd <= cfg.nearQtrEndDays;
+  const requestEnd = autoOpenNext
+    ? nextFiscalQuarter(cfg.requestMaxFY, cfg.requestMaxQ)
+    : { fy: cfg.requestMaxFY, quarter: cfg.requestMaxQ };
+  const currentOrdinal = cfg.currentFY * 4 + cfg.currentQ;
+  const requestEndOrdinal = requestEnd.fy * 4 + requestEnd.quarter;
   const past: QKey[] = [];
   const requestWindow: QKey[] = [];
 
@@ -62,26 +85,30 @@ function buildQWindow(cfg: FiscalWindowConfig): { past: QKey[]; requestWindow: Q
     const qNum  = parseInt(k.slice(5),    10);
 
     const isPast = fyNum < cfg.currentFY || (fyNum === cfg.currentFY && qNum < cfg.currentQ);
-    const maxQAdj = cfg.requestMaxQ + (autoOpenNext ? 1 : 0);
-    const inRequest = !isPast && (
-      fyNum < cfg.requestMaxFY || (fyNum === cfg.requestMaxFY && qNum <= maxQAdj)
-    );
+    const quarterOrdinal = fyNum * 4 + qNum;
+    const inRequest = !isPast && quarterOrdinal <= requestEndOrdinal && quarterOrdinal >= currentOrdinal;
 
     if (isPast) past.push(k);
     else if (inRequest) requestWindow.push(k);
   }
-  return { past, requestWindow };
+  return { past, requestWindow, requestEndFY: requestEnd.fy, requestEndQ: requestEnd.quarter };
 }
 
-const { past: PAST_QKEYS, requestWindow: REQUEST_WINDOW_KEYS } = buildQWindow(FISCAL_CONFIG);
+const {
+  past: PAST_QKEYS,
+  requestWindow: REQUEST_WINDOW_KEYS,
+  requestEndFY: RFY,
+  requestEndQ: RQ,
+} = buildQWindow(FISCAL_CONFIG);
 
 // All non-past quarters are editable for planning (full project horizon)
 const EDITABLE_QKEYS: QKey[] = ALL_QKEYS.filter((k) => !PAST_QKEYS.includes(k));
 
 // Derived banner labels
-const { currentFY: CFY, currentQ: CQ, requestMaxFY: RFY, requestMaxQ: RQ, planHorizonFY: PHY } = FISCAL_CONFIG;
+const { currentFY: CFY, currentQ: CQ, planHorizonFY: PHY } = FISCAL_CONFIG;
 const PLAN_WINDOW_LABEL = `FY${CFY}–FY${PHY}`;
 const PLAN_STATUS_LABEL = `FY${CFY} Q${CQ} — Plan Open`;
+const REQUEST_WINDOW_LABEL = `FY${CFY} Q${CQ}–FY${RFY} Q${RQ}`;
 
 /* ─── resource code tables ─────────────────────────────────────── */
 // ERDC Labs — sourced from labRates reference table
@@ -310,7 +337,7 @@ const plannedRem = (r: QData) => EDITABLE_QKEYS.reduce((s, k) => s + r[k], 0);
 const CURRENT_Q_KEY: QKey = `fy${CFY}q${CQ}` as QKey;
 
 // Request Max = obligated (past quarters) + current quarter planned amount
-// e.g. Nugent: $69k obligated + $11k FY26 Q3 = $80k max
+// Request Max is obligated quarters plus the current quarter's planned amount.
 const openWindowMax = (r: QData) => obligatedQ(r) + r[CURRENT_Q_KEY];
 
 // Clamp requested to [obligated, openWindowMax].
@@ -382,6 +409,31 @@ function AmtInput({
   );
 }
 
+/* ─── generic hover tooltip wrapper ─────────────────────────────── */
+function HoverTip({ tip, children }: { tip: React.ReactNode; children: React.ReactNode }) {
+  const [vis, setVis] = useState(false);
+  return (
+    <span
+      style={{ position: "relative", display: "inline-flex", alignItems: "center" }}
+      onMouseEnter={() => setVis(true)}
+      onMouseLeave={() => setVis(false)}
+    >
+      {children}
+      {vis && (
+        <span style={{
+          position: "absolute", bottom: "calc(100% + 7px)", right: 0,
+          width: 240, background: "#0f172a", color: "#e2e8f0",
+          fontSize: 10, lineHeight: 1.55, borderRadius: 6,
+          padding: "7px 10px", boxShadow: "0 4px 18px rgba(0,0,0,0.35)",
+          whiteSpace: "normal", zIndex: 60, pointerEvents: "none",
+        }}>
+          {tip}
+        </span>
+      )}
+    </span>
+  );
+}
+
 /* ─── read-only amount cell ─────────────────────────────────────── */
 function AmtDisplay({ value, bold }: { value: number; bold?: boolean }) {
   return (
@@ -433,14 +485,17 @@ const PAST_SET = new Set<string>(PAST_QKEYS);
 const qStatus = (k: string): "past" | "editable" => PAST_SET.has(k) ? "past" : "editable";
 
 function QuarterlyPanel({
-  row, onUpdateQ,
+  row, onUpdateQ, readOnly,
 }: {
   row: QData & { id: number };
   onUpdateQ: (id: number, field: keyof QData, val: number) => void;
+  readOnly?: boolean;
 }) {
+  const [showQTip, setShowQTip] = useState(false);
   const pastStyle  = (even: boolean): React.CSSProperties => ({ backgroundColor: even ? BLUE_BG  : BLUE_TOTAL,  color: "#1e40af", fontWeight: 500 });
   const editStyle  = (even: boolean): React.CSSProperties => ({ backgroundColor: even ? AMBER_BG : AMBER_TOTAL });
   const cellPad: React.CSSProperties = { paddingTop: 3, paddingBottom: 3, paddingRight: 6, borderRadius: 3 };
+  const currentQBorder: React.CSSProperties = { boxShadow: "inset 0 0 0 2px #0f172a" };
 
   return (
     <div style={{ borderTop: "2px solid #1a6ea8", background: "linear-gradient(to bottom, #f0f4f8, #f8fafc)", padding: "0 0 12px 0" }}>
@@ -461,14 +516,43 @@ function QuarterlyPanel({
                 Year
               </th>
               {QUARTER_NUMS.map((qn) => {
-                const repKey = `fy25q${qn}` as QKey;
-                const st = qStatus(repKey);
-                const labelColor = st === "past" ? "#1e40af" : "#78350f";
+                const isPastQCol = qn < CQ;
+                const labelColor = isPastQCol ? "#1e40af" : "#78350f";
+                const isCurrentQCol = qn === CQ;
                 return (
-                  <th key={qn} style={{ textAlign: "right", paddingBottom: 6, paddingRight: 6 }}>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: labelColor, textTransform: "uppercase" }}>
+                  <th key={qn} style={{ textAlign: "right", paddingBottom: 6, paddingRight: 6, position: "relative" }}>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: isCurrentQCol ? "#0f172a" : labelColor, textTransform: "uppercase" }}>
                       Q{qn} {Q_RANGES[qn - 1]}
                     </span>
+                    {isCurrentQCol && (
+                      <span
+                        style={{ display: "inline-flex", alignItems: "center", marginLeft: 3, verticalAlign: "middle", position: "relative", cursor: "default" }}
+                        onMouseEnter={() => setShowQTip(true)}
+                        onMouseLeave={() => setShowQTip(false)}
+                      >
+                        <Info size={10} style={{ color: "#f59e0b" }} />
+                        <span style={{
+                          display: showQTip ? "block" : "none",
+                          position: "absolute",
+                          bottom: "calc(100% + 6px)",
+                          right: 0,
+                          width: 220,
+                          background: "#0f172a",
+                          color: "#e2e8f0",
+                          fontSize: 10,
+                          lineHeight: 1.5,
+                          borderRadius: 6,
+                          padding: "6px 9px",
+                          boxShadow: "0 4px 16px rgba(0,0,0,0.3)",
+                          whiteSpace: "normal",
+                          zIndex: 50,
+                          pointerEvents: "none",
+                        }} className="q-current-tip">
+                          <strong style={{ color: "#fbbf24" }}>Current quarter: FY{CFY} Q{CQ}</strong><br />
+                          The planned amount in this quarter is added to your obligated total to set the <strong style={{ color: "#fbbf24" }}>Request Max</strong> ceiling for all resources.
+                        </span>
+                      </span>
+                    )}
                   </th>
                 );
               })}
@@ -491,15 +575,16 @@ function QuarterlyPanel({
                   {QUARTER_NUMS.map((qn) => {
                     const key = `${fy.toLowerCase()}q${qn}` as QKey;
                     const st  = qStatus(key);
+                    const isCurQ = key === CURRENT_Q_KEY;
                     if (st === "past") {
                       return (
-                        <td key={qn} style={{ ...pastStyle(even), ...cellPad }}>
+                        <td key={qn} style={{ ...pastStyle(even), ...cellPad, ...(isCurQ ? currentQBorder : {}) }}>
                           <AmtDisplay value={row[key]} />
                         </td>
                       );
                     }
                     return (
-                      <td key={qn} style={{ ...editStyle(even), ...cellPad }}>
+                      <td key={qn} style={{ ...editStyle(even), ...cellPad, ...(isCurQ ? currentQBorder : {}) }}>
                         <AmtInput value={row[key]} onChange={(v) => onUpdateQ(row.id, key, v)} gold />
                       </td>
                     );
@@ -601,9 +686,14 @@ function ColHeaders({ nameHeader }: { nameHeader: string }) {
       <th className={hd} style={{ backgroundColor: BLUE_BG, color: "#1e40af", borderLeft: BLUE_BORDER, width: 115 }}>
         Open<br />Commitment
       </th>
-      <th className={hd} style={{ backgroundColor: AMBER_TOTAL, color: "#78350f", borderLeft: AMBER_BORDER, width: 260 }}
-        title="The editable request amount for this line, alongside the maximum allowed (Obligated + current quarter). Requests may not exceed the maximum.">
-        Request / Max
+      <th className={hd} style={{ backgroundColor: AMBER_TOTAL, color: "#78350f", borderLeft: AMBER_BORDER, width: 260 }}>
+        <HoverTip tip={<>
+          <strong style={{ color: "#fbbf24" }}>Request</strong> — the amount you are requesting in this funding action. Editable between your obligated floor and the max ceiling.<br /><br />
+          <strong style={{ color: "#fbbf24" }}>Max</strong> — the ceiling: Obligated + FY{CFY} Q{CQ} ({Q_META[CURRENT_Q_KEY].range}) planned amount. Hover the max figure on any row to see its breakdown.
+        </>}>
+          <span>Request / Max</span>
+          <Info size={10} style={{ color: "#f59e0b", marginLeft: 3, flexShrink: 0 }} />
+        </HoverTip>
       </th>
       <th style={{ width: 38, backgroundColor: "#f1f5f9", borderLeft: "1px solid #e2e8f0" }} />
     </tr>
@@ -612,7 +702,7 @@ function ColHeaders({ nameHeader }: { nameHeader: string }) {
 
 /* ─── single data row (Labor / Travel) ─────────────────────────── */
 function PlanDataRow({
-  row, isEven, expanded, onToggle, onUpdateQ, onUpdateRequested, onDelete,
+  row, isEven, expanded, onToggle, onUpdateQ, onUpdateRequested, onDelete, showFlex4, isTravel, readOnly,
 }: {
   row: PlanRow;
   isEven?: boolean;
@@ -621,6 +711,9 @@ function PlanDataRow({
   onUpdateQ: (id: number, field: keyof QData, val: number) => void;
   onUpdateRequested: (id: number, val: number) => void;
   onDelete: (id: number) => void;
+  showFlex4?: boolean;
+  isTravel?: boolean;
+  readOnly?: boolean;
 }) {
   const planned   = sumAll(row);
   const obligated = obligatedQ(row);
@@ -685,13 +778,22 @@ function PlanDataRow({
                 onChange={(v) => onUpdateRequested(row.id, clampRequested(v, obligated, maxReq))}
               />
             </div>
-            <span className="text-sm font-semibold tabular-nums whitespace-nowrap" style={{ color: "#92400e", minWidth: 90, textAlign: "right" }}>
-              / {maxReq === 0 ? "—" : fmt(maxReq)}
-            </span>
+            <HoverTip tip={<>
+              <strong style={{ color: "#fbbf24" }}>Max Ceiling</strong><br />
+              Obligated ({PAST_QKEYS.length} qtrs): {fmt(obligated)}<br />
+              + FY{CFY} Q{CQ} ({Q_META[CURRENT_Q_KEY].range}): {fmt(row[CURRENT_Q_KEY])}<br />
+              <span style={{ display: "block", borderTop: "1px solid #334155", marginTop: 4, paddingTop: 4, fontWeight: 700, color: "#fbbf24" }}>
+                = {maxReq === 0 ? "$0" : fmt(maxReq)}
+              </span>
+            </>}>
+              <span className="text-sm font-semibold tabular-nums whitespace-nowrap cursor-help" style={{ color: "#92400e", minWidth: 90, textAlign: "right" }}>
+                / {maxReq === 0 ? "—" : fmt(maxReq)}
+              </span>
+            </HoverTip>
           </div>
         </td>
         <td style={{ padding: 0, textAlign: "center", verticalAlign: "middle", borderLeft: "1px solid #e2e8f0", backgroundColor: isEven ? "#e3ecf5" : "#f1f5f9" }}>
-          {canDelete ? (
+          {!readOnly && (canDelete ? (
             <button
               onClick={() => onDelete(row.id)}
               title="Remove row"
@@ -712,16 +814,71 @@ function PlanDataRow({
             >
               <MinusCircle size={14} />
             </button>
-          )}
+          ))}
         </td>
       </tr>
       {expanded && (
-        <tr style={{ borderBottom: "1px solid #e2e8f0" }}>
+        <tr style={{ borderBottom: showFlex4 ? "none" : "1px solid #e2e8f0" }}>
           <td colSpan={7} style={{ padding: 0 }}>
-            <QuarterlyPanel row={row} onUpdateQ={onUpdateQ} />
+            <QuarterlyPanel row={row} onUpdateQ={onUpdateQ} readOnly={readOnly} />
           </td>
         </tr>
       )}
+      {(() => {
+        if (!showFlex4) return null;
+        const orgCode = row.sub?.split("/")[0] ?? "";
+        if (!isErdcCode(orgCode) || row.requested <= 0) return null;
+        const ohRate = ERDC_OH_RATES[orgCode] ?? 0;
+        const f4  = flex4Amount(row.requested);
+        const rem = flex4Remaining(row.requested);
+        const lb  = labBase(rem, ohRate);
+        const oh  = ohAmount(rem, ohRate);
+        const frbVal = frb(rem, ohRate);
+        return (
+          <tr style={{ borderBottom: "1px solid #e2e8f0" }}>
+            <td colSpan={7} style={{ padding: 0 }}>
+              <div
+                className="px-4 py-2.5 text-xs"
+                style={{ backgroundColor: "#f0f7ff", borderTop: "1px solid #dbeafe" }}
+              >
+                <div className="flex items-center gap-6 flex-wrap">
+                  <span className="font-bold text-blue-800 uppercase tracking-wide" style={{ fontSize: 10, minWidth: 140 }}>
+                    Flex-4 / OH Breakdown
+                  </span>
+                  <div className="flex items-center gap-1.5 text-blue-700">
+                    <span className="text-slate-500">OH Rate:</span>
+                    <span className="font-mono font-bold text-blue-800">{(ohRate * 100).toFixed(0)}%</span>
+                  </div>
+                  <div className="w-px h-3.5 bg-blue-200" />
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-slate-500">Flex-4 (3%):</span>
+                    <span className="font-mono font-semibold text-blue-800">{fmt(f4)}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-slate-500">Remaining (97%):</span>
+                    <span className="font-mono text-slate-600">{fmt(rem)}</span>
+                  </div>
+                  <div className="w-px h-3.5 bg-blue-200" />
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-slate-500">Lab Base:</span>
+                    <span className="font-mono font-semibold text-blue-800">{fmt(lb)}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-slate-500">OH ({(ohRate * 100).toFixed(0)}%):</span>
+                    <span className="font-mono font-semibold text-blue-800">{fmt(oh)}</span>
+                  </div>
+                  {!isTravel && frbVal !== 0 && (
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-slate-400">FRB:</span>
+                      <span className="font-mono text-slate-400">{fmt(frbVal)}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </td>
+          </tr>
+        );
+      })()}
     </React.Fragment>
   );
 }
@@ -729,7 +886,7 @@ function PlanDataRow({
 /* ─── contract / outsourcing data row ──────────────────────────── */
 function ResourceDataRow<T extends QData & { id: number; org: string; orgCode: string; openCommitment: number; requested: number }>({
   row, line2, subCode, isEven, expanded, onToggle, onUpdateQ, onUpdateRequested, onDelete,
-  orgOptions, codeOptions, currentCode, onUpdateOrg, onUpdateCode,
+  orgOptions, codeOptions, currentCode, onUpdateOrg, onUpdateCode, readOnly,
 }: {
   row: T;
   line2: string;
@@ -745,6 +902,7 @@ function ResourceDataRow<T extends QData & { id: number; org: string; orgCode: s
   currentCode?:   string;
   onUpdateOrg?:   (id: number, org: string, orgCode: string) => void;
   onUpdateCode?:  (id: number, code: string, name: string) => void;
+  readOnly?:      boolean;
 }) {
   const planned   = sumAll(row);
   const obligated = obligatedQ(row);
@@ -806,13 +964,22 @@ function ResourceDataRow<T extends QData & { id: number; org: string; orgCode: s
                 onChange={(v) => onUpdateRequested(row.id, clampRequested(v, obligated, maxReq))}
               />
             </div>
-            <span className="text-sm font-semibold tabular-nums whitespace-nowrap" style={{ color: "#92400e", minWidth: 90, textAlign: "right" }}>
-              / {maxReq === 0 ? "—" : fmt(maxReq)}
-            </span>
+            <HoverTip tip={<>
+              <strong style={{ color: "#fbbf24" }}>Max Ceiling</strong><br />
+              Obligated ({PAST_QKEYS.length} qtrs): {fmt(obligated)}<br />
+              + FY{CFY} Q{CQ} ({Q_META[CURRENT_Q_KEY].range}): {fmt(row[CURRENT_Q_KEY])}<br />
+              <span style={{ display: "block", borderTop: "1px solid #334155", marginTop: 4, paddingTop: 4, fontWeight: 700, color: "#fbbf24" }}>
+                = {maxReq === 0 ? "$0" : fmt(maxReq)}
+              </span>
+            </>}>
+              <span className="text-sm font-semibold tabular-nums whitespace-nowrap cursor-help" style={{ color: "#92400e", minWidth: 90, textAlign: "right" }}>
+                / {maxReq === 0 ? "—" : fmt(maxReq)}
+              </span>
+            </HoverTip>
           </div>
         </td>
         <td style={{ padding: 0, textAlign: "center", verticalAlign: "middle", borderLeft: "1px solid #e2e8f0", backgroundColor: isEven ? "#e3ecf5" : "#f1f5f9" }}>
-          {canDelete ? (
+          {!readOnly && (canDelete ? (
             <button onClick={() => onDelete(row.id)} title="Remove row"
               className="rounded transition-colors text-slate-300 hover:text-red-400 hover:bg-red-50"
               style={{ width: 28, height: 28, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
@@ -829,13 +996,13 @@ function ResourceDataRow<T extends QData & { id: number; org: string; orgCode: s
               style={{ width: 28, height: 28, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
               <MinusCircle size={14} />
             </button>
-          )}
+          ))}
         </td>
       </tr>
       {expanded && (
         <tr style={{ borderBottom: "1px solid #e2e8f0" }}>
           <td colSpan={7} style={{ padding: 0 }}>
-            <QuarterlyPanel row={row} onUpdateQ={onUpdateQ} />
+            <QuarterlyPanel row={row} onUpdateQ={onUpdateQ} readOnly={readOnly} />
           </td>
         </tr>
       )}
@@ -1054,7 +1221,7 @@ function SectionWrapper({ title, dotColor, children }: { title: string; dotColor
 }
 
 /* ─── initial data (FY25–FY29 full planning horizon) ───────────── */
-// requested = initial request within REQUEST_WINDOW_KEYS (FY26 Q3 – FY28 Q2)
+// Seed requests are normalized below against the current obligated floor and request ceiling.
 const INITIAL_LABOR: PlanRow[] = [
   { id: 1, label: "Nugent, Joseph Pat", sub: "U435000/CERL",
     fy25q1: 10000, fy25q2: 12000, fy25q3: 13000, fy25q4: 10000,
@@ -1062,21 +1229,21 @@ const INITIAL_LABOR: PlanRow[] = [
     fy27q1: 11000, fy27q2: 11000, fy27q3: 11000, fy27q4: 11000,
     fy28q1: 10000, fy28q2: 10000, fy28q3: 10000, fy28q4: 10000,
     fy29q1:  8000, fy29q2:  8000, fy29q3:  8000, fy29q4:  8000,
-    openCommitment: 4200, requested: 80000 },
+    openCommitment: 4200, requested: 73200 },
   { id: 2, label: "Chen, David", sub: "U435000/CERL",
     fy25q1: 8000, fy25q2: 8000, fy25q3: 8000, fy25q4: 8000,
     fy26q1: 9000, fy26q2: 9000, fy26q3: 9000, fy26q4: 8000,
     fy27q1: 9000, fy27q2: 9000, fy27q3: 9000, fy27q4: 9000,
     fy28q1: 8000, fy28q2: 8000, fy28q3: 8000, fy28q4: 8000,
     fy29q1: 7000, fy29q2: 7000, fy29q3: 7000, fy29q4: 7000,
-    openCommitment: 3100, requested: 35000 },
+    openCommitment: 3100, requested: 53100 },
   { id: 3, label: "Williams, Sandra K.", sub: "U438000/GSL",
     fy25q1: 6000, fy25q2: 7000, fy25q3: 7500, fy25q4: 6500,
     fy26q1: 7000, fy26q2: 7000, fy26q3: 6000, fy26q4: 6000,
     fy27q1: 6000, fy27q2: 6000, fy27q3: 6000, fy27q4: 6000,
     fy28q1: 5000, fy28q2: 5000, fy28q3: 5000, fy28q4: 5000,
     fy29q1: 4000, fy29q2: 4000, fy29q3: 4000, fy29q4: 4000,
-    openCommitment: 2200, requested: 24000 },
+    openCommitment: 2200, requested: 43200 },
 ];
 
 const INITIAL_TRAVEL: PlanRow[] = [
@@ -1086,14 +1253,14 @@ const INITIAL_TRAVEL: PlanRow[] = [
     fy27q1: 3000, fy27q2: 3000, fy27q3: 3000, fy27q4: 3000,
     fy28q1: 2500, fy28q2: 2500, fy28q3: 2500, fy28q4: 2500,
     fy29q1: 2000, fy29q2: 2000, fy29q3: 2000, fy29q4: 2000,
-    openCommitment: 900, requested: 12000 },
+    openCommitment: 900, requested: 21900 },
   { id: 5, label: "CHL", sub: "U430000",
     fy25q1: 1500, fy25q2: 1500, fy25q3: 2000, fy25q4: 1500,
     fy26q1: 2000, fy26q2: 2000, fy26q3: 1500, fy26q4: 1500,
     fy27q1: 1500, fy27q2: 1500, fy27q3: 1500, fy27q4: 1500,
     fy28q1: 1000, fy28q2: 1000, fy28q3: 1000, fy28q4: 1000,
     fy29q1: 1000, fy29q2: 1000, fy29q3: 1000, fy29q4: 1000,
-    openCommitment: 450, requested: 6000 },
+    openCommitment: 450, requested: 10950 },
 ];
 
 const INITIAL_CONTRACT: ContractRow[] = [
@@ -1104,7 +1271,7 @@ const INITIAL_CONTRACT: ContractRow[] = [
     fy27q1: 16000, fy27q2: 16000, fy27q3: 16000, fy27q4: 16000,
     fy28q1: 15000, fy28q2: 15000, fy28q3: 15000, fy28q4: 15000,
     fy29q1: 12000, fy29q2: 12000, fy29q3: 12000, fy29q4: 12000,
-    openCommitment: 8500, requested: 66000 },
+    openCommitment: 8500, requested: 99500 },
   { id: 7, org: "CERL", orgCode: "U435000",
     contractCode: "OTHCONSVC", contractName: "Private Sector contracts not otherwise classified",
     fy25q1: 25000, fy25q2: 25000, fy25q3: 25000, fy25q4: 25000,
@@ -1112,7 +1279,7 @@ const INITIAL_CONTRACT: ContractRow[] = [
     fy27q1: 18000, fy27q2: 18000, fy27q3: 18000, fy27q4: 18000,
     fy28q1: 15000, fy28q2: 15000, fy28q3: 15000, fy28q4: 15000,
     fy29q1: 12000, fy29q2: 12000, fy29q3: 12000, fy29q4: 12000,
-    openCommitment: 11000, requested: 76000 },
+    openCommitment: 11000, requested: 151000 },
 ];
 
 const INITIAL_OUTSOURCING: OutsourcingRow[] = [
@@ -1123,7 +1290,7 @@ const INITIAL_OUTSOURCING: OutsourcingRow[] = [
     fy27q1: 7000, fy27q2: 7000, fy27q3: 7000, fy27q4: 7000,
     fy28q1: 6000, fy28q2: 6000, fy28q3: 6000, fy28q4: 6000,
     fy29q1: 5000, fy29q2: 5000, fy29q3: 5000, fy29q4: 5000,
-    openCommitment: 3200, requested: 30000 },
+    openCommitment: 3200, requested: 59200 },
   { id: 9, org: "CERL", orgCode: "U435000",
     resourceCode: "SHOP/FACIL", resourceName: "OrderTrak",
     fy25q1: 5000, fy25q2: 5000, fy25q3: 5000, fy25q4: 5000,
@@ -1131,8 +1298,25 @@ const INITIAL_OUTSOURCING: OutsourcingRow[] = [
     fy27q1: 3500, fy27q2: 3500, fy27q3: 3500, fy27q4: 3500,
     fy28q1: 3000, fy28q2: 3000, fy28q3: 3000, fy28q4: 3000,
     fy29q1: 2500, fy29q2: 2500, fy29q3: 2500, fy29q4: 2500,
-    openCommitment: 1400, requested: 15000 },
+    openCommitment: 1400, requested: 29400 },
 ];
+
+function normalizeSeedRequests<T extends QData & { requested: number }>(rows: T[]): T[] {
+  return rows.map((row) => {
+    const obligated = obligatedQ(row);
+    return {
+      ...row,
+      requested: clampRequested(row.requested, obligated, openWindowMax(row)),
+    };
+  });
+}
+
+const NORMALIZED_INITIAL_ROWS = {
+  labor: normalizeSeedRequests(INITIAL_LABOR),
+  travel: normalizeSeedRequests(INITIAL_TRAVEL),
+  contract: normalizeSeedRequests(INITIAL_CONTRACT),
+  outsourcing: normalizeSeedRequests(INITIAL_OUTSOURCING),
+};
 
 /* ─── Create Request Modal ──────────────────────────────────────── */
 type CREntry = {
@@ -1207,7 +1391,7 @@ function PopDateRangePicker({
           onClick={(e) => e.stopPropagation()}
         >
           <CalendarRange size={13} className="flex-shrink-0 text-slate-400" />
-          <span className="truncate">{display || "e.g. 01 Oct 2026 – 30 Sep 2027"}</span>
+          <span className="truncate">{display || `e.g. ${POP_RANGE_EXAMPLE}`}</span>
         </button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start" style={{ zIndex: 9999 }} onClick={(e) => e.stopPropagation()}>
@@ -1344,11 +1528,14 @@ function CreateRequestModal({
     })),
   ];
 
+  // Only entries with a non-zero change appear in the request window
+  const activeEntries = entries.filter((e) => e.change !== 0);
+
   // Required-field completion tracking
   // Travel: poc, travelers, pop, dates, purpose (5 each)
   // Contracting/Outsourcing: pop, poc, people, purpose (4 each)
-  const travelEntries    = entries.filter((e) => e.type === "Travel");
-  const resourceEntries  = entries.filter((e) => e.type === "Contracting" || e.type === "Outsourcing");
+  const travelEntries    = activeEntries.filter((e) => e.type === "Travel");
+  const resourceEntries  = activeEntries.filter((e) => e.type === "Contracting" || e.type === "Outsourcing");
   const totalRequired    = travelEntries.length * 5 + resourceEntries.length * 4;
   const filledCount = (() => {
     let n = 0;
@@ -1372,10 +1559,10 @@ function CreateRequestModal({
   const remaining  = totalRequired - filledCount;
   const canSubmit  = remaining === 0;
 
-  // Group by orgCode preserving insertion order
+  // Group by orgCode preserving insertion order (only active/non-zero entries)
   const orgOrder: string[] = [];
   const byOrg: Record<string, CREntry[]> = {};
-  for (const e of entries) {
+  for (const e of activeEntries) {
     if (!byOrg[e.orgCode]) { byOrg[e.orgCode] = []; orgOrder.push(e.orgCode); }
     byOrg[e.orgCode].push(e);
   }
@@ -1582,9 +1769,6 @@ function CreateRequestModal({
                                       onChange={(e) => setTravelForms((f) => ({ ...f, [entry.rowId]: { ...getTF(entry.rowId), purpose: e.target.value } }))}
                                     />
                                   </div>
-                                  {entry.isErdc && entry.requested > 0 && (
-                                    <Flex4Breakdown requested={entry.requested} orgCode={entry.orgCode} />
-                                  )}
                                 </div>
                               )}
 
@@ -1624,9 +1808,6 @@ function CreateRequestModal({
                                       onChange={(e) => setResourceForms((f) => ({ ...f, [entry.rowId]: { ...getRF(entry.rowId), purpose: e.target.value } }))}
                                     />
                                   </div>
-                                  {entry.isErdc && entry.requested > 0 && (
-                                    <Flex4Breakdown requested={entry.requested} orgCode={entry.orgCode} />
-                                  )}
                                 </div>
                               )}
                             </React.Fragment>
@@ -1685,11 +1866,22 @@ export default function ProjectPlanning() {
   const { id } = useParams<{ id: string }>();
   const project = MOCK_PROJECTS.find((p) => p.id === id) ?? MOCK_PROJECTS[0];
 
+  const { user } = useUser();
+  const { toast } = useToast();
+  const canEdit = user.canEdit(project);
+
   const isBlankProject = id === "7";
-  const [laborRows,      setLaborRows]      = useState<PlanRow[]>(() => isBlankProject ? [] : INITIAL_LABOR);
-  const [travelRows,     setTravelRows]     = useState<PlanRow[]>(() => isBlankProject ? [] : INITIAL_TRAVEL);
-  const [contractRows,   setContractRows]   = useState<ContractRow[]>(() => isBlankProject ? [] : INITIAL_CONTRACT);
-  const [outsourcingRows, setOutsourcingRows] = useState<OutsourcingRow[]>(() => isBlankProject ? [] : INITIAL_OUTSOURCING);
+  const [laborRows,      setLaborRows]      = useState<PlanRow[]>(() => isBlankProject ? [] : NORMALIZED_INITIAL_ROWS.labor);
+  const [travelRows,     setTravelRows]     = useState<PlanRow[]>(() => isBlankProject ? [] : NORMALIZED_INITIAL_ROWS.travel);
+  const [contractRows,   setContractRows]   = useState<ContractRow[]>(() => isBlankProject ? [] : NORMALIZED_INITIAL_ROWS.contract);
+  const [outsourcingRows, setOutsourcingRows] = useState<OutsourcingRow[]>(() => isBlankProject ? [] : NORMALIZED_INITIAL_ROWS.outsourcing);
+  // Snapshot used to revert edits on a restricted save attempt (project-aware)
+  const initialRowsRef = useRef({
+    labor:       isBlankProject ? [] as typeof NORMALIZED_INITIAL_ROWS.labor       : NORMALIZED_INITIAL_ROWS.labor,
+    travel:      isBlankProject ? [] as typeof NORMALIZED_INITIAL_ROWS.travel      : NORMALIZED_INITIAL_ROWS.travel,
+    contract:    isBlankProject ? [] as typeof NORMALIZED_INITIAL_ROWS.contract    : NORMALIZED_INITIAL_ROWS.contract,
+    outsourcing: isBlankProject ? [] as typeof NORMALIZED_INITIAL_ROWS.outsourcing : NORMALIZED_INITIAL_ROWS.outsourcing,
+  });
 
   const [expandedLabor,      setExpandedLabor]      = useState<Set<number>>(new Set());
   const [expandedTravel,     setExpandedTravel]     = useState<Set<number>>(new Set());
@@ -1702,6 +1894,7 @@ export default function ProjectPlanning() {
   const [showOutsourcingPicker, setShowOutsourcingPicker] = useState(false);
   const [showCreateRequest,     setShowCreateRequest]     = useState(false);
   const [copiedLtp,             setCopiedLtp]             = useState(false);
+  const [showFlex4,             setShowFlex4]             = useState(false);
 
   const toggleSet = (set: Set<number>, id: number): Set<number> => {
     const next = new Set(set);
@@ -1774,13 +1967,13 @@ export default function ProjectPlanning() {
     }));
   }
 
-  function setBulkToCommitments<T extends QData & { id: number; requested: number; openCommitment: number }>(
+  function setBulkToNoChanges<T extends QData & { id: number; requested: number }>(
     setRows: React.Dispatch<React.SetStateAction<T[]>>
   ) {
     setRows((rows) => rows.map((r) => {
       const oblg = obligatedQ(r);
       const maxR = openWindowMax(r);
-      return { ...r, requested: clampRequested(oblg + r.openCommitment, oblg, maxR) };
+      return { ...r, requested: clampRequested(oblg, oblg, maxR) };
     }));
   }
 
@@ -1794,29 +1987,35 @@ export default function ProjectPlanning() {
     <div className="flex items-center gap-2 px-4 py-2.5 border-b border-slate-200" style={{ backgroundColor: "#1a3557" }}>
       <div className="w-2 h-2 rounded-full" style={{ backgroundColor: dotColor }} />
       <span className="font-bold text-white text-sm tracking-wide flex-1">{title}</span>
-      {bulkActions?.map((a) => (
-        <button
-          key={a.label}
-          onClick={a.enabled ? a.onClick : undefined}
-          title={a.tooltip}
-          className="text-xs font-semibold px-2.5 py-1 rounded transition-colors"
-          style={a.enabled
-            ? { backgroundColor: "rgba(255,255,255,0.15)", color: "#fff", border: "1px solid rgba(255,255,255,0.3)", cursor: "pointer" }
-            : { backgroundColor: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.35)", border: "1px solid rgba(255,255,255,0.12)", cursor: "not-allowed" }
-          }
-          onMouseEnter={(e) => { if (a.enabled) { e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.28)"; } }}
-          onMouseLeave={(e) => { if (a.enabled) { e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.15)"; } }}
-        >
-          {a.label}
-        </button>
-      ))}
+      {bulkActions?.map((a) => {
+        const effectiveEnabled = a.enabled && canEdit;
+        return (
+          <button
+            key={a.label}
+            onClick={effectiveEnabled ? a.onClick : undefined}
+            title={canEdit ? a.tooltip : "Read-only for your role"}
+            className="text-xs font-semibold px-2.5 py-1 rounded transition-colors"
+            style={effectiveEnabled
+              ? { backgroundColor: "rgba(255,255,255,0.15)", color: "#fff", border: "1px solid rgba(255,255,255,0.3)", cursor: "pointer" }
+              : { backgroundColor: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.35)", border: "1px solid rgba(255,255,255,0.12)", cursor: "not-allowed" }
+            }
+            onMouseEnter={(e) => { if (effectiveEnabled) { e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.28)"; } }}
+            onMouseLeave={(e) => { if (effectiveEnabled) { e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.15)"; } }}
+          >
+            {a.label}
+          </button>
+        );
+      })}
       <button
-        onClick={onAdd}
+        onClick={canEdit ? onAdd : undefined}
         className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded transition-colors"
-        style={{ backgroundColor: "rgba(255,255,255,0.15)", color: "#fff", border: "1px solid rgba(255,255,255,0.3)" }}
-        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.28)")}
-        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.15)")}
-        title={addLabel}
+        style={canEdit
+          ? { backgroundColor: "rgba(255,255,255,0.15)", color: "#fff", border: "1px solid rgba(255,255,255,0.3)", cursor: "pointer" }
+          : { backgroundColor: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.35)", border: "1px solid rgba(255,255,255,0.12)", cursor: "not-allowed" }
+        }
+        onMouseEnter={(e) => { if (canEdit) e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.28)"; }}
+        onMouseLeave={(e) => { if (canEdit) e.currentTarget.style.backgroundColor = canEdit ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.06)"; }}
+        title={canEdit ? addLabel : "Read-only for your role"}
       >
         <Plus size={13} />
         {addLabel}
@@ -1860,71 +2059,21 @@ export default function ProjectPlanning() {
     </Link>
   );
 
+  /* ── compact bubbles: sticky under the top nav ─────────────────── */
   const stickyBanner = (
     <>
-      {/* info bar */}
-      <div className="px-6 py-3 flex items-center gap-4" style={{ backgroundColor: "#1a3557" }}>
-        {/* LEFT: project number + name */}
-        <div className="flex-1 min-w-0">
-          <p className="text-xs font-mono" style={{ color: "rgba(255,255,255,0.5)" }}>{project.number}</p>
-          <p className="font-bold text-white truncate">{project.name}</p>
-        </div>
-
-        {/* CENTER: Create Request button + hint */}
-        <div className="flex flex-col items-center gap-1 flex-shrink-0">
-          <button
-            disabled={!createEnabled}
-            onClick={() => createEnabled && setShowCreateRequest(true)}
-            className="text-xs font-bold px-3 py-1.5 rounded transition-colors"
-            style={createEnabled
-              ? { backgroundColor: "#1a6ea8", color: "#fff", border: "1px solid #2d8fcf", cursor: "pointer" }
-              : { backgroundColor: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.35)", border: "1px solid rgba(255,255,255,0.12)", cursor: "not-allowed" }
-            }
-            onMouseEnter={(e) => { if (createEnabled) e.currentTarget.style.backgroundColor = "#1e82c6"; }}
-            onMouseLeave={(e) => { if (createEnabled) e.currentTarget.style.backgroundColor = "#1a6ea8"; }}
-          >
-            Create Request
-          </button>
-          {!createEnabled && (
-            <p className="text-xs text-center max-w-[200px]" style={{ color: "rgba(255,255,255,0.4)" }}>
-              {leftToPlan < 0
-                ? <>Over budget by <span style={{ color: "#fbbf24", fontWeight: 600 }}>{fmt(Math.abs(leftToPlan))}</span></>
-                : <>Plan <span style={{ color: "#fbbf24", fontWeight: 600 }}>{fmt(leftToPlan)}</span> more to enable</>}
-            </p>
-          )}
-        </div>
-
-        {/* RIGHT: status badge + POP */}
-        <div className="flex items-center gap-3 flex-shrink-0 flex-1 justify-end">
-          <div
-            className="px-2 py-1 rounded text-xs font-semibold cursor-help"
-            style={{ backgroundColor: "rgba(167,243,208,0.2)", color: "#6ee7b7", border: "1px solid rgba(167,243,208,0.3)" }}
-            title={`Plan window: ${PLAN_WINDOW_LABEL} — submissions accepted from 1 Jun 2026 through 30 Jun 2026`}
-          >
-            {PLAN_STATUS_LABEL}
+      <div className="px-3 py-1 bg-white border-b border-slate-200">
+        <div className="flex gap-2">
+          <div className="flex-1 rounded px-2 py-1" style={{ backgroundColor: "#1a3557" }}>
+            <p className="font-semibold uppercase tracking-wide" style={{ fontSize: 9, color: "rgba(255,255,255,0.5)" }}>TOA</p>
+            <p className="text-sm font-bold text-white leading-tight">{fmt(project.budget)}</p>
           </div>
-          <div className="text-right">
-            <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "rgba(255,255,255,0.5)" }}>Project POP</p>
-            <p className="font-semibold text-sm text-white">{PLAN_WINDOW_LABEL}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* summary bubbles — TOA / PLANNED / LEFT TO PLAN */}
-      <div className="px-6 py-4 bg-white border-b border-slate-200">
-        <div className="flex gap-4">
-          <div className="flex-1 rounded-xl px-5 py-4" style={{ backgroundColor: "#1a3557" }}>
-            <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "rgba(255,255,255,0.5)" }}>TOA</p>
-            <p className="text-2xl font-bold text-white mt-0.5">{fmt(project.budget)}</p>
-            <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>Total Obligating Authority</p>
-          </div>
-          <div className="flex-1 rounded-xl px-5 py-4 border border-slate-200">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Planned</p>
-            <p className="text-2xl font-bold text-slate-800 mt-0.5">{fmt(totalPlanned)}</p>
-            <p className="text-xs text-slate-400 mt-1">Amount currently planned</p>
+          <div className="flex-1 rounded px-2 py-1 border border-slate-200">
+            <p className="font-semibold uppercase tracking-wide text-slate-400" style={{ fontSize: 9 }}>Planned</p>
+            <p className="text-sm font-bold text-slate-800 leading-tight">{fmt(totalPlanned)}</p>
           </div>
           <div
-            className="flex-1 rounded-xl px-5 py-4 cursor-pointer select-none transition-opacity hover:opacity-80 active:opacity-60"
+            className="flex-1 rounded px-2 py-1 cursor-pointer select-none transition-opacity hover:opacity-80 active:opacity-60"
             title="Click to copy amount to clipboard"
             onClick={() => {
               navigator.clipboard.writeText(fmt(leftToPlan)).then(() => {
@@ -1938,41 +2087,94 @@ export default function ProjectPlanning() {
               :                    { backgroundColor: "#fffbeb", border: "1px solid #fcd34d" }
             }
           >
-            <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: leftToPlan < 0 ? "#991b1b" : leftToPlan === 0 ? "#15803d" : "#92400e" }}>Left to Plan</p>
-            <p className="text-2xl font-bold mt-0.5" style={{ color: leftToPlan < 0 ? "#dc2626" : leftToPlan === 0 ? "#16a34a" : "#b45309" }}>{fmt(leftToPlan)}</p>
-            <p className="text-xs mt-1" style={{ color: leftToPlan < 0 ? "#b91c1c" : leftToPlan === 0 ? "#15803d" : "#a16207" }}>
-              {copiedLtp
-                ? "Copied to clipboard!"
-                : leftToPlan < 0 ? "Over budget — reduce planned amounts"
-                : leftToPlan === 0 ? "Fully allocated"
-                : "Click to copy · Unallocated funds remaining"}
+            <p className="font-semibold uppercase tracking-wide" style={{ fontSize: 9, color: leftToPlan < 0 ? "#991b1b" : leftToPlan === 0 ? "#15803d" : "#92400e" }}>Left to Plan</p>
+            <p className="text-sm font-bold leading-tight" style={{ color: leftToPlan < 0 ? "#dc2626" : leftToPlan === 0 ? "#16a34a" : "#b45309" }}>
+              {copiedLtp ? "Copied!" : fmt(leftToPlan)}
             </p>
           </div>
         </div>
       </div>
+      {/* Legend row — lives here so it sticks flush under the bubbles with no gap */}
+      <div className="px-6 py-1.5 flex items-center gap-5 border-b border-slate-200 bg-white text-xs text-slate-600 font-medium">
+        <span className="text-slate-400 font-semibold uppercase tracking-wide text-[10px] mr-1">Legend:</span>
+        <div className="flex items-center gap-1.5">
+          <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: AMBER_BG, border: "1px solid #fcd34d" }} />
+          <span>Editable</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: BLUE_BG, border: "1px solid #bfdbfe" }} />
+          <span>Read-only (system data)</span>
+        </div>
+        <div className="h-3 w-px bg-slate-200" />
+        <span className="text-slate-500 font-normal">Request may not be less than Obligated</span>
+      </div>
     </>
   );
 
+  /* ── compact info bar: fixed footer ─────────────────────────────── */
+  const stickyFooter = (
+    <div className="px-4 py-1 flex items-center border-t border-slate-700" style={{ backgroundColor: "#1a3557" }}>
+      {/* LEFT: empty spacer */}
+      <div className="flex-1" />
+
+      {/* CENTER: Create Request button + hint */}
+      <div className="flex items-center gap-2 flex-shrink-0">
+        <button
+          disabled={!createEnabled && canEdit}
+          onClick={() => {
+            if (!canEdit) {
+              toast({ title: "You do not have edit access to this project.", variant: "destructive" });
+              // Revert any edits the user may have made back to the saved state
+              setLaborRows(initialRowsRef.current.labor.map((r) => ({ ...r })));
+              setTravelRows(initialRowsRef.current.travel.map((r) => ({ ...r })));
+              setContractRows(initialRowsRef.current.contract.map((r) => ({ ...r })));
+              setOutsourcingRows(initialRowsRef.current.outsourcing.map((r) => ({ ...r })));
+              return;
+            }
+            if (createEnabled) setShowCreateRequest(true);
+          }}
+          className="text-xs font-bold px-2.5 py-0.5 rounded transition-colors"
+          title={!canEdit ? "Read-only for your role" : undefined}
+          style={(createEnabled && canEdit)
+            ? { backgroundColor: "#1a6ea8", color: "#fff", border: "1px solid #2d8fcf", cursor: "pointer" }
+            : { backgroundColor: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.35)", border: "1px solid rgba(255,255,255,0.12)", cursor: "not-allowed" }
+          }
+          onMouseEnter={(e) => { if (createEnabled && canEdit) e.currentTarget.style.backgroundColor = "#1e82c6"; }}
+          onMouseLeave={(e) => { if (createEnabled && canEdit) e.currentTarget.style.backgroundColor = "#1a6ea8"; }}
+        >
+          Create Request
+        </button>
+        {!createEnabled && (
+          <p style={{ fontSize: 10, color: "rgba(255,255,255,0.4)" }}>
+            {leftToPlan < 0
+              ? <>Over by <span style={{ color: "#fbbf24", fontWeight: 600 }}>{fmt(Math.abs(leftToPlan))}</span></>
+              : <>Plan <span style={{ color: "#fbbf24", fontWeight: 600 }}>{fmt(leftToPlan)}</span> more</>}
+          </p>
+        )}
+      </div>
+
+      {/* RIGHT: status badge + POP */}
+      <div className="flex-1 flex items-center justify-end gap-2">
+        <div
+          className="px-1.5 py-0.5 rounded font-semibold cursor-help"
+          style={{ fontSize: 10, backgroundColor: "rgba(167,243,208,0.2)", color: "#6ee7b7", border: "1px solid rgba(167,243,208,0.3)" }}
+          title={`Plan horizon: ${PLAN_WINDOW_LABEL} · Funding request window: ${REQUEST_WINDOW_LABEL}`}
+        >
+          {PLAN_STATUS_LABEL}
+        </div>
+        <div>
+          <p className="font-semibold uppercase tracking-wide" style={{ fontSize: 9, color: "rgba(255,255,255,0.5)" }}>Project POP</p>
+          <p className="font-semibold text-white leading-tight" style={{ fontSize: 10 }}>{PLAN_WINDOW_LABEL}</p>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
-    <Layout breadcrumb={breadcrumb} headerActions={headerActions} stickyBanner={stickyBanner}>
+    <Layout breadcrumb={breadcrumb} headerActions={headerActions} stickyBanner={stickyBanner} stickyFooter={stickyFooter} mainClassName="flex-1 w-full max-w-7xl mx-auto pt-0 px-0 pb-4 overflow-x-hidden">
       <div className="min-h-screen" style={{ backgroundColor: "#f8fafc" }}>
 
-        {/* column legend */}
-        <div className="px-6 py-2.5 flex items-center gap-5 border-b border-slate-200 bg-white text-xs text-slate-600 font-medium">
-          <span className="text-slate-400 font-semibold uppercase tracking-wide text-[10px] mr-1">Legend:</span>
-          <div className="flex items-center gap-1.5">
-            <div className="w-3.5 h-3.5 rounded-sm" style={{ backgroundColor: AMBER_BG, border: "1px solid #fcd34d" }} />
-            <span>Editable</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-3.5 h-3.5 rounded-sm" style={{ backgroundColor: BLUE_BG, border: "1px solid #bfdbfe" }} />
-            <span>Read-only (system data)</span>
-          </div>
-          <div className="h-3.5 w-px bg-slate-200" />
-          <span className="text-slate-500 font-normal">Request may not be less than Obligated</span>
-        </div>
-
-        <div className="px-6 py-5 space-y-6">
+        <div className="px-6 pt-0 pb-5 space-y-6">
 
           {/* ── LABOR ── */}
           {showLaborPicker && (
@@ -1992,7 +2194,7 @@ export default function ProjectPlanning() {
           <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
             {addSectionHeader("LABOR", "#60a5fa", () => setShowLaborPicker(true), "Add Labor", [
               { label: "Request Max",     tooltip: "Set every row's request to its maximum (obligated + current quarter)",    onClick: () => setBulkToMax(setLaborRows),         enabled: laborRows.length > 0 },
-              { label: "Cover Committed", tooltip: "Set every row's request to obligated + open commitments",                 onClick: () => setBulkToCommitments(setLaborRows), enabled: laborRows.length > 0 },
+              { label: "No Changes", tooltip: "Sets all requests in this section to match what's already obligated. This section will not appear as a change in a change request.", onClick: () => setBulkToNoChanges(setLaborRows), enabled: laborRows.length > 0 },
             ])}
             {tableWrap(
               <>
@@ -2008,6 +2210,8 @@ export default function ProjectPlanning() {
                       onUpdateQ={(id, f, v) => updatePlanQ(setLaborRows, id, f, v)}
                       onUpdateRequested={(id, v) => updatePlanRequested(setLaborRows, id, v)}
                       onDelete={(id) => setLaborRows((rows) => rows.filter((r) => r.id !== id))}
+                      showFlex4={showFlex4}
+                      readOnly={!canEdit}
                     />
                   ))}
                   {laborRows.length === 0 && (
@@ -2037,7 +2241,7 @@ export default function ProjectPlanning() {
           <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
             {addSectionHeader("TRAVEL", "#a78bfa", () => setShowTravelPicker(true), "Add Travel", [
               { label: "Request Max",     tooltip: "Set every row's request to its maximum (obligated + current quarter)",    onClick: () => setBulkToMax(setTravelRows),         enabled: travelRows.length > 0 },
-              { label: "Cover Committed", tooltip: "Set every row's request to obligated + open commitments",                 onClick: () => setBulkToCommitments(setTravelRows), enabled: travelRows.length > 0 },
+              { label: "No Changes", tooltip: "Sets all requests in this section to match what's already obligated. This section will not appear as a change in a change request.", onClick: () => setBulkToNoChanges(setTravelRows), enabled: travelRows.length > 0 },
             ])}
             {tableWrap(
               <>
@@ -2051,6 +2255,9 @@ export default function ProjectPlanning() {
                       onUpdateQ={(id, f, v) => updatePlanQ(setTravelRows, id, f, v)}
                       onUpdateRequested={(id, v) => updatePlanRequested(setTravelRows, id, v)}
                       onDelete={(id) => setTravelRows((rows) => rows.filter((r) => r.id !== id))}
+                      showFlex4={showFlex4}
+                      isTravel
+                      readOnly={!canEdit}
                     />
                   ))}
                   {travelRows.length === 0 && (
@@ -2079,7 +2286,7 @@ export default function ProjectPlanning() {
           <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
             {addSectionHeader("CONTRACTING", "#34d399", () => setShowContractPicker(true), "Add Contract", [
               { label: "Request Max",     tooltip: "Set every row's request to its maximum (obligated + current quarter)",    onClick: () => setBulkToMax(setContractRows),         enabled: contractRows.length > 0 },
-              { label: "Cover Committed", tooltip: "Set every row's request to obligated + open commitments",                 onClick: () => setBulkToCommitments(setContractRows), enabled: contractRows.length > 0 },
+              { label: "No Changes", tooltip: "Sets all requests in this section to match what's already obligated. This section will not appear as a change in a change request.", onClick: () => setBulkToNoChanges(setContractRows), enabled: contractRows.length > 0 },
             ])}
             {tableWrap(
               <>
@@ -2100,6 +2307,7 @@ export default function ProjectPlanning() {
                       currentCode={row.contractName}
                       onUpdateOrg={updateContractOrg}
                       onUpdateCode={updateContractCode}
+                      readOnly={!canEdit}
                     />
                   ))}
                   {contractRows.length === 0 && (
@@ -2128,7 +2336,7 @@ export default function ProjectPlanning() {
           <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
             {addSectionHeader("OUTSOURCING & OTHER", "#f59e0b", () => setShowOutsourcingPicker(true), "Add Resource", [
               { label: "Request Max",     tooltip: "Set every row's request to its maximum (obligated + current quarter)",    onClick: () => setBulkToMax(setOutsourcingRows),         enabled: outsourcingRows.length > 0 },
-              { label: "Cover Committed", tooltip: "Set every row's request to obligated + open commitments",                 onClick: () => setBulkToCommitments(setOutsourcingRows), enabled: outsourcingRows.length > 0 },
+              { label: "No Changes", tooltip: "Sets all requests in this section to match what's already obligated. This section will not appear as a change in a change request.", onClick: () => setBulkToNoChanges(setOutsourcingRows), enabled: outsourcingRows.length > 0 },
             ])}
             {tableWrap(
               <>
@@ -2149,6 +2357,7 @@ export default function ProjectPlanning() {
                       currentCode={row.resourceName}
                       onUpdateOrg={updateOutsourcingOrg}
                       onUpdateCode={updateOutsourcingCode}
+                      readOnly={!canEdit}
                     />
                   ))}
                   {outsourcingRows.length === 0 && (
@@ -2175,6 +2384,7 @@ export default function ProjectPlanning() {
           onClose={() => setShowCreateRequest(false)}
         />
       )}
+      <Toaster />
     </Layout>
   );
 }
